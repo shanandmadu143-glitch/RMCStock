@@ -552,8 +552,8 @@ function restoreFromXLSX() {
             if (cellVal.includes("received") || cellVal.includes("receipt") || cellVal.includes("f")) colMap.f_receipt = colIdx; 
             if (cellVal.includes("issue") || cellVal.includes("g")) colMap.g_issues = colIdx; 
             if (cellVal.includes("return") || cellVal.includes("h")) colMap.h_return = colIdx; 
-            if (cellVal.includes("ssl i") || cellVal.includes("ssl") || cellVal.includes("received")) colMap.i_ssl_received = colIdx; 
-            if (cellVal.includes("ssl j") || cellVal.includes("sent")) colMap.j_ssl_sent = colIdx; 
+            if (cellVal.includes("ssl i") || cellVal.includes("ssl") || cellVal.includes("received to ssl")) colMap.i_ssl_received = colIdx; 
+            if (cellVal.includes("ssl j") || cellVal.includes("sent to ssl")) colMap.j_ssl_sent = colIdx; 
             if (cellVal.includes("rejection") || cellVal.includes("l")) colMap.l_rejection = colIdx; 
             if (cellVal.includes("closing")) colMap.closing = colIdx; 
           }); 
