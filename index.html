@@ -1198,7 +1198,6 @@ document.getElementById('modalSearchInput').addEventListener('input', function()
   }); 
 }); 
 
-/* --- Helper to generate workbook with Excel formulas for Upload format compatibility --- */
 function generateWorkbookWithFormulas() {
   const exportData = inventory.map((item, index) => {
     const rowNum = index + 2; 
@@ -1274,7 +1273,6 @@ async function shareStockSummary() {
   }
 }
 
-/* --- FIXED & FULLY ROBUST EXCEL RESTORE FUNCTION --- */
 function restoreFromXLSX() { 
   const t = i18n[currentLang];
   const fileInput = document.getElementById('xlsxFileInput'); 
@@ -1296,7 +1294,6 @@ function restoreFromXLSX() {
       } 
       
       let headerIndex = -1; 
-      // Default fallback column mapping based on standard RMC export format
       let colMap = { type: 0, code: 1, name: 2, uom: 3, op_stock: 4, f_receipt: 5, g_issues: 6, h_return: 7, i_ssl_received: 8, j_ssl_sent: 9, closing: 10, l_rejection: 11 }; 
       
       for (let r = 0; r < Math.min(matrix.length, 5); r++) { 
