@@ -619,6 +619,9 @@ td {
           <option value="F" id="optReceipt">Receipt</option> 
           <option value="G" id="optIssues">Issues</option> 
           <option value="H" id="optReturn">Return</option> 
+          <option value="I" id="optSslI">Received to SSL I</option>
+          <option value="J" id="optSslJ">Sent to SSL J</option>
+          <option value="L" id="optRejectionL">Rejection L</option>
         </select> 
       </div> 
       <div class="form-group" style="margin-bottom:0;"> 
@@ -709,6 +712,18 @@ td {
         <div class="detail-label"><i class="fa-solid fa-rotate-left" style="color:var(--warning);"></i> Return (H)</div> 
         <div class="detail-value" id="detReturn" style="color:var(--warning);">-</div> 
       </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--success);"></i> SSL I (Received)</div> 
+        <div class="detail-value" id="detSslI" style="color:var(--success);">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--danger);"></i> SSL J (Sent)</div> 
+        <div class="detail-value" id="detSslJ" style="color:var(--danger);">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection L</div> 
+        <div class="detail-value" id="detRejectionL" style="color:var(--danger);">-</div> 
+      </div> 
       <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);"> 
         <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock (K)</div> 
         <div class="detail-value" id="detClosing" style="font-size: 1.3rem; color:var(--primary);">-</div> 
@@ -784,6 +799,9 @@ const i18n = {
     optReceipt: 'Receipt (ලැබීම්)',
     optIssues: 'Issues (නිකුත් කිරීම්)',
     optReturn: 'Return (නැවත භාරදීම්)',
+    optSslI: 'Received to SSL I (SSL I ලැබීම්)',
+    optSslJ: 'Sent to SSL J (SSL J යැවීම්)',
+    optRejectionL: 'Rejection L (L ප්‍රතික්ෂේප කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download Excel & Shift Stock',
@@ -823,6 +841,9 @@ const i18n = {
     optReceipt: 'Receipt',
     optIssues: 'Issues',
     optReturn: 'Return',
+    optSslI: 'Received to SSL I',
+    optSslJ: 'Sent to SSL J',
+    optRejectionL: 'Rejection L',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download Excel & Shift Stock',
@@ -862,6 +883,9 @@ const i18n = {
     optReceipt: 'ரசீது (Receipt)',
     optIssues: 'வழங்கல்கள் (Issues)',
     optReturn: 'திரும்பப் பெறுதல் (Return)',
+    optSslI: 'Received to SSL I',
+    optSslJ: 'Sent to SSL J',
+    optRejectionL: 'Rejection L',
     lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
     titleExcel: 'Download Excel & Shift Stock',
@@ -922,6 +946,9 @@ function applyLanguage(lang) {
   document.getElementById('optReceipt').innerText = t.optReceipt;
   document.getElementById('optIssues').innerText = t.optIssues;
   document.getElementById('optReturn').innerText = t.optReturn;
+  document.getElementById('optSslI').innerText = t.optSslI;
+  document.getElementById('optSslJ').innerText = t.optSslJ;
+  document.getElementById('optRejectionL').innerText = t.optRejectionL;
   document.getElementById('lblAmount').innerHTML = t.lblAmount;
   document.getElementById('btnSave').innerHTML = t.btnSave;
   document.getElementById('btnExcel').title = t.titleExcel;
@@ -998,7 +1025,7 @@ function loadInventoryData() {
 
 function initDefaultInventory() { 
   inventory = defaultItems.map(item => ({ 
-    ...item, f_receipt: 0, g_issues: 0, h_return: 0, closing: item.op_stock 
+    ...item, f_receipt: 0, g_issues: 0, h_return: 0, i_ssl_received: 0, j_ssl_sent: 0, l_rejection: 0, closing: item.op_stock 
   })); 
   saveInventoryData(); 
 } 
@@ -1051,10 +1078,15 @@ function addSingleSectionData() {
   const amount = parseFloat(document.getElementById('inputAmount').value) || 0; 
   if (amount <= 0) { showToast(t.msgValidAmount, 'error'); return; } 
   let item = inventory[selectedIndex]; 
+  
   if (targetSection === 'F') item.f_receipt += amount; 
   else if (targetSection === 'G') item.g_issues += amount; 
   else if (targetSection === 'H') item.h_return += amount; 
-  item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return; 
+  else if (targetSection === 'I') item.i_ssl_received += amount; 
+  else if (targetSection === 'J') item.j_ssl_sent += amount; 
+  else if (targetSection === 'L') item.l_rejection += amount; 
+
+  item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return + item.i_ssl_received - item.j_ssl_sent - item.l_rejection; 
   saveInventoryData(); 
   document.getElementById('inputAmount').value = ''; 
   showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
@@ -1107,6 +1139,9 @@ function openItemDetails(index) {
   document.getElementById('detReceipt').innerText = Number(item.f_receipt).toLocaleString() + ' ' + item.uom;
   document.getElementById('detIssues').innerText = Number(item.g_issues).toLocaleString() + ' ' + item.uom;
   document.getElementById('detReturn').innerText = Number(item.h_return).toLocaleString() + ' ' + item.uom;
+  document.getElementById('detSslI').innerText = Number(item.i_ssl_received || 0).toLocaleString() + ' ' + item.uom;
+  document.getElementById('detSslJ').innerText = Number(item.j_ssl_sent || 0).toLocaleString() + ' ' + item.uom;
+  document.getElementById('detRejectionL').innerText = Number(item.l_rejection || 0).toLocaleString() + ' ' + item.uom;
   document.getElementById('detClosing').innerText = Number(item.closing).toLocaleString() + ' ' + item.uom;
 
   const modal = document.getElementById('itemDetailModal');
@@ -1138,12 +1173,15 @@ function generateWorkbookWithFormulas() {
       "Material Code": item.code, 
       "Material Name": item.name, 
       "UOM": item.uom, 
-      "Op.Stock-Warehouse": item.op_stock, 
-      "Receipt": item.f_receipt, 
-      "Issues": item.g_issues, 
-      "Return": item.h_return, 
-      // Excel Formula: Closing Stock = Op.Stock (Col E) + Receipt (Col F) - Issues (Col G) + Return (Col H)
-      "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}`, v: item.closing } 
+      "Op.Stock-Warehouse": item.op_stock, // Col E
+      "Receipt": item.f_receipt, // Col F
+      "Issues": item.g_issues, // Col G
+      "Return": item.h_return, // Col H
+      "Received to SSL I": item.i_ssl_received || 0, // Col I
+      "Sent to SSL J": item.j_ssl_sent || 0, // Col J
+      // Excel Formula: Closing Stock = E + F - G + H + I - J - L
+      "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-L${rowNum}`, v: item.closing }, // Col K
+      "Rejection L": item.l_rejection || 0 // Col L
     }; 
   }); 
 
@@ -1161,7 +1199,13 @@ function downloadExcelAndReset() {
 
   inventory.forEach(item => { 
     item.op_stock = item.closing; 
-    item.f_receipt = 0; item.g_issues = 0; item.h_return = 0; item.closing = item.op_stock; 
+    item.f_receipt = 0; 
+    item.g_issues = 0; 
+    item.h_return = 0; 
+    item.i_ssl_received = 0; 
+    item.j_ssl_sent = 0; 
+    item.l_rejection = 0; 
+    item.closing = item.op_stock; 
   }); 
   saveInventoryData(); 
   selectedIndex = -1; searchInput.value = ''; selectedBadge.style.display = 'none'; 
@@ -1224,6 +1268,9 @@ function restoreFromXLSX() {
             if (cellVal.includes("receipt") || cellVal.includes("(f)")) colMap.f_receipt = colIdx; 
             if (cellVal.includes("issue") || cellVal.includes("(g)")) colMap.g_issues = colIdx; 
             if (cellVal.includes("return") || cellVal.includes("(h)")) colMap.h_return = colIdx; 
+            if (cellVal.includes("ssl i") || cellVal.includes("received to ssl") || cellVal.includes("(i)")) colMap.i_ssl_received = colIdx; 
+            if (cellVal.includes("ssl j") || cellVal.includes("sent to ssl") || cellVal.includes("(j)")) colMap.j_ssl_sent = colIdx; 
+            if (cellVal.includes("rejection") || cellVal.includes("(l)")) colMap.l_rejection = colIdx; 
             if (cellVal.includes("closing") || cellVal.includes("(k)")) colMap.closing = colIdx; 
           }); 
           break; 
@@ -1242,8 +1289,11 @@ function restoreFromXLSX() {
             let f_receipt = colMap.f_receipt !== undefined ? (parseFloat(row[colMap.f_receipt]) || 0) : 0; 
             let g_issues = colMap.g_issues !== undefined ? (parseFloat(row[colMap.g_issues]) || 0) : 0; 
             let h_return = colMap.h_return !== undefined ? (parseFloat(row[colMap.h_return]) || 0) : 0; 
-            let closing = colMap.closing !== undefined && row[colMap.closing] !== "" ? parseFloat(row[colMap.closing]) : (op_stock + f_receipt - g_issues + h_return); 
-            restored.push({ type, code, name, uom, op_stock, f_receipt, g_issues, h_return, closing }); 
+            let i_ssl_received = colMap.i_ssl_received !== undefined ? (parseFloat(row[colMap.i_ssl_received]) || 0) : 0; 
+            let j_ssl_sent = colMap.j_ssl_sent !== undefined ? (parseFloat(row[colMap.j_ssl_sent]) || 0) : 0; 
+            let l_rejection = colMap.l_rejection !== undefined ? (parseFloat(row[colMap.l_rejection]) || 0) : 0; 
+            let closing = colMap.closing !== undefined && row[colMap.closing] !== "" ? parseFloat(row[colMap.closing]) : (op_stock + f_receipt - g_issues + h_return + i_ssl_received - j_ssl_sent - l_rejection); 
+            restored.push({ type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, closing }); 
           } 
         } 
       } 
