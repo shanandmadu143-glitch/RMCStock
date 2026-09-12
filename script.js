@@ -3,7 +3,7 @@ const i18n = {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Code හෝ Name මගින් සොයන්න:',
     placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...',
     lblSection: '<i class="fa-solid fa-layer-group"></i> Section එක තෝරන්න:',
-    optReceipt: 'Received (ලැබීම්)',
+    optReceipt: 'Receipt (ලැබීම්)',
     optIssues: 'Issues (නිකුත් කිරීම්)',
     optReturn: 'Return (නැවත භාරදීම්)',
     optSslI: 'Received to SSL (SSL ලැබීම්)',
@@ -43,7 +43,7 @@ const i18n = {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
     placeholderSearch: 'Type Code or Name to filter...',
     lblSection: '<i class="fa-solid fa-layer-group"></i> Select Section:',
-    optReceipt: 'Received',
+    optReceipt: 'Receipt',
     optIssues: 'Issues',
     optReturn: 'Return',
     optSslI: 'Received to SSL',
@@ -83,7 +83,7 @@ const i18n = {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீடு மூலம் தேடுக:',
     placeholderSearch: 'தேட குறியீடு அல்லது பெயரை தட்டச்சு செய்க...',
     lblSection: '<i class="fa-solid fa-layer-group"></i> பிரிவைத் தேர்ந்தெடுக்கவும்:',
-    optReceipt: 'பெறப்பட்டது (Received)',
+    optReceipt: 'ரசீது (Receipt)',
     optIssues: 'வழங்கல்கள் (Issues)',
     optReturn: 'திரும்பப் பெறுதல் (Return)',
     optSslI: 'Received to SSL',
@@ -448,7 +448,7 @@ function generateWorkbookWithFormulas() {
       "Material Name": item.name, 
       "UOM": item.uom, 
       "Op.Stock-Warehouse": item.op_stock, 
-      "Received": item.f_receipt, 
+      "Receipt": item.f_receipt, 
       "Issues": item.g_issues, 
       "Return": item.h_return, 
       "Received to SSL": item.i_ssl_received || 0, 
@@ -549,7 +549,7 @@ function restoreFromXLSX() {
             if (cellVal.includes("name")) colMap.name = colIdx; 
             if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
             if (cellVal.includes("op") || cellVal.includes("open") || cellVal.includes("stock")) colMap.op_stock = colIdx; 
-            if (cellVal.includes("received") || cellVal.includes("receipt") || cellVal.includes("f")) colMap.f_receipt = colIdx; 
+            if (cellVal.includes("receipt") || cellVal.includes("f")) colMap.f_receipt = colIdx; 
             if (cellVal.includes("issue") || cellVal.includes("g")) colMap.g_issues = colIdx; 
             if (cellVal.includes("return") || cellVal.includes("h")) colMap.h_return = colIdx; 
             if (cellVal.includes("ssl i") || cellVal.includes("ssl") || cellVal.includes("received")) colMap.i_ssl_received = colIdx; 
