@@ -386,7 +386,7 @@ input:focus, select:focus {
   display: flex; 
   flex-direction: column; 
   border: 1px solid var(--border-color); 
-  overflow-y: auto;
+  overflow: hidden; /* Prevent container layout shifts */
 } 
 
 .modal-header { 
@@ -396,6 +396,7 @@ input:focus, select:focus {
   margin-bottom: 16px; 
   padding-bottom: 12px; 
   border-bottom: 1px solid var(--border-color); 
+  flex-shrink: 0;
 } 
 
 .modal-header h3 { 
@@ -427,74 +428,85 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
-/* --- Modern Inventory Summary Cards Layout --- */
-.inventory-cards-container {
+/* --- Checklist Layout (Fixed & Screen Fitted) --- */
+.checklist-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-height: 60vh;
+  gap: 8px;
   overflow-y: auto;
+  max-height: calc(90vh - 140px);
   padding-right: 4px;
+  width: 100%;
 }
 
-.inventory-card-item {
+.checklist-item {
   background: var(--bg-main);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 12px 14px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   cursor: pointer;
   transition: var(--transition-smooth);
+  width: 100%;
 }
 
-.inventory-card-item:hover {
+.checklist-item:hover {
   border-color: var(--primary);
   background: var(--primary-light);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-subtle);
 }
 
-.inv-card-left {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-width: 70%;
-}
-
-.inv-card-name {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-dark);
-}
-
-.inv-card-code {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-muted);
+.checklist-left {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
+  overflow: hidden;
+  flex: 1;
 }
 
-.inv-card-right {
+.checklist-checkbox {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checklist-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.checklist-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.checklist-code {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.checklist-right {
   text-align: right;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 2px;
 }
 
-.inv-card-closing-lbl {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.inv-card-closing-val {
-  font-size: 1.05rem;
+.checklist-stock {
+  font-size: 0.95rem;
   font-weight: 800;
   color: var(--primary);
 }
@@ -606,8 +618,8 @@ input:focus, select:focus {
       RMC Daily Stock 
     </div> 
     <div class="icon-actions"> 
-      <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Summary"> 
-        <i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i> 
+      <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Summary Checklist"> 
+        <i class="fa-solid fa-list-check" style="color: #f59e0b;"></i> 
       </button> 
       <button class="btn-icon-header" onclick="openSettings()" title="Settings & Preferences"> 
         <i class="fa-solid fa-gear" style="color: #60a5fa;"></i> 
@@ -673,30 +685,30 @@ input:focus, select:focus {
 <!-- Toast Notifications --> 
 <div id="toastContainer"></div> 
 
-<!-- MODAL 1: INVENTORY RECORDS SUMMARY --> 
+<!-- MODAL: INVENTORY CHECKLIST SUMMARY --> 
 <div id="recordsModal" class="modal"> 
   <div class="modal-content"> 
     <div class="modal-header"> 
-      <h3 id="txtSummaryTitle"><i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary</h3> 
+      <h3 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check List</h3> 
       <button class="close-btn" onclick="closeRecordsModal()">&times;</button> 
     </div> 
-    <div style="margin-bottom: 14px;"> 
-      <input type="text" id="modalSearchInput" placeholder="Quick filter summary list..." style="padding: 12px 16px; font-size:0.9rem;"> 
+    <div style="margin-bottom: 12px; flex-shrink: 0;"> 
+      <input type="text" id="modalSearchInput" placeholder="Quick filter checklist..." style="padding: 12px 16px; font-size:0.9rem;"> 
     </div> 
-    <div class="inventory-cards-container" id="summaryCardsContainer">
-      <!-- Dynamic Material Cards injected via JS -->
+    <div class="checklist-container" id="summaryCardsContainer">
+      <!-- Dynamic Checklist Items Injected via JS -->
     </div>
   </div> 
 </div> 
 
-<!-- MODAL 3: SINGLE MATERIAL DETAIL VIEW --> 
+<!-- MODAL: SINGLE MATERIAL DETAIL VIEW --> 
 <div id="itemDetailModal" class="modal"> 
   <div class="modal-content"> 
     <div class="modal-header"> 
       <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3> 
       <button class="close-btn" onclick="closeItemDetailModal()">&times;</button> 
     </div> 
-    <div class="detail-card-grid"> 
+    <div class="detail-card-grid" style="overflow-y: auto;"> 
       <div class="detail-item-box"> 
         <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div> 
         <div class="detail-value" id="detCode">-</div> 
@@ -745,9 +757,9 @@ input:focus, select:focus {
   </div> 
 </div> 
 
-<!-- MODAL 2: SETTINGS & PREFERENCES --> 
+<!-- MODAL: SETTINGS & PREFERENCES --> 
 <div id="settingsModal" class="modal"> 
-  <div class="modal-content"> 
+  <div class="modal-content" style="overflow-y: auto;"> 
     <div class="modal-header"> 
       <h3 id="txtSettingsTitle"><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences</h3> 
       <button class="close-btn" onclick="closeSettings()">&times;</button> 
@@ -819,8 +831,8 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
-    txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> තොග විස්තර සාරාංශය',
-    placeholderModalSearch: 'සාරාංශ ලැයිස්තුව Code හෝ Name මගින් සොයන්න...',
+    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> තොග පරීක්ෂාව (Stock Check List)',
+    placeholderModalSearch: 'චෙක්ලිස්ට් එක සෙවීමට Code හෝ Name ලියන්න...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:',
@@ -859,8 +871,8 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
-    txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary',
-    placeholderModalSearch: 'Quick filter by Code or Name...',
+    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check List',
+    placeholderModalSearch: 'Quick filter checklist...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:',
@@ -899,7 +911,7 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
-    txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> இருப்பு சுருக்கம்',
+    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு பட்டியல்',
     placeholderModalSearch: 'குறியீடு அல்லது பெயர் மூலம் தேடுக...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
@@ -1030,7 +1042,7 @@ function loadInventoryData() {
 
 function initDefaultInventory() { 
   inventory = defaultItems.map(item => ({ 
-    ...item, f_receipt: 0, g_issues: 0, h_return: 0, i_ssl_received: 0, j_ssl_sent: 0, l_rejection: 0, closing: item.op_stock 
+    ...item, f_receipt: 0, g_issues: 0, h_return: 0, i_ssl_received: 0, j_ssl_sent: 0, l_rejection: 0, closing: item.op_stock, checked: false 
   })); 
   saveInventoryData(); 
 } 
@@ -1098,7 +1110,7 @@ function addSingleSectionData() {
 } 
 
 function openRecordsModal() { 
-  renderSummaryCards(); 
+  renderChecklist(); 
   const modal = document.getElementById('recordsModal'); 
   modal.style.display = 'flex'; 
   setTimeout(() => modal.classList.add('show'), 10); 
@@ -1122,28 +1134,34 @@ function closeSettings() {
   setTimeout(() => modal.style.display = 'none', 300); 
 } 
 
-function renderSummaryCards() { 
+function renderChecklist() { 
   const container = document.getElementById('summaryCardsContainer'); 
   container.innerHTML = ''; 
   inventory.forEach((item, idx) => { 
-    const cardDiv = document.createElement('div'); 
-    cardDiv.className = 'inventory-card-item'; 
-    cardDiv.onclick = () => openItemDetails(idx);
-    cardDiv.innerHTML = ` 
-      <div class="inv-card-left">
-        <div class="inv-card-name">${item.name}</div>
-        <div class="inv-card-code">
-          <i class="fa-solid fa-barcode"></i> ${item.code}
+    const itemDiv = document.createElement('div'); 
+    itemDiv.className = 'checklist-item'; 
+    
+    itemDiv.innerHTML = ` 
+      <div class="checklist-left" onclick="openItemDetails(${idx})">
+        <input type="checkbox" class="checklist-checkbox" ${item.checked ? 'checked' : ''} onclick="event.stopPropagation(); toggleCheck(${idx}, this)">
+        <div class="checklist-info">
+          <div class="checklist-name" title="${item.name}">${item.name}</div>
+          <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
         </div>
       </div>
-      <div class="inv-card-right">
-        <div class="inv-card-closing-lbl">Closing Stock</div>
-        <div class="inv-card-closing-val">${Number(item.closing).toLocaleString()} ${item.uom}</div>
+      <div class="checklist-right" onclick="openItemDetails(${idx})" style="cursor: pointer;">
+        <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
+        <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Closing</div>
       </div>
     `; 
-    container.appendChild(cardDiv); 
+    container.appendChild(itemDiv); 
   }); 
 } 
+
+function toggleCheck(index, checkbox) {
+  inventory[index].checked = checkbox.checked;
+  saveInventoryData();
+}
 
 function openItemDetails(index) {
   const item = inventory[index];
@@ -1172,11 +1190,11 @@ function closeItemDetailModal() {
 
 document.getElementById('modalSearchInput').addEventListener('input', function() { 
   const q = this.value.toLowerCase().trim(); 
-  const cards = document.querySelectorAll('#summaryCardsContainer .inventory-card-item'); 
-  cards.forEach((card, idx) => { 
+  const items = document.querySelectorAll('#summaryCardsContainer .checklist-item'); 
+  items.forEach((itemDiv, idx) => { 
     const item = inventory[idx];
     const text = (item.name + " " + item.code).toLowerCase(); 
-    card.style.display = text.includes(q) ? 'flex' : 'none'; 
+    itemDiv.style.display = text.includes(q) ? 'flex' : 'none'; 
   }); 
 }); 
 
@@ -1221,6 +1239,7 @@ function downloadExcelAndReset() {
     item.j_ssl_sent = 0; 
     item.l_rejection = 0; 
     item.closing = item.op_stock; 
+    item.checked = false;
   }); 
   saveInventoryData(); 
   selectedIndex = -1; searchInput.value = ''; selectedBadge.style.display = 'none'; 
@@ -1306,9 +1325,9 @@ function restoreFromXLSX() {
             let h_return = colMap.h_return !== undefined ? (parseFloat(row[colMap.h_return]) || 0) : 0; 
             let i_ssl_received = colMap.i_ssl_received !== undefined ? (parseFloat(row[colMap.i_ssl_received]) || 0) : 0; 
             let j_ssl_sent = colMap.j_ssl_sent !== undefined ? (parseFloat(row[colMap.j_ssl_sent]) || 0) : 0; 
-            let l_rejection = colMap.l_rejection !== undefined ? (parseFloat(row[colMap.l_rejection]) || 0) : 0; 
+            let l_rejection = colMap.l_rejection !==_undefined && row[colMap.l_rejection] !== undefined ? (parseFloat(row[colMap.l_rejection]) || 0) : 0; 
             let closing = colMap.closing !== undefined && row[colMap.closing] !== "" ? parseFloat(row[colMap.closing]) : (op_stock + f_receipt - g_issues + h_return + i_ssl_received - j_ssl_sent - l_rejection); 
-            restored.push({ type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, closing }); 
+            restored.push({ type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, closing, checked: false }); 
           } 
         } 
       } 
