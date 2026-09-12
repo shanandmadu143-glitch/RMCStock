@@ -246,6 +246,11 @@
             color: white;
         }
 
+        .btn-success:active {
+            background: var(--accent-green-hover);
+            transform: scale(0.99);
+        }
+
         /* Modal / Popup Styling */
         .modal {
             display: none;
@@ -394,7 +399,7 @@
         </div>
     </div>
 
-    <!-- Main Data Entry Form Card (Clean Entry UI) -->
+    <!-- Main Data Entry Form Card -->
     <div class="card">
         <!-- Material Search -->
         <div class="form-group" style="margin-bottom: 16px;">
@@ -425,8 +430,13 @@
             </div>
         </div>
 
-        <button class="btn btn-primary" style="width: 100%; justify-content: center; height: 46px;" onclick="addSingleSectionData()">
+        <!-- Action Buttons -->
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; height: 46px; margin-bottom: 10px;" onclick="addSingleSectionData()">
             <i class="fa-solid fa-check-circle"></i> Submit Transaction
+        </button>
+
+        <button class="btn btn-success" style="width: 100%; justify-content: center; height: 46px;" onclick="downloadExcelAndReset()">
+            <i class="fa-solid fa-file-excel"></i> Download Excel
         </button>
     </div>
 </div>
@@ -440,7 +450,6 @@
         </div>
         <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
             <input type="text" id="modalSearchInput" placeholder="Filter items..." style="max-width: 260px; padding: 8px 12px; font-size:0.88rem;">
-            <button class="btn btn-success" style="padding: 8px 14px; font-size:0.85rem;" onclick="downloadExcelAndReset()"><i class="fa-solid fa-file-excel"></i> Download Excel & Shift Stock</button>
         </div>
         <div class="table-responsive">
             <table>
@@ -696,7 +705,6 @@
         searchInput.value = '';
         selectedBadge.style.display = 'none';
 
-        closeRecordsModal();
         alert(`Excel file එක (${filename}) download වූ අතර, Closing Stock (K) හි අගයන් Opening Stock (E) වෙත මාරු විය!`);
     }
 
