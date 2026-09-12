@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Material & Inventory Portal</title>
+    <title>RMC Daily Stock</title>
     <!-- SheetJS (XLSX) Library -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- FontAwesome Icons -->
@@ -63,15 +63,15 @@
         .brand-title {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 1.4rem;
+            gap: 14px;
+            font-size: 1.6rem;
             font-weight: 700;
             letter-spacing: -0.3px;
         }
 
         .brand-title i {
             color: #60a5fa;
-            font-size: 1.6rem;
+            font-size: 1.8rem;
         }
 
         /* Buttons under the Title Name */
@@ -380,10 +380,10 @@
 <body>
 
 <div class="container">
-    <!-- Header Block with Title and Buttons Directly Underneath -->
+    <!-- Header Block with Updated App Title: RMC Daily Stock -->
     <div class="header-block">
         <div class="brand-title">
-            <i class="fa-solid fa-boxes-stacked"></i> Inventory & Material Management Portal
+            <i class="fa-solid fa-boxes-stacked"></i> RMC Daily Stock
         </div>
         <div class="sub-header-actions">
             <button class="btn btn-header" onclick="openRecordsModal()">
@@ -439,7 +439,7 @@
 <div id="recordsModal" class="modal">
     <div class="modal-content modal-content-large">
         <div class="modal-header">
-            <h3><i class="fa-solid fa-chart-pie" style="color:var(--accent-amber);"></i> Inventory Records Summary</h3>
+            <h3><i class="fa-solid fa-chart-pie" style="color:var(--accent-amber);"></i> RMC Daily Stock Summary</h3>
             <button class="close-btn" onclick="closeRecordsModal()">&times;</button>
         </div>
         <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
@@ -683,7 +683,7 @@
         XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data");
 
         const today = new Date().toISOString().split('T')[0];
-        const filename = `Stock_Data_${today}.xlsx`;
+        const filename = `RMC_Daily_Stock_${today}.xlsx`;
 
         XLSX.writeFile(workbook, filename);
 
@@ -817,7 +817,7 @@
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         const today = new Date().toISOString().split('T')[0];
-        link.download = `Material_Backup_${today}.xml`;
+        link.download = `RMC_Stock_Backup_${today}.xml`;
         link.click();
     }
 
