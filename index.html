@@ -1,617 +1,1119 @@
 <!DOCTYPE html> 
 <html lang="si"> 
 <head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
-    <title>RMC Daily Stock | Professional Dashboard</title> 
-    <!-- SheetJS (XLSX) Library --> 
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script> 
-    <!-- FontAwesome Icons --> 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
-    <!-- Google Fonts --> 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"> 
-    <style> 
-        :root { 
-            --primary: #2563eb; 
-            --primary-hover: #1d4ed8; 
-            --primary-light: #eff6ff; 
-            --success: #10b981; 
-            --success-hover: #059669; 
-            --success-light: #ecfdf5; 
-            --warning: #f59e0b; 
-            --danger: #ef4444; 
-            --danger-light: #fef2f2; 
-            --bg-main: #f1f5f9; 
-            --card-bg: #ffffff; 
-            --text-dark: #0f172a; 
-            --text-muted: #64748b; 
-            --border-color: #e2e8f0; 
-            --radius-md: 12px; 
-            --radius-lg: 20px; 
-            --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.05); 
-            --shadow-hover: 0 12px 28px -4px rgba(15, 23, 42, 0.12); 
-            --shadow-modal: 0 25px 50px -12px rgba(15, 23, 42, 0.25); 
-            --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
-        } 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; } 
-        h1, h2, h3, h4, .brand-title { font-family: 'Plus Jakarta Sans', sans-serif; } 
-        body { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); color: var(--text-dark); padding: 24px 16px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; } 
-        .container { width: 100%; max-width: 850px; margin: 0 auto; animation: appSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); } 
-        @keyframes appSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } } 
-        
-        /* --- Header Styling --- */ 
-        .header-block { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; padding: 20px 26px; border-radius: var(--radius-lg); box-shadow: var(--shadow-hover); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); } 
-        .header-block::before { content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(37, 99, 235, 0.3) 0%, rgba(0,0,0,0) 70%); pointer-events: none; } 
-        .brand-title { display: flex; align-items: center; gap: 14px; font-size: 1.45rem; font-weight: 800; letter-spacing: -0.5px; } 
-        .brand-icon { width: 44px; height: 44px; background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #60a5fa; font-size: 1.3rem; box-shadow: inset 0 0 10px rgba(37, 99, 235, 0.2); } 
-        .icon-actions { display: flex; gap: 10px; } 
-        .btn-icon-header { width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; font-size: 1.15rem; cursor: pointer; transition: var(--transition-smooth); } 
-        .btn-icon-header:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); } 
-        .btn-icon-header:active { transform: translateY(0); } 
+<meta charset="UTF-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+<title>RMC Daily Stock | Professional Dashboard</title> 
+<!-- SheetJS (XLSX) Library --> 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script> 
+<!-- FontAwesome Icons --> 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
+<!-- Google Fonts --> 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"> 
+<style> 
+:root { 
+  --primary: #2563eb; 
+  --primary-hover: #1d4ed8; 
+  --primary-light: #eff6ff; 
+  --success: #10b981; 
+  --success-hover: #059669; 
+  --success-light: #ecfdf5; 
+  --warning: #f59e0b; 
+  --danger: #ef4444; 
+  --danger-light: #fef2f2; 
+  --bg-main: #f1f5f9; 
+  --card-bg: #ffffff; 
+  --text-dark: #0f172a; 
+  --text-muted: #64748b; 
+  --border-color: #e2e8f0; 
+  --radius-md: 12px; 
+  --radius-lg: 20px; 
+  --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.05); 
+  --shadow-hover: 0 12px 28px -4px rgba(15, 23, 42, 0.12); 
+  --shadow-modal: 0 25px 50px -12px rgba(15, 23, 42, 0.25); 
+  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+} 
 
-        /* --- Main App Card --- */ 
-        .card { background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border-color); padding: 28px; box-shadow: var(--shadow-subtle); transition: var(--transition-smooth); } 
-        .card:hover { box-shadow: var(--shadow-hover); } 
-        .form-group { position: relative; margin-bottom: 20px; } 
-        label { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.6px; } 
-        label i { color: var(--primary); font-size: 0.95rem; } 
-        input[type="text"], input[type="number"], select, input[type="file"] { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.95rem; font-weight: 500; color: var(--text-dark); background-color: #ffffff; outline: none; transition: var(--transition-smooth); } 
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12); background-color: #ffffff; } 
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  font-family: 'Inter', sans-serif; 
+  -webkit-tap-highlight-color: transparent; 
+} 
 
-        /* --- Search Dropdown --- */ 
-        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-md); max-height: 240px; overflow-y: auto; z-index: 100; box-shadow: var(--shadow-modal); margin-top: 6px; animation: fadeIn 0.2s ease-out; } 
-        .search-item { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; transition: var(--transition-smooth); } 
-        .search-item:last-child { border-bottom: none; } 
-        .search-item:hover { background-color: var(--primary-light); color: var(--primary); padding-left: 20px; } 
+h1, h2, h3, h4, .brand-title { 
+  font-family: 'Plus Jakarta Sans', sans-serif; 
+} 
 
-        /* --- Badge Card --- */ 
-        .selected-badge { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe; padding: 16px 20px; border-radius: var(--radius-md); font-size: 0.9rem; color: #1e40af; display: none; margin-bottom: 20px; line-height: 1.6; animation: pulseIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); } 
-        @keyframes pulseIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } } 
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; } 
+body { 
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); 
+  color: var(--text-dark); 
+  padding: 24px 16px; 
+  display: flex; 
+  justify-content: center; 
+  align-items: flex-start; 
+  min-height: 100vh; 
+} 
 
-        /* --- Buttons --- */ 
-        .btn-row { display: flex; gap: 12px; align-items: center; } 
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 22px; border-radius: var(--radius-md); font-size: 0.95rem; font-weight: 600; border: none; cursor: pointer; transition: var(--transition-smooth); position: relative; overflow: hidden; } 
-        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); flex: 1; } 
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35); } 
-        .btn-icon-excel { width: 52px; height: 52px; background: linear-gradient(135deg, var(--success) 0%, var(--success-hover) 100%); color: white; border-radius: var(--radius-md); font-size: 1.4rem; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); transition: var(--transition-smooth); flex-shrink: 0; } 
-        .btn-icon-excel:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35); } 
-        .btn-secondary { background: #475569; color: white; } 
-        .btn-secondary:hover { background: #334155; transform: translateY(-2px); } 
+.container { 
+  width: 100%; 
+  max-width: 850px; 
+  margin: 0 auto; 
+  animation: appSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
+} 
 
-        /* --- Footer --- */ 
-        .footer-note { text-align: center; margin-top: 24px; padding: 12px 0; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.8px; transition: var(--transition-smooth); } 
-        .footer-note span { color: var(--primary); font-weight: 700; } 
+@keyframes appSlideUp { 
+  from { opacity: 0; transform: translateY(20px); } 
+  to { opacity: 1; transform: translateY(0); } 
+} 
 
-        /* --- Modal Styling --- */ 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(6px); z-index: 1000; justify-content: center; align-items: center; padding: 16px; opacity: 0; transition: opacity 0.3s ease; } 
-        .modal.show { display: flex; opacity: 1; } 
-        .modal-content { background: #ffffff; padding: 24px; border-radius: var(--radius-lg); width: 100%; max-width: 550px; box-shadow: var(--shadow-modal); transform: scale(0.92); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh; display: flex; flex-direction: column; border: 1px solid var(--border-color); } 
-        .modal.show .modal-content { transform: scale(1); } 
-        .modal-content-large { max-width: 800px; } 
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); } 
-        .modal-header h3 { font-size: 1.25rem; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 10px; } 
-        .close-btn { background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: var(--transition-smooth); } 
-        .close-btn:hover { background: var(--danger-light); color: var(--danger); transform: rotate(90deg); } 
+/* --- Header Styling --- */ 
+.header-block { 
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+  color: #ffffff; 
+  padding: 20px 26px; 
+  border-radius: var(--radius-lg); 
+  box-shadow: var(--shadow-hover); 
+  margin-bottom: 20px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  position: relative; 
+  overflow: hidden; 
+  border: 1px solid rgba(255, 255, 255, 0.08); 
+} 
 
-        /* --- Data Table --- */ 
-        .table-responsive { overflow-x: auto; overflow-y: auto; max-height: 55vh; border-radius: var(--radius-md); border: 1px solid var(--border-color); } 
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; white-space: nowrap; } 
-        th { background: #f8fafc; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; padding: 12px 16px; position: sticky; top: 0; border-bottom: 2px solid var(--border-color); z-index: 10; } 
-        td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); } 
-        tbody tr:hover { background-color: #f8fafc; } 
-        .val-receipt { color: var(--success); font-weight: 600; } 
-        .val-issues { color: var(--danger); font-weight: 600; } 
-        .val-return { color: var(--warning); font-weight: 600; } 
-        .closing-stock { font-weight: 700; color: var(--primary); } 
-        .setting-option { margin-bottom: 16px; background: #f8fafc; padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); } 
-        .setting-option p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4; } 
+.header-block::before { 
+  content: ''; 
+  position: absolute; 
+  top: -50%; 
+  right: -20%; 
+  width: 200px; 
+  height: 200px; 
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.3) 0%, rgba(0,0,0,0) 70%); 
+  pointer-events: none; 
+} 
 
-        /* --- Toast Notifications --- */ 
-        #toastContainer { position: fixed; top: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; max-width: 90vw; width: 380px; } 
-        .toast { pointer-events: auto; display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: var(--radius-md); background: #ffffff; color: var(--text-dark); box-shadow: var(--shadow-modal); border-left: 6px solid var(--primary); font-size: 0.92rem; font-weight: 600; animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; transition: var(--transition-smooth); } 
-        .toast.toast-success { border-left-color: var(--success); } 
-        .toast.toast-error { border-left-color: var(--danger); } 
-        .toast.toast-warning { border-left-color: var(--warning); } 
-        .toast i { font-size: 1.35rem; } 
-        .toast-success i { color: var(--success); } 
-        .toast-error i { color: var(--danger); } 
-        .toast-warning i { color: var(--warning); } 
-        .toast-hide { animation: slideOutRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; } 
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(100%) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } } 
-        @keyframes slideOutRight { from { opacity: 1; transform: translateX(0) scale(1); } to { opacity: 0; transform: translateX(100%) scale(0.9); } } 
-        @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } body { padding: 12px; } .header-block { padding: 16px 20px; } .brand-title { font-size: 1.2rem; } .card { padding: 20px; } #toastContainer { right: 50%; transform: translateX(50%); top: 16px; } } 
-    </style> 
+.brand-title { 
+  display: flex; 
+  align-items: center; 
+  gap: 14px; 
+  font-size: 1.45rem; 
+  font-weight: 800; 
+  letter-spacing: -0.5px; 
+} 
+
+.brand-icon { 
+  width: 44px; 
+  height: 44px; 
+  background: rgba(37, 99, 235, 0.2); 
+  border: 1px solid rgba(96, 165, 250, 0.3); 
+  border-radius: 12px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  color: #60a5fa; 
+  font-size: 1.3rem; 
+  box-shadow: inset 0 0 10px rgba(37, 99, 235, 0.2); 
+} 
+
+.icon-actions { 
+  display: flex; 
+  gap: 10px; 
+} 
+
+.btn-icon-header { 
+  width: 44px; 
+  height: 44px; 
+  border-radius: 12px; 
+  background: rgba(255, 255, 255, 0.08); 
+  color: #ffffff; 
+  border: 1px solid rgba(255, 255, 255, 0.15); 
+  backdrop-filter: blur(10px); 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 1.15rem; 
+  cursor: pointer; 
+  transition: var(--transition-smooth); 
+} 
+
+.btn-icon-header:hover { 
+  background: rgba(255, 255, 255, 0.2); 
+  transform: translateY(-2px); 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); 
+} 
+
+.btn-icon-header:active { 
+  transform: translateY(0); 
+} 
+
+/* --- Main App Card --- */ 
+.card { 
+  background: var(--card-bg); 
+  border-radius: var(--radius-lg); 
+  border: 1px solid var(--border-color); 
+  padding: 28px; 
+  box-shadow: var(--shadow-subtle); 
+  transition: var(--transition-smooth); 
+} 
+
+.card:hover { 
+  box-shadow: var(--shadow-hover); 
+} 
+
+.form-group { 
+  position: relative; 
+  margin-bottom: 20px; 
+} 
+
+label { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  font-size: 0.82rem; 
+  font-weight: 700; 
+  color: var(--text-muted); 
+  margin-bottom: 8px; 
+  text-transform: uppercase; 
+  letter-spacing: 0.6px; 
+} 
+
+label i { 
+  color: var(--primary); 
+  font-size: 0.95rem; 
+} 
+
+input[type="text"], input[type="number"], select, input[type="file"] { 
+  width: 100%; 
+  padding: 14px 16px; 
+  border: 1.5px solid var(--border-color); 
+  border-radius: var(--radius-md); 
+  font-size: 0.95rem; 
+  font-weight: 500; 
+  color: var(--text-dark); 
+  background-color: #ffffff; 
+  outline: none; 
+  transition: var(--transition-smooth); 
+} 
+
+input:focus, select:focus { 
+  border-color: var(--primary); 
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12); 
+  background-color: #ffffff; 
+} 
+
+/* --- Search Dropdown --- */ 
+.search-results { 
+  position: absolute; 
+  top: 100%; 
+  left: 0; 
+  right: 0; 
+  background: #ffffff; 
+  border: 1px solid var(--border-color); 
+  border-radius: var(--radius-md); 
+  max-height: 240px; 
+  overflow-y: auto; 
+  z-index: 100; 
+  box-shadow: var(--shadow-modal); 
+  margin-top: 6px; 
+  animation: fadeIn 0.2s ease-out; 
+} 
+
+.search-item { 
+  padding: 12px 16px; 
+  cursor: pointer; 
+  border-bottom: 1px solid #f1f5f9; 
+  font-size: 0.9rem; 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  transition: var(--transition-smooth); 
+} 
+
+.search-item:last-child { 
+  border-bottom: none; 
+} 
+
+.search-item:hover { 
+  background-color: var(--primary-light); 
+  color: var(--primary); 
+  padding-left: 20px; 
+} 
+
+/* --- Badge Card --- */ 
+.selected-badge { 
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); 
+  border: 1px solid #bfdbfe; 
+  padding: 16px 20px; 
+  border-radius: var(--radius-md); 
+  font-size: 0.9rem; 
+  color: #1e40af; 
+  display: none; 
+  margin-bottom: 20px; 
+  line-height: 1.6; 
+  animation: pulseIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+} 
+
+@keyframes pulseIn { 
+  from { opacity: 0; transform: scale(0.96); } 
+  to { opacity: 1; transform: scale(1); } 
+} 
+
+.form-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 16px; 
+  margin-bottom: 24px; 
+} 
+
+/* --- Buttons --- */ 
+.btn-row { 
+  display: flex; 
+  gap: 12px; 
+  align-items: center; 
+} 
+
+.btn { 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 10px; 
+  padding: 14px 22px; 
+  border-radius: var(--radius-md); 
+  font-size: 0.95rem; 
+  font-weight: 600; 
+  border: none; 
+  cursor: pointer; 
+  transition: var(--transition-smooth); 
+  position: relative; 
+  overflow: hidden; 
+} 
+
+.btn-primary { 
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); 
+  color: white; 
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); 
+  flex: 1; 
+} 
+
+.btn-primary:hover { 
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35); 
+} 
+
+.btn-icon-excel { 
+  width: 52px; 
+  height: 52px; 
+  background: linear-gradient(135deg, var(--success) 0%, var(--success-hover) 100%); 
+  color: white; 
+  border-radius: var(--radius-md); 
+  font-size: 1.4rem; 
+  border: none; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); 
+  transition: var(--transition-smooth); 
+  flex-shrink: 0; 
+} 
+
+.btn-icon-excel:hover { 
+  transform: translateY(-2px) scale(1.05); 
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35); 
+} 
+
+.btn-secondary { 
+  background: #475569; 
+  color: white; 
+} 
+
+.btn-secondary:hover { 
+  background: #334155; 
+  transform: translateY(-2px); 
+} 
+
+/* --- Animated Watermark Footer --- */ 
+.footer-note { 
+  text-align: center; 
+  margin-top: 24px; 
+  padding: 12px 0; 
+  font-size: 0.85rem; 
+  font-weight: 600; 
+  color: var(--text-muted); 
+  letter-spacing: 1.5px; 
+  text-transform: uppercase;
+  animation: watermarkFade 3s infinite ease-in-out; 
+  user-select: none;
+} 
+
+.footer-note span { 
+  color: var(--primary); 
+  font-weight: 800; 
+  letter-spacing: 2px;
+} 
+
+@keyframes watermarkFade { 
+  0% { 
+    opacity: 0.2; 
+    transform: scale(0.98); 
+  } 
+  50% { 
+    opacity: 0.95; 
+    transform: scale(1.03); 
+    text-shadow: 0 0 12px rgba(37, 99, 235, 0.3);
+  } 
+  100% { 
+    opacity: 0.2; 
+    transform: scale(0.98); 
+  } 
+} 
+
+/* --- Modal Styling --- */ 
+.modal { 
+  display: none; 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  background: rgba(15, 23, 42, 0.65); 
+  backdrop-filter: blur(6px); 
+  z-index: 1000; 
+  justify-content: center; 
+  align-items: center; 
+  padding: 16px; 
+  opacity: 0; 
+  transition: opacity 0.3s ease; 
+} 
+
+.modal.show { 
+  display: flex; 
+  opacity: 1; 
+} 
+
+.modal-content { 
+  background: #ffffff; 
+  padding: 24px; 
+  border-radius: var(--radius-lg); 
+  width: 100%; 
+  max-width: 550px; 
+  box-shadow: var(--shadow-modal); 
+  transform: scale(0.92); 
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+  max-height: 90vh; 
+  display: flex; 
+  flex-direction: column; 
+  border: 1px solid var(--border-color); 
+} 
+
+.modal.show .modal-content { 
+  transform: scale(1); 
+} 
+
+.modal-content-large { 
+  max-width: 800px; 
+} 
+
+.modal-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 16px; 
+  padding-bottom: 12px; 
+  border-bottom: 1px solid var(--border-color); 
+} 
+
+.modal-header h3 { 
+  font-size: 1.25rem; 
+  font-weight: 700; 
+  color: var(--text-dark); 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+} 
+
+.close-btn { 
+  background: #f1f5f9; 
+  border: none; 
+  width: 36px; 
+  height: 36px; 
+  border-radius: 10px; 
+  font-size: 1.1rem; 
+  cursor: pointer; 
+  color: var(--text-muted); 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  transition: var(--transition-smooth); 
+} 
+
+.close-btn:hover { 
+  background: var(--danger-light); 
+  color: var(--danger); 
+  transform: rotate(90deg); 
+} 
+
+/* --- Data Table --- */ 
+.table-responsive { 
+  overflow-x: auto; 
+  overflow-y: auto; 
+  max-height: 55vh; 
+  border-radius: var(--radius-md); 
+  border: 1px solid var(--border-color); 
+} 
+
+table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  text-align: left; 
+  font-size: 0.88rem; 
+  white-space: nowrap; 
+} 
+
+th { 
+  background: #f8fafc; 
+  color: var(--text-muted); 
+  font-weight: 700; 
+  text-transform: uppercase; 
+  font-size: 0.75rem; 
+  letter-spacing: 0.5px; 
+  padding: 12px 16px; 
+  position: sticky; 
+  top: 0; 
+  border-bottom: 2px solid var(--border-color); 
+  z-index: 10; 
+} 
+
+td { 
+  padding: 14px 16px; 
+  border-bottom: 1px solid var(--border-color); 
+} 
+
+tbody tr:hover { 
+  background-color: #f8fafc; 
+} 
+
+.val-receipt { 
+  color: var(--success); 
+  font-weight: 600; 
+} 
+
+.val-issues { 
+  color: var(--danger); 
+  font-weight: 600; 
+} 
+
+.val-return { 
+  color: var(--warning); 
+  font-weight: 600; 
+} 
+
+.closing-stock { 
+  font-weight: 700; 
+  color: var(--primary); 
+} 
+
+.setting-option { 
+  margin-bottom: 16px; 
+  background: #f8fafc; 
+  padding: 18px; 
+  border-radius: var(--radius-md); 
+  border: 1px solid var(--border-color); 
+} 
+
+.setting-option p { 
+  font-size: 0.85rem; 
+  color: var(--text-muted); 
+  margin-bottom: 12px; 
+  line-height: 1.4; 
+} 
+
+/* --- Toast Notifications --- */ 
+#toastContainer { 
+  position: fixed; 
+  top: 24px; 
+  right: 24px; 
+  z-index: 9999; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+  pointer-events: none; 
+  max-width: 90vw; 
+  width: 380px; 
+} 
+
+.toast { 
+  pointer-events: auto; 
+  display: flex; 
+  align-items: center; 
+  gap: 14px; 
+  padding: 16px 20px; 
+  border-radius: var(--radius-md); 
+  background: #ffffff; 
+  color: var(--text-dark); 
+  box-shadow: var(--shadow-modal); 
+  border-left: 6px solid var(--primary); 
+  font-size: 0.92rem; 
+  font-weight: 600; 
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+  transition: var(--transition-smooth); 
+} 
+
+.toast.toast-success { 
+  border-left-color: var(--success); 
+} 
+
+.toast.toast-error { 
+  border-left-color: var(--danger); 
+} 
+
+.toast.toast-warning { 
+  border-left-color: var(--warning); 
+} 
+
+.toast i { 
+  font-size: 1.35rem; 
+} 
+
+.toast-success i { 
+  color: var(--success); 
+} 
+
+.toast-error i { 
+  color: var(--danger); 
+} 
+
+.toast-warning i { 
+  color: var(--warning); 
+} 
+
+.toast-hide { 
+  animation: slideOutRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+} 
+
+@keyframes slideInRight { 
+  from { opacity: 0; transform: translateX(100%) scale(0.9); } 
+  to { opacity: 1; transform: translateX(0) scale(1); } 
+} 
+
+@keyframes slideOutRight { 
+  from { opacity: 1; transform: translateX(0) scale(1); } 
+  to { opacity: 0; transform: translateX(100%) scale(0.9); } 
+} 
+
+@media (max-width: 640px) { 
+  .form-grid { 
+    grid-template-columns: 1fr; 
+  } 
+  body { 
+    padding: 12px; 
+  } 
+  .header-block { 
+    padding: 16px 20px; 
+  } 
+  .brand-title { 
+    font-size: 1.2rem; 
+  } 
+  .card { 
+    padding: 20px; 
+  } 
+  #toastContainer { 
+    right: 50%; 
+    transform: translateX(50%); 
+    top: 16px; 
+  } 
+} 
+</style> 
 </head> 
 <body> 
-    <div class="container"> 
-        <!-- Header Block --> 
-        <div class="header-block"> 
-            <div class="brand-title"> 
-                <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div> RMC Daily Stock 
-            </div> 
-            <div class="icon-actions"> 
-                <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Summary"> 
-                    <i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i> 
-                </button> 
-                <button class="btn-icon-header" onclick="openSettings()" title="Settings & Backup"> 
-                    <i class="fa-solid fa-gear" style="color: #60a5fa;"></i> 
-                </button> 
-            </div> 
-        </div> 
+<div class="container"> 
+  <!-- Header Block --> 
+  <div class="header-block"> 
+    <div class="brand-title"> 
+      <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div> 
+      RMC Daily Stock 
+    </div> 
+    <div class="icon-actions"> 
+      <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Summary"> 
+        <i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i> 
+      </button> 
+      <button class="btn-icon-header" onclick="openSettings()" title="Settings & Backup"> 
+        <i class="fa-solid fa-gear" style="color: #60a5fa;"></i> 
+      </button> 
+    </div> 
+  </div> 
 
-        <!-- Main Data Entry Form Card --> 
-        <div class="card"> 
-            <!-- Search Material --> 
-            <div class="form-group"> 
-                <label><i class="fa-solid fa-magnifying-glass"></i> Name or Codes:</label> 
-                <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off"> 
-                <div id="searchResults" class="search-results" style="display:none;"></div> 
-            </div> 
-
-            <!-- Selected Item Badge --> 
-            <div id="selectedBadge" class="selected-badge"> 
-                <div style="font-weight:700; margin-bottom: 4px;"> 
-                    <i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> 
-                    <span id="dispCode"></span> - <span id="dispName"></span> 
-                </div> 
-                <div style="font-size: 0.85rem; opacity: 0.9;"> 
-                    UOM: <strong id="dispUom"></strong> &nbsp;|&nbsp; Op. Stock (E): <strong id="dispOp"></strong> 
-                </div> 
-            </div> 
-
-            <!-- Inputs Grid --> 
-            <div class="form-grid"> 
-                <div class="form-group" style="margin-bottom:0;"> 
-                    <label><i class="fa-solid fa-layer-group"></i> Select Section:</label> 
-                    <select id="sectionSelect"> 
-                        <option value="F">Receipt</option> 
-                        <option value="G">Issues</option> 
-                        <option value="H">Return</option> 
-                    </select> 
-                </div> 
-                <div class="form-group" style="margin-bottom:0;"> 
-                    <label><i class="fa-solid fa-calculator"></i> Enter Amount:</label> 
-                    <input type="number" id="inputAmount" min="0" placeholder="0.00" inputmode="decimal"> 
-                </div> 
-            </div> 
-
-            <!-- Buttons Row with Icon Button for Excel Export --> 
-            <div class="btn-row" style="margin-top: 10px;"> 
-                <button class="btn btn-primary" onclick="addSingleSectionData()"> 
-                    <i class="fa-solid fa-floppy-disk"></i> Save 
-                </button> 
-                <button class="btn-icon-excel" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock"> 
-                    <i class="fa-solid fa-file-excel"></i> 
-                </button> 
-            </div> 
-        </div> 
-
-        <!-- Footer --> 
-        <div class="footer-note"> Create BY <span>Yomal Lakshan</span> </div> 
+  <!-- Main Data Entry Form Card --> 
+  <div class="card"> 
+    <!-- Search Material --> 
+    <div class="form-group"> 
+      <label><i class="fa-solid fa-magnifying-glass"></i> Name or Codes:</label> 
+      <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off"> 
+      <div id="searchResults" class="search-results" style="display:none;"></div> 
     </div> 
 
-    <!-- Toast Notifications --> 
-    <div id="toastContainer"></div> 
-
-    <!-- MODAL 1: INVENTORY RECORDS SUMMARY --> 
-    <div id="recordsModal" class="modal"> 
-        <div class="modal-content modal-content-large"> 
-            <div class="modal-header"> 
-                <h3><i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Records Summary</h3> 
-                <button class="close-btn" onclick="closeRecordsModal()">&times;</button> 
-            </div> 
-            <div style="margin-bottom: 14px;"> 
-                <input type="text" id="modalSearchInput" placeholder="Quick filter summary list..." style="padding: 10px 14px; font-size:0.88rem;"> 
-            </div> 
-            <div class="table-responsive"> 
-                <table> 
-                    <thead> 
-                        <tr> 
-                            <th>Material Code</th> <th>Material Name</th> <th>Receipt (F)</th> <th>Issues (G)</th> <th>Return (H)</th> <th>Closing Stock (K)</th> 
-                        </tr> 
-                    </thead> 
-                    <tbody id="summaryTableBody"> 
-                        <!-- Dynamic Rows --> 
-                    </tbody> 
-                </table> 
-            </div> 
-        </div> 
+    <!-- Selected Item Badge --> 
+    <div id="selectedBadge" class="selected-badge"> 
+      <div style="font-weight:700; margin-bottom: 4px;"> 
+        <i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> 
+        <span id="dispCode"></span> - <span id="dispName"></span> 
+      </div> 
+      <div style="font-size: 0.85rem; opacity: 0.9;"> 
+        UOM: <strong id="dispUom"></strong> &nbsp;|&nbsp; Op. Stock (E): <strong id="dispOp"></strong> 
+      </div> 
     </div> 
 
-    <!-- MODAL 2: SETTINGS & RESTORE --> 
-    <div id="settingsModal" class="modal"> 
-        <div class="modal-content"> 
-            <div class="modal-header"> 
-                <h3><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Data Restore</h3> 
-                <button class="close-btn" onclick="closeSettings()">&times;</button> 
-            </div> 
-            <div class="setting-option"> 
-                <label><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label> 
-                <p>පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න. (ස්වයංක්‍රීයව Save වේ)</p> 
-                <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 10px;"> 
-                <button class="btn btn-success" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()"> 
-                    <i class="fa-solid fa-upload"></i> Restore Excel Data 
-                </button> 
-            </div> 
-            <div class="setting-option"> 
-                <label><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label> 
-                <p>වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p> 
-                <button class="btn btn-secondary" style="width:100%; padding: 12px;" onclick="downloadXLSXBackup()"> 
-                    <i class="fa-solid fa-download"></i> Download Backup File 
-                </button> 
-            </div> 
-            <div class="setting-option"> 
-                <label><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label> 
-                <p>මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p> 
-                <button class="btn" style="width:100%; padding: 10px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()"> 
-                    <i class="fa-solid fa-trash-can"></i> Reset All Data 
-                </button> 
-            </div> 
-        </div> 
+    <!-- Inputs Grid --> 
+    <div class="form-grid"> 
+      <div class="form-group" style="margin-bottom:0;"> 
+        <label><i class="fa-solid fa-layer-group"></i> Select Section:</label> 
+        <select id="sectionSelect"> 
+          <option value="F">Receipt</option> 
+          <option value="G">Issues</option> 
+          <option value="H">Return</option> 
+        </select> 
+      </div> 
+      <div class="form-group" style="margin-bottom:0;"> 
+        <label><i class="fa-solid fa-calculator"></i> Enter Amount:</label> 
+        <input type="number" id="inputAmount" min="0" placeholder="0.00" inputmode="decimal"> 
+      </div> 
     </div> 
 
-    <script> 
-        function showToast(message, type = 'success') { 
-            const container = document.getElementById('toastContainer'); 
-            const toast = document.createElement('div'); 
-            toast.className = `toast toast-${type}`; 
-            let iconClass = 'fa-circle-check'; 
-            if (type === 'error') iconClass = 'fa-circle-xmark'; 
-            if (type === 'warning') iconClass = 'fa-triangle-exclamation'; 
-            toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${message}</span>`; 
-            container.appendChild(toast); 
-            setTimeout(() => { 
-                toast.classList.add('toast-hide'); 
-                toast.addEventListener('animationend', () => { toast.remove(); }); 
-            }, 3500); 
+    <!-- Buttons Row with Icon Button for Excel Export --> 
+    <div class="btn-row" style="margin-top: 10px;"> 
+      <button class="btn btn-primary" onclick="addSingleSectionData()"> 
+        <i class="fa-solid fa-floppy-disk"></i> Save 
+      </button> 
+      <button class="btn-icon-excel" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock"> 
+        <i class="fa-solid fa-file-excel"></i> 
+      </button> 
+    </div> 
+  </div> 
+
+  <!-- Animated Watermark Footer --> 
+  <div class="footer-note"> 
+    Created By <span>Yomal Lakshan</span> 
+  </div> 
+</div> 
+
+<!-- Toast Notifications --> 
+<div id="toastContainer"></div> 
+
+<!-- MODAL 1: INVENTORY RECORDS SUMMARY --> 
+<div id="recordsModal" class="modal"> 
+  <div class="modal-content modal-content-large"> 
+    <div class="modal-header"> 
+      <h3><i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Records Summary</h3> 
+      <button class="close-btn" onclick="closeRecordsModal()">&times;</button> 
+    </div> 
+    <div style="margin-bottom: 14px;"> 
+      <input type="text" id="modalSearchInput" placeholder="Quick filter summary list..." style="padding: 10px 14px; font-size:0.88rem;"> 
+    </div> 
+    <div class="table-responsive"> 
+      <table> 
+        <thead> 
+          <tr> 
+            <th>Material Code</th> 
+            <th>Material Name</th> 
+            <th>Receipt (F)</th> <th>Issues (G)</th> 
+            <th>Return (H)</th> 
+            <th>Closing Stock (K)</th> 
+          </tr> 
+        </thead> 
+        <tbody id="summaryTableBody"> 
+          <!-- Dynamic Rows --> 
+        </tbody> 
+      </table> 
+    </div> 
+  </div> 
+</div> 
+
+<!-- MODAL 2: SETTINGS & RESTORE --> 
+<div id="settingsModal" class="modal"> 
+  <div class="modal-content"> 
+    <div class="modal-header"> 
+      <h3><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Data Restore</h3> 
+      <button class="close-btn" onclick="closeSettings()">&times;</button> 
+    </div> 
+    <div class="setting-option"> 
+      <label><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label> 
+      <p>පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න. (ස්වයංක්‍රීයව Save වේ)</p> 
+      <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 10px;"> 
+      <button class="btn btn-success" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()"> 
+        <i class="fa-solid fa-upload"></i> Restore Excel Data 
+      </button> 
+    </div> 
+    <div class="setting-option"> 
+      <label><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label> 
+      <p>වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p> 
+      <button class="btn btn-secondary" style="width:100%; padding: 12px;" onclick="downloadXLSXBackup()"> 
+        <i class="fa-solid fa-download"></i> Download Backup File 
+      </button> 
+    </div> 
+    <div class="setting-option"> 
+      <label><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label> 
+      <p>මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p> 
+      <button class="btn" style="width:100%; padding: 10px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()"> 
+        <i class="fa-solid fa-trash-can"></i> Reset All Data 
+      </button> 
+    </div> 
+  </div> 
+</div> 
+
+<script> 
+function showToast(message, type = 'success') { 
+  const container = document.getElementById('toastContainer'); 
+  const toast = document.createElement('div'); 
+  toast.className = `toast toast-${type}`; 
+  let iconClass = 'fa-circle-check'; 
+  if (type === 'error') iconClass = 'fa-circle-xmark'; 
+  if (type === 'warning') iconClass = 'fa-triangle-exclamation'; 
+  toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${message}</span>`; 
+  container.appendChild(toast); 
+  setTimeout(() => { 
+    toast.classList.add('toast-hide'); 
+    toast.addEventListener('animationend', () => { 
+      toast.remove(); 
+    }); 
+  }, 3500); 
+} 
+
+const defaultItems = [ 
+  {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000}, 
+  {"type":"RM","code":"11061702","name":"WHITE SUGAR","uom":"KG","op_stock":2500}, 
+  {"type":"RM","code":"11002301","name":"MONOSODIUM GLUTAMATE","uom":"KG","op_stock":4525}, 
+  {"type":"RM","code":"67548375","name":"ONION POWDER","uom":"KG","op_stock":120}, 
+  {"type":"RM","code":"11067473","name":"CITRIC ACID MONOHYDRATE (FOOD GRADE)","uom":"KG","op_stock":50}, 
+  {"type":"RM","code":"11002242","name":"SPICE CELERY POWDER","uom":"KG","op_stock":25}, 
+  {"type":"RM","code":"67550393","name":"GARLIC POWDER","uom":"KG","op_stock":25}, 
+  {"type":"RM","code":"67548417","name":"WHITE PEPPER","uom":"KG","op_stock":15}, 
+  {"type":"RM","code":"11002253","name":"SPICE TURMERIC POWDER","uom":"KG","op_stock":4}, 
+  {"type":"RM","code":"11061729","name":"I+G SODIUM 5'RIBONUCLEOTID","uom":"KG","op_stock":40}, 
+  {"type":"RM","code":"11827361","name":"DRIED CORN STARCH 5% MOISTURE-SSL","uom":"KG","op_stock":6000}, 
+  {"type":"RM","code":"11061758","name":"CORN STARCH - IMPORT","uom":"KG","op_stock":0}, 
+  {"type":"RM","code":"11067112","name":"YEAST EXTR. MICROGRANUL. STANDARD 18% SA","uom":"KG","op_stock":400}, 
+  {"type":"RM","code":"11067118","name":"FLAVOUR CHICKEN POWDER (S-2182)","uom":"KG","op_stock":25}, 
+  {"type":"RM","code":"11061730","name":"CARAMEL COLOUR CLASS III (E150C)","uom":"KG","op_stock":20}, 
+  {"type":"RM","code":"11067140","name":"MALTO DEXTRIN 18-20 (M20)","uom":"KG","op_stock":500}, 
+  {"type":"RM","code":"11002220","name":"SPICE NUTMEG POWDER","uom":"KG","op_stock":10}, 
+  {"type":"RM","code":"11002206","name":"SPICE BLACK PEPPER POWDER","uom":"KG","op_stock":150}, 
+  {"type":"RM","code":"11002213","name":"SPICE CORIANDER POWDER","uom":"KG","op_stock":0}, 
+  {"type":"RM","code":"11002214","name":"SPICE CUMIN POWDER","uom":"KG","op_stock":100}, 
+  {"type":"RM","code":"11002211","name":"SPICE CLOVE POWDER","uom":"KG","op_stock":10}, 
+  {"type":"RM","code":"11002210","name":"SPICE CINNAMON POWDER","uom":"KG","op_stock":2} 
+]; 
+
+let inventory = []; 
+
+function loadInventoryData() { 
+  const savedData = localStorage.getItem('rmc_stock_inventory'); 
+  if (savedData) { 
+    try { 
+      inventory = JSON.parse(savedData); 
+    } catch(e) { 
+      initDefaultInventory(); 
+    } 
+  } else { 
+    initDefaultInventory(); 
+  } 
+} 
+
+function initDefaultInventory() { 
+  inventory = defaultItems.map(item => ({ 
+    ...item, 
+    f_receipt: 0, 
+    g_issues: 0, 
+    h_return: 0, 
+    closing: item.op_stock 
+  })); 
+  saveInventoryData(); 
+} 
+
+function saveInventoryData() { 
+  localStorage.setItem('rmc_stock_inventory', JSON.stringify(inventory)); 
+} 
+
+loadInventoryData(); 
+
+let selectedIndex = -1; 
+const searchInput = document.getElementById('searchInput'); 
+const searchResults = document.getElementById('searchResults'); 
+const selectedBadge = document.getElementById('selectedBadge'); 
+
+searchInput.addEventListener('input', function() { 
+  const query = this.value.toLowerCase().trim(); 
+  searchResults.innerHTML = ''; 
+  if (!query) { 
+    searchResults.style.display = 'none'; 
+    return; 
+  } 
+  const filtered = inventory.filter(item => 
+    String(item.code).toLowerCase().includes(query) || 
+    String(item.name).toLowerCase().includes(query) 
+  ); 
+  if (filtered.length > 0) { 
+    searchResults.style.display = 'block'; 
+    filtered.forEach(item => { 
+      const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name); 
+      const div = document.createElement('div'); 
+      div.className = 'search-item'; 
+      div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.78rem;">${item.op_stock} ${item.uom}</span>`; 
+      div.onclick = () => selectItem(idx); 
+      searchResults.appendChild(div); 
+    }); 
+  } else { 
+    searchResults.style.display = 'none'; 
+  } 
+}); 
+
+function selectItem(index) { 
+  selectedIndex = index; 
+  const item = inventory[index]; 
+  searchInput.value = `${item.code} - ${item.name}`; 
+  searchResults.style.display = 'none'; 
+  document.getElementById('dispCode').innerText = item.code; 
+  document.getElementById('dispName').innerText = item.name; 
+  document.getElementById('dispUom').innerText = item.uom; 
+  document.getElementById('dispOp').innerText = Number(item.op_stock).toLocaleString(); 
+  selectedBadge.style.display = 'block'; 
+} 
+
+function addSingleSectionData() { 
+  if (selectedIndex === -1) { 
+    showToast('කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!', 'warning'); 
+    return; 
+  } 
+  const targetSection = document.getElementById('sectionSelect').value; 
+  const amount = parseFloat(document.getElementById('inputAmount').value) || 0; 
+  if (amount <= 0) { 
+    showToast('කරුණාකර වලංගු 0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න!', 'error'); 
+    return; 
+  } 
+  let item = inventory[selectedIndex]; 
+  if (targetSection === 'F') { 
+    item.f_receipt += amount; 
+  } else if (targetSection === 'G') { 
+    item.g_issues += amount; 
+  } else if (targetSection === 'H') { 
+    item.h_return += amount; 
+  } 
+  item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return; 
+  saveInventoryData(); 
+  document.getElementById('inputAmount').value = ''; 
+  showToast(`${item.name} වෙත ${targetSection} Section එකට ${amount} ක් එක් විය!`, 'success'); 
+} 
+
+function openRecordsModal() { 
+  renderSummaryTable(); 
+  const modal = document.getElementById('recordsModal'); 
+  modal.style.display = 'flex'; 
+  setTimeout(() => modal.classList.add('show'), 10); 
+} 
+
+function closeRecordsModal() { 
+  const modal = document.getElementById('recordsModal'); 
+  modal.classList.remove('show'); 
+  setTimeout(() => modal.style.display = 'none', 300); 
+} 
+
+function openSettings() { 
+  const modal = document.getElementById('settingsModal'); 
+  modal.style.display = 'flex'; 
+  setTimeout(() => modal.classList.add('show'), 10); 
+} 
+
+function closeSettings() { 
+  const modal = document.getElementById('settingsModal'); 
+  modal.classList.remove('show'); 
+  setTimeout(() => modal.style.display = 'none', 300); 
+} 
+
+function renderSummaryTable() { 
+  const tbody = document.getElementById('summaryTableBody'); 
+  tbody.innerHTML = ''; 
+  inventory.forEach(item => { 
+    const tr = document.createElement('tr'); 
+    tr.innerHTML = ` 
+      <td><strong>${item.code}</strong></td> 
+      <td>${item.name}</td> 
+      <td class="val-receipt">${Number(item.f_receipt).toLocaleString()}</td> 
+      <td class="val-issues">${Number(item.g_issues).toLocaleString()}</td> 
+      <td class="val-return">${Number(item.h_return).toLocaleString()}</td> 
+      <td class="closing-stock">${Number(item.closing).toLocaleString()} ${item.uom}</td> 
+    `; 
+    tbody.appendChild(tr); 
+  }); 
+} 
+
+document.getElementById('modalSearchInput').addEventListener('input', function() { 
+  const q = this.value.toLowerCase().trim(); 
+  const rows = document.querySelectorAll('#summaryTableBody tr'); 
+  rows.forEach(row => { 
+    const text = row.innerText.toLowerCase(); 
+    row.style.display = text.includes(q) ? '' : 'none'; 
+  }); 
+}); 
+
+function downloadExcelAndReset() { 
+  const exportData = inventory.map(item => ({ 
+    "Type": item.type, 
+    "Material Code": item.code, 
+    "Material Name": item.name, 
+    "UOM": item.uom, 
+    "Op.Stock-Warehouse": item.op_stock, 
+    "Receipt": item.f_receipt, 
+    "Issues": item.g_issues, 
+    "Return": item.h_return, 
+    "Closing Stock": item.closing 
+  })); 
+  const worksheet = XLSX.utils.json_to_sheet(exportData); 
+  const workbook = XLSX.utils.book_new(); 
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data"); 
+  const today = new Date().toISOString().split('T')[0]; 
+  XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
+
+  inventory.forEach(item => { 
+    item.op_stock = item.closing; 
+    item.f_receipt = 0; 
+    item.g_issues = 0; 
+    item.h_return = 0; 
+    item.closing = item.op_stock; 
+  }); 
+  saveInventoryData(); 
+  selectedIndex = -1; 
+  searchInput.value = ''; 
+  selectedBadge.style.display = 'none'; 
+  showToast(`Excel ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!`, 'success'); 
+} 
+
+function restoreFromXLSX() { 
+  const fileInput = document.getElementById('xlsxFileInput'); 
+  const file = fileInput.files[0]; 
+  if (!file) { 
+    showToast('කරුණාකර Excel File එකක් තෝරන්න!', 'warning'); 
+    return; 
+  } 
+  const reader = new FileReader(); 
+  reader.onload = function(e) { 
+    try { 
+      const data = new Uint8Array(e.target.result); 
+      const workbook = XLSX.read(data, { type: 'array' }); 
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]]; 
+      const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); 
+      if (!matrix || matrix.length === 0) { 
+        showToast('Excel ගොනුවේ දත්ත නොමැත!', 'error'); 
+        return; 
+      } 
+      let headerIndex = -1; 
+      let colMap = {}; 
+      for (let r = 0; r < matrix.length; r++) { 
+        const rowStr = matrix[r].map(c => String(c).toLowerCase().trim()); 
+        if (rowStr.some(c => c.includes("code") || c.includes("material") || c.includes("name"))) { 
+          headerIndex = r; 
+          rowStr.forEach((cellVal, colIdx) => { 
+            if (cellVal.includes("type")) colMap.type = colIdx; 
+            if (cellVal.includes("code")) colMap.code = colIdx; 
+            if (cellVal.includes("name")) colMap.name = colIdx; 
+            if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
+            if (cellVal.includes("op") || cellVal.includes("open") || cellVal.includes("opening")) colMap.op_stock = colIdx; 
+            if (cellVal.includes("receipt") || cellVal.includes("(f)")) colMap.f_receipt = colIdx; 
+            if (cellVal.includes("issue") || cellVal.includes("(g)")) colMap.g_issues = colIdx; 
+            if (cellVal.includes("return") || cellVal.includes("(h)")) colMap.h_return = colIdx; 
+            if (cellVal.includes("closing") || cellVal.includes("(k)")) colMap.closing = colIdx; 
+          }); 
+          break; 
         } 
-
-        const defaultItems = [ 
-            {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000}, 
-            {"type":"RM","code":"11061702","name":"WHITE SUGAR","uom":"KG","op_stock":2500}, 
-            {"type":"RM","code":"11002301","name":"MONOSODIUM GLUTAMATE","uom":"KG","op_stock":4525}, 
-            {"type":"RM","code":"67548375","name":"ONION POWDER","uom":"KG","op_stock":120}, 
-            {"type":"RM","code":"11067473","name":"CITRIC ACID MONOHYDRATE (FOOD GRADE)","uom":"KG","op_stock":50}, 
-            {"type":"RM","code":"11002242","name":"SPICE CELERY POWDER","uom":"KG","op_stock":25}, 
-            {"type":"RM","code":"67550393","name":"GARLIC POWDER","uom":"KG","op_stock":25}, 
-            {"type":"RM","code":"67548417","name":"WHITE PEPPER","uom":"KG","op_stock":15}, 
-            {"type":"RM","code":"11002253","name":"SPICE TURMERIC POWDER","uom":"KG","op_stock":4}, 
-            {"type":"RM","code":"11061729","name":"I+G SODIUM 5'RIBONUCLEOTID","uom":"KG","op_stock":40}, 
-            {"type":"RM","code":"11827361","name":"DRIED CORN STARCH 5% MOISTURE-SSL","uom":"KG","op_stock":6000}, 
-            {"type":"RM","code":"11061758","name":"CORN STARCH - IMPORT","uom":"KG","op_stock":0}, 
-            {"type":"RM","code":"11067112","name":"YEAST EXTR. MICROGRANUL. STANDARD 18% SA","uom":"KG","op_stock":400}, 
-            {"type":"RM","code":"11067118","name":"FLAVOUR CHICKEN POWDER (S-2182)","uom":"KG","op_stock":25}, 
-            {"type":"RM","code":"11061730","name":"CARAMEL COLOUR CLASS III (E150C)","uom":"KG","op_stock":20}, 
-            {"type":"RM","code":"11067140","name":"MALTO DEXTRIN 18-20 (M20)","uom":"KG","op_stock":500}, 
-            {"type":"RM","code":"11002220","name":"SPICE NUTMEG POWDER","uom":"KG","op_stock":10}, 
-            {"type":"RM","code":"11002206","name":"SPICE BLACK PEPPER POWDER","uom":"KG","op_stock":150}, 
-            {"type":"RM","code":"11002213","name":"SPICE CORIANDER POWDER","uom":"KG","op_stock":0}, 
-            {"type":"RM","code":"11002214","name":"SPICE CUMIN POWDER","uom":"KG","op_stock":100}, 
-            {"type":"RM","code":"11002211","name":"SPICE CLOVE POWDER","uom":"KG","op_stock":10}, 
-            {"type":"RM","code":"11002210","name":"SPICE CINNAMON POWDER","uom":"KG","op_stock":2} 
-        ]; 
-
-        let inventory = [];
-
-        // Load persisted data or default
-        function loadInventoryData() {
-            const savedData = localStorage.getItem('rmc_stock_inventory');
-            if (savedData) {
-                try {
-                    inventory = JSON.parse(savedData);
-                } catch(e) {
-                    initDefaultInventory();
-                }
-            } else {
-                initDefaultInventory();
-            }
-        }
-
-        function initDefaultInventory() {
-            inventory = defaultItems.map(item => ({ 
-                ...item, f_receipt: 0, g_issues: 0, h_return: 0, closing: item.op_stock 
-            }));
-            saveInventoryData();
-        }
-
-        function saveInventoryData() {
-            localStorage.setItem('rmc_stock_inventory', JSON.stringify(inventory));
-        }
-
-        loadInventoryData();
-        let selectedIndex = -1; 
-
-        const searchInput = document.getElementById('searchInput'); 
-        const searchResults = document.getElementById('searchResults'); 
-        const selectedBadge = document.getElementById('selectedBadge'); 
-
-        searchInput.addEventListener('input', function() { 
-            const query = this.value.toLowerCase().trim(); 
-            searchResults.innerHTML = ''; 
-            if (!query) { searchResults.style.display = 'none'; return; } 
-            const filtered = inventory.filter(item => String(item.code).toLowerCase().includes(query) || String(item.name).toLowerCase().includes(query) ); 
-            if (filtered.length > 0) { 
-                searchResults.style.display = 'block'; 
-                filtered.forEach(item => { 
-                    const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name); 
-                    const div = document.createElement('div'); 
-                    div.className = 'search-item'; 
-                    div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.78rem;">${item.op_stock} ${item.uom}</span>`; 
-                    div.onclick = () => selectItem(idx); 
-                    searchResults.appendChild(div); 
-                }); 
-            } else { searchResults.style.display = 'none'; } 
+      } 
+      let restored = []; 
+      if (headerIndex !== -1) { 
+        for (let r = headerIndex + 1; r < matrix.length; r++) { 
+          const row = matrix[r]; 
+          let code = colMap.code !== undefined ? String(row[colMap.code] || "").trim() : ""; 
+          let name = colMap.name !== undefined ? String(row[colMap.name] || "").trim() : ""; 
+          if (code || name) { 
+            let type = colMap.type !== undefined && row[colMap.type] ? String(row[colMap.type]).trim() : "RM"; 
+            let uom = colMap.uom !== undefined && row[colMap.uom] ? String(row[colMap.uom]).trim() : "KG"; 
+            let op_stock = colMap.op_stock !== undefined ? (parseFloat(row[colMap.op_stock]) || 0) : 0; 
+            let f_receipt = colMap.f_receipt !== undefined ? (parseFloat(row[colMap.f_receipt]) || 0) : 0; 
+            let g_issues = colMap.g_issues !== undefined ? (parseFloat(row[colMap.g_issues]) || 0) : 0; 
+            let h_return = colMap.h_return !== undefined ? (parseFloat(row[colMap.h_return]) || 0) : 0; 
+            let closing = colMap.closing !== undefined && row[colMap.closing] !== "" ? parseFloat(row[colMap.closing]) : (op_stock + f_receipt - g_issues + h_return); 
+            restored.push({ type, code, name, uom, op_stock, f_receipt, g_issues, h_return, closing }); 
+          } 
+        } 
+      } else { 
+        const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: "" }); 
+        rawJson.forEach(row => { 
+          let code = ""; 
+          let name = ""; 
+          Object.keys(row).forEach(k => { 
+            const lk = k.toLowerCase(); 
+            if (lk.includes("code")) code = String(row[k]).trim(); 
+            if (lk.includes("name")) name = String(row[k]).trim(); 
+          }); 
+          if (code || name) { 
+            let op_stock = 0, f_receipt = 0, g_issues = 0, h_return = 0, closing = 0; 
+            Object.keys(row).forEach(k => { 
+              const lk = k.toLowerCase(); 
+              if (lk.includes("op")) op_stock = parseFloat(row[k]) || 0; 
+              if (lk.includes("receipt")) f_receipt = parseFloat(row[k]) || 0; 
+              if (lk.includes("issue")) g_issues = parseFloat(row[k]) || 0; 
+              if (lk.includes("return")) h_return = parseFloat(row[k]) || 0; 
+              if (lk.includes("closing")) closing = parseFloat(row[k]) || 0; 
+            }); 
+            if (!closing && (op_stock || f_receipt)) { 
+              closing = op_stock + f_receipt - g_issues + h_return; 
+            } 
+            restored.push({ type: String(row["Type"] || "RM"), code: code, name: name, uom: String(row["UOM"] || "KG"), op_stock, f_receipt, g_issues, h_return, closing }); 
+          } 
         }); 
+      } 
+      if (restored.length > 0) { 
+        inventory = restored; 
+        saveInventoryData(); 
+        closeSettings(); 
+        showToast(`Excel Restore සාර්ථකයි! Items ${inventory.length} ක් එක් වී Save විය.`, 'success'); 
+      } else { 
+        showToast('Excel Sheet එකෙහි Material Code/Name හඳුනාගත නොහැකි විය!', 'error'); 
+      } 
+    } catch (err) { 
+      showToast('Excel කියවීමේදී දෝෂයක් සිදු විය!', 'error'); 
+    } 
+  }; 
+  reader.readAsArrayBuffer(file); 
+} 
 
-        function selectItem(index) { 
-            selectedIndex = index; 
-            const item = inventory[index]; 
-            searchInput.value = `${item.code} - ${item.name}`; 
-            searchResults.style.display = 'none'; 
-            document.getElementById('dispCode').innerText = item.code; 
-            document.getElementById('dispName').innerText = item.name; 
-            document.getElementById('dispUom').innerText = item.uom; 
-            document.getElementById('dispOp').innerText = Number(item.op_stock).toLocaleString(); 
-            selectedBadge.style.display = 'block'; 
-        } 
+function resetToDefault() { 
+  if (confirm("ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?")) { 
+    localStorage.removeItem('rmc_stock_inventory'); 
+    initDefaultInventory(); 
+    closeSettings(); 
+    showToast("දත්ත මුල් තත්වයට Reset විය!", "success"); 
+  } 
+} 
 
-        function addSingleSectionData() { 
-            if (selectedIndex === -1) { 
-                showToast('කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!', 'warning'); 
-                return; 
-            } 
-            const targetSection = document.getElementById('sectionSelect').value; 
-            const amount = parseFloat(document.getElementById('inputAmount').value) || 0; 
-            if (amount <= 0) { 
-                showToast('කරුණාකර වලංගු 0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න!', 'error'); 
-                return; 
-            } 
-            let item = inventory[selectedIndex]; 
-            if (targetSection === 'F') { item.f_receipt += amount; } 
-            else if (targetSection === 'G') { item.g_issues += amount; } 
-            else if (targetSection === 'H') { item.h_return += amount; } 
-            
-            item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return; 
-            saveInventoryData(); // Save state
-            
-            document.getElementById('inputAmount').value = ''; 
-            showToast(`${item.name} වෙත ${targetSection} Section එකට ${amount} ක් එක් විය!`, 'success'); 
-        } 
-
-        function openRecordsModal() { 
-            renderSummaryTable(); 
-            const modal = document.getElementById('recordsModal'); 
-            modal.style.display = 'flex'; 
-            setTimeout(() => modal.classList.add('show'), 10); 
-        } 
-
-        function closeRecordsModal() { 
-            const modal = document.getElementById('recordsModal'); 
-            modal.classList.remove('show'); 
-            setTimeout(() => modal.style.display = 'none', 300); 
-        } 
-
-        function openSettings() { 
-            const modal = document.getElementById('settingsModal'); 
-            modal.style.display = 'flex'; 
-            setTimeout(() => modal.classList.add('show'), 10); 
-        } 
-
-        function closeSettings() { 
-            const modal = document.getElementById('settingsModal'); 
-            modal.classList.remove('show'); 
-            setTimeout(() => modal.style.display = 'none', 300); 
-        } 
-
-        function renderSummaryTable() { 
-            const tbody = document.getElementById('summaryTableBody'); 
-            tbody.innerHTML = ''; 
-            inventory.forEach(item => { 
-                const tr = document.createElement('tr'); 
-                tr.innerHTML = ` 
-                    <td><strong>${item.code}</strong></td> 
-                    <td>${item.name}</td> 
-                    <td class="val-receipt">${Number(item.f_receipt).toLocaleString()}</td> 
-                    <td class="val-issues">${Number(item.g_issues).toLocaleString()}</td> 
-                    <td class="val-return">${Number(item.h_return).toLocaleString()}</td> 
-                    <td class="closing-stock">${Number(item.closing).toLocaleString()} ${item.uom}</td> 
-                `; 
-                tbody.appendChild(tr); 
-            }); 
-        } 
-
-        document.getElementById('modalSearchInput').addEventListener('input', function() { 
-            const q = this.value.toLowerCase().trim(); 
-            const rows = document.querySelectorAll('#summaryTableBody tr'); 
-            rows.forEach(row => { 
-                const text = row.innerText.toLowerCase(); 
-                row.style.display = text.includes(q) ? '' : 'none'; 
-            }); 
-        }); 
-
-        function downloadExcelAndReset() { 
-            const exportData = inventory.map(item => ({ 
-                "Type": item.type, 
-                "Material Code": item.code, 
-                "Material Name": item.name, 
-                "UOM": item.uom, 
-                "Op.Stock-Warehouse": item.op_stock, 
-                "Receipt": item.f_receipt, 
-                "Issues": item.g_issues, 
-                "Return": item.h_return, 
-                "Closing Stock": item.closing 
-            })); 
-            const worksheet = XLSX.utils.json_to_sheet(exportData); 
-            const workbook = XLSX.utils.book_new(); 
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data"); 
-            const today = new Date().toISOString().split('T')[0]; 
-            XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
-
-            inventory.forEach(item => { 
-                item.op_stock = item.closing; 
-                item.f_receipt = 0; 
-                item.g_issues = 0; 
-                item.h_return = 0; 
-                item.closing = item.op_stock; 
-            }); 
-
-            saveInventoryData(); // Save shifted stock state
-            selectedIndex = -1; 
-            searchInput.value = ''; 
-            selectedBadge.style.display = 'none'; 
-            showToast(`Excel ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!`, 'success'); 
-        } 
-
-        function restoreFromXLSX() { 
-            const fileInput = document.getElementById('xlsxFileInput'); 
-            const file = fileInput.files[0]; 
-            if (!file) { 
-                showToast('කරුණාකර Excel File එකක් තෝරන්න!', 'warning'); 
-                return; 
-            } 
-
-            const reader = new FileReader(); 
-            reader.onload = function(e) { 
-                try { 
-                    const data = new Uint8Array(e.target.result); 
-                    const workbook = XLSX.read(data, { type: 'array' }); 
-                    const worksheet = workbook.Sheets[workbook.SheetNames[0]]; 
-                    
-                    const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); 
-                    
-                    if (!matrix || matrix.length === 0) {
-                        showToast('Excel ගොනුවේ දත්ත නොමැත!', 'error');
-                        return;
-                    }
-
-                    let headerIndex = -1;
-                    let colMap = {};
-
-                    for (let r = 0; r < matrix.length; r++) {
-                        const rowStr = matrix[r].map(c => String(c).toLowerCase().trim());
-                        
-                        if (rowStr.some(c => c.includes("code") || c.includes("material") || c.includes("name"))) {
-                            headerIndex = r;
-                            rowStr.forEach((cellVal, colIdx) => {
-                                if (cellVal.includes("type")) colMap.type = colIdx;
-                                if (cellVal.includes("code")) colMap.code = colIdx;
-                                if (cellVal.includes("name")) colMap.name = colIdx;
-                                if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx;
-                                if (cellVal.includes("op") || cellVal.includes("open") || cellVal.includes("opening")) colMap.op_stock = colIdx;
-                                if (cellVal.includes("receipt") || cellVal.includes("(f)")) colMap.f_receipt = colIdx;
-                                if (cellVal.includes("issue") || cellVal.includes("(g)")) colMap.g_issues = colIdx;
-                                if (cellVal.includes("return") || cellVal.includes("(h)")) colMap.h_return = colIdx;
-                                if (cellVal.includes("closing") || cellVal.includes("(k)")) colMap.closing = colIdx;
-                            });
-                            break;
-                        }
-                    }
-
-                    let restored = [];
-
-                    if (headerIndex !== -1) {
-                        for (let r = headerIndex + 1; r < matrix.length; r++) {
-                            const row = matrix[r];
-                            let code = colMap.code !== undefined ? String(row[colMap.code] || "").trim() : "";
-                            let name = colMap.name !== undefined ? String(row[colMap.name] || "").trim() : "";
-
-                            if (code || name) {
-                                let type = colMap.type !== undefined && row[colMap.type] ? String(row[colMap.type]).trim() : "RM";
-                                let uom = colMap.uom !== undefined && row[colMap.uom] ? String(row[colMap.uom]).trim() : "KG";
-                                let op_stock = colMap.op_stock !== undefined ? (parseFloat(row[colMap.op_stock]) || 0) : 0;
-                                let f_receipt = colMap.f_receipt !== undefined ? (parseFloat(row[colMap.f_receipt]) || 0) : 0;
-                                let g_issues = colMap.g_issues !== undefined ? (parseFloat(row[colMap.g_issues]) || 0) : 0;
-                                let h_return = colMap.h_return !== undefined ? (parseFloat(row[colMap.h_return]) || 0) : 0;
-                                
-                                let closing = colMap.closing !== undefined && row[colMap.closing] !== "" 
-                                    ? parseFloat(row[colMap.closing]) 
-                                    : (op_stock + f_receipt - g_issues + h_return);
-
-                                restored.push({ type, code, name, uom, op_stock, f_receipt, g_issues, h_return, closing });
-                            }
-                        }
-                    } else {
-                        const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-                        rawJson.forEach(row => {
-                            let code = "";
-                            let name = "";
-                            Object.keys(row).forEach(k => {
-                                const lk = k.toLowerCase();
-                                if (lk.includes("code")) code = String(row[k]).trim();
-                                if (lk.includes("name")) name = String(row[k]).trim();
-                            });
-
-                            if (code || name) {
-                                let op_stock = 0, f_receipt = 0, g_issues = 0, h_return = 0, closing = 0;
-                                Object.keys(row).forEach(k => {
-                                    const lk = k.toLowerCase();
-                                    if (lk.includes("op")) op_stock = parseFloat(row[k]) || 0;
-                                    if (lk.includes("receipt")) f_receipt = parseFloat(row[k]) || 0;
-                                    if (lk.includes("issue")) g_issues = parseFloat(row[k]) || 0;
-                                    if (lk.includes("return")) h_return = parseFloat(row[k]) || 0;
-                                    if (lk.includes("closing")) closing = parseFloat(row[k]) || 0;
-                                });
-
-                                if (!closing && (op_stock || f_receipt)) {
-                                    closing = op_stock + f_receipt - g_issues + h_return;
-                                }
-
-                                restored.push({
-                                    type: String(row["Type"] || "RM"),
-                                    code: code,
-                                    name: name,
-                                    uom: String(row["UOM"] || "KG"),
-                                    op_stock, f_receipt, g_issues, h_return, closing
-                                });
-                            }
-                        });
-                    }
-
-                    if (restored.length > 0) {
-                        inventory = restored;
-                        saveInventoryData(); // Permanently Save Restored Data
-                        closeSettings();
-                        showToast(`Excel Restore සාර්ථකයි! Items ${inventory.length} ක් එක් වී Save විය.`, 'success');
-                    } else {
-                        showToast('Excel Sheet එකෙහි Material Code/Name හඳුනාගත නොහැකි විය!', 'error');
-                    }
-
-                } catch (err) { 
-                    showToast('Excel කියවීමේදී දෝෂයක් සිදු විය!', 'error'); 
-                } 
-            }; 
-            reader.readAsArrayBuffer(file); 
-        } 
-
-        function resetToDefault() {
-            if (confirm("ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?")) {
-                localStorage.removeItem('rmc_stock_inventory');
-                initDefaultInventory();
-                closeSettings();
-                showToast("දත්ත මුල් තත්වයට Reset විය!", "success");
-            }
-        }
-
-        function downloadXLSXBackup() { 
-            const exportData = inventory.map(item => ({ 
-                "Type": item.type, 
-                "Material Code": item.code, 
-                "Material Name": item.name, 
-                "UOM": item.uom, 
-                "Op.Stock-Warehouse": item.op_stock, 
-                "Receipt": item.f_receipt, 
-                "Issues": item.g_issues, 
-                "Return": item.h_return, 
-                "Closing Stock": item.closing 
-            })); 
-            const worksheet = XLSX.utils.json_to_sheet(exportData); 
-            const workbook = XLSX.utils.book_new(); 
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Backup_Data"); 
-            const today = new Date().toISOString().split('T')[0]; 
-            XLSX.writeFile(workbook, `RMC_Stock_Backup_${today}.xlsx`); 
-            showToast('Backup Excel ගොනුව බාගත විය!', 'success'); 
-        } 
-    </script> 
+function downloadXLSXBackup() { 
+  const exportData = inventory.map(item => ({ 
+    "Type": item.type, 
+    "Material Code": item.code, 
+    "Material Name": item.name, 
+    "UOM": item.uom, 
+    "Op.Stock-Warehouse": item.op_stock, 
+    "Receipt": item.f_receipt, 
+    "Issues": item.g_issues, 
+    "Return": item.h_return, 
+    "Closing Stock": item.closing 
+  })); 
+  const worksheet = XLSX.utils.json_to_sheet(exportData); 
+  const workbook = XLSX.utils.book_new(); 
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Backup_Data"); 
+  const today = new Date().toISOString().split('T')[0]; 
+  XLSX.writeFile(workbook, `RMC_Stock_Backup_${today}.xlsx`); 
+  showToast('Backup Excel ගොනුව බාගත විය!', 'success'); 
+} 
+</script> 
 </body> 
 </html>
