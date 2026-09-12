@@ -638,7 +638,7 @@ td {
       <button class="btn-icon-excel" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock" id="btnExcel"> 
         <i class="fa-solid fa-file-excel"></i> 
       </button> 
-      <button class="btn-icon-share" onclick="shareStockSummary()" title="Share Summary" id="btnShare"> 
+      <button class="btn-icon-share" onclick="shareStockSummary()" title="Share Excel File" id="btnShare"> 
         <i class="fa-solid fa-share-nodes"></i> 
       </button> 
     </div> 
@@ -658,7 +658,7 @@ td {
   <div class="modal-content modal-content-large"> 
     <div class="modal-header"> 
       <h3 id="txtSummaryTitle"><i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary</h3> 
-      <button class="close-btn" onclick="closeRecordsModal()">&times;</button> <!-- Fixed to close properly --> 
+      <button class="close-btn" onclick="closeRecordsModal()">&times;</button> 
     </div> 
     <div style="margin-bottom: 14px;"> 
       <input type="text" id="modalSearchInput" placeholder="Quick filter summary list..." style="padding: 10px 14px; font-size:0.88rem;"> 
@@ -791,7 +791,7 @@ const i18n = {
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download Excel & Shift Stock',
-    titleShare: 'Share Summary',
+    titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> තොග විස්තර සාරාංශය',
     placeholderModalSearch: 'සාරාංශ ලැයිස්තුව සොයන්න...',
     thName: 'Material Name (නම)',
@@ -817,7 +817,8 @@ const i18n = {
     msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
     msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
     shareTitle: 'RMC Daily Stock Summary',
-    shareCopied: 'සාරාංශ විස්තරය Copy කරගන්නා ලදී!'
+    shareSuccess: 'Excel ගොනුව Share කිරීමට සූදානම්!',
+    shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි.'
   },
   en: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
@@ -829,7 +830,7 @@ const i18n = {
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download Excel & Shift Stock',
-    titleShare: 'Share Summary',
+    titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary',
     placeholderModalSearch: 'Quick filter summary list...',
     thName: 'Material Name',
@@ -855,7 +856,8 @@ const i18n = {
     msgRestoreSuccess: 'Excel Restore Successful!',
     msgResetConfirm: 'Are you sure you want to reset to default data?',
     shareTitle: 'RMC Daily Stock Summary',
-    shareCopied: 'Summary copied to clipboard!'
+    shareSuccess: 'Excel file ready to share!',
+    shareNotSupported: 'Your browser does not support file sharing.'
   },
   ta: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீடு மூலம் தேடுக:',
@@ -867,7 +869,7 @@ const i18n = {
     lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
     titleExcel: 'Download Excel & Shift Stock',
-    titleShare: 'Share Summary',
+    titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> இருப்பு சுருக்கம்',
     placeholderModalSearch: 'சுருக்கப் பட்டியலைத் தேடுக...',
     thName: 'பொருள் பெயர்',
@@ -893,7 +895,8 @@ const i18n = {
     msgRestoreSuccess: 'எக்செல் மீட்டமைப்பு வெற்றிகரமாக முடிந்தது!',
     msgResetConfirm: 'ஆரம்ப தரவுக்கு மீட்டமைக்க நிச்சயமாக விரும்புகிறீர்களா?',
     shareTitle: 'RMC Daily Stock Summary',
-    shareCopied: 'சுருக்கம் நகலெடுக்கப்பட்டது!'
+    shareSuccess: 'பகிர எக்செல் கோப்பு தயாராக உள்ளது!',
+    shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.'
   }
 };
 
@@ -1154,21 +1157,42 @@ function downloadExcelAndReset() {
   showToast(t.msgExcelShift, 'success'); 
 } 
 
+/* --- Share Excel File Functionality --- */
 async function shareStockSummary() {
   const t = i18n[currentLang];
   const today = new Date().toISOString().split('T')[0];
-  let summaryText = `📊 *RMC Daily Stock Summary (${today})*\n\n`;
-  inventory.forEach(item => {
-    if(item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0) {
-      summaryText += `• *${item.name}* (${item.code})\n  Closing: ${item.closing} ${item.uom} | Rec: ${item.f_receipt} | Iss: ${item.g_issues} | Ret: ${item.h_return}\n`;
-    }
-  });
+  const exportData = inventory.map(item => ({ 
+    "Type": item.type, "Material Code": item.code, "Material Name": item.name, "UOM": item.uom, 
+    "Op.Stock-Warehouse": item.op_stock, "Receipt": item.f_receipt, "Issues": item.g_issues, 
+    "Return": item.h_return, "Closing Stock": item.closing 
+  })); 
+  
+  const worksheet = XLSX.utils.json_to_sheet(exportData); 
+  const workbook = XLSX.utils.book_new(); 
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data"); 
+  
+  // Generate Excel binary array
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const fileName = `RMC_Daily_Stock_${today}.xlsx`;
+  const file = new File([excelBuffer], fileName, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
-  if (navigator.share) {
-    try { await navigator.share({ title: t.shareTitle, text: summaryText, url: window.location.href }); } catch (err) {}
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        title: t.shareTitle,
+        text: `RMC Daily Stock Report - ${today}`,
+        files: [file]
+      });
+      showToast(t.shareSuccess, 'success');
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        showToast('Sharing cancelled or failed.', 'warning');
+      }
+    }
   } else {
-    navigator.clipboard.writeText(summaryText);
-    showToast(t.shareCopied, 'success');
+    // Fallback: If direct file sharing is not supported by device/browser, download it instead
+    XLSX.writeFile(workbook, fileName);
+    showToast(t.shareNotSupported, 'warning');
   }
 }
 
