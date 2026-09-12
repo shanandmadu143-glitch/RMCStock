@@ -380,17 +380,13 @@ input:focus, select:focus {
   padding: 24px; 
   border-radius: var(--radius-lg); 
   width: 100%; 
-  max-width: 550px; 
+  max-width: 600px; 
   box-shadow: var(--shadow-modal); 
   max-height: 90vh; 
   display: flex; 
   flex-direction: column; 
   border: 1px solid var(--border-color); 
   overflow-y: auto;
-} 
-
-.modal-content-large { 
-  max-width: 600px; 
 } 
 
 .modal-header { 
@@ -431,17 +427,76 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
-.material-link {
-  color: var(--primary);
-  font-weight: 600;
+/* --- Modern Inventory Summary Cards Layout --- */
+.inventory-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.inventory-card-item {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
   transition: var(--transition-smooth);
 }
-.material-link:hover {
-  color: var(--primary-hover);
-  opacity: 0.85;
+
+.inventory-card-item:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-subtle);
+}
+
+.inv-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 70%;
+}
+
+.inv-card-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.inv-card-code {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inv-card-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.inv-card-closing-lbl {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.inv-card-closing-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--primary);
 }
 
 .detail-card-grid {
@@ -478,40 +533,6 @@ input:focus, select:focus {
   font-weight: 700;
   color: var(--text-dark);
 }
-
-.table-responsive { 
-  overflow-x: auto; 
-  overflow-y: auto; 
-  max-height: 55vh; 
-  border-radius: var(--radius-md); 
-  border: 1px solid var(--border-color); 
-} 
-
-table { 
-  width: 100%; 
-  border-collapse: collapse; 
-  text-align: left; 
-  font-size: 0.88rem; 
-  white-space: nowrap; 
-} 
-
-th { 
-  background: var(--bg-main); 
-  color: var(--text-muted); 
-  font-weight: 700; 
-  text-transform: uppercase; 
-  font-size: 0.75rem; 
-  padding: 12px 16px; 
-  position: sticky; 
-  top: 0; 
-  border-bottom: 2px solid var(--border-color); 
-  z-index: 10; 
-} 
-
-td { 
-  padding: 14px 16px; 
-  border-bottom: 1px solid var(--border-color); 
-} 
 
 .setting-option { 
   margin-bottom: 16px; 
@@ -654,30 +675,23 @@ td {
 
 <!-- MODAL 1: INVENTORY RECORDS SUMMARY --> 
 <div id="recordsModal" class="modal"> 
-  <div class="modal-content modal-content-large"> 
+  <div class="modal-content"> 
     <div class="modal-header"> 
       <h3 id="txtSummaryTitle"><i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary</h3> 
       <button class="close-btn" onclick="closeRecordsModal()">&times;</button> 
     </div> 
     <div style="margin-bottom: 14px;"> 
-      <input type="text" id="modalSearchInput" placeholder="Quick filter summary list..." style="padding: 10px 14px; font-size:0.88rem;"> 
+      <input type="text" id="modalSearchInput" placeholder="Quick filter summary list..." style="padding: 12px 16px; font-size:0.9rem;"> 
     </div> 
-    <div class="table-responsive"> 
-      <table> 
-        <thead> 
-          <tr> 
-            <th id="thName">Material Summary List</th> 
-          </tr> 
-        </thead> 
-        <tbody id="summaryTableBody"></tbody> 
-      </table> 
-    </div> 
+    <div class="inventory-cards-container" id="summaryCardsContainer">
+      <!-- Dynamic Material Cards injected via JS -->
+    </div>
   </div> 
 </div> 
 
 <!-- MODAL 3: SINGLE MATERIAL DETAIL VIEW --> 
 <div id="itemDetailModal" class="modal"> 
-  <div class="modal-content modal-content-large"> 
+  <div class="modal-content"> 
     <div class="modal-header"> 
       <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3> 
       <button class="close-btn" onclick="closeItemDetailModal()">&times;</button> 
@@ -807,7 +821,6 @@ const i18n = {
     titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> තොග විස්තර සාරාංශය',
     placeholderModalSearch: 'සාරාංශ ලැයිස්තුව Code හෝ Name මගින් සොයන්න...',
-    thName: 'Material Name & Closing Stock',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:',
@@ -848,7 +861,6 @@ const i18n = {
     titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary',
     placeholderModalSearch: 'Quick filter by Code or Name...',
-    thName: 'Material Name & Closing Stock',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:',
@@ -889,7 +901,6 @@ const i18n = {
     titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> இருப்பு சுருக்கம்',
     placeholderModalSearch: 'குறியீடு அல்லது பெயர் மூலம் தேடுக...',
-    thName: 'பொருள் பெயர் & இறுதி இருப்பு',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> தீம் தேர்ந்தெடுக்கவும்:',
@@ -951,7 +962,6 @@ function applyLanguage(lang) {
   document.getElementById('btnShare').title = t.titleShare;
   document.getElementById('txtSummaryTitle').innerHTML = t.txtSummaryTitle;
   document.getElementById('modalSearchInput').placeholder = t.placeholderModalSearch;
-  document.getElementById('thName').innerText = t.thName;
   document.getElementById('txtSettingsTitle').innerHTML = t.txtSettingsTitle;
   document.getElementById('lblLanguage').innerHTML = t.lblLanguage;
   document.getElementById('lblTheme').innerHTML = t.lblTheme;
@@ -985,7 +995,7 @@ function showToast(message, type = 'success') {
 } 
 
 const defaultItems = [ 
-  {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000}, 
+  {"type","RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000}, 
   {"type":"RM","code":"11061702","name":"WHITE SUGAR","uom":"KG","op_stock":2500}, 
   {"type":"RM","code":"11002301","name":"MONOSODIUM GLUTAMATE","uom":"KG","op_stock":4525}, 
   {"type":"RM","code":"67548375","name":"ONION POWDER","uom":"KG","op_stock":120}, 
@@ -1088,7 +1098,7 @@ function addSingleSectionData() {
 } 
 
 function openRecordsModal() { 
-  renderSummaryTable(); 
+  renderSummaryCards(); 
   const modal = document.getElementById('recordsModal'); 
   modal.style.display = 'flex'; 
   setTimeout(() => modal.classList.add('show'), 10); 
@@ -1112,22 +1122,26 @@ function closeSettings() {
   setTimeout(() => modal.style.display = 'none', 300); 
 } 
 
-function renderSummaryTable() { 
-  const tbody = document.getElementById('summaryTableBody'); 
-  tbody.innerHTML = ''; 
+function renderSummaryCards() { 
+  const container = document.getElementById('summaryCardsContainer'); 
+  container.innerHTML = ''; 
   inventory.forEach((item, idx) => { 
-    const tr = document.createElement('tr'); 
-    tr.innerHTML = ` 
-      <td>
-        <span class="material-link" onclick="openItemDetails(${idx})">${item.name}</span>
-        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; font-weight: 500; display: flex; align-items: center; gap: 8px;">
-          <span><i class="fa-solid fa-barcode" style="font-size: 0.7rem;"></i> Code: ${item.code}</span>
-          <span>•</span>
-          <span>Closing Stock: <strong style="color: var(--primary); font-weight: 700;">${Number(item.closing).toLocaleString()} ${item.uom}</strong></span>
+    const cardDiv = document.createElement('div'); 
+    cardDiv.className = 'inventory-card-item'; 
+    cardDiv.onclick = () => openItemDetails(idx);
+    cardDiv.innerHTML = ` 
+      <div class="inv-card-left">
+        <div class="inv-card-name">${item.name}</div>
+        <div class="inv-card-code">
+          <i class="fa-solid fa-barcode"></i> ${item.code}
         </div>
-      </td> 
+      </div>
+      <div class="inv-card-right">
+        <div class="inv-card-closing-lbl">Closing Stock</div>
+        <div class="inv-card-closing-val">${Number(item.closing).toLocaleString()} ${item.uom}</div>
+      </div>
     `; 
-    tbody.appendChild(tr); 
+    container.appendChild(cardDiv); 
   }); 
 } 
 
@@ -1158,32 +1172,31 @@ function closeItemDetailModal() {
 
 document.getElementById('modalSearchInput').addEventListener('input', function() { 
   const q = this.value.toLowerCase().trim(); 
-  const rows = document.querySelectorAll('#summaryTableBody tr'); 
-  rows.forEach((row, idx) => { 
+  const cards = document.querySelectorAll('#summaryCardsContainer .inventory-card-item'); 
+  cards.forEach((card, idx) => { 
     const item = inventory[idx];
     const text = (item.name + " " + item.code).toLowerCase(); 
-    row.style.display = text.includes(q) ? '' : 'none'; 
+    card.style.display = text.includes(q) ? 'flex' : 'none'; 
   }); 
 }); 
 
 /* --- Helper to generate workbook with Excel formulas for Upload format compatibility --- */
 function generateWorkbookWithFormulas() {
   const exportData = inventory.map((item, index) => {
-    const rowNum = index + 2; // Row starts at 2 (Row 1 is Header)
+    const rowNum = index + 2; 
     return { 
       "Type": item.type, 
       "Material Code": item.code, 
       "Material Name": item.name, 
       "UOM": item.uom, 
-      "Op.Stock-Warehouse": item.op_stock, // Col E
-      "Receipt": item.f_receipt, // Col F
-      "Issues": item.g_issues, // Col G
-      "Return": item.h_return, // Col H
-      "Received to SSL I": item.i_ssl_received || 0, // Col I
-      "Sent to SSL J": item.j_ssl_sent || 0, // Col J
-      // Excel Formula: Closing Stock = E + F - G + H + I - J - L
-      "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-L${rowNum}`, v: item.closing }, // Col K
-      "Rejection L": item.l_rejection || 0 // Col L
+      "Op.Stock-Warehouse": item.op_stock, 
+      "Receipt": item.f_receipt, 
+      "Issues": item.g_issues, 
+      "Return": item.h_return, 
+      "Received to SSL I": item.i_ssl_received || 0, 
+      "Sent to SSL J": item.j_ssl_sent || 0, 
+      "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-L${rowNum}`, v: item.closing }, 
+      "Rejection L": item.l_rejection || 0 
     }; 
   }); 
 
