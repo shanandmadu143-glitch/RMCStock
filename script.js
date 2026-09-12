@@ -678,3 +678,4 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(currentTheme);
   applyLanguage(currentLang);
 });
+
