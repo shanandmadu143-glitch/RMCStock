@@ -666,8 +666,7 @@ td {
       <table> 
         <thead> 
           <tr> 
-            <th id="thName">Material Name</th> 
-            <th id="thClosing">Closing Stock (K)</th> 
+            <th id="thName">Material Summary List</th> 
           </tr> 
         </thead> 
         <tbody id="summaryTableBody"></tbody> 
@@ -808,8 +807,7 @@ const i18n = {
     titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> තොග විස්තර සාරාංශය',
     placeholderModalSearch: 'සාරාංශ ලැයිස්තුව Code හෝ Name මගින් සොයන්න...',
-    thName: 'Material Name & Code',
-    thClosing: 'Closing Stock (K)',
+    thName: 'Material Name & Closing Stock',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:',
@@ -850,8 +848,7 @@ const i18n = {
     titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary',
     placeholderModalSearch: 'Quick filter by Code or Name...',
-    thName: 'Material Name & Code',
-    thClosing: 'Closing Stock (K)',
+    thName: 'Material Name & Closing Stock',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:',
@@ -892,8 +889,7 @@ const i18n = {
     titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> இருப்பு சுருக்கம்',
     placeholderModalSearch: 'குறியீடு அல்லது பெயர் மூலம் தேடுக...',
-    thName: 'பொருள் பெயர் & குறியீடு',
-    thClosing: 'இறுதி இருப்பு (K)',
+    thName: 'பொருள் பெயர் & இறுதி இருப்பு',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> தீம் தேர்ந்தெடுக்கவும்:',
@@ -956,7 +952,6 @@ function applyLanguage(lang) {
   document.getElementById('txtSummaryTitle').innerHTML = t.txtSummaryTitle;
   document.getElementById('modalSearchInput').placeholder = t.placeholderModalSearch;
   document.getElementById('thName').innerText = t.thName;
-  document.getElementById('thClosing').innerText = t.thClosing;
   document.getElementById('txtSettingsTitle').innerHTML = t.txtSettingsTitle;
   document.getElementById('lblLanguage').innerHTML = t.lblLanguage;
   document.getElementById('lblTheme').innerHTML = t.lblTheme;
@@ -1125,11 +1120,12 @@ function renderSummaryTable() {
     tr.innerHTML = ` 
       <td>
         <span class="material-link" onclick="openItemDetails(${idx})">${item.name}</span>
-        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; font-weight: 500;">
-          <i class="fa-solid fa-barcode" style="font-size: 0.7rem;"></i> Code: ${item.code} | Closing Stock: <span style="color: var(--primary); font-weight: 600;">${Number(item.closing).toLocaleString()} ${item.uom}</span>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+          <span><i class="fa-solid fa-barcode" style="font-size: 0.7rem;"></i> Code: ${item.code}</span>
+          <span>•</span>
+          <span>Closing Stock: <strong style="color: var(--primary); font-weight: 700;">${Number(item.closing).toLocaleString()} ${item.uom}</strong></span>
         </div>
       </td> 
-      <td style="font-weight: 700; color: var(--primary); vertical-align: middle;">${Number(item.closing).toLocaleString()} ${item.uom}</td> 
     `; 
     tbody.appendChild(tr); 
   }); 
