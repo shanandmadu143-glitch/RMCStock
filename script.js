@@ -140,7 +140,7 @@ function applyLanguage(lang) {
   const langSelect = document.getElementById('langSelect');
   if (langSelect) langSelect.value = lang;
   
-  const t = i18n[lang];
+  const t = i18n[lang] || i18n['si'];
   document.getElementById('lblSearch').innerHTML = t.lblSearch;
   document.getElementById('searchInput').placeholder = t.placeholderSearch;
   document.getElementById('lblSection').innerHTML = t.lblSection;
@@ -173,9 +173,6 @@ function applyLanguage(lang) {
 
 function changeLanguage(lang) { applyLanguage(lang); }
 
-applyTheme(currentTheme);
-applyLanguage(currentLang);
-
 function showToast(message, type = 'success') { 
   const container = document.getElementById('toastContainer'); 
   const toast = document.createElement('div'); 
@@ -185,7 +182,11 @@ function showToast(message, type = 'success') {
   if (type === 'warning') iconClass = 'fa-triangle-exclamation'; 
   toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${message}</span>`; 
   container.appendChild(toast); 
-  setTimeout(() => { toast.remove(); }, 3500); 
+  setTimeout(() => { 
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3200); 
 } 
 
 const defaultItems = [ 
@@ -214,49 +215,83 @@ const defaultItems = [
 ]; 
 
 let inventory = []; 
+let selectedIndex = -1;
 
 function loadInventoryData() { 
   const savedData = localStorage.getItem('rmc_stock_inventory'); 
   if (savedData) { 
-    try { inventory = JSON.parse(savedData); } catch(e) { initDefaultInventory(); } 
-  } else { initDefaultInventory(); } 
+    try { 
+      inventory = JSON.parse(savedData); 
+    } catch(e) { 
+      initDefaultInventory(); 
+    } 
+  } else { 
+    initDefaultInventory(); 
+  } 
 } 
 
 function initDefaultInventory() { 
   inventory = defaultItems.map(item => ({ 
-    ...item, f_receipt: 0, g_issues: 0, h_return: 0, i_ssl_received: 0, j_ssl_sent: 0, l_rejection: 0, closing: item.op_stock, checked: false 
+    ...item, 
+    f_receipt: 0, 
+    g_issues: 0, 
+    h_return: 0, 
+    i_ssl_received: 0, 
+    j_ssl_sent: 0, 
+    l_rejection: 0, 
+    closing: item.op_stock, 
+    checked: false 
   })); 
   saveInventoryData(); 
 } 
 
-function saveInventoryData() { localStorage.setItem('rmc_stock_inventory', JSON.stringify(inventory)); } 
+function saveInventoryData() { 
+  localStorage.setItem('rmc_stock_inventory', JSON.stringify(inventory)); 
+} 
 
-loadInventoryData(); 
-
-let selectedIndex = -1; 
 const searchInput = document.getElementById('searchInput'); 
 const searchResults = document.getElementById('searchResults'); 
 const selectedBadge = document.getElementById('selectedBadge'); 
 
+let searchDebounceTimeout = null;
 searchInput.addEventListener('input', function() { 
+  clearTimeout(searchDebounceTimeout);
   const query = this.value.toLowerCase().trim(); 
-  searchResults.innerHTML = ''; 
-  if (!query) { searchResults.style.display = 'none'; return; } 
-  const filtered = inventory.filter(item => 
-    String(item.code).toLowerCase().includes(query) || String(item.name).toLowerCase().includes(query) 
-  ); 
-  if (filtered.length > 0) { 
-    searchResults.style.display = 'block'; 
-    filtered.forEach(item => { 
-      const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name); 
-      const div = document.createElement('div'); 
-      div.className = 'search-item'; 
-      div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.78rem;">${item.op_stock} ${item.uom}</span>`; 
-      div.onclick = () => selectItem(idx); 
-      searchResults.appendChild(div); 
-    }); 
-  } else { searchResults.style.display = 'none'; } 
+  
+  searchDebounceTimeout = setTimeout(() => {
+    searchResults.innerHTML = ''; 
+    if (!query) { 
+      searchResults.style.display = 'none'; 
+      return; 
+    } 
+    
+    const filtered = inventory.filter(item => 
+      String(item.code).toLowerCase().includes(query) || String(item.name).toLowerCase().includes(query) 
+    ); 
+    
+    if (filtered.length > 0) { 
+      searchResults.style.display = 'block'; 
+      const fragment = document.createDocumentFragment();
+      filtered.forEach(item => { 
+        const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name); 
+        const div = document.createElement('div'); 
+        div.className = 'search-item'; 
+        div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.78rem;">${item.closing} ${item.uom}</span>`; 
+        div.onclick = () => selectItem(idx); 
+        fragment.appendChild(div); 
+      }); 
+      searchResults.appendChild(fragment);
+    } else { 
+      searchResults.style.display = 'none'; 
+    } 
+  }, 150);
 }); 
+
+document.addEventListener('click', function(e) {
+  if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+    searchResults.style.display = 'none';
+  }
+});
 
 function selectItem(index) { 
   selectedIndex = index; 
@@ -271,11 +306,12 @@ function selectItem(index) {
 } 
 
 function addSingleSectionData() { 
-  const t = i18n[currentLang];
+  const t = i18n[currentLang] || i18n['si'];
   if (selectedIndex === -1) { showToast(t.msgSelectMaterial, 'warning'); return; } 
   const targetSection = document.getElementById('sectionSelect').value; 
   const amount = parseFloat(document.getElementById('inputAmount').value) || 0; 
   if (amount <= 0) { showToast(t.msgValidAmount, 'error'); return; } 
+  
   let item = inventory[selectedIndex]; 
   
   if (targetSection === 'F') item.f_receipt += amount; 
@@ -291,59 +327,80 @@ function addSingleSectionData() {
   showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
 } 
 
+function showModal(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.style.display = 'flex';
+  requestAnimationFrame(() => {
+    modal.classList.add('show');
+  });
+}
+
+function hideModal(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.classList.remove('show');
+  setTimeout(() => {
+    modal.style.display = 'none';
+  }, 250);
+}
+
 function openRecordsModal() { 
   renderChecklist(); 
-  const modal = document.getElementById('recordsModal'); 
-  modal.style.display = 'flex'; 
-  setTimeout(() => modal.classList.add('show'), 10); 
+  showModal('recordsModal');
 } 
 
 function closeRecordsModal() { 
-  const modal = document.getElementById('recordsModal'); 
-  modal.classList.remove('show'); 
-  setTimeout(() => modal.style.display = 'none', 300); 
+  hideModal('recordsModal');
 } 
 
 function openSettings() { 
-  const modal = document.getElementById('settingsModal'); 
-  modal.style.display = 'flex'; 
-  setTimeout(() => modal.classList.add('show'), 10); 
+  showModal('settingsModal');
 } 
 
 function closeSettings() { 
-  const modal = document.getElementById('settingsModal'); 
-  modal.classList.remove('show'); 
-  setTimeout(() => modal.style.display = 'none', 300); 
+  hideModal('settingsModal');
 } 
 
 function renderChecklist() { 
   const container = document.getElementById('summaryCardsContainer'); 
   container.innerHTML = ''; 
+  const fragment = document.createDocumentFragment();
+
   inventory.forEach((item, idx) => { 
     const itemDiv = document.createElement('div'); 
     itemDiv.className = 'checklist-item'; 
-    
+    itemDiv.dataset.index = idx;
+
     itemDiv.innerHTML = ` 
-      <div class="checklist-left" onclick="openItemDetails(${idx})">
-        <input type="checkbox" class="checklist-checkbox" ${item.checked ? 'checked' : ''} onclick="event.stopPropagation(); toggleCheck(${idx}, this)">
+      <div class="checklist-left">
+        <input type="checkbox" class="checklist-checkbox" ${item.checked ? 'checked' : ''}>
         <div class="checklist-info">
           <div class="checklist-name" title="${item.name}">${item.name}</div>
           <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
         </div>
       </div>
-      <div class="checklist-right" onclick="openItemDetails(${idx})" style="cursor: pointer;">
+      <div class="checklist-right">
         <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
         <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Closing</div>
       </div>
     `; 
-    container.appendChild(itemDiv); 
-  }); 
-} 
 
-function toggleCheck(index, checkbox) {
-  inventory[index].checked = checkbox.checked;
-  saveInventoryData();
-}
+    itemDiv.querySelector('.checklist-checkbox').addEventListener('change', (e) => {
+      e.stopPropagation();
+      inventory[idx].checked = e.target.checked;
+      saveInventoryData();
+    });
+
+    itemDiv.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('checklist-checkbox')) {
+        openItemDetails(idx);
+      }
+    });
+
+    fragment.appendChild(itemDiv); 
+  }); 
+
+  container.appendChild(fragment);
+} 
 
 function openItemDetails(index) {
   const item = inventory[index];
@@ -359,25 +416,27 @@ function openItemDetails(index) {
   document.getElementById('detRejectionL').innerText = Number(item.l_rejection || 0).toLocaleString() + ' ' + item.uom;
   document.getElementById('detClosing').innerText = Number(item.closing).toLocaleString() + ' ' + item.uom;
 
-  const modal = document.getElementById('itemDetailModal');
-  modal.style.display = 'flex';
-  setTimeout(() => modal.classList.add('show'), 10);
+  showModal('itemDetailModal');
 }
 
 function closeItemDetailModal() {
-  const modal = document.getElementById('itemDetailModal');
-  modal.classList.remove('show');
-  setTimeout(() => modal.style.display = 'none', 300);
+  hideModal('itemDetailModal');
 }
 
+let modalSearchTimeout = null;
 document.getElementById('modalSearchInput').addEventListener('input', function() { 
+  clearTimeout(modalSearchTimeout);
   const q = this.value.toLowerCase().trim(); 
-  const items = document.querySelectorAll('#summaryCardsContainer .checklist-item'); 
-  items.forEach((itemDiv, idx) => { 
-    const item = inventory[idx];
-    const text = (item.name + " " + item.code).toLowerCase(); 
-    itemDiv.style.display = text.includes(q) ? 'flex' : 'none'; 
-  }); 
+  
+  modalSearchTimeout = setTimeout(() => {
+    const items = document.querySelectorAll('#summaryCardsContainer .checklist-item'); 
+    items.forEach((itemDiv) => { 
+      const idx = itemDiv.dataset.index;
+      const item = inventory[idx];
+      const text = (item.name + " " + item.code).toLowerCase(); 
+      itemDiv.style.display = text.includes(q) ? 'flex' : 'none'; 
+    }); 
+  }, 150);
 }); 
 
 function generateWorkbookWithFormulas() {
@@ -406,7 +465,7 @@ function generateWorkbookWithFormulas() {
 }
 
 function downloadExcelAndReset() { 
-  const t = i18n[currentLang];
+  const t = i18n[currentLang] || i18n['si'];
   const workbook = generateWorkbookWithFormulas();
   const today = new Date().toISOString().split('T')[0]; 
   XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
@@ -423,12 +482,14 @@ function downloadExcelAndReset() {
     item.checked = false;
   }); 
   saveInventoryData(); 
-  selectedIndex = -1; searchInput.value = ''; selectedBadge.style.display = 'none'; 
+  selectedIndex = -1; 
+  searchInput.value = ''; 
+  selectedBadge.style.display = 'none'; 
   showToast(t.msgExcelShift, 'success'); 
 } 
 
 async function shareStockSummary() {
-  const t = i18n[currentLang];
+  const t = i18n[currentLang] || i18n['si'];
   const today = new Date().toISOString().split('T')[0];
   const workbook = generateWorkbookWithFormulas();
   
@@ -456,7 +517,7 @@ async function shareStockSummary() {
 }
 
 function restoreFromXLSX() { 
-  const t = i18n[currentLang];
+  const t = i18n[currentLang] || i18n['si'];
   const fileInput = document.getElementById('xlsxFileInput'); 
   const file = fileInput.files[0]; 
   if (!file) { showToast(t.msgRestoreSelect, 'warning'); return; } 
@@ -478,7 +539,7 @@ function restoreFromXLSX() {
       let headerIndex = -1; 
       let colMap = { type: 0, code: 1, name: 2, uom: 3, op_stock: 4, f_receipt: 5, g_issues: 6, h_return: 7, i_ssl_received: 8, j_ssl_sent: 9, closing: 10, l_rejection: 11 }; 
       
-      for (let r = 0; r < Math.min(matrix.length, 5); r++) { 
+      for (let r = 0; r < Math.min(matrix.length, 10); r++) { 
         const rowStr = matrix[r].map(c => String(c).toLowerCase().trim()); 
         if (rowStr.some(c => c.includes("code") || c.includes("material") || c.includes("name"))) { 
           headerIndex = r; 
@@ -567,7 +628,7 @@ function restoreFromXLSX() {
 } 
 
 function resetToDefault() { 
-  const t = i18n[currentLang];
+  const t = i18n[currentLang] || i18n['si'];
   if (confirm(t.msgResetConfirm)) { 
     localStorage.removeItem('rmc_stock_inventory'); 
     initDefaultInventory(); 
@@ -582,3 +643,10 @@ function downloadXLSXBackup() {
   XLSX.writeFile(workbook, `RMC_Stock_Backup_${today}.xlsx`); 
   showToast('Backup File Downloaded!', 'success'); 
 }
+
+// Global Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  loadInventoryData();
+  applyTheme(currentTheme);
+  applyLanguage(currentLang);
+});
