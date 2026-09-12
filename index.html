@@ -380,7 +380,7 @@ input:focus, select:focus {
   padding: 24px; 
   border-radius: var(--radius-lg); 
   width: 100%; 
-  max-width: 600px; 
+  max-width: 680px; 
   box-shadow: var(--shadow-modal); 
   max-height: 90vh; 
   display: flex; 
@@ -428,14 +428,14 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
-/* --- Checklist Layout --- */
+/* --- View List Layout --- */
 .checklist-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   overflow-y: auto;
   max-height: calc(90vh - 140px);
-  padding-right: 4px;
+  padding-right: 6px;
   width: 100%;
 }
 
@@ -443,19 +443,26 @@ input:focus, select:focus {
   background: var(--bg-main);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 12px 14px;
+  padding: 16px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 12px;
-  cursor: pointer;
   transition: var(--transition-smooth);
   width: 100%;
 }
 
 .checklist-item:hover {
   border-color: var(--primary);
-  background: var(--primary-light);
+  box-shadow: var(--shadow-subtle);
+}
+
+.checklist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  gap: 10px;
 }
 
 .checklist-left {
@@ -479,20 +486,17 @@ input:focus, select:focus {
   flex-direction: column;
   gap: 2px;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .checklist-name {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-dark);
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .checklist-code {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -500,48 +504,40 @@ input:focus, select:focus {
 .checklist-right {
   text-align: right;
   flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
 }
 
 .checklist-stock {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: var(--primary);
 }
 
-.detail-card-grid {
+.checklist-details-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 10px;
-}
-
-.detail-item-box {
-  background: var(--bg-main);
-  border: 1px solid var(--border-color);
-  padding: 14px 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  font-size: 0.8rem;
+  background: var(--card-bg);
+  padding: 12px;
   border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
 }
 
-.detail-item-box.full-width {
-  grid-column: span 2;
-}
-
-.detail-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 4px;
+.detail-sub-box {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.detail-value {
-  font-size: 1.05rem;
+.detail-sub-label {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.detail-sub-val {
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-dark);
 }
@@ -601,8 +597,7 @@ input:focus, select:focus {
 
 @media (max-width: 640px) { 
   .form-grid { grid-template-columns: 1fr; } 
-  .detail-card-grid { grid-template-columns: 1fr; }
-  .detail-item-box.full-width { grid-column: span 1; }
+  .checklist-details-grid { grid-template-columns: repeat(2, 1fr); }
   body { padding: 12px; } 
   .header-block { padding: 16px 20px; } 
   .card { padding: 20px; } 
@@ -618,7 +613,7 @@ input:focus, select:focus {
       RMC Daily Stock 
     </div> 
     <div class="icon-actions"> 
-      <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Summary Checklist"> 
+      <button class="btn-icon-header" onclick="openRecordsModal()" title="View Stock Inventory List"> 
         <i class="fa-solid fa-list-check" style="color: #f59e0b;"></i> 
       </button> 
       <button class="btn-icon-header" onclick="openSettings()" title="Settings & Preferences"> 
@@ -652,9 +647,9 @@ input:focus, select:focus {
           <option value="F" id="optReceipt">Receipt</option> 
           <option value="G" id="optIssues">Issues</option> 
           <option value="H" id="optReturn">Return</option> 
-          <option value="I" id="optSslI">Received to SSL I</option>
-          <option value="J" id="optSslJ">Sent to SSL J</option>
-          <option value="L" id="optRejectionL">Rejection L</option>
+          <option value="I" id="optSslI">Received to SSL I</option> 
+          <option value="J" id="optSslJ">Sent to SSL J</option> 
+          <option value="L" id="optRejectionL">Rejection L</option> 
         </select> 
       </div> 
       <div class="form-group" style="margin-bottom:0;"> 
@@ -685,73 +680,17 @@ input:focus, select:focus {
 <!-- Toast Notifications --> 
 <div id="toastContainer"></div> 
 
-<!-- MODAL: INVENTORY CHECKLIST SUMMARY --> 
+<!-- MODAL: INVENTORY VIEW LIST SUMMARY --> 
 <div id="recordsModal" class="modal"> 
   <div class="modal-content"> 
     <div class="modal-header"> 
-      <h3 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check List</h3> 
+      <h3 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock View List</h3> 
       <button class="close-btn" onclick="closeRecordsModal()">&times;</button> 
     </div> 
     <div style="margin-bottom: 12px; flex-shrink: 0;"> 
-      <input type="text" id="modalSearchInput" placeholder="Quick filter checklist..." style="padding: 12px 16px; font-size:0.9rem;"> 
+      <input type="text" id="modalSearchInput" placeholder="Quick filter view list..." style="padding: 12px 16px; font-size:0.9rem;"> 
     </div> 
-    <div class="checklist-container" id="summaryCardsContainer"></div>
-  </div> 
-</div> 
-
-<!-- MODAL: SINGLE MATERIAL DETAIL VIEW --> 
-<div id="itemDetailModal" class="modal"> 
-  <div class="modal-content"> 
-    <div class="modal-header"> 
-      <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3> 
-      <button class="close-btn" onclick="closeItemDetailModal()">&times;</button> 
-    </div> 
-    <div class="detail-card-grid" style="overflow-y: auto;"> 
-      <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div> 
-        <div class="detail-value" id="detCode">-</div> 
-      </div> 
-      <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-tag"></i> Unit of Measure (UOM)</div> 
-        <div class="detail-value" id="detUom">-</div> 
-      </div> 
-      <div class="detail-item-box full-width"> 
-        <div class="detail-label"><i class="fa-solid fa-box"></i> Material Name</div> 
-        <div class="detail-value" id="detName" style="color:var(--primary);">-</div> 
-      </div> 
-      <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock</div> 
-        <div class="detail-value" id="detOp">-</div> 
-      </div> 
-      <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-arrow-down" style="color:var(--success);"></i> Receipt (F)</div> 
-        <div class="detail-value" id="detReceipt" style="color:var(--success);">-</div> 
-      </div> 
-      <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-arrow-up" style="color:var(--danger);"></i> Issues (G)</div> 
-        <div class="detail-value" id="detIssues" style="color:var(--danger);">-</div> 
-      </div> 
-      <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-rotate-left" style="color:var(--warning);"></i> Return (H)</div> 
-        <div class="detail-value" id="detReturn" style="color:var(--warning);">-</div> 
-      </div> 
-      <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--success);"></i> SSL I (Received)</div> 
-        <div class="detail-value" id="detSslI" style="color:var(--success);">-</div> 
-      </div> 
-      <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--danger);"></i> SSL J (Sent)</div> 
-        <div class="detail-value" id="detSslJ" style="color:var(--danger);">-</div> 
-      </div> 
-      <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection L</div> 
-        <div class="detail-value" id="detRejectionL" style="color:var(--danger);">-</div> 
-      </div> 
-      <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);"> 
-        <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock (K)</div> 
-        <div class="detail-value" id="detClosing" style="font-size: 1.3rem; color:var(--primary);">-</div> 
-      </div> 
-    </div> 
+    <div class="checklist-container" id="summaryCardsContainer"></div> 
   </div> 
 </div> 
 
@@ -763,7 +702,7 @@ input:focus, select:focus {
       <button class="close-btn" onclick="closeSettings()">&times;</button> 
     </div> 
 
-    <!-- Language Setting -->
+    <!-- Language Setting --> 
     <div class="setting-option"> 
       <label id="lblLanguage"><i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language / භාෂාව / மொழி:</label> 
       <select id="langSelect" onchange="changeLanguage(this.value)"> 
@@ -773,7 +712,7 @@ input:focus, select:focus {
       </select> 
     </div> 
 
-    <!-- Theme Setting -->
+    <!-- Theme Setting --> 
     <div class="setting-option"> 
       <label id="lblTheme"><i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:</label> 
       <select id="themeSelect" onchange="changeTheme(this.value)"> 
@@ -783,7 +722,7 @@ input:focus, select:focus {
       </select> 
     </div> 
 
-    <!-- Excel Restore -->
+    <!-- Excel Restore --> 
     <div class="setting-option"> 
       <label id="lblRestore"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label> 
       <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p> 
@@ -793,7 +732,7 @@ input:focus, select:focus {
       </button> 
     </div> 
 
-    <!-- Excel Backup -->
+    <!-- Excel Backup --> 
     <div class="setting-option"> 
       <label id="lblBackup"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label> 
       <p id="descBackup">වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p> 
@@ -802,7 +741,7 @@ input:focus, select:focus {
       </button> 
     </div> 
 
-    <!-- Reset Data -->
+    <!-- Reset Data --> 
     <div class="setting-option"> 
       <label id="lblReset"><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label> 
       <p id="descReset">මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p> 
@@ -814,183 +753,183 @@ input:focus, select:focus {
 </div> 
 
 <script> 
-const i18n = {
-  si: {
-    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Code හෝ Name මගින් සොයන්න:',
-    placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...',
-    lblSection: '<i class="fa-solid fa-layer-group"></i> Section එක තෝරන්න:',
-    optReceipt: 'Receipt (ලැබීම්)',
-    optIssues: 'Issues (නිකුත් කිරීම්)',
-    optReturn: 'Return (නැවත භාරදීම්)',
-    optSslI: 'Received to SSL I (SSL I ලැබීම්)',
-    optSslJ: 'Sent to SSL J (SSL J යැවීම්)',
-    optRejectionL: 'Rejection L (L ප්‍රතික්ෂේප කිරීම්)',
-    lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
-    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    titleExcel: 'Download Excel & Shift Stock',
-    titleShare: 'Share Excel File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> තොග පරීක්ෂාව (Stock Check List)',
-    placeholderModalSearch: 'චෙක්ලිස්ට් එක සෙවීමට Code හෝ Name ලියන්න...',
-    txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
-    lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
-    lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:',
-    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Excel (.xlsx) Restore කරන්න:',
-    descRestore: 'පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.',
-    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
-    lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup එකක් ගන්න:',
-    descBackup: 'වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.',
-    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
-    lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> මුල් තත්වයට Reset කරන්න:',
-    descReset: 'මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.',
-    btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
-    lblFooter: 'Created By <span>Yomal Lakshan</span>',
-    msgSelectMaterial: 'කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!',
-    msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න!',
-    msgAdded: 'සාර්ථකව එකතු විය!',
-    msgExcelShift: 'Excel ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
-    msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
-    msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
-    msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
-    shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'Excel ගොනුව Share කිරීමට සූදානම්!',
-    shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි.'
-  },
-  en: {
-    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
-    placeholderSearch: 'Type Code or Name to filter...',
-    lblSection: '<i class="fa-solid fa-layer-group"></i> Select Section:',
-    optReceipt: 'Receipt',
-    optIssues: 'Issues',
-    optReturn: 'Return',
-    optSslI: 'Received to SSL I',
-    optSslJ: 'Sent to SSL J',
-    optRejectionL: 'Rejection L',
-    lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
-    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    titleExcel: 'Download Excel & Shift Stock',
-    titleShare: 'Share Excel File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check List',
-    placeholderModalSearch: 'Quick filter checklist...',
-    txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
-    lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:',
-    lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:',
-    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:',
-    descRestore: 'Update current inventory using a previously saved Excel file.',
-    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
-    lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:',
-    descBackup: 'Get a safe backup copy of current inventory data.',
-    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
-    lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:',
-    descReset: 'Reset all records back to default starting items.',
-    btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
-    lblFooter: 'Created By <span>Yomal Lakshan</span>',
-    msgSelectMaterial: 'Please select a Material Code or Name!',
-    msgValidAmount: 'Please enter a valid amount greater than 0!',
-    msgAdded: 'successfully added!',
-    msgExcelShift: 'Excel downloaded and Stock shifted successfully!',
-    msgRestoreSelect: 'Please select an Excel file!',
-    msgRestoreSuccess: 'Excel Restore Successful!',
-    msgResetConfirm: 'Are you sure you want to reset to default data?',
-    shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'Excel file ready to share!',
-    shareNotSupported: 'Your browser does not support file sharing.'
-  },
-  ta: {
-    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீடு மூலம் தேடுக:',
-    placeholderSearch: 'தேட குறியீடு அல்லது பெயரை தட்டச்சு செய்க...',
-    lblSection: '<i class="fa-solid fa-layer-group"></i> பிரிவைத் தேர்ந்தெடுக்கவும்:',
-    optReceipt: 'ரசீது (Receipt)',
-    optIssues: 'வழங்கல்கள் (Issues)',
-    optReturn: 'திரும்பப் பெறுதல் (Return)',
-    optSslI: 'Received to SSL I',
-    optSslJ: 'Sent to SSL J',
-    optRejectionL: 'Rejection L',
-    lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
-    btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
-    titleExcel: 'Download Excel & Shift Stock',
-    titleShare: 'Share Excel File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு பட்டியல்',
-    placeholderModalSearch: 'குறியீடு அல்லது பெயர் மூலம் தேடுக...',
-    txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
-    lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
-    lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> தீம் தேர்ந்தெடுக்கவும்:',
-    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> எக்செல் கோப்பை மீட்டெடுக்க:',
-    descRestore: 'முன்பு சேமிக்கப்பட்ட எக்செல் கோப்பைப் பயன்படுத்தித் தரவைப் புதுப்பிக்கவும்.',
-    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
-    lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> காப்புப் பிரதி பெற:',
-    descBackup: 'தற்போதைய தரவின் பாதுகாப்பான காப்புப் பிரதியைப் பெறவும்.',
-    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
-    lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> இயல்புநிலைக்கு மீட்டமைக்க:',
-    descReset: 'அனைத்து தரவையும் ஆரம்ப நிலைக்கு மீட்டமைக்கவும்.',
-    btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
-    lblFooter: 'Created By <span>Yomal Lakshan</span>',
-    msgSelectMaterial: 'தயவுசெய்து ஒரு பொருளைத் தேர்ந்தெடுக்கவும்!',
-    msgValidAmount: 'தயவுசெய்து 0 ஐ விட அதிகமான அளவை உள்ளிடவும்!',
-    msgAdded: 'வெற்றிகரமாக சேர்க்கப்பட்டது!',
-    msgExcelShift: 'எக்செல் பதிவிறக்கம் செய்யப்பட்டது, இருப்பு புதுப்பிக்கப்பட்டது!',
-    msgRestoreSelect: 'தயவுசெய்து எக்செல் கோப்பைத் தேர்ந்தெடுக்கவும்!',
-    msgRestoreSuccess: 'எக்செல் மீட்டமைப்பு வெற்றிகரமாக முடிந்தது!',
-    msgResetConfirm: 'ஆரம்ப தரவுக்கு மீட்டமைக்க நிச்சயமாக விரும்புகிறீர்களா?',
-    shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'பகிர எக்செல் கோப்பு தயாராக உள்ளது!',
-    shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.'
-  }
-};
+const i18n = { 
+  si: { 
+    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Code හෝ Name මගින් සොයන්න:', 
+    placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...', 
+    lblSection: '<i class="fa-solid fa-layer-group"></i> Section එක තෝරන්න:', 
+    optReceipt: 'Receipt (ලැබීම්)', 
+    optIssues: 'Issues (නිකුත් කිරීම්)', 
+    optReturn: 'Return (නැවත භාරදීම්)', 
+    optSslI: 'Received to SSL I (SSL I ලැබීම්)', 
+    optSslJ: 'Sent to SSL J (SSL J යැවීම්)', 
+    optRejectionL: 'Rejection L (L ප්‍රතික්ෂේප කිරීම්)', 
+    lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:', 
+    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save', 
+    titleExcel: 'Download Excel & Shift Stock', 
+    titleShare: 'Share Excel File', 
+    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> තොග පරීක්ෂාව (Stock View List)', 
+    placeholderModalSearch: 'සෙවීමට Code හෝ Name ලියන්න...', 
+    txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)', 
+    lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):', 
+    lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:', 
+    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Excel (.xlsx) Restore කරන්න:', 
+    descRestore: 'පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.', 
+    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data', 
+    lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup එකක් ගන්න:', 
+    descBackup: 'වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.', 
+    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File', 
+    lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> මුල් තත්වයට Reset කරන්න:', 
+    descReset: 'මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.', 
+    btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data', 
+    lblFooter: 'Created By <span>Yomal Lakshan</span>', 
+    msgSelectMaterial: 'කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!', 
+    msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න!', 
+    msgAdded: 'සාර්ථකව එකතු විය!', 
+    msgExcelShift: 'Excel ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!', 
+    msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!', 
+    msgRestoreSuccess: 'Excel Restore සාර්ථකයි!', 
+    msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?', 
+    shareTitle: 'RMC Daily Stock Summary', 
+    shareSuccess: 'Excel ගොනුව Share කිරීමට සූදානම්!', 
+    shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි.' 
+  }, 
+  en: { 
+    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:', 
+    placeholderSearch: 'Type Code or Name to filter...', 
+    lblSection: '<i class="fa-solid fa-layer-group"></i> Select Section:', 
+    optReceipt: 'Receipt', 
+    optIssues: 'Issues', 
+    optReturn: 'Return', 
+    optSslI: 'Received to SSL I', 
+    optSslJ: 'Sent to SSL J', 
+    optRejectionL: 'Rejection L', 
+    lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:', 
+    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save', 
+    titleExcel: 'Download Excel & Shift Stock', 
+    titleShare: 'Share Excel File', 
+    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock View List', 
+    placeholderModalSearch: 'Quick filter view list...', 
+    txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences', 
+    lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:', 
+    lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:', 
+    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:', 
+    descRestore: 'Update current inventory using a previously saved Excel file.', 
+    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data', 
+    lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:', 
+    descBackup: 'Get a safe backup copy of current inventory data.', 
+    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File', 
+    lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:', 
+    descReset: 'Reset all records back to default starting items.', 
+    btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data', 
+    lblFooter: 'Created By <span>Yomal Lakshan</span>', 
+    msgSelectMaterial: 'Please select a Material Code or Name!', 
+    msgValidAmount: 'Please enter a valid amount greater than 0!', 
+    msgAdded: 'successfully added!', 
+    msgExcelShift: 'Excel downloaded and Stock shifted successfully!', 
+    msgRestoreSelect: 'Please select an Excel file!', 
+    msgRestoreSuccess: 'Excel Restore Successful!', 
+    msgResetConfirm: 'Are you sure you want to reset to default data?', 
+    shareTitle: 'RMC Daily Stock Summary', 
+    shareSuccess: 'Excel file ready to share!', 
+    shareNotSupported: 'Your browser does not support file sharing.' 
+  }, 
+  ta: { 
+    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீடு மூலம் தேடுக:', 
+    placeholderSearch: 'தேட குறியீடு அல்லது பெயரை தட்டச்சு செய்க...', 
+    lblSection: '<i class="fa-solid fa-layer-group"></i> பிரிவைத் தேர்ந்தெடுக்கவும்:', 
+    optReceipt: 'ரசீது (Receipt)', 
+    optIssues: 'வழங்கல்கள் (Issues)', 
+    optReturn: 'திரும்பப் பெறுதல் (Return)', 
+    optSslI: 'Received to SSL I', 
+    optSslJ: 'Sent to SSL J', 
+    optRejectionL: 'Rejection L', 
+    lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:', 
+    btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)', 
+    titleExcel: 'Download Excel & Shift Stock', 
+    titleShare: 'Share Excel File', 
+    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு பார்வை பட்டியல்', 
+    placeholderModalSearch: 'தேட குறியீடு அல்லது பெயரை எழுதுங்கள்...', 
+    txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)', 
+    lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:', 
+    lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> தீம் தேர்ந்தெடுக்கவும்:', 
+    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> எக்செல் கோப்பை மீட்டெடுக்க:', 
+    descRestore: 'முன்பு சேமிக்கப்பட்ட எக்செல் கோப்பைப் பயன்படுத்தித் தரவைப் புதுப்பிக்கவும்.', 
+    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data', 
+    lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> காப்புப் பிரதி பெற:', 
+    descBackup: 'தற்போதைய தரவின் பாதுகாப்பான காப்புப் பிரதியைப் பெறவும்.', 
+    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File', 
+    lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> இயல்புநிலைக்கு மீட்டமைக்க:', 
+    descReset: 'அனைத்து தரவையும் ஆரம்ப நிலைக்கு மீட்டமைக்கவும்.', 
+    btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data', 
+    lblFooter: 'Created By <span>Yomal Lakshan</span>', 
+    msgSelectMaterial: 'தயவுசெய்து ஒரு பொருளைத் தேர்ந்தெடுக்கவும்!', 
+    msgValidAmount: 'தயவுசெய்து 0 ஐ விட அதிகமான அளவை உள்ளிடவும்!', 
+    msgAdded: 'வெற்றிகரமாக சேர்க்கப்பட்டது!', 
+    msgExcelShift: 'எக்செல் பதிவிறக்கம் செய்யப்பட்டது, இருப்பு புதுப்பிக்கப்பட்டது!', 
+    msgRestoreSelect: 'தயவுசெய்து எக்செல் கோப்பைத் தேர்ந்தெடுக்கவும்!', 
+    msgRestoreSuccess: 'எக்செல் மீட்டமைப்பு வெற்றிகரமாக முடிந்தது!', 
+    msgResetConfirm: 'ஆரம்ப தரவுக்கு மீட்டமைக்க நிச்சயமாக விரும்புகிறீர்களா?', 
+    shareTitle: 'RMC Daily Stock Summary', 
+    shareSuccess: 'பகிர எக்செல் கோப்பு தயாராக உள்ளது!', 
+    shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.' 
+  } 
+}; 
 
-let currentLang = localStorage.getItem('rmc_app_lang') || 'si';
-let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
+let currentLang = localStorage.getItem('rmc_app_lang') || 'si'; 
+let currentTheme = localStorage.getItem('rmc_app_theme') || 'light'; 
 
-function applyTheme(theme) {
-  currentTheme = theme;
-  document.documentElement.setAttribute('data-theme', theme);
-  const themeSelect = document.getElementById('themeSelect');
-  if (themeSelect) themeSelect.value = theme;
-  localStorage.setItem('rmc_app_theme', theme);
-}
+function applyTheme(theme) { 
+  currentTheme = theme; 
+  document.documentElement.setAttribute('data-theme', theme); 
+  const themeSelect = document.getElementById('themeSelect'); 
+  if (themeSelect) themeSelect.value = theme; 
+  localStorage.setItem('rmc_app_theme', theme); 
+} 
 
-function changeTheme(theme) { applyTheme(theme); }
+function changeTheme(theme) { applyTheme(theme); } 
 
-function applyLanguage(lang) {
-  currentLang = lang;
-  localStorage.setItem('rmc_app_lang', lang);
-  const langSelect = document.getElementById('langSelect');
-  if (langSelect) langSelect.value = lang;
+function applyLanguage(lang) { 
+  currentLang = lang; 
+  localStorage.setItem('rmc_app_lang', lang); 
+  const langSelect = document.getElementById('langSelect'); 
+  if (langSelect) langSelect.value = lang; 
   
-  const t = i18n[lang];
-  document.getElementById('lblSearch').innerHTML = t.lblSearch;
-  document.getElementById('searchInput').placeholder = t.placeholderSearch;
-  document.getElementById('lblSection').innerHTML = t.lblSection;
-  document.getElementById('optReceipt').innerText = t.optReceipt;
-  document.getElementById('optIssues').innerText = t.optIssues;
-  document.getElementById('optReturn').innerText = t.optReturn;
-  document.getElementById('optSslI').innerText = t.optSslI;
-  document.getElementById('optSslJ').innerText = t.optSslJ;
-  document.getElementById('optRejectionL').innerText = t.optRejectionL;
-  document.getElementById('lblAmount').innerHTML = t.lblAmount;
-  document.getElementById('btnSave').innerHTML = t.btnSave;
-  document.getElementById('btnExcel').title = t.titleExcel;
-  document.getElementById('btnShare').title = t.titleShare;
-  document.getElementById('txtSummaryTitle').innerHTML = t.txtSummaryTitle;
-  document.getElementById('modalSearchInput').placeholder = t.placeholderModalSearch;
-  document.getElementById('txtSettingsTitle').innerHTML = t.txtSettingsTitle;
-  document.getElementById('lblLanguage').innerHTML = t.lblLanguage;
-  document.getElementById('lblTheme').innerHTML = t.lblTheme;
-  document.getElementById('lblRestore').innerHTML = t.lblRestore;
-  document.getElementById('descRestore').innerText = t.descRestore;
-  document.getElementById('btnRestore').innerHTML = t.btnRestore;
-  document.getElementById('lblBackup').innerHTML = t.lblBackup;
-  document.getElementById('descBackup').innerText = t.descBackup;
-  document.getElementById('btnBackup').innerHTML = t.btnBackup;
-  document.getElementById('lblReset').innerHTML = t.lblReset;
-  document.getElementById('descReset').innerText = t.descReset;
-  document.getElementById('btnReset').innerHTML = t.btnReset;
-  document.getElementById('lblFooter').innerHTML = t.lblFooter;
-}
+  const t = i18n[lang]; 
+  document.getElementById('lblSearch').innerHTML = t.lblSearch; 
+  document.getElementById('searchInput').placeholder = t.placeholderSearch; 
+  document.getElementById('lblSection').innerHTML = t.lblSection; 
+  document.getElementById('optReceipt').innerText = t.optReceipt; 
+  document.getElementById('optIssues').innerText = t.optIssues; 
+  document.getElementById('optReturn').innerText = t.optReturn; 
+  document.getElementById('optSslI').innerText = t.optSslI; 
+  document.getElementById('optSslJ').innerText = t.optSslJ; 
+  document.getElementById('optRejectionL').innerText = t.optRejectionL; 
+  document.getElementById('lblAmount').innerHTML = t.lblAmount; 
+  document.getElementById('btnSave').innerHTML = t.btnSave; 
+  document.getElementById('btnExcel').title = t.titleExcel; 
+  document.getElementById('btnShare').title = t.titleShare; 
+  document.getElementById('txtSummaryTitle').innerHTML = t.txtSummaryTitle; 
+  document.getElementById('modalSearchInput').placeholder = t.placeholderModalSearch; 
+  document.getElementById('txtSettingsTitle').innerHTML = t.txtSettingsTitle; 
+  document.getElementById('lblLanguage').innerHTML = t.lblLanguage; 
+  document.getElementById('lblTheme').innerHTML = t.lblTheme; 
+  document.getElementById('lblRestore').innerHTML = t.lblRestore; 
+  document.getElementById('descRestore').innerText = t.descRestore; 
+  document.getElementById('btnRestore').innerHTML = t.btnRestore; 
+  document.getElementById('lblBackup').innerHTML = t.lblBackup; 
+  document.getElementById('descBackup').innerText = t.descBackup; 
+  document.getElementById('btnBackup').innerHTML = t.btnBackup; 
+  document.getElementById('lblReset').innerHTML = t.lblReset; 
+  document.getElementById('descReset').innerText = t.descReset; 
+  document.getElementById('btnReset').innerHTML = t.btnReset; 
+  document.getElementById('lblFooter').innerHTML = t.lblFooter; 
+} 
 
-function changeLanguage(lang) { applyLanguage(lang); }
+function changeLanguage(lang) { applyLanguage(lang); } 
 
-applyTheme(currentTheme);
-applyLanguage(currentLang);
+applyTheme(currentTheme); 
+applyLanguage(currentLang); 
 
 function showToast(message, type = 'success') { 
   const container = document.getElementById('toastContainer'); 
@@ -1087,7 +1026,7 @@ function selectItem(index) {
 } 
 
 function addSingleSectionData() { 
-  const t = i18n[currentLang];
+  const t = i18n[currentLang]; 
   if (selectedIndex === -1) { showToast(t.msgSelectMaterial, 'warning'); return; } 
   const targetSection = document.getElementById('sectionSelect').value; 
   const amount = parseFloat(document.getElementById('inputAmount').value) || 0; 
@@ -1132,74 +1071,84 @@ function closeSettings() {
   setTimeout(() => modal.style.display = 'none', 300); 
 } 
 
+/* --- View List Render Function --- */
 function renderChecklist() { 
   const container = document.getElementById('summaryCardsContainer'); 
   container.innerHTML = ''; 
   inventory.forEach((item, idx) => { 
     const itemDiv = document.createElement('div'); 
     itemDiv.className = 'checklist-item'; 
+    itemDiv.setAttribute('data-search', (item.name + " " + item.code).toLowerCase());
     
     itemDiv.innerHTML = ` 
-      <div class="checklist-left" onclick="openItemDetails(${idx})">
-        <input type="checkbox" class="checklist-checkbox" ${item.checked ? 'checked' : ''} onclick="event.stopPropagation(); toggleCheck(${idx}, this)">
-        <div class="checklist-info">
-          <div class="checklist-name" title="${item.name}">${item.name}</div>
-          <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
+      <div class="checklist-header">
+        <div class="checklist-left">
+          <input type="checkbox" class="checklist-checkbox" ${item.checked ? 'checked' : ''} onchange="toggleCheck(${idx}, this)">
+          <div class="checklist-info">
+            <div class="checklist-name">${item.name}</div>
+            <div class="checklist-code"><i class="fa-solid fa-barcode"></i> Code: ${item.code} | UOM: <strong>${item.uom}</strong></div>
+          </div>
+        </div>
+        <div class="checklist-right">
+          <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
+          <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Closing Stock (K)</div>
         </div>
       </div>
-      <div class="checklist-right" onclick="openItemDetails(${idx})" style="cursor: pointer;">
-        <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
-        <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Closing</div>
+
+      <!-- View List Detailed Grid -->
+      <div class="checklist-details-grid">
+        <div class="detail-sub-box">
+          <span class="detail-sub-label">Opening (E)</span>
+          <span class="detail-sub-val">${Number(item.op_stock).toLocaleString()}</span>
+        </div>
+        <div class="detail-sub-box">
+          <span class="detail-sub-label" style="color:var(--success);">Receipt (F)</span>
+          <span class="detail-sub-val" style="color:var(--success);">${Number(item.f_receipt).toLocaleString()}</span>
+        </div>
+        <div class="detail-sub-box">
+          <span class="detail-sub-label" style="color:var(--danger);">Issues (G)</span>
+          <span class="detail-sub-val" style="color:var(--danger);">${Number(item.g_issues).toLocaleString()}</span>
+        </div>
+        <div class="detail-sub-box">
+          <span class="detail-sub-label" style="color:var(--warning);">Return (H)</span>
+          <span class="detail-sub-val" style="color:var(--warning);">${Number(item.h_return).toLocaleString()}</span>
+        </div>
+        <div class="detail-sub-box">
+          <span class="detail-sub-label">SSL I (Rec)</span>
+          <span class="detail-sub-val">${Number(item.i_ssl_received || 0).toLocaleString()}</span>
+        </div>
+        <div class="detail-sub-box">
+          <span class="detail-sub-label">SSL J (Sent)</span>
+          <span class="detail-sub-val">${Number(item.j_ssl_sent || 0).toLocaleString()}</span>
+        </div>
+        <div class="detail-sub-box">
+          <span class="detail-sub-label" style="color:var(--danger);">Rejection L</span>
+          <span class="detail-sub-val" style="color:var(--danger);">${Number(item.l_rejection || 0).toLocaleString()}</span>
+        </div>
       </div>
     `; 
     container.appendChild(itemDiv); 
   }); 
 } 
 
-function toggleCheck(index, checkbox) {
-  inventory[index].checked = checkbox.checked;
-  saveInventoryData();
-}
-
-function openItemDetails(index) {
-  const item = inventory[index];
-  document.getElementById('detCode').innerText = item.code;
-  document.getElementById('detName').innerText = item.name;
-  document.getElementById('detUom').innerText = item.uom;
-  document.getElementById('detOp').innerText = Number(item.op_stock).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detReceipt').innerText = Number(item.f_receipt).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detIssues').innerText = Number(item.g_issues).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detReturn').innerText = Number(item.h_return).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detSslI').innerText = Number(item.i_ssl_received || 0).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detSslJ').innerText = Number(item.j_ssl_sent || 0).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detRejectionL').innerText = Number(item.l_rejection || 0).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detClosing').innerText = Number(item.closing).toLocaleString() + ' ' + item.uom;
-
-  const modal = document.getElementById('itemDetailModal');
-  modal.style.display = 'flex';
-  setTimeout(() => modal.classList.add('show'), 10);
-}
-
-function closeItemDetailModal() {
-  const modal = document.getElementById('itemDetailModal');
-  modal.classList.remove('show');
-  setTimeout(() => modal.style.display = 'none', 300);
-}
+function toggleCheck(index, checkbox) { 
+  inventory[index].checked = checkbox.checked; 
+  saveInventoryData(); 
+} 
 
 document.getElementById('modalSearchInput').addEventListener('input', function() { 
   const q = this.value.toLowerCase().trim(); 
   const items = document.querySelectorAll('#summaryCardsContainer .checklist-item'); 
-  items.forEach((itemDiv, idx) => { 
-    const item = inventory[idx];
-    const text = (item.name + " " + item.code).toLowerCase(); 
+  items.forEach((itemDiv) => { 
+    const text = itemDiv.getAttribute('data-search'); 
     itemDiv.style.display = text.includes(q) ? 'flex' : 'none'; 
   }); 
 }); 
 
-// Excel සූත්‍ර (Formulas) සහ දත්ත නිවැරදිව ජනනය කිරීම
-function generateWorkbookWithFormulas() {
-  const exportData = inventory.map((item, index) => {
-    const rowNum = index + 2; // Excel පේළි අංකය (Row Number)
+// Excel Formulas එකතු කිරීම
+function generateWorkbookWithFormulas() { 
+  const exportData = inventory.map((item, index) => { 
+    const rowNum = index + 2; 
     return { 
       "Type": item.type, 
       "Material Code": item.code, 
@@ -1211,7 +1160,6 @@ function generateWorkbookWithFormulas() {
       "Return": item.h_return, 
       "Received to SSL I": item.i_ssl_received || 0, 
       "Sent to SSL J": item.j_ssl_sent || 0, 
-      // Section අදාළ ගණනය කිරීමේ සමීකරණය (Formula) මෙහි ඇතුළත් කර ඇත
       "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-L${rowNum}`, v: item.closing }, 
       "Rejection L": item.l_rejection || 0 
     }; 
@@ -1219,13 +1167,13 @@ function generateWorkbookWithFormulas() {
 
   const worksheet = XLSX.utils.json_to_sheet(exportData, { cellFormula: true }); 
   const workbook = XLSX.utils.book_new(); 
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data");
-  return workbook;
-}
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data"); 
+  return workbook; 
+} 
 
 function downloadExcelAndReset() { 
-  const t = i18n[currentLang];
-  const workbook = generateWorkbookWithFormulas();
+  const t = i18n[currentLang]; 
+  const workbook = generateWorkbookWithFormulas(); 
   const today = new Date().toISOString().split('T')[0]; 
   XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
 
@@ -1238,43 +1186,43 @@ function downloadExcelAndReset() {
     item.j_ssl_sent = 0; 
     item.l_rejection = 0; 
     item.closing = item.op_stock; 
-    item.checked = false;
+    item.checked = false; 
   }); 
   saveInventoryData(); 
   selectedIndex = -1; searchInput.value = ''; selectedBadge.style.display = 'none'; 
   showToast(t.msgExcelShift, 'success'); 
 } 
 
-async function shareStockSummary() {
-  const t = i18n[currentLang];
-  const today = new Date().toISOString().split('T')[0];
-  const workbook = generateWorkbookWithFormulas();
+async function shareStockSummary() { 
+  const t = i18n[currentLang]; 
+  const today = new Date().toISOString().split('T')[0]; 
+  const workbook = generateWorkbookWithFormulas(); 
   
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', cellFormula: true });
-  const fileName = `RMC_Daily_Stock_${today}.xlsx`;
-  const file = new File([excelBuffer], fileName, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', cellFormula: true }); 
+  const fileName = `RMC_Daily_Stock_${today}.xlsx`; 
+  const file = new File([excelBuffer], fileName, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }); 
 
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        title: t.shareTitle,
-        text: `RMC Daily Stock Report - ${today}`,
-        files: [file]
-      });
-      showToast(t.shareSuccess, 'success');
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        showToast('Sharing cancelled or failed.', 'warning');
-      }
-    }
-  } else {
-    XLSX.writeFile(workbook, fileName);
-    showToast(t.shareNotSupported, 'warning');
-  }
-}
+  if (navigator.canShare && navigator.canShare({ files: [file] })) { 
+    try { 
+      await navigator.share({ 
+        title: t.shareTitle, 
+        text: `RMC Daily Stock Report - ${today}`, 
+        files: [file] 
+      }); 
+      showToast(t.shareSuccess, 'success'); 
+    } catch (err) { 
+      if (err.name !== 'AbortError') { 
+        showToast('Sharing cancelled or failed.', 'warning'); 
+      } 
+    } 
+  } else { 
+    XLSX.writeFile(workbook, fileName); 
+    showToast(t.shareNotSupported, 'warning'); 
+  } 
+} 
 
 function restoreFromXLSX() { 
-  const t = i18n[currentLang];
+  const t = i18n[currentLang]; 
   const fileInput = document.getElementById('xlsxFileInput'); 
   const file = fileInput.files[0]; 
   if (!file) { showToast(t.msgRestoreSelect, 'warning'); return; } 
@@ -1284,7 +1232,7 @@ function restoreFromXLSX() {
     try { 
       const data = new Uint8Array(e.target.result); 
       const workbook = XLSX.read(data, { type: 'array' }); 
-      const firstSheetName = workbook.SheetNames[0];
+      const firstSheetName = workbook.SheetNames[0]; 
       const worksheet = workbook.Sheets[firstSheetName]; 
       const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); 
       
@@ -1328,10 +1276,10 @@ function restoreFromXLSX() {
         let code = row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : ""; 
         let name = row[colMap.name] !== undefined ? String(row[colMap.name]).trim() : ""; 
         
-        if (!code && !name && row.length > 2) {
-          code = String(row[1] || "").trim();
-          name = String(row[2] || "").trim();
-        }
+        if (!code && !name && row.length > 2) { 
+          code = String(row[1] || "").trim(); 
+          name = String(row[2] || "").trim(); 
+        } 
 
         if (code || name) { 
           let type = row[colMap.type] !== undefined && row[colMap.type] !== "" ? String(row[colMap.type]).trim() : "RM"; 
@@ -1377,7 +1325,7 @@ function restoreFromXLSX() {
         showToast('No valid data found in Excel file!', 'error'); 
       } 
     } catch (err) { 
-      console.error(err);
+      console.error(err); 
       showToast('Error reading Excel file!', 'error'); 
     } 
   }; 
@@ -1385,7 +1333,7 @@ function restoreFromXLSX() {
 } 
 
 function resetToDefault() { 
-  const t = i18n[currentLang];
+  const t = i18n[currentLang]; 
   if (confirm(t.msgResetConfirm)) { 
     localStorage.removeItem('rmc_stock_inventory'); 
     initDefaultInventory(); 
@@ -1395,7 +1343,7 @@ function resetToDefault() {
 } 
 
 function downloadXLSXBackup() { 
-  const workbook = generateWorkbookWithFormulas();
+  const workbook = generateWorkbookWithFormulas(); 
   const today = new Date().toISOString().split('T')[0]; 
   XLSX.writeFile(workbook, `RMC_Stock_Backup_${today}.xlsx`); 
   showToast('Backup File Downloaded!', 'success'); 
