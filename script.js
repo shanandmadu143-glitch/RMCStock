@@ -18,7 +18,7 @@ const i18n = {
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:',
-    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:',
+    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Excel (.xlsx) Restore කරන්න:',
     descRestore: 'පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.',
     btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup එකක් ගන්න:',
@@ -102,7 +102,7 @@ const i18n = {
     descRestore: 'முன்பு சேமிக்கப்பட்ட எக்செல் கோப்பைப் பயன்படுத்தித் தரவைப் புதுப்பிக்கவும்.',
     btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> காப்புப் பிரதி பெற:',
-    descBackup: 'தற்போதைய தரவின் பாதுகாப்பான காப்புப் பிரதியைப்ப பெறவும்.',
+    descBackup: 'தற்போதைய தரவின் பாதுகாப்பான காப்புப் பிரதியைப் பெறவும்.',
     btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
     lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> இயல்புநிலைக்கு மீட்டமைக்க:',
     descReset: 'அனைத்து தரவையும் ஆரம்ப நிலைக்கு மீட்டமைக்கவும்.',
@@ -217,16 +217,6 @@ const defaultItems = [
 let inventory = []; 
 let selectedIndex = -1;
 
-function calculateClosingStock(item) {
-  return (item.op_stock || 0) + 
-         (item.f_receipt || 0) - 
-         (item.g_issues || 0) + 
-         (item.h_return || 0) + 
-         (item.i_ssl_received || 0) - 
-         (item.j_ssl_sent || 0) - 
-         (item.l_rejection || 0);
-}
-
 function loadInventoryData() { 
   const savedData = localStorage.getItem('rmc_stock_inventory'); 
   if (savedData) { 
@@ -241,20 +231,17 @@ function loadInventoryData() {
 } 
 
 function initDefaultInventory() { 
-  inventory = defaultItems.map(item => {
-    const newItem = {
-      ...item, 
-      f_receipt: 0, 
-      g_issues: 0, 
-      h_return: 0, 
-      i_ssl_received: 0, 
-      j_ssl_sent: 0, 
-      l_rejection: 0, 
-      checked: false 
-    };
-    newItem.closing = calculateClosingStock(newItem);
-    return newItem;
-  }); 
+  inventory = defaultItems.map(item => ({ 
+    ...item, 
+    f_receipt: 0, 
+    g_issues: 0, 
+    h_return: 0, 
+    i_ssl_received: 0, 
+    j_ssl_sent: 0, 
+    l_rejection: 0, 
+    closing: item.op_stock, 
+    checked: false 
+  })); 
   saveInventoryData(); 
 } 
 
@@ -311,16 +298,12 @@ function selectItem(index) {
   const item = inventory[index]; 
   searchInput.value = `${item.code} - ${item.name}`; 
   searchResults.style.display = 'none'; 
-  updateSelectedBadge(item);
-  selectedBadge.style.display = 'block'; 
-} 
-
-function updateSelectedBadge(item) {
   document.getElementById('dispCode').innerText = item.code; 
   document.getElementById('dispName').innerText = item.name; 
   document.getElementById('dispUom').innerText = item.uom; 
   document.getElementById('dispOp').innerText = Number(item.op_stock).toLocaleString(); 
-}
+  selectedBadge.style.display = 'block'; 
+} 
 
 function addSingleSectionData() { 
   const t = i18n[currentLang] || i18n['si'];
@@ -338,9 +321,9 @@ function addSingleSectionData() {
   else if (targetSection === 'J') item.j_ssl_sent += amount; 
   else if (targetSection === 'L') item.l_rejection += amount; 
 
-  item.closing = calculateClosingStock(item); 
+  // නිවැරදි කරන ලද Closing Stock සූත්‍රය (Opening + Receipt - Issues + Return + Received(SSL) - Sent(SSL) - Rejection)
+  item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return + item.i_ssl_received - item.j_ssl_sent - item.l_rejection; 
   saveInventoryData(); 
-  updateSelectedBadge(item);
   document.getElementById('inputAmount').value = ''; 
   showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
 } 
@@ -488,7 +471,7 @@ function downloadExcelAndReset() {
   const today = new Date().toISOString().split('T')[0]; 
   XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
 
-  // Stock Shift (Closing Stock එක Opening Stock බවට පත්කිරීම)
+  // Stock Shift: Closing Stock එක අලුත් Opening Stock එක බවට පත් කිරීම
   inventory.forEach(item => { 
     item.op_stock = item.closing; 
     item.f_receipt = 0; 
@@ -500,18 +483,10 @@ function downloadExcelAndReset() {
     item.closing = item.op_stock; 
     item.checked = false;
   }); 
-  
   saveInventoryData(); 
-
-  // UI එකේදීම Update කිරීම
-  if (selectedIndex !== -1 && inventory[selectedIndex]) {
-    updateSelectedBadge(inventory[selectedIndex]);
-  } else {
-    selectedIndex = -1; 
-    searchInput.value = ''; 
-    selectedBadge.style.display = 'none'; 
-  }
-
+  selectedIndex = -1; 
+  searchInput.value = ''; 
+  selectedBadge.style.display = 'none'; 
   showToast(t.msgExcelShift, 'success'); 
 } 
 
@@ -614,11 +589,23 @@ function restoreFromXLSX() {
           let j_ssl_sent = parseFloat(row[colMap.j_ssl_sent]) || 0; 
           let l_rejection = parseFloat(row[colMap.l_rejection]) || 0; 
           
-          let tempItem = { type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection };
-          let closing = calculateClosingStock(tempItem);
+          let closingVal = row[colMap.closing]; 
+          let closing = (closingVal !== undefined && closingVal !== "" && !isNaN(closingVal)) 
+            ? parseFloat(closingVal) 
+            : (op_stock + f_receipt - g_issues + h_return + i_ssl_received - j_ssl_sent - l_rejection); 
             
           restored.push({ 
-            ...tempItem,
+            type, 
+            code, 
+            name, 
+            uom, 
+            op_stock, 
+            f_receipt, 
+            g_issues, 
+            h_return, 
+            i_ssl_received, 
+            j_ssl_sent, 
+            l_rejection, 
             closing, 
             checked: false 
           }); 
@@ -630,11 +617,6 @@ function restoreFromXLSX() {
         saveInventoryData(); 
         fileInput.value = ""; 
         closeSettings(); 
-        
-        if (selectedIndex !== -1 && inventory[selectedIndex]) {
-          updateSelectedBadge(inventory[selectedIndex]);
-        }
-        
         showToast(t.msgRestoreSuccess, 'success'); 
       } else { 
         showToast('No valid data found in Excel file!', 'error'); 
@@ -653,11 +635,6 @@ function resetToDefault() {
     localStorage.removeItem('rmc_stock_inventory'); 
     initDefaultInventory(); 
     closeSettings(); 
-    
-    selectedIndex = -1;
-    searchInput.value = '';
-    selectedBadge.style.display = 'none';
-    
     showToast("Reset Successful!", "success"); 
   } 
 } 
