@@ -386,6 +386,91 @@
             color: var(--text-muted);
             margin-bottom: 10px;
         }
+
+        /* --- Animated Toast Notifications Container & Styles --- */
+        #toastContainer {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            max-width: 90vw;
+            width: 360px;
+        }
+
+        .toast {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: #ffffff;
+            color: var(--text-dark);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--accent-blue);
+            font-size: 0.9rem;
+            font-weight: 500;
+            animation: slideIn 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+            transition: all 0.3s ease;
+        }
+
+        .toast.toast-success {
+            border-left-color: var(--accent-green);
+        }
+
+        .toast.toast-error {
+            border-left-color: #ef4444;
+        }
+
+        .toast.toast-warning {
+            border-left-color: var(--accent-amber);
+        }
+
+        .toast i {
+            font-size: 1.25rem;
+        }
+
+        .toast-success i { color: var(--accent-green); }
+        .toast-error i { color: #ef4444; }
+        .toast-warning i { color: var(--accent-amber); }
+
+        .toast-hide {
+            animation: slideOut 0.35s forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(100%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(80%) scale(0.9);
+            }
+        }
+
+        @media (max-width: 480px) {
+            #toastContainer {
+                right: 50%;
+                transform: translateX(50%);
+                bottom: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -415,7 +500,7 @@
             <div id="searchResults" class="search-results" style="display:none;"></div>
         </div>
 
-        <!-- Selected Item Badge (Without Receipt/Issues/Return) -->
+        <!-- Selected Item Badge -->
         <div id="selectedBadge" class="selected-badge">
             <div><i class="fa-solid fa-circle-check"></i> <strong>Selected:</strong> <span id="dispCode"></span> - <span id="dispName"></span></div>
             <div>UOM: <strong id="dispUom"></strong> | Op. Stock (E): <strong id="dispOp"></strong></div>
@@ -447,6 +532,9 @@
         </button>
     </div>
 </div>
+
+<!-- Animated Toast Messages Container -->
+<div id="toastContainer"></div>
 
 <!-- POPUP MODAL 1: INVENTORY RECORDS SUMMARY -->
 <div id="recordsModal" class="modal">
@@ -504,6 +592,28 @@
 </div>
 
 <script>
+    // --- Toast Notification Handler with Auto-Dismiss & Animations ---
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+
+        let iconClass = 'fa-circle-check';
+        if (type === 'error') iconClass = 'fa-circle-xmark';
+        if (type === 'warning') iconClass = 'fa-triangle-exclamation';
+
+        toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${message}</span>`;
+        container.appendChild(toast);
+
+        // Auto dismiss after 3.5 seconds with Animation
+        setTimeout(() => {
+            toast.classList.add('toast-hide');
+            toast.addEventListener('animationend', () => {
+                toast.remove();
+            });
+        }, 3500);
+    }
+
     // Initial Master Items
     let defaultItems = [
         {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000},
@@ -590,7 +700,7 @@
     // Submit Transaction
     function addSingleSectionData() {
         if (selectedIndex === -1) {
-            alert('කරුණාකර Material Code එකක් හෝ Name එකක් Search කර Select කරගන්න!');
+            showToast('කරුණාකර Material Code එකක් හෝ Name එකක් Select කරන්න!', 'warning');
             return;
         }
 
@@ -598,7 +708,7 @@
         const amount = parseFloat(document.getElementById('inputAmount').value) || 0;
 
         if (amount <= 0) {
-            alert('කරුණාකර වලංගු 0 ට වැඩි අගයක් ඇතුළත් කරන්න!');
+            showToast('කරුණාකර වලංගු 0 ට වැඩි අගයක් ඇතුළත් කරන්න!', 'error');
             return;
         }
 
@@ -617,7 +727,7 @@
 
         document.getElementById('inputAmount').value = '';
 
-        alert(`${item.name} හි ${targetSection} Section එකට ${amount} අගයක් එක් විය!`);
+        showToast(`${item.name} හි ${targetSection} Section එකට ${amount} ක් එකතු විය!`, 'success');
     }
 
     // Modals
@@ -701,7 +811,7 @@
         searchInput.value = '';
         selectedBadge.style.display = 'none';
 
-        alert(`Excel file එක (${filename}) download වූ අතර, Closing Stock (K) හි අගයන් Opening Stock (E) වෙත මාරු විය!`);
+        showToast(`Excel file එක Download වූ අතර දත්ත Reset විය!`, 'success');
     }
 
     // Restore Excel (.xlsx)
@@ -709,7 +819,7 @@
         const fileInput = document.getElementById('xlsxFileInput');
         const file = fileInput.files[0];
         if (!file) {
-            alert('කරුණාකර Excel File (.xlsx) එකක් තෝරන්න!');
+            showToast('කරුණාකර Excel File (.xlsx) එකක් තෝරන්න!', 'warning');
             return;
         }
 
@@ -742,9 +852,9 @@
 
                 inventory = restoredInventory;
                 closeSettings();
-                alert(`Excel File එක සාර්ථකව Restore විය! Items ${inventory.length} ක් එක් විය.`);
+                showToast(`Excel Restore සාර්ථකයි! Items ${inventory.length} ක් එක් විය.`, 'success');
             } catch (err) {
-                alert('Excel File එක කියවීමේදී දෝෂයක් සිදු විය: ' + err.message);
+                showToast('Excel කියවීමේදී දෝෂයක් සිදු විය!', 'error');
             }
         };
         reader.readAsArrayBuffer(file);
@@ -772,6 +882,7 @@
         const filename = `RMC_Stock_Backup_${today}.xlsx`;
 
         XLSX.writeFile(workbook, filename);
+        showToast('Backup Excel ගොනුව Download විය!', 'success');
     }
 </script>
 
