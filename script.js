@@ -6,9 +6,9 @@ const i18n = {
     optReceipt: 'Receipt (ලැබීම්)',
     optIssues: 'Issues (නිකුත් කිරීම්)',
     optReturn: 'Return (නැවත භාරදීම්)',
-    optSslI: 'Received to SSL I (SSL I ලැබීම්)',
-    optSslJ: 'Sent to SSL J (SSL J යැවීම්)',
-    optRejectionL: 'Rejection L (L ප්‍රතික්ෂේප කිරීම්)',
+    optSslI: 'Received to SSL (SSL ලැබීම්)',
+    optSslJ: 'Sent to SSL (SSL යැවීම්)',
+    optRejectionL: 'Rejection (ප්‍රතික්ෂේප කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download Excel & Shift Stock',
@@ -46,9 +46,9 @@ const i18n = {
     optReceipt: 'Receipt',
     optIssues: 'Issues',
     optReturn: 'Return',
-    optSslI: 'Received to SSL I',
-    optSslJ: 'Sent to SSL J',
-    optRejectionL: 'Rejection L',
+    optSslI: 'Received to SSL',
+    optSslJ: 'Sent to SSL',
+    optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download Excel & Shift Stock',
@@ -86,9 +86,9 @@ const i18n = {
     optReceipt: 'ரசீது (Receipt)',
     optIssues: 'வழங்கல்கள் (Issues)',
     optReturn: 'திரும்பப் பெறுதல் (Return)',
-    optSslI: 'Received to SSL I',
-    optSslJ: 'Sent to SSL J',
-    optRejectionL: 'Rejection L',
+    optSslI: 'Received to SSL',
+    optSslJ: 'Sent to SSL',
+    optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
     titleExcel: 'Download Excel & Shift Stock',
@@ -451,10 +451,10 @@ function generateWorkbookWithFormulas() {
       "Receipt": item.f_receipt, 
       "Issues": item.g_issues, 
       "Return": item.h_return, 
-      "Received to SSL I": item.i_ssl_received || 0, 
-      "Sent to SSL J": item.j_ssl_sent || 0, 
+      "Received to SSL": item.i_ssl_received || 0, 
+      "Sent to SSL": item.j_ssl_sent || 0, 
       "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-L${rowNum}`, v: item.closing }, 
-      "Rejection L": item.l_rejection || 0 
+      "Rejection": item.l_rejection || 0 
     }; 
   }); 
 
@@ -552,7 +552,7 @@ function restoreFromXLSX() {
             if (cellVal.includes("receipt") || cellVal.includes("f")) colMap.f_receipt = colIdx; 
             if (cellVal.includes("issue") || cellVal.includes("g")) colMap.g_issues = colIdx; 
             if (cellVal.includes("return") || cellVal.includes("h")) colMap.h_return = colIdx; 
-            if (cellVal.includes("ssl i") || cellVal.includes("received")) colMap.i_ssl_received = colIdx; 
+            if (cellVal.includes("ssl i") || cellVal.includes("ssl") || cellVal.includes("received")) colMap.i_ssl_received = colIdx; 
             if (cellVal.includes("ssl j") || cellVal.includes("sent")) colMap.j_ssl_sent = colIdx; 
             if (cellVal.includes("rejection") || cellVal.includes("l")) colMap.l_rejection = colIdx; 
             if (cellVal.includes("closing")) colMap.closing = colIdx; 
