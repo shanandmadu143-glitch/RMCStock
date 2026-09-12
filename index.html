@@ -228,7 +228,7 @@
             </div> 
             <div class="setting-option"> 
                 <label><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label> 
-                <p>පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p> 
+                <p>පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න. (ස්වයංක්‍රීයව Save වේ)</p> 
                 <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 10px;"> 
                 <button class="btn btn-success" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()"> 
                     <i class="fa-solid fa-upload"></i> Restore Excel Data 
@@ -239,6 +239,13 @@
                 <p>වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p> 
                 <button class="btn btn-secondary" style="width:100%; padding: 12px;" onclick="downloadXLSXBackup()"> 
                     <i class="fa-solid fa-download"></i> Download Backup File 
+                </button> 
+            </div> 
+            <div class="setting-option"> 
+                <label><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label> 
+                <p>මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p> 
+                <button class="btn" style="width:100%; padding: 10px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()"> 
+                    <i class="fa-solid fa-trash-can"></i> Reset All Data 
                 </button> 
             </div> 
         </div> 
@@ -260,7 +267,7 @@
             }, 3500); 
         } 
 
-        let defaultItems = [ 
+        const defaultItems = [ 
             {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000}, 
             {"type":"RM","code":"11061702","name":"WHITE SUGAR","uom":"KG","op_stock":2500}, 
             {"type":"RM","code":"11002301","name":"MONOSODIUM GLUTAMATE","uom":"KG","op_stock":4525}, 
@@ -285,7 +292,34 @@
             {"type":"RM","code":"11002210","name":"SPICE CINNAMON POWDER","uom":"KG","op_stock":2} 
         ]; 
 
-        let inventory = defaultItems.map(item => ({ ...item, f_receipt: 0, g_issues: 0, h_return: 0, closing: item.op_stock })); 
+        let inventory = [];
+
+        // Load persisted data or default
+        function loadInventoryData() {
+            const savedData = localStorage.getItem('rmc_stock_inventory');
+            if (savedData) {
+                try {
+                    inventory = JSON.parse(savedData);
+                } catch(e) {
+                    initDefaultInventory();
+                }
+            } else {
+                initDefaultInventory();
+            }
+        }
+
+        function initDefaultInventory() {
+            inventory = defaultItems.map(item => ({ 
+                ...item, f_receipt: 0, g_issues: 0, h_return: 0, closing: item.op_stock 
+            }));
+            saveInventoryData();
+        }
+
+        function saveInventoryData() {
+            localStorage.setItem('rmc_stock_inventory', JSON.stringify(inventory));
+        }
+
+        loadInventoryData();
         let selectedIndex = -1; 
 
         const searchInput = document.getElementById('searchInput'); 
@@ -339,6 +373,8 @@
             else if (targetSection === 'H') { item.h_return += amount; } 
             
             item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return; 
+            saveInventoryData(); // Save state
+            
             document.getElementById('inputAmount').value = ''; 
             showToast(`${item.name} වෙත ${targetSection} Section එකට ${amount} ක් එක් විය!`, 'success'); 
         } 
@@ -420,13 +456,13 @@
                 item.closing = item.op_stock; 
             }); 
 
+            saveInventoryData(); // Save shifted stock state
             selectedIndex = -1; 
             searchInput.value = ''; 
             selectedBadge.style.display = 'none'; 
             showToast(`Excel ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!`, 'success'); 
         } 
 
-        /* --- Updated Robust Excel Restore Function --- */
         function restoreFromXLSX() { 
             const fileInput = document.getElementById('xlsxFileInput'); 
             const file = fileInput.files[0]; 
@@ -442,7 +478,6 @@
                     const workbook = XLSX.read(data, { type: 'array' }); 
                     const worksheet = workbook.Sheets[workbook.SheetNames[0]]; 
                     
-                    // Convert Sheet to Matrix Array (Rows x Columns)
                     const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); 
                     
                     if (!matrix || matrix.length === 0) {
@@ -450,14 +485,12 @@
                         return;
                     }
 
-                    // Dynamic Header Search
                     let headerIndex = -1;
                     let colMap = {};
 
                     for (let r = 0; r < matrix.length; r++) {
                         const rowStr = matrix[r].map(c => String(c).toLowerCase().trim());
                         
-                        // Search for Code or Name row to identify Header row
                         if (rowStr.some(c => c.includes("code") || c.includes("material") || c.includes("name"))) {
                             headerIndex = r;
                             rowStr.forEach((cellVal, colIdx) => {
@@ -478,7 +511,6 @@
                     let restored = [];
 
                     if (headerIndex !== -1) {
-                        // Extract Rows after Header Row
                         for (let r = headerIndex + 1; r < matrix.length; r++) {
                             const row = matrix[r];
                             let code = colMap.code !== undefined ? String(row[colMap.code] || "").trim() : "";
@@ -500,7 +532,6 @@
                             }
                         }
                     } else {
-                        // Fallback: Default Array Object Conversion
                         const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
                         rawJson.forEach(row => {
                             let code = "";
@@ -539,8 +570,9 @@
 
                     if (restored.length > 0) {
                         inventory = restored;
+                        saveInventoryData(); // Permanently Save Restored Data
                         closeSettings();
-                        showToast(`Excel Restore සාර්ථකයි! Items ${inventory.length} ක් එක් විය.`, 'success');
+                        showToast(`Excel Restore සාර්ථකයි! Items ${inventory.length} ක් එක් වී Save විය.`, 'success');
                     } else {
                         showToast('Excel Sheet එකෙහි Material Code/Name හඳුනාගත නොහැකි විය!', 'error');
                     }
@@ -551,6 +583,15 @@
             }; 
             reader.readAsArrayBuffer(file); 
         } 
+
+        function resetToDefault() {
+            if (confirm("ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?")) {
+                localStorage.removeItem('rmc_stock_inventory');
+                initDefaultInventory();
+                closeSettings();
+                showToast("දත්ත මුල් තත්වයට Reset විය!", "success");
+            }
+        }
 
         function downloadXLSXBackup() { 
             const exportData = inventory.map(item => ({ 
