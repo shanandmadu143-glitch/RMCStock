@@ -276,7 +276,7 @@ searchInput.addEventListener('input', function() {
         const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name); 
         const div = document.createElement('div'); 
         div.className = 'search-item'; 
-        div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.78rem;">${item.closing} ${item.uom}</span>`; 
+        div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.78rem;">${Number(item.closing).toLocaleString()} ${item.uom}</span>`; 
         div.onclick = () => selectItem(idx); 
         fragment.appendChild(div); 
       }); 
@@ -440,6 +440,8 @@ document.getElementById('modalSearchInput').addEventListener('input', function()
 }); 
 
 function generateWorkbookWithFormulas() {
+  // Columns Mapping:
+  // A: Type | B: Material Code | C: Material Name | D: UOM | E: Op.Stock | F: Receipt | G: Issues | H: Return | I: Received to SSL | J: Sent to SSL | K: Closing Stock | L: Rejection
   const exportData = inventory.map((item, index) => {
     const rowNum = index + 2; 
     return { 
