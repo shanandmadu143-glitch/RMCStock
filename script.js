@@ -36,7 +36,7 @@ const i18n = {
     msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
     msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
     shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'Excel ගොනුව Share කිරීමට සූදානම්!',
+    shareSuccess: 'Excel ගොනුව Share වූ අතර Stock එක යාවත්කාලීන විය!',
     shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි.'
   },
   en: {
@@ -76,7 +76,7 @@ const i18n = {
     msgRestoreSuccess: 'Excel Restore Successful!',
     msgResetConfirm: 'Are you sure you want to reset to default data?',
     shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'Excel file ready to share!',
+    shareSuccess: 'Excel shared and Stock shifted successfully!',
     shareNotSupported: 'Your browser does not support file sharing.'
   },
   ta: {
@@ -116,7 +116,7 @@ const i18n = {
     msgRestoreSuccess: 'எக்செல் மீட்டமைப்பு வெற்றிகரமாக முடிந்தது!',
     msgResetConfirm: 'ஆரம்ப தரவுக்கு மீட்டமைக்க நிச்சயமாக விரும்புகிறீர்களா?',
     shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'பகிர எக்செல் கோப்பு தயாராக உள்ளது!',
+    shareSuccess: 'எக்செல் பகிரப்பட்டது, இருப்பு புதுப்பிக்கப்பட்டது!',
     shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.'
   }
 };
@@ -440,8 +440,6 @@ document.getElementById('modalSearchInput').addEventListener('input', function()
 }); 
 
 function generateWorkbookWithFormulas() {
-  // Columns Mapping:
-  // A: Type | B: Material Code | C: Material Name | D: UOM | E: Op.Stock | F: Receipt | G: Issues | H: Return | I: Received to SSL | J: Sent to SSL | K: Closing Stock | L: Rejection
   const exportData = inventory.map((item, index) => {
     const rowNum = index + 2; 
     return { 
@@ -466,12 +464,7 @@ function generateWorkbookWithFormulas() {
   return workbook;
 }
 
-function downloadExcelAndReset() { 
-  const t = i18n[currentLang] || i18n['si'];
-  const workbook = generateWorkbookWithFormulas();
-  const today = new Date().toISOString().split('T')[0]; 
-  XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
-
+function performStockShift() {
   inventory.forEach(item => { 
     item.op_stock = item.closing; 
     item.f_receipt = 0; 
@@ -487,6 +480,15 @@ function downloadExcelAndReset() {
   selectedIndex = -1; 
   searchInput.value = ''; 
   selectedBadge.style.display = 'none'; 
+}
+
+function downloadExcelAndReset() { 
+  const t = i18n[currentLang] || i18n['si'];
+  const workbook = generateWorkbookWithFormulas();
+  const today = new Date().toISOString().split('T')[0]; 
+  XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
+
+  performStockShift();
   showToast(t.msgExcelShift, 'success'); 
 } 
 
@@ -506,6 +508,7 @@ async function shareStockSummary() {
         text: `RMC Daily Stock Report - ${today}`,
         files: [file]
       });
+      performStockShift();
       showToast(t.shareSuccess, 'success');
     } catch (err) {
       if (err.name !== 'AbortError') {
@@ -514,6 +517,7 @@ async function shareStockSummary() {
     }
   } else {
     XLSX.writeFile(workbook, fileName);
+    performStockShift();
     showToast(t.shareNotSupported, 'warning');
   }
 }
@@ -646,7 +650,6 @@ function downloadXLSXBackup() {
   showToast('Backup File Downloaded!', 'success'); 
 }
 
-// Global Initialization
 document.addEventListener('DOMContentLoaded', () => {
   loadInventoryData();
   applyTheme(currentTheme);
