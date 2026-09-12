@@ -216,35 +216,6 @@
             line-height: 1.5;
         }
 
-        .section-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px dashed #bfdbfe;
-            font-size: 0.8rem;
-        }
-
-        .stat-box {
-            background: #ffffff;
-            padding: 6px 8px;
-            border-radius: 6px;
-            border: 1px solid #dbeafe;
-            text-align: center;
-        }
-
-        .stat-box span {
-            display: block;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-        }
-
-        .stat-box strong {
-            color: var(--text-dark);
-            font-size: 0.9rem;
-        }
-
         /* Standard Buttons */
         .btn {
             display: inline-flex;
@@ -310,7 +281,7 @@
         }
 
         .modal-content-large {
-            max-width: 650px;
+            max-width: 750px;
         }
 
         @keyframes fadeIn {
@@ -382,6 +353,21 @@
             border-bottom: 1px solid var(--border-color);
         }
 
+        .val-receipt {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .val-issues {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .val-return {
+            color: var(--accent-amber);
+            font-weight: 600;
+        }
+
         .closing-stock {
             font-weight: 700;
             color: var(--accent-blue);
@@ -429,26 +415,10 @@
             <div id="searchResults" class="search-results" style="display:none;"></div>
         </div>
 
-        <!-- Selected Item Badge -->
+        <!-- Selected Item Badge (Without Receipt/Issues/Return) -->
         <div id="selectedBadge" class="selected-badge">
             <div><i class="fa-solid fa-circle-check"></i> <strong>Selected:</strong> <span id="dispCode"></span> - <span id="dispName"></span></div>
             <div>UOM: <strong id="dispUom"></strong> | Op. Stock (E): <strong id="dispOp"></strong></div>
-            
-            <!-- Dynamic Section Values for Selected Item -->
-            <div class="section-stats-grid">
-                <div class="stat-box">
-                    <span>Receipt (F) [+]</span>
-                    <strong id="dispReceipt" style="color:var(--accent-green);">0</strong>
-                </div>
-                <div class="stat-box">
-                    <span>Issues (G) [-]</span>
-                    <strong id="dispIssues" style="color:#ef4444;">0</strong>
-                </div>
-                <div class="stat-box">
-                    <span>Return (H) [+]</span>
-                    <strong id="dispReturn" style="color:var(--accent-amber);">0</strong>
-                </div>
-            </div>
         </div>
 
         <!-- Section Select & Amount Input Grid -->
@@ -473,7 +443,7 @@
         </button>
 
         <button class="btn btn-success" style="width: 100%; justify-content: center; height: 46px;" onclick="downloadExcelAndReset()">
-            <i class="fa-solid fa-file-excel"></i> Download Excel
+            <i class="fa-solid fa-file-excel"></i> Download Excel & Reset
         </button>
     </div>
 </div>
@@ -494,6 +464,9 @@
                     <tr>
                         <th>Material Code</th>
                         <th>Material Name</th>
+                        <th>Receipt (F)</th>
+                        <th>Issues (G)</th>
+                        <th>Return (H)</th>
                         <th>Closing Stock (K)</th>
                     </tr>
                 </thead>
@@ -521,19 +494,11 @@
             <button class="btn btn-success" style="width:100%; justify-content:center; padding: 10px;" onclick="restoreFromXLSX()"><i class="fa-solid fa-file-import"></i> Restore Excel Data</button>
         </div>
 
-        <!-- XML Restore -->
+        <!-- XLSX Backup Export -->
         <div class="setting-option">
-            <label><i class="fa-solid fa-file-code" style="color:#2563eb;"></i> Restore XML (.xml) File:</label>
-            <p>XML Backup file එකකින් දත්ත ලබාගන්න.</p>
-            <input type="file" id="xmlFileInput" accept=".xml" style="margin-bottom: 8px;">
-            <button class="btn btn-primary" style="width:100%; justify-content:center; padding: 10px;" onclick="restoreFromXML()"><i class="fa-solid fa-upload"></i> Restore XML Data</button>
-        </div>
-
-        <!-- XML Backup Export -->
-        <div class="setting-option">
-            <label><i class="fa-solid fa-download"></i> Download XML Backup File:</label>
-            <p>දත්ත XML Backup එකක් ලෙස Download කරගන්න.</p>
-            <button class="btn" style="background:#475569; color:white; width:100%; justify-content:center; padding: 10px;" onclick="downloadXMLBackup()"><i class="fa-solid fa-file-export"></i> Export XML Backup</button>
+            <label><i class="fa-solid fa-download"></i> Download Excel (.xlsx) Backup File:</label>
+            <p>දත්ත වල Backup එකක් Excel File එකක් ලෙස Download කරගන්න.</p>
+            <button class="btn" style="background:#475569; color:white; width:100%; justify-content:center; padding: 10px;" onclick="downloadXLSXBackup()"><i class="fa-solid fa-file-export"></i> Export Excel Backup</button>
         </div>
     </div>
 </div>
@@ -619,19 +584,7 @@
         document.getElementById('dispUom').innerText = item.uom;
         document.getElementById('dispOp').innerText = item.op_stock.toLocaleString();
         
-        // Dynamic Section Update on Selection
-        updateSelectedStats();
-        
         selectedBadge.style.display = 'block';
-    }
-
-    function updateSelectedStats() {
-        if (selectedIndex !== -1) {
-            const item = inventory[selectedIndex];
-            document.getElementById('dispReceipt').innerText = item.f_receipt.toLocaleString();
-            document.getElementById('dispIssues').innerText = item.g_issues.toLocaleString();
-            document.getElementById('dispReturn').innerText = item.h_return.toLocaleString();
-        }
     }
 
     // Submit Transaction
@@ -663,9 +616,6 @@
         item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return;
 
         document.getElementById('inputAmount').value = '';
-        
-        // Selected Badge එකේ Section අගයන් Real-time යාවත්කාලීන කිරීම
-        updateSelectedStats();
 
         alert(`${item.name} හි ${targetSection} Section එකට ${amount} අගයක් එක් විය!`);
     }
@@ -680,7 +630,7 @@
         document.getElementById('recordsModal').style.display = 'none';
     }
 
-    // Renders ONLY Material Code, Material Name, and Closing Stock (K)
+    // Renders Material Code, Material Name, Dynamic Receipt, Issues, Return, and Closing Stock (K)
     function renderSummaryTable() {
         const tbody = document.getElementById('summaryTableBody');
         tbody.innerHTML = '';
@@ -689,6 +639,9 @@
             tr.innerHTML = `
                 <td><strong>${item.code}</strong></td>
                 <td>${item.name}</td>
+                <td class="val-receipt">${Number(item.f_receipt).toLocaleString()}</td>
+                <td class="val-issues">${Number(item.g_issues).toLocaleString()}</td>
+                <td class="val-return">${Number(item.h_return).toLocaleString()}</td>
                 <td class="closing-stock">${Number(item.closing).toLocaleString()} ${item.uom}</td>
             `;
             tbody.appendChild(tr);
@@ -797,87 +750,28 @@
         reader.readAsArrayBuffer(file);
     }
 
-    // Restore XML File
-    function restoreFromXML() {
-        const fileInput = document.getElementById('xmlFileInput');
-        const file = fileInput.files[0];
-        if (!file) {
-            alert('කරුණාකර XML File එකක් තෝරන්න!');
-            return;
-        }
+    // Excel Backup Export (Without Resetting Stocks)
+    function downloadXLSXBackup() {
+        const exportData = inventory.map(item => ({
+            "Type": item.type,
+            "Material Code": item.code,
+            "Material Name": item.name,
+            "UOM": item.uom,
+            "Op.Stock-Warehouse": item.op_stock,
+            "Receipt": item.f_receipt,
+            "Issues": item.g_issues,
+            "Return": item.h_return,
+            "Closing Stock": item.closing
+        }));
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const xmlText = e.target.result;
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-                const materials = xmlDoc.getElementsByTagName("material");
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Backup_Data");
 
-                let restoredItems = [];
-                for (let i = 0; i < materials.length; i++) {
-                    let m = materials[i];
-                    let getVal = (tag) => m.getElementsByTagName(tag)[0] ? m.getElementsByTagName(tag)[0].textContent : "";
-
-                    restoredItems.push({
-                        type: getVal('type') || 'RM',
-                        code: getVal('code'),
-                        name: getVal('name'),
-                        uom: getVal('uom') || 'KG',
-                        op_stock: parseFloat(getVal('op_stock')) || 0,
-                        f_receipt: parseFloat(getVal('f_receipt')) || 0,
-                        g_issues: parseFloat(getVal('g_issues')) || 0,
-                        h_return: parseFloat(getVal('h_return')) || 0,
-                        closing: parseFloat(getVal('closing')) || 0
-                    });
-                }
-
-                inventory = restoredItems;
-                closeSettings();
-                alert(`XML file එක සාර්ථකව Restore විය! Item ${inventory.length} ක දත්ත යාවත්කාලීන විය.`);
-            } catch (err) {
-                alert('XML file එක කියවීමේදී දෝෂයක් සිදු විය: ' + err.message);
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    // XML Backup Export
-    function downloadXMLBackup() {
-        let xmlStr = '<?xml version="1.0" encoding="UTF-8"?>\n<materials>\n';
-        inventory.forEach(item => {
-            xmlStr += `  <material>\n`;
-            xmlStr += `    <type>${item.type}</type>\n`;
-            xmlStr += `    <code>${item.code}</code>\n`;
-            xmlStr += `    <name>${escapeXml(item.name)}</name>\n`;
-            xmlStr += `    <uom>${item.uom}</uom>\n`;
-            xmlStr += `    <op_stock>${item.op_stock}</op_stock>\n`;
-            xmlStr += `    <f_receipt>${item.f_receipt}</f_receipt>\n`;
-            xmlStr += `    <g_issues>${item.g_issues}</g_issues>\n`;
-            xmlStr += `    <h_return>${item.h_return}</h_return>\n`;
-            xmlStr += `    <closing>${item.closing}</closing>\n`;
-            xmlStr += `  </material>\n`;
-        });
-        xmlStr += '</materials>';
-
-        const blob = new Blob([xmlStr], { type: 'text/xml' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
         const today = new Date().toISOString().split('T')[0];
-        link.download = `RMC_Stock_Backup_${today}.xml`;
-        link.click();
-    }
+        const filename = `RMC_Stock_Backup_${today}.xlsx`;
 
-    function escapeXml(unsafe) {
-        return unsafe.replace(/[<>&'"]/g, function (c) {
-            switch (c) {
-                case '<': return '&lt;';
-                case '>': return '&gt;';
-                case '&': return '&amp;';
-                case '\'': return '&apos;';
-                case '"': return '&quot;';
-            }
-        });
+        XLSX.writeFile(workbook, filename);
     }
 </script>
 
