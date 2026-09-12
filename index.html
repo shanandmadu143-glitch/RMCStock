@@ -2,7 +2,7 @@
 <html lang="si">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RMC Daily Stock</title>
     <!-- SheetJS (XLSX) Library -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -34,16 +34,22 @@
             margin: 0;
             padding: 0;
             font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: var(--bg-body);
             color: var(--text-dark);
-            padding: 30px 20px;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 900px;
+            width: 100%;
+            max-width: 800px;
             margin: 0 auto;
         }
 
@@ -51,124 +57,88 @@
         .header-block {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             color: #ffffff;
-            padding: 28px 32px;
-            border-radius: 20px;
+            padding: 18px 22px;
+            border-radius: 16px;
             box-shadow: var(--shadow-md);
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             display: flex;
-            flex-direction: column;
-            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .brand-title {
             display: flex;
             align-items: center;
-            gap: 14px;
-            font-size: 1.6rem;
+            gap: 12px;
+            font-size: 1.35rem;
             font-weight: 700;
             letter-spacing: -0.3px;
         }
 
         .brand-title i {
             color: #60a5fa;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
         }
 
-        /* Buttons under the Title Name */
-        .sub-header-actions {
+        /* Top-Right Icon Actions */
+        .icon-actions {
             display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        /* Button Styling */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-header {
+        .btn-icon-header {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
             background: rgba(255, 255, 255, 0.12);
             color: #ffffff;
             border: 1px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        .btn-header:hover {
+        .btn-icon-header:active, .btn-icon-header:hover {
             background: rgba(255, 255, 255, 0.25);
-        }
-
-        .btn-primary {
-            background: var(--accent-blue);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-blue-hover);
-        }
-
-        .btn-success {
-            background: var(--accent-green);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: var(--accent-green-hover);
+            transform: scale(1.05);
         }
 
         /* Main Entry Card */
         .card {
             background: var(--card-bg);
-            border-radius: 20px;
+            border-radius: 16px;
             border: 1px solid var(--border-color);
-            padding: 30px;
+            padding: 22px;
             box-shadow: var(--shadow-sm);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-title i {
-            color: var(--accent-blue);
         }
 
         /* Form Controls */
         .form-grid {
             display: grid;
-            grid-template-columns: 1.5fr 1fr;
-            gap: 16px;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
             margin-bottom: 20px;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 640px) {
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+            body {
+                padding: 10px;
+            }
+            .header-block {
+                padding: 16px 18px;
+            }
+            .brand-title {
+                font-size: 1.2rem;
+            }
+            .card {
+                padding: 16px;
             }
         }
 
@@ -178,17 +148,17 @@
 
         label {
             display: block;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         input[type="text"], input[type="number"], select, input[type="file"] {
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px 14px;
             border: 1px solid var(--border-color);
             border-radius: 10px;
             font-size: 0.95rem;
@@ -200,7 +170,7 @@
 
         input:focus, select:focus {
             border-color: var(--accent-blue);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
 
         /* Search Results Dropdown */
@@ -212,7 +182,7 @@
             background: white;
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            max-height: 240px;
+            max-height: 220px;
             overflow-y: auto;
             z-index: 100;
             box-shadow: var(--shadow-lg);
@@ -220,12 +190,13 @@
         }
 
         .search-item {
-            padding: 12px 16px;
+            padding: 12px 14px;
             cursor: pointer;
             border-bottom: 1px solid #f1f5f9;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
         .search-item:hover {
@@ -236,12 +207,43 @@
         .selected-badge {
             background: #eff6ff;
             border: 1px solid #bfdbfe;
-            padding: 14px 18px;
-            border-radius: 12px;
-            font-size: 0.9rem;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
             color: #1e40af;
             display: none;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        /* Standard Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-primary:active {
+            background: var(--accent-blue-hover);
+            transform: scale(0.99);
+        }
+
+        .btn-success {
+            background: var(--accent-green);
+            color: white;
         }
 
         /* Modal / Popup Styling */
@@ -257,21 +259,24 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            padding: 12px;
         }
 
         .modal-content {
             background: white;
-            padding: 28px;
-            border-radius: 18px;
-            width: 90%;
-            max-width: 600px;
+            padding: 20px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 550px;
             box-shadow: var(--shadow-lg);
             animation: fadeIn 0.2s ease-out;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .modal-content-large {
-            max-width: 1100px;
-            width: 95%;
+            max-width: 1000px;
         }
 
         @keyframes fadeIn {
@@ -283,25 +288,25 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 14px;
+            padding-bottom: 10px;
         }
 
         .modal-header h3 {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--text-dark);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .close-btn {
             background: #f1f5f9;
             border: none;
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             font-size: 1rem;
             cursor: pointer;
@@ -309,31 +314,29 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .close-btn:hover {
-            background: #e2e8f0;
-            color: var(--text-dark);
         }
 
         .table-responsive {
             overflow-x: auto;
-            max-height: 480px;
+            overflow-y: auto;
+            max-height: 60vh;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
 
         th {
             background: #f1f5f9;
             color: var(--text-dark);
             font-weight: 600;
-            padding: 14px 16px;
+            padding: 10px 12px;
             position: sticky;
             top: 0;
             border-bottom: 2px solid var(--border-color);
@@ -341,12 +344,8 @@
         }
 
         td {
-            padding: 12px 16px;
+            padding: 10px 12px;
             border-bottom: 1px solid var(--border-color);
-        }
-
-        tr:hover {
-            background-color: #f8fafc;
         }
 
         .closing-stock {
@@ -355,62 +354,59 @@
         }
 
         .setting-option {
-            margin-bottom: 18px;
+            margin-bottom: 14px;
             background: #f8fafc;
-            padding: 18px;
-            border-radius: 12px;
+            padding: 14px;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
         }
 
         .setting-option p {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .badge-type {
             background: #e2e8f0;
-            padding: 3px 8px;
-            border-radius: 6px;
+            padding: 2px 6px;
+            border-radius: 4px;
             font-weight: 600;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Header Block with Updated App Title: RMC Daily Stock -->
+    <!-- Header Block with Icon Buttons on Top Right -->
     <div class="header-block">
         <div class="brand-title">
             <i class="fa-solid fa-boxes-stacked"></i> RMC Daily Stock
         </div>
-        <div class="sub-header-actions">
-            <button class="btn btn-header" onclick="openRecordsModal()">
-                <i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i> Inventory Records Summary
+        <div class="icon-actions">
+            <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Records Summary">
+                <i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i>
             </button>
-            <button class="btn btn-header" onclick="openSettings()">
-                <i class="fa-solid fa-gear" style="color: #60a5fa;"></i> Settings & Backup
+            <button class="btn-icon-header" onclick="openSettings()" title="Settings & Backup">
+                <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
             </button>
         </div>
     </div>
 
-    <!-- Main Data Entry Form Card -->
+    <!-- Main Data Entry Form Card (Clean Entry UI) -->
     <div class="card">
-        <div class="card-header">
-            <div class="card-title"><i class="fa-solid fa-file-pen"></i> Stock Transaction Data Entry</div>
-        </div>
-
-        <!-- Search Material -->
-        <div class="form-group" style="margin-bottom: 20px;">
+        <!-- Material Search -->
+        <div class="form-group" style="margin-bottom: 16px;">
             <label><i class="fa-solid fa-magnifying-glass"></i> Search Material (Code / Name):</label>
-            <input type="text" id="searchInput" placeholder="Search by Material Code or Item Name..." autocomplete="off">
+            <input type="text" id="searchInput" placeholder="Search Material Code or Name..." autocomplete="off">
             <div id="searchResults" class="search-results" style="display:none;"></div>
         </div>
 
         <!-- Selected Item Badge -->
         <div id="selectedBadge" class="selected-badge">
-            <i class="fa-solid fa-circle-check"></i> Selected: <strong id="dispCode"></strong> - <span id="dispName"></span> | UOM: <strong id="dispUom"></strong> | Opening Stock (E): <strong id="dispOp"></strong>
+            <i class="fa-solid fa-circle-check"></i> <strong>Selected:</strong> <span id="dispCode"></span> - <span id="dispName"></span><br>
+            UOM: <strong id="dispUom"></strong> | Opening Stock (E): <strong id="dispOp"></strong>
         </div>
 
         <!-- Section Select & Amount Input Grid -->
@@ -425,11 +421,11 @@
             </div>
             <div class="form-group">
                 <label><i class="fa-solid fa-arrow-up-9-5"></i> Enter Amount:</label>
-                <input type="number" id="inputAmount" min="0" placeholder="0.00">
+                <input type="number" id="inputAmount" min="0" placeholder="0.00" inputmode="decimal">
             </div>
         </div>
 
-        <button class="btn btn-primary" style="width: 100%; justify-content: center; height: 48px; font-size: 1rem;" onclick="addSingleSectionData()">
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; height: 46px;" onclick="addSingleSectionData()">
             <i class="fa-solid fa-check-circle"></i> Submit Transaction
         </button>
     </div>
@@ -439,12 +435,12 @@
 <div id="recordsModal" class="modal">
     <div class="modal-content modal-content-large">
         <div class="modal-header">
-            <h3><i class="fa-solid fa-chart-pie" style="color:var(--accent-amber);"></i> RMC Daily Stock Summary</h3>
+            <h3><i class="fa-solid fa-chart-pie" style="color:var(--accent-amber);"></i> Inventory Records Summary</h3>
             <button class="close-btn" onclick="closeRecordsModal()">&times;</button>
         </div>
-        <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <input type="text" id="modalSearchInput" placeholder="Filter inventory records..." style="max-width: 350px;">
-            <button class="btn btn-success" onclick="downloadExcelAndReset()"><i class="fa-solid fa-file-excel"></i> Download Excel & Shift Stock</button>
+        <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <input type="text" id="modalSearchInput" placeholder="Filter items..." style="max-width: 260px; padding: 8px 12px; font-size:0.88rem;">
+            <button class="btn btn-success" style="padding: 8px 14px; font-size:0.85rem;" onclick="downloadExcelAndReset()"><i class="fa-solid fa-file-excel"></i> Download Excel & Shift Stock</button>
         </div>
         <div class="table-responsive">
             <table>
@@ -462,7 +458,7 @@
                     </tr>
                 </thead>
                 <tbody id="summaryTableBody">
-                    <!-- Populated Dynamically -->
+                    <!-- Dynamic Data -->
                 </tbody>
             </table>
         </div>
@@ -479,31 +475,31 @@
         
         <!-- XLSX Restore -->
         <div class="setting-option">
-            <label><i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> Restore Excel (.xlsx / .xls) File:</label>
-            <p>පෙර Save කරන ලද Excel File එකක් Upload කර දත්ත Restore කරගන්න.</p>
-            <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 10px;">
-            <button class="btn btn-success" style="width:100%; justify-content:center;" onclick="restoreFromXLSX()"><i class="fa-solid fa-file-import"></i> Restore Excel Data</button>
+            <label><i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> Restore Excel (.xlsx) File:</label>
+            <p>පෙර Save කළ Excel File එකකින් දත්ත Restore කරන්න.</p>
+            <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 8px;">
+            <button class="btn btn-success" style="width:100%; justify-content:center; padding: 10px;" onclick="restoreFromXLSX()"><i class="fa-solid fa-file-import"></i> Restore Excel Data</button>
         </div>
 
         <!-- XML Restore -->
         <div class="setting-option">
             <label><i class="fa-solid fa-file-code" style="color:#2563eb;"></i> Restore XML (.xml) File:</label>
-            <p>XML Backup file එකකින් පද්ධතියේ දත්ත නැවත ලබාගන්න.</p>
-            <input type="file" id="xmlFileInput" accept=".xml" style="margin-bottom: 10px;">
-            <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="restoreFromXML()"><i class="fa-solid fa-upload"></i> Restore XML Data</button>
+            <p>XML Backup file එකකින් දත්ත ලබාගන්න.</p>
+            <input type="file" id="xmlFileInput" accept=".xml" style="margin-bottom: 8px;">
+            <button class="btn btn-primary" style="width:100%; justify-content:center; padding: 10px;" onclick="restoreFromXML()"><i class="fa-solid fa-upload"></i> Restore XML Data</button>
         </div>
 
         <!-- XML Backup Export -->
         <div class="setting-option">
             <label><i class="fa-solid fa-download"></i> Download XML Backup File:</label>
-            <p>දැනට පද්ධතියේ ඇති සියලුම දත්ත XML Backup එකක් ලෙස Download කර තබාගන්න.</p>
-            <button class="btn" style="background:#475569; color:white; width:100%; justify-content:center;" onclick="downloadXMLBackup()"><i class="fa-solid fa-file-export"></i> Export XML Backup</button>
+            <p>දත්ත XML Backup එකක් ලෙස Download කරගන්න.</p>
+            <button class="btn" style="background:#475569; color:white; width:100%; justify-content:center; padding: 10px;" onclick="downloadXMLBackup()"><i class="fa-solid fa-file-export"></i> Export XML Backup</button>
         </div>
     </div>
 </div>
 
 <script>
-    // Initial Master Items Extracted from 07.09.2026.xlsx
+    // Initial Master Items
     let defaultItems = [
         {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000},
         {"type":"RM","code":"11061702","name":"WHITE SUGAR","uom":"KG","op_stock":2500},
@@ -539,7 +535,7 @@
 
     let selectedIndex = -1;
 
-    // Search Box Implementation
+    // Search Logic
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     const selectedBadge = document.getElementById('selectedBadge');
@@ -563,7 +559,7 @@
                 const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name);
                 const div = document.createElement('div');
                 div.className = 'search-item';
-                div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.8rem;">Op: ${item.op_stock} ${item.uom}</span>`;
+                div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.75rem;">${item.op_stock} ${item.uom}</span>`;
                 div.onclick = () => selectItem(idx);
                 searchResults.appendChild(div);
             });
@@ -585,7 +581,7 @@
         selectedBadge.style.display = 'block';
     }
 
-    // Single Section Data Addition Logic
+    // Submit Transaction
     function addSingleSectionData() {
         if (selectedIndex === -1) {
             alert('කරුණාකර Material Code එකක් හෝ Name එකක් Search කර Select කරගන්න!');
@@ -614,10 +610,10 @@
         item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return;
 
         document.getElementById('inputAmount').value = '';
-        alert(`${item.name} හි ${targetSection} Section එකට ${amount} හි අගයක් සාර්ථකව ඇතුළත් විය!`);
+        alert(`${item.name} හි ${targetSection} Section එකට ${amount} අගයක් එක් විය!`);
     }
 
-    // Modal Control Functions
+    // Modals
     function openRecordsModal() {
         renderSummaryTable();
         document.getElementById('recordsModal').style.display = 'flex';
@@ -664,7 +660,7 @@
         document.getElementById('settingsModal').style.display = 'none';
     }
 
-    // Download Excel & Auto Shift Logic
+    // Excel Download & Shift Logic
     function downloadExcelAndReset() {
         const exportData = inventory.map(item => ({
             "Type": item.type,
@@ -687,7 +683,7 @@
 
         XLSX.writeFile(workbook, filename);
 
-        // Shift Closing Stock -> Opening Stock & Clear F, G, H
+        // Shift Closing Stock -> Opening Stock & Reset
         inventory.forEach(item => {
             item.op_stock = item.closing;
             item.f_receipt = 0;
@@ -701,10 +697,10 @@
         selectedBadge.style.display = 'none';
 
         closeRecordsModal();
-        alert(`Excel file එක (${filename}) download වූ අතර, Closing Stock (K) හි අගයන් Opening Stock (E) වෙත මාරු වී F, G, H clear විය!`);
+        alert(`Excel file එක (${filename}) download වූ අතර, Closing Stock (K) හි අගයන් Opening Stock (E) වෙත මාරු විය!`);
     }
 
-    // Restore Excel (.xlsx) File
+    // Restore Excel (.xlsx)
     function restoreFromXLSX() {
         const fileInput = document.getElementById('xlsxFileInput');
         const file = fileInput.files[0];
@@ -836,4 +832,3 @@
 
 </body>
 </html>
-
