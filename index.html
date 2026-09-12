@@ -207,13 +207,42 @@
         .selected-badge {
             background: #eff6ff;
             border: 1px solid #bfdbfe;
-            padding: 12px 14px;
+            padding: 14px;
             border-radius: 10px;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             color: #1e40af;
             display: none;
             margin-bottom: 16px;
-            line-height: 1.4;
+            line-height: 1.5;
+        }
+
+        .section-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #bfdbfe;
+            font-size: 0.8rem;
+        }
+
+        .stat-box {
+            background: #ffffff;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #dbeafe;
+            text-align: center;
+        }
+
+        .stat-box span {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .stat-box strong {
+            color: var(--text-dark);
+            font-size: 0.9rem;
         }
 
         /* Standard Buttons */
@@ -281,7 +310,7 @@
         }
 
         .modal-content-large {
-            max-width: 1000px;
+            max-width: 650px;
         }
 
         @keyframes fadeIn {
@@ -333,7 +362,7 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             white-space: nowrap;
         }
 
@@ -371,14 +400,6 @@
             color: var(--text-muted);
             margin-bottom: 10px;
         }
-
-        .badge-type {
-            background: #e2e8f0;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.75rem;
-        }
     </style>
 </head>
 <body>
@@ -410,8 +431,24 @@
 
         <!-- Selected Item Badge -->
         <div id="selectedBadge" class="selected-badge">
-            <i class="fa-solid fa-circle-check"></i> <strong>Selected:</strong> <span id="dispCode"></span> - <span id="dispName"></span><br>
-            UOM: <strong id="dispUom"></strong> | Opening Stock (E): <strong id="dispOp"></strong>
+            <div><i class="fa-solid fa-circle-check"></i> <strong>Selected:</strong> <span id="dispCode"></span> - <span id="dispName"></span></div>
+            <div>UOM: <strong id="dispUom"></strong> | Op. Stock (E): <strong id="dispOp"></strong></div>
+            
+            <!-- Dynamic Section Values for Selected Item -->
+            <div class="section-stats-grid">
+                <div class="stat-box">
+                    <span>Receipt (F) [+]</span>
+                    <strong id="dispReceipt" style="color:var(--accent-green);">0</strong>
+                </div>
+                <div class="stat-box">
+                    <span>Issues (G) [-]</span>
+                    <strong id="dispIssues" style="color:#ef4444;">0</strong>
+                </div>
+                <div class="stat-box">
+                    <span>Return (H) [+]</span>
+                    <strong id="dispReturn" style="color:var(--accent-amber);">0</strong>
+                </div>
+            </div>
         </div>
 
         <!-- Section Select & Amount Input Grid -->
@@ -455,14 +492,8 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Type</th>
                         <th>Material Code</th>
                         <th>Material Name</th>
-                        <th>UOM</th>
-                        <th>Op. Stock (E)</th>
-                        <th>Receipt (F) [+]</th>
-                        <th>Issues (G) [-]</th>
-                        <th>Return (H) [+]</th>
                         <th>Closing Stock (K)</th>
                     </tr>
                 </thead>
@@ -586,8 +617,21 @@
         document.getElementById('dispCode').innerText = item.code;
         document.getElementById('dispName').innerText = item.name;
         document.getElementById('dispUom').innerText = item.uom;
-        document.getElementById('dispOp').innerText = item.op_stock;
+        document.getElementById('dispOp').innerText = item.op_stock.toLocaleString();
+        
+        // Dynamic Section Update on Selection
+        updateSelectedStats();
+        
         selectedBadge.style.display = 'block';
+    }
+
+    function updateSelectedStats() {
+        if (selectedIndex !== -1) {
+            const item = inventory[selectedIndex];
+            document.getElementById('dispReceipt').innerText = item.f_receipt.toLocaleString();
+            document.getElementById('dispIssues').innerText = item.g_issues.toLocaleString();
+            document.getElementById('dispReturn').innerText = item.h_return.toLocaleString();
+        }
     }
 
     // Submit Transaction
@@ -619,6 +663,10 @@
         item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return;
 
         document.getElementById('inputAmount').value = '';
+        
+        // Selected Badge එකේ Section අගයන් Real-time යාවත්කාලීන කිරීම
+        updateSelectedStats();
+
         alert(`${item.name} හි ${targetSection} Section එකට ${amount} අගයක් එක් විය!`);
     }
 
@@ -632,21 +680,16 @@
         document.getElementById('recordsModal').style.display = 'none';
     }
 
+    // Renders ONLY Material Code, Material Name, and Closing Stock (K)
     function renderSummaryTable() {
         const tbody = document.getElementById('summaryTableBody');
         tbody.innerHTML = '';
         inventory.forEach(item => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><span class="badge-type">${item.type}</span></td>
                 <td><strong>${item.code}</strong></td>
                 <td>${item.name}</td>
-                <td>${item.uom}</td>
-                <td>${Number(item.op_stock).toLocaleString()}</td>
-                <td>${item.f_receipt > 0 ? '+' + item.f_receipt.toLocaleString() : '-'}</td>
-                <td>${item.g_issues > 0 ? '-' + item.g_issues.toLocaleString() : '-'}</td>
-                <td>${item.h_return > 0 ? '+' + item.h_return.toLocaleString() : '-'}</td>
-                <td class="closing-stock">${Number(item.closing).toLocaleString()}</td>
+                <td class="closing-stock">${Number(item.closing).toLocaleString()} ${item.uom}</td>
             `;
             tbody.appendChild(tr);
         });
