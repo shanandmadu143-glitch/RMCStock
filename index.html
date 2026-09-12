@@ -2,840 +2,412 @@
 <html lang="si">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RMC Daily Stock</title>
-    <!-- SheetJS (XLSX) Library -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management Dashboard</title>
     
+    <!-- CSS STYLES -->
     <style>
         :root {
-            --primary-bg: #0f172a;
-            --accent-blue: #2563eb;
-            --accent-blue-hover: #1d4ed8;
-            --accent-green: #10b981;
-            --accent-green-hover: #059669;
-            --accent-amber: #f59e0b;
-            --bg-body: #f8fafc;
+            --primary-color: #1e293b;
+            --accent-color: #2563eb;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
+            --text-color: #334155;
             --border-color: #e2e8f0;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --success-color: #16a34a;
+            --danger-color: #dc2626;
+            --warning-color: #d97706;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background-color: var(--bg-body);
-            color: var(--text-dark);
-            padding: 16px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            line-height: 1.6;
         }
 
         .container {
-            width: 100%;
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* Top Header Navigation Block */
-        .header-block {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: #ffffff;
-            padding: 18px 22px;
-            border-radius: 16px;
-            box-shadow: var(--shadow-md);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .brand-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.35rem;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-        }
-
-        .brand-title i {
-            color: #60a5fa;
-            font-size: 1.5rem;
-        }
-
-        /* Top-Right Icon Actions */
-        .icon-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-icon-header {
-            width: 42px;
-            height: 42px;
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px 30px;
             border-radius: 12px;
-            background: rgba(255, 255, 255, 0.12);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-icon-header:active, .btn-icon-header:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: scale(1.05);
-        }
-
-        /* Main Entry Card */
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            padding: 22px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* Form Controls */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 640px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            body {
-                padding: 10px;
-            }
-            .header-block {
-                padding: 16px 18px;
-            }
-            .brand-title {
-                font-size: 1.2rem;
-            }
-            .card {
-                padding: 16px;
-            }
-        }
-
-        .form-group {
-            position: relative;
-        }
-
-        label {
-            display: block;
-            font-size: 0.8rem;
+        header h1 {
+            font-size: 24px;
             font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        input[type="text"], input[type="number"], select, input[type="file"] {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 0.95rem;
-            color: var(--text-dark);
-            background-color: #fff;
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-        }
-
-        /* Search Results Dropdown */
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            max-height: 220px;
-            overflow-y: auto;
-            z-index: 100;
-            box-shadow: var(--shadow-lg);
+        header p {
+            color: #94a3b8;
+            font-size: 14px;
             margin-top: 4px;
         }
 
-        .search-item {
-            padding: 12px 14px;
-            cursor: pointer;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.88rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
         }
 
-        .search-item:hover {
-            background-color: #eff6ff;
-            color: var(--accent-blue);
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .selected-badge {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            padding: 12px 14px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            color: #1e40af;
-            display: none;
-            margin-bottom: 16px;
-            line-height: 1.4;
-        }
-
-        /* Standard Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-size: 0.92rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn-primary {
-            background: var(--accent-blue);
-            color: white;
-        }
-
-        .btn-primary:active {
-            background: var(--accent-blue-hover);
-            transform: scale(0.99);
-        }
-
-        .btn-success {
-            background: var(--accent-green);
-            color: white;
-        }
-
-        .btn-success:active {
-            background: var(--accent-green-hover);
-            transform: scale(0.99);
-        }
-
-        /* Modal / Popup Styling */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 12px;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 550px;
-            box-shadow: var(--shadow-lg);
-            animation: fadeIn 0.2s ease-out;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-content-large {
-            max-width: 1000px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.97); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-
-        .modal-header h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .close-btn {
-            background: #f1f5f9;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-size: 1rem;
-            cursor: pointer;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-            overflow-y: auto;
-            max-height: 60vh;
-            border-radius: 8px;
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Form Controls */
+        .select-group {
+            margin-bottom: 20px;
+        }
+
+        .select-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #fff;
+            color: var(--text-color);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Metric Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-card.receipt {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: var(--success-color);
+        }
+
+        .metric-card.issue {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: var(--danger-color);
+        }
+
+        .metric-card.return {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            color: var(--warning-color);
+        }
+
+        .metric-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        /* Tables */
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 14px;
             text-align: left;
-            font-size: 0.85rem;
-            white-space: nowrap;
-        }
-
-        th {
-            background: #f1f5f9;
-            color: var(--text-dark);
-            font-weight: 600;
-            padding: 10px 12px;
-            position: sticky;
-            top: 0;
-            border-bottom: 2px solid var(--border-color);
-            z-index: 10;
-        }
-
-        td {
-            padding: 10px 12px;
             border-bottom: 1px solid var(--border-color);
         }
 
-        .closing-stock {
-            font-weight: 700;
-            color: var(--accent-blue);
-        }
-
-        .setting-option {
-            margin-bottom: 14px;
-            background: #f8fafc;
-            padding: 14px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-        }
-
-        .setting-option p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-        }
-
-        .badge-type {
-            background: #e2e8f0;
-            padding: 2px 6px;
-            border-radius: 4px;
+        th {
+            background-color: #f1f5f9;
+            color: #475569;
             font-weight: 600;
-            font-size: 0.75rem;
         }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-receipt { background: #dcfce7; color: #15803d; }
+        .badge-issue { background: #fee2e2; color: #b91c1c; }
+        .badge-return { background: #fef3c7; color: #b45309; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Header Block with Icon Buttons on Top Right -->
-    <div class="header-block">
-        <div class="brand-title">
-            <i class="fa-solid fa-boxes-stacked"></i> RMC Daily Stock
-        </div>
-        <div class="icon-actions">
-            <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Records Summary">
-                <i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i>
-            </button>
-            <button class="btn-icon-header" onclick="openSettings()" title="Settings & Backup">
-                <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
-            </button>
-        </div>
-    </div>
+    <header>
+        <h1>Inventory Management Dashboard</h1>
+        <p>Material Summary & Transaction Tracker</p>
+    </header>
 
-    <!-- Main Data Entry Form Card -->
-    <div class="card">
-        <!-- Material Search -->
-        <div class="form-group" style="margin-bottom: 16px;">
-            <label><i class="fa-solid fa-magnifying-glass"></i> Search Material (Code / Name):</label>
-            <input type="text" id="searchInput" placeholder="Search Material Code or Name..." autocomplete="off">
-            <div id="searchResults" class="search-results" style="display:none;"></div>
-        </div>
-
-        <!-- Selected Item Badge -->
-        <div id="selectedBadge" class="selected-badge">
-            <i class="fa-solid fa-circle-check"></i> <strong>Selected:</strong> <span id="dispCode"></span> - <span id="dispName"></span><br>
-            UOM: <strong id="dispUom"></strong> | Opening Stock (E): <strong id="dispOp"></strong>
-        </div>
-
-        <!-- Section Select & Amount Input Grid -->
-        <div class="form-grid">
-            <div class="form-group">
-                <label><i class="fa-solid fa-filter"></i> Select Section:</label>
-                <select id="sectionSelect">
-                    <option value="F">F Section - Receipt (එකතු වේ [+])</option>
-                    <option value="G">G Section - Issues (අඩු වේ [-])</option>
-                    <option value="H">H Section - Return (එකතු වේ [+])</option>
-                </select>
+    <div class="grid">
+        <!-- Summary Table (Only Code, Name & Closing Stock) -->
+        <div class="card">
+            <div class="card-title">
+                <span>Inventory Records Summary</span>
             </div>
-            <div class="form-group">
-                <label><i class="fa-solid fa-arrow-up-9-5"></i> Enter Amount:</label>
-                <input type="number" id="inputAmount" min="0" placeholder="0.00" inputmode="decimal">
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <button class="btn btn-primary" style="width: 100%; justify-content: center; height: 46px; margin-bottom: 10px;" onclick="addSingleSectionData()">
-            <i class="fa-solid fa-check-circle"></i> Submit Transaction
-        </button>
-
-        <button class="btn btn-success" style="width: 100%; justify-content: center; height: 46px;" onclick="downloadExcelAndReset()">
-            <i class="fa-solid fa-file-excel"></i> Download Excel
-        </button>
-    </div>
-</div>
-
-<!-- POPUP MODAL 1: INVENTORY RECORDS SUMMARY -->
-<div id="recordsModal" class="modal">
-    <div class="modal-content modal-content-large">
-        <div class="modal-header">
-            <h3><i class="fa-solid fa-chart-pie" style="color:var(--accent-amber);"></i> Inventory Records Summary</h3>
-            <button class="close-btn" onclick="closeRecordsModal()">&times;</button>
-        </div>
-        <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <input type="text" id="modalSearchInput" placeholder="Filter items..." style="max-width: 260px; padding: 8px 12px; font-size:0.88rem;">
-        </div>
-        <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
-                        <th>Type</th>
                         <th>Material Code</th>
                         <th>Material Name</th>
-                        <th>UOM</th>
-                        <th>Op. Stock (E)</th>
-                        <th>Receipt (F) [+]</th>
-                        <th>Issues (G) [-]</th>
-                        <th>Return (H) [+]</th>
-                        <th>Closing Stock (K)</th>
+                        <th class="text-right">Closing Stock</th>
                     </tr>
                 </thead>
                 <tbody id="summaryTableBody">
-                    <!-- Dynamic Data -->
+                    <!-- JavaScript මගින් එකතු වේ -->
                 </tbody>
             </table>
         </div>
+
+        <!-- Material Selection & Details -->
+        <div class="card">
+            <div class="card-title">
+                <span>Material Details View</span>
+            </div>
+
+            <div class="select-group">
+                <label for="materialSelect">Material එකක් තෝරන්න (Select Material):</label>
+                <select id="materialSelect" onchange="renderDetails()">
+                    <!-- JavaScript මගින් එකතු වේ -->
+                </select>
+            </div>
+
+            <div id="detailsContainer">
+                <div class="metrics-grid">
+                    <div class="metric-card receipt">
+                        <div class="metric-title">Receipt (F) [+]</div>
+                        <div class="metric-value" id="totalReceipts">0</div>
+                    </div>
+                    <div class="metric-card issue">
+                        <div class="metric-title">Issues (G) [-]</div>
+                        <div class="metric-value" id="totalIssues">0</div>
+                    </div>
+                    <div class="metric-card return">
+                        <div class="metric-title">Return (H) [+]</div>
+                        <div class="metric-value" id="totalReturns">0</div>
+                    </div>
+                </div>
+
+                <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary-color);">Transaction Breakdown</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Ref No</th>
+                            <th class="text-right">Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionTableBody">
+                        <!-- JavaScript මගින් එකතු වේ -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- POPUP MODAL 2: SETTINGS & RESTORE -->
-<div id="settingsModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><i class="fa-solid fa-sliders" style="color:var(--accent-blue);"></i> Settings & Data Restore</h3>
-            <button class="close-btn" onclick="closeSettings()">&times;</button>
-        </div>
-        
-        <!-- XLSX Restore -->
-        <div class="setting-option">
-            <label><i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> Restore Excel (.xlsx) File:</label>
-            <p>පෙර Save කළ Excel File එකකින් දත්ත Restore කරන්න.</p>
-            <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 8px;">
-            <button class="btn btn-success" style="width:100%; justify-content:center; padding: 10px;" onclick="restoreFromXLSX()"><i class="fa-solid fa-file-import"></i> Restore Excel Data</button>
-        </div>
-
-        <!-- XML Restore -->
-        <div class="setting-option">
-            <label><i class="fa-solid fa-file-code" style="color:#2563eb;"></i> Restore XML (.xml) File:</label>
-            <p>XML Backup file එකකින් දත්ත ලබාගන්න.</p>
-            <input type="file" id="xmlFileInput" accept=".xml" style="margin-bottom: 8px;">
-            <button class="btn btn-primary" style="width:100%; justify-content:center; padding: 10px;" onclick="restoreFromXML()"><i class="fa-solid fa-upload"></i> Restore XML Data</button>
-        </div>
-
-        <!-- XML Backup Export -->
-        <div class="setting-option">
-            <label><i class="fa-solid fa-download"></i> Download XML Backup File:</label>
-            <p>දත්ත XML Backup එකක් ලෙස Download කරගන්න.</p>
-            <button class="btn" style="background:#475569; color:white; width:100%; justify-content:center; padding: 10px;" onclick="downloadXMLBackup()"><i class="fa-solid fa-file-export"></i> Export XML Backup</button>
-        </div>
-    </div>
-</div>
-
+<!-- JAVASCRIPT LOGIC -->
 <script>
-    // Initial Master Items
-    let defaultItems = [
-        {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000},
-        {"type":"RM","code":"11061702","name":"WHITE SUGAR","uom":"KG","op_stock":2500},
-        {"type":"RM","code":"11002301","name":"MONOSODIUM GLUTAMATE","uom":"KG","op_stock":4525},
-        {"type":"RM","code":"67548375","name":"ONION POWDER","uom":"KG","op_stock":120},
-        {"type":"RM","code":"11067473","name":"CITRIC ACID MONOHYDRATE (FOOD GRADE)","uom":"KG","op_stock":50},
-        {"type":"RM","code":"11002242","name":"SPICE CELERY POWDER","uom":"KG","op_stock":25},
-        {"type":"RM","code":"67550393","name":"GARLIC POWDER","uom":"KG","op_stock":25},
-        {"type":"RM","code":"67548417","name":"WHITE PEPPER","uom":"KG","op_stock":15},
-        {"type":"RM","code":"11002253","name":"SPICE TURMERIC POWDER","uom":"KG","op_stock":4},
-        {"type":"RM","code":"11061729","name":"I+G SODIUM 5'RIBONUCLEOTID","uom":"KG","op_stock":40},
-        {"type":"RM","code":"11827361","name":"DRIED CORN STARCH 5% MOISTURE-SSL","uom":"KG","op_stock":6000},
-        {"type":"RM","code":"11061758","name":"CORN STARCH - IMPORT","uom":"KG","op_stock":0},
-        {"type":"RM","code":"11067112","name":"YEAST EXTR. MICROGRANUL. STANDARD 18% SA","uom":"KG","op_stock":400},
-        {"type":"RM","code":"11067118","name":"FLAVOUR CHICKEN POWDER (S-2182)","uom":"KG","op_stock":25},
-        {"type":"RM","code":"11061730","name":"CARAMEL COLOUR CLASS III (E150C)","uom":"KG","op_stock":20},
-        {"type":"RM","code":"11067140","name":"MALTO DEXTRIN 18-20 (M20)","uom":"KG","op_stock":500},
-        {"type":"RM","code":"11002220","name":"SPICE NUTMEG POWDER","uom":"KG","op_stock":10},
-        {"type":"RM","code":"11002206","name":"SPICE BLACK PEPPER POWDER","uom":"KG","op_stock":150},
-        {"type":"RM","code":"11002213","name":"SPICE CORIANDER POWDER","uom":"KG","op_stock":0},
-        {"type":"RM","code":"11002214","name":"SPICE CUMIN POWDER","uom":"KG","op_stock":100},
-        {"type":"RM","code":"11002211","name":"SPICE CLOVE POWDER","uom":"KG","op_stock":10},
-        {"type":"RM","code":"11002210","name":"SPICE CINNAMON POWDER","uom":"KG","op_stock":2}
+    // Sample Inventory Data (ඔබට අවශ්‍ය ලෙස Data වෙනස් කළ හැක)
+    const inventoryData = [
+        {
+            code: "MAT-001",
+            name: "Steel Bars 12mm",
+            initialStock: 500,
+            transactions: [
+                { date: "2026-03-01", type: "Receipt (F)", ref: "PO-1001", qty: 300 },
+                { date: "2026-03-03", type: "Issue (G)", ref: "REQ-201", qty: 150 },
+                { date: "2026-03-05", type: "Issue (G)", ref: "REQ-205", qty: 200 },
+                { date: "2026-03-08", type: "Return (H)", ref: "RET-010", qty: 50 },
+                { date: "2026-03-10", type: "Receipt (F)", ref: "PO-1045", qty: 100 }
+            ]
+        },
+        {
+            code: "MAT-002",
+            name: "Cement Bags (50kg)",
+            initialStock: 200,
+            transactions: [
+                { date: "2026-03-02", type: "Receipt (F)", ref: "PO-1008", qty: 500 },
+                { date: "2026-03-04", type: "Issue (G)", ref: "REQ-210", qty: 350 },
+                { date: "2026-03-07", type: "Issue (G)", ref: "REQ-218", qty: 100 },
+                { date: "2026-03-09", type: "Return (H)", ref: "RET-014", qty: 20 }
+            ]
+        },
+        {
+            code: "MAT-003",
+            name: "PVC Pipes 2 inch",
+            initialStock: 150,
+            transactions: [
+                { date: "2026-03-01", type: "Receipt (F)", ref: "PO-0990", qty: 100 },
+                { date: "2026-03-06", type: "Issue (G)", ref: "REQ-195", qty: 80 },
+                { date: "2026-03-11", type: "Return (H)", ref: "RET-005", qty: 10 }
+            ]
+        }
     ];
 
-    let inventory = defaultItems.map(item => ({
-        ...item,
-        f_receipt: 0,
-        g_issues: 0,
-        h_return: 0,
-        closing: item.op_stock
-    }));
+    // Closing Stock ගණනය කිරීමේ Function එක
+    function calculateClosingStock(item) {
+        let receipts = 0;
+        let issues = 0;
+        let returns = 0;
 
-    let selectedIndex = -1;
+        item.transactions.forEach(t => {
+            if (t.type.includes("Receipt")) receipts += t.qty;
+            else if (t.type.includes("Issue")) issues += t.qty;
+            else if (t.type.includes("Return")) returns += t.qty;
+        });
 
-    // Search Logic
-    const searchInput = document.getElementById('searchInput');
-    const searchResults = document.getElementById('searchResults');
-    const selectedBadge = document.getElementById('selectedBadge');
-
-    searchInput.addEventListener('input', function() {
-        const query = this.value.toLowerCase().trim();
-        searchResults.innerHTML = '';
-        if (!query) {
-            searchResults.style.display = 'none';
-            return;
-        }
-
-        const filtered = inventory.filter(item => 
-            String(item.code).toLowerCase().includes(query) || 
-            String(item.name).toLowerCase().includes(query)
-        );
-
-        if (filtered.length > 0) {
-            searchResults.style.display = 'block';
-            filtered.forEach(item => {
-                const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name);
-                const div = document.createElement('div');
-                div.className = 'search-item';
-                div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.75rem;">${item.op_stock} ${item.uom}</span>`;
-                div.onclick = () => selectItem(idx);
-                searchResults.appendChild(div);
-            });
-        } else {
-            searchResults.style.display = 'none';
-        }
-    });
-
-    function selectItem(index) {
-        selectedIndex = index;
-        const item = inventory[index];
-        searchInput.value = `${item.code} - ${item.name}`;
-        searchResults.style.display = 'none';
-
-        document.getElementById('dispCode').innerText = item.code;
-        document.getElementById('dispName').innerText = item.name;
-        document.getElementById('dispUom').innerText = item.uom;
-        document.getElementById('dispOp').innerText = item.op_stock;
-        selectedBadge.style.display = 'block';
+        return (item.initialStock + receipts + returns) - issues;
     }
 
-    // Submit Transaction
-    function addSingleSectionData() {
-        if (selectedIndex === -1) {
-            alert('කරුණාකර Material Code එකක් හෝ Name එකක් Search කර Select කරගන්න!');
-            return;
-        }
+    // Dashboard එක ආරම්භයේදී Load වන Function එක
+    function initDashboard() {
+        const summaryTableBody = document.getElementById("summaryTableBody");
+        const materialSelect = document.getElementById("materialSelect");
 
-        const targetSection = document.getElementById('sectionSelect').value;
-        const amount = parseFloat(document.getElementById('inputAmount').value) || 0;
+        summaryTableBody.innerHTML = "";
+        materialSelect.innerHTML = "";
 
-        if (amount <= 0) {
-            alert('කරුණාකර වලංගු 0 ට වැඩි අගයක් ඇතුළත් කරන්න!');
-            return;
-        }
+        inventoryData.forEach((item, index) => {
+            const closingStock = calculateClosingStock(item);
 
-        let item = inventory[selectedIndex];
-
-        if (targetSection === 'F') {
-            item.f_receipt += amount;
-        } else if (targetSection === 'G') {
-            item.g_issues += amount;
-        } else if (targetSection === 'H') {
-            item.h_return += amount;
-        }
-
-        // Calculate K = E + F - G + H
-        item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return;
-
-        document.getElementById('inputAmount').value = '';
-        alert(`${item.name} හි ${targetSection} Section එකට ${amount} අගයක් එක් විය!`);
-    }
-
-    // Modals
-    function openRecordsModal() {
-        renderSummaryTable();
-        document.getElementById('recordsModal').style.display = 'flex';
-    }
-
-    function closeRecordsModal() {
-        document.getElementById('recordsModal').style.display = 'none';
-    }
-
-    function renderSummaryTable() {
-        const tbody = document.getElementById('summaryTableBody');
-        tbody.innerHTML = '';
-        inventory.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><span class="badge-type">${item.type}</span></td>
+            // Summary Table එක සෑදීම
+            const row = document.createElement("tr");
+            row.innerHTML = `
                 <td><strong>${item.code}</strong></td>
                 <td>${item.name}</td>
-                <td>${item.uom}</td>
-                <td>${Number(item.op_stock).toLocaleString()}</td>
-                <td>${item.f_receipt > 0 ? '+' + item.f_receipt.toLocaleString() : '-'}</td>
-                <td>${item.g_issues > 0 ? '-' + item.g_issues.toLocaleString() : '-'}</td>
-                <td>${item.h_return > 0 ? '+' + item.h_return.toLocaleString() : '-'}</td>
-                <td class="closing-stock">${Number(item.closing).toLocaleString()}</td>
+                <td class="text-right"><strong>${closingStock.toLocaleString()}</strong></td>
             `;
-            tbody.appendChild(tr);
-        });
-    }
+            summaryTableBody.appendChild(row);
 
-    document.getElementById('modalSearchInput').addEventListener('input', function() {
-        const q = this.value.toLowerCase().trim();
-        const rows = document.querySelectorAll('#summaryTableBody tr');
-        rows.forEach(row => {
-            const text = row.innerText.toLowerCase();
-            row.style.display = text.includes(q) ? '' : 'none';
-        });
-    });
-
-    function openSettings() {
-        document.getElementById('settingsModal').style.display = 'flex';
-    }
-
-    function closeSettings() {
-        document.getElementById('settingsModal').style.display = 'none';
-    }
-
-    // Excel Download & Shift Logic
-    function downloadExcelAndReset() {
-        const exportData = inventory.map(item => ({
-            "Type": item.type,
-            "Material Code": item.code,
-            "Material Name": item.name,
-            "UOM": item.uom,
-            "Op.Stock-Warehouse": item.op_stock,
-            "Receipt": item.f_receipt,
-            "Issues": item.g_issues,
-            "Return": item.h_return,
-            "Closing Stock": item.closing
-        }));
-
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data");
-
-        const today = new Date().toISOString().split('T')[0];
-        const filename = `RMC_Daily_Stock_${today}.xlsx`;
-
-        XLSX.writeFile(workbook, filename);
-
-        // Shift Closing Stock -> Opening Stock & Reset
-        inventory.forEach(item => {
-            item.op_stock = item.closing;
-            item.f_receipt = 0;
-            item.g_issues = 0;
-            item.h_return = 0;
-            item.closing = item.op_stock;
+            // Dropdown Menu එක සෑදීම
+            const option = document.createElement("option");
+            option.value = index;
+            option.textContent = `${item.code} - ${item.name}`;
+            materialSelect.appendChild(option);
         });
 
-        selectedIndex = -1;
-        searchInput.value = '';
-        selectedBadge.style.display = 'none';
-
-        alert(`Excel file එක (${filename}) download වූ අතර, Closing Stock (K) හි අගයන් Opening Stock (E) වෙත මාරු විය!`);
+        // ප්‍රථමයෙන්ම තියෙන Material එකේ විස්තර පෙන්වීම
+        renderDetails();
     }
 
-    // Restore Excel (.xlsx)
-    function restoreFromXLSX() {
-        const fileInput = document.getElementById('xlsxFileInput');
-        const file = fileInput.files[0];
-        if (!file) {
-            alert('කරුණාකර Excel File (.xlsx) එකක් තෝරන්න!');
-            return;
-        }
+    // Select කළ Material එකට අදාළ විස්තර පෙන්වන Function එක
+    function renderDetails() {
+        const selectedIndex = document.getElementById("materialSelect").value;
+        const item = inventoryData[selectedIndex];
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+        let receipts = 0;
+        let issues = 0;
+        let returns = 0;
 
-                let restoredInventory = [];
-                rawJson.forEach(row => {
-                    let code = row["Material Code"] || row["Code"] || row["code"] || "";
-                    let name = row["Material Name"] || row["Name"] || row["name"] || "";
-                    if (code || name) {
-                        let type = row["Type"] || row["type"] || "RM";
-                        let uom = row["UOM"] || row["uom"] || "KG";
-                        let op_stock = parseFloat(row["Op.Stock-Warehouse"] || row["Op.Stock"] || row["op_stock"]) || 0;
-                        let f_receipt = parseFloat(row["Receipt"] || row["f_receipt"]) || 0;
-                        let g_issues = parseFloat(row["Issues"] || row["g_issues"]) || 0;
-                        let h_return = parseFloat(row["Return"] || row["h_return"]) || 0;
-                        let closing = row["Closing Stock"] !== undefined && row["Closing Stock"] !== "" 
-                                      ? parseFloat(row["Closing Stock"]) 
-                                      : (op_stock + f_receipt - g_issues + h_return);
+        const transactionTableBody = document.getElementById("transactionTableBody");
+        transactionTableBody.innerHTML = "";
 
-                        restoredInventory.push({ type: String(type), code: String(code), name: String(name), uom: String(uom), op_stock, f_receipt, g_issues, h_return, closing });
-                    }
-                });
-
-                inventory = restoredInventory;
-                closeSettings();
-                alert(`Excel File එක සාර්ථකව Restore විය! Items ${inventory.length} ක් එක් විය.`);
-            } catch (err) {
-                alert('Excel File එක කියවීමේදී දෝෂයක් සිදු විය: ' + err.message);
+        item.transactions.forEach(t => {
+            let badgeClass = "";
+            if (t.type.includes("Receipt")) {
+                receipts += t.qty;
+                badgeClass = "badge-receipt";
+            } else if (t.type.includes("Issue")) {
+                issues += t.qty;
+                badgeClass = "badge-issue";
+            } else if (t.type.includes("Return")) {
+                returns += t.qty;
+                badgeClass = "badge-return";
             }
-        };
-        reader.readAsArrayBuffer(file);
-    }
 
-    // Restore XML File
-    function restoreFromXML() {
-        const fileInput = document.getElementById('xmlFileInput');
-        const file = fileInput.files[0];
-        if (!file) {
-            alert('කරුණාකර XML File එකක් තෝරන්න!');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const xmlText = e.target.result;
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-                const materials = xmlDoc.getElementsByTagName("material");
-
-                let restoredItems = [];
-                for (let i = 0; i < materials.length; i++) {
-                    let m = materials[i];
-                    let getVal = (tag) => m.getElementsByTagName(tag)[0] ? m.getElementsByTagName(tag)[0].textContent : "";
-
-                    restoredItems.push({
-                        type: getVal('type') || 'RM',
-                        code: getVal('code'),
-                        name: getVal('name'),
-                        uom: getVal('uom') || 'KG',
-                        op_stock: parseFloat(getVal('op_stock')) || 0,
-                        f_receipt: parseFloat(getVal('f_receipt')) || 0,
-                        g_issues: parseFloat(getVal('g_issues')) || 0,
-                        h_return: parseFloat(getVal('h_return')) || 0,
-                        closing: parseFloat(getVal('closing')) || 0
-                    });
-                }
-
-                inventory = restoredItems;
-                closeSettings();
-                alert(`XML file එක සාර්ථකව Restore විය! Item ${inventory.length} ක දත්ත යාවත්කාලීන විය.`);
-            } catch (err) {
-                alert('XML file එක කියවීමේදී දෝෂයක් සිදු විය: ' + err.message);
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    // XML Backup Export
-    function downloadXMLBackup() {
-        let xmlStr = '<?xml version="1.0" encoding="UTF-8"?>\n<materials>\n';
-        inventory.forEach(item => {
-            xmlStr += `  <material>\n`;
-            xmlStr += `    <type>${item.type}</type>\n`;
-            xmlStr += `    <code>${item.code}</code>\n`;
-            xmlStr += `    <name>${escapeXml(item.name)}</name>\n`;
-            xmlStr += `    <uom>${item.uom}</uom>\n`;
-            xmlStr += `    <op_stock>${item.op_stock}</op_stock>\n`;
-            xmlStr += `    <f_receipt>${item.f_receipt}</f_receipt>\n`;
-            xmlStr += `    <g_issues>${item.g_issues}</g_issues>\n`;
-            xmlStr += `    <h_return>${item.h_return}</h_return>\n`;
-            xmlStr += `    <closing>${item.closing}</closing>\n`;
-            xmlStr += `  </material>\n`;
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${t.date}</td>
+                <td><span class="badge ${badgeClass}">${t.type}</span></td>
+                <td>${t.ref}</td>
+                <td class="text-right">${t.qty.toLocaleString()}</td>
+            `;
+            transactionTableBody.appendChild(row);
         });
-        xmlStr += '</materials>';
 
-        const blob = new Blob([xmlStr], { type: 'text/xml' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        const today = new Date().toISOString().split('T')[0];
-        link.download = `RMC_Stock_Backup_${today}.xml`;
-        link.click();
+        // Metric Totals Update කිරීම
+        document.getElementById("totalReceipts").textContent = receipts.toLocaleString();
+        document.getElementById("totalIssues").textContent = issues.toLocaleString();
+        document.getElementById("totalReturns").textContent = returns.toLocaleString();
     }
 
-    function escapeXml(unsafe) {
-        return unsafe.replace(/[<>&'"]/g, function (c) {
-            switch (c) {
-                case '<': return '&lt;';
-                case '>': return '&gt;';
-                case '&': return '&amp;';
-                case '\'': return '&apos;';
-                case '"': return '&quot;';
-            }
-        });
-    }
+    // Page එක Load වෙද්දී Dashboard එක Run කරන්න
+    window.onload = initDashboard;
 </script>
 
 </body>
