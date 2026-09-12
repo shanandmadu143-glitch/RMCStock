@@ -3,208 +3,424 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Entry Web App - Stock Management</title>
-    <!-- XLSX Library for Downloading Excel -->
+    <title>Professional Inventory & Stock Management Web App</title>
+    <!-- XLSX Library -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #1e293b;
+            --accent-color: #2563eb;
+            --accent-hover: #1d4ed8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #16a34a;
+        }
+
         * {
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #f0f2f5;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
-        .container {
-            max-width: 1200px;
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 24px;
+        }
+
+        .app-container {
+            max-width: 1350px;
             margin: 0 auto;
-            background: #ffffff;
-            padding: 25px;
+        }
+
+        /* Top Header Navigation */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--primary-color);
+            color: #fff;
+            padding: 16px 24px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
         }
-        h2 {
-            text-align: center;
-            color: #1a365d;
-            margin-bottom: 20px;
+
+        .header h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .entry-card {
-            background: #edf2f7;
-            padding: 20px;
+
+        .settings-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px 14px;
             border-radius: 8px;
-            margin-bottom: 25px;
-            border: 1px solid #cbd5e0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(30deg);
+        }
+
+        /* Entry Section Card */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .form-group {
-            margin-bottom: 15px;
             position: relative;
         }
+
         label {
-            font-weight: 600;
-            color: #2d3748;
             display: block;
-            margin-bottom: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
         }
+
         input[type="text"], input[type="number"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #a0aec0;
-            border-radius: 6px;
-            font-size: 15px;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
         }
+
+        input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Search Dropdown */
         .search-results {
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
             background: white;
-            border: 1px solid #cbd5e0;
-            border-radius: 0 0 6px 6px;
-            max-height: 200px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            max-height: 220px;
             overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
+
         .search-item {
-            padding: 10px;
+            padding: 10px 14px;
             cursor: pointer;
-            border-bottom: 1px solid #edf2f7;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
         }
+
         .search-item:hover {
-            background-color: #ebf8ff;
-            color: #2b6cb0;
+            background-color: #eff6ff;
+            color: var(--accent-color);
         }
-        .grid-inputs {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+
+        /* Selected Info Display */
+        .selected-badge {
+            margin-top: 12px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #1e40af;
+            display: none;
         }
-        .btn-add {
-            background-color: #3182ce;
-            color: white;
-            padding: 12px 20px;
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
             border: none;
-            border-radius: 6px;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: bold;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            margin-top: 16px;
             width: 100%;
-            margin-top: 15px;
-            font-size: 16px;
+            justify-content: center;
         }
-        .btn-add:hover {
-            background-color: #2b6cb0;
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
         }
-        .btn-download {
-            background-color: #38a169;
+
+        .btn-success {
+            background: var(--success-color);
             color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            float: right;
-            margin-bottom: 15px;
         }
-        .btn-download:hover {
-            background-color: #2f855a;
+
+        .btn-success:hover {
+            background: #15803d;
         }
+
+        /* Actions Bar */
+        .actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        /* Table Design */
+        .table-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
         .table-responsive {
             overflow-x: auto;
-            margin-top: 10px;
+            max-height: 550px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            text-align: left;
+            font-size: 0.9rem;
         }
-        th, td {
-            border: 1px solid #cbd5e0;
-            padding: 10px;
-            text-align: center;
-        }
+
         th {
-            background-color: #2d3748;
-            color: white;
+            background: #f1f5f9;
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            border-bottom: 2px solid var(--border-color);
+            z-index: 10;
         }
-        tr:nth-child(even) {
-            background-color: #f7fafc;
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
         }
-        .highlight {
-            font-weight: bold;
-            color: #2b6cb0;
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .closing-stock {
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        /* Modal / Settings Popup */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .setting-option {
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .setting-option p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>📦 Material Data Entry Web App</h2>
-
-    <!-- Search and Entry Form -->
-    <div class="entry-card">
-        <div class="form-group">
-            <label for="search">Material Code හෝ Name සෙවීම (Search B/C Section):</label>
-            <input type="text" id="search" placeholder="Type Material Code or Name..." autocomplete="off">
-            <div id="searchResults" class="search-results" style="display:none;"></div>
-        </div>
-
-        <div id="selectedInfo" style="display:none; margin-bottom: 15px; background: #e2e8f0; padding: 10px; border-radius: 6px;">
-            <strong>Selected:</strong> <span id="dispCode"></span> - <span id="dispName"></span> (<span id="dispUom"></span>) | 
-            <strong>Opening Stock:</strong> <span id="dispOp"></span>
-        </div>
-
-        <div class="grid-inputs">
-            <div>
-                <label for="valF">F Section (Receipt [+]):</label>
-                <input type="number" id="valF" min="0" placeholder="0">
-            </div>
-            <div>
-                <label for="valG">G Section (Issues [-]):</label>
-                <input type="number" id="valG" min="0" placeholder="0">
-            </div>
-            <div>
-                <label for="valH">H Section (Return [+]):</label>
-                <input type="number" id="valH" min="0" placeholder="0">
-            </div>
-        </div>
-
-        <button class="btn-add" onclick="submitData()">ඇතුළත් කරන්න / Update කරන්න</button>
+<div class="app-container">
+    <!-- Header -->
+    <div class="header">
+        <h1><i class="fa-solid fa-boxes-stacked"></i> Material Stock Entry & Data Portal</h1>
+        <button class="settings-btn" onclick="openSettings()"><i class="fa-solid fa-gear"></i> Settings</button>
     </div>
 
-    <div>
-        <button class="btn-download" onclick="downloadAndReset()">📥 Download Excel & Reset Sections</button>
-        <div style="clear:both;"></div>
+    <!-- Data Entry Form Card -->
+    <div class="card">
+        <div class="card-title"><i class="fa-solid fa-pen-to-square"></i> Data Entry (Receipt, Issue & Return)</div>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Material Search (B Code / C Name):</label>
+                <input type="text" id="searchInput" placeholder="Type Material Code or Name..." autocomplete="off">
+                <div id="searchResults" class="search-results" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+                <label>F Section - Receipt (+):</label>
+                <input type="number" id="inputF" min="0" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label>G Section - Issues (-):</label>
+                <input type="number" id="inputG" min="0" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label>H Section - Return (+):</label>
+                <input type="number" id="inputH" min="0" placeholder="0.00">
+            </div>
+        </div>
+
+        <div id="selectedBadge" class="selected-badge">
+            <i class="fa-solid fa-circle-check"></i> Selected Item: <strong id="dispCode"></strong> - <span id="dispName"></span> | UOM: <strong id="dispUom"></strong> | Opening Stock (E): <strong id="dispOp"></strong>
+        </div>
+
+        <button class="btn btn-primary" onclick="addValues()"><i class="fa-solid fa-plus"></i> ඇතුළත් කරන්න / Update කරන්න</button>
     </div>
 
-    <!-- Data Table -->
-    <div class="table-responsive">
-        <table>
-            <thead>
-                <tr>
-                    <th>Type (A)</th>
-                    <th>Code (B)</th>
-                    <th>Name (C)</th>
-                    <th>UOM (D)</th>
-                    <th>Op.Stock (E)</th>
-                    <th>Receipt (F) [+]</th>
-                    <th>Issues (G) [-]</th>
-                    <th>Return (H) [+]</th>
-                    <th>Closing Stock (K)</th>
-                </tr>
-            </thead>
-            <tbody id="stockTableBody">
-                <!-- Rows injected dynamically -->
-            </tbody>
-        </table>
+    <!-- Actions & Table Section -->
+    <div class="actions-bar">
+        <h3 style="color: var(--primary-color);"><i class="fa-solid fa-table"></i> Inventory Records Summary</h3>
+        <button class="btn btn-success" onclick="downloadExcelAndReset()"><i class="fa-solid fa-file-excel"></i> Download Excel & Reset Sections</button>
+    </div>
+
+    <div class="table-card">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type (A)</th>
+                        <th>Material Code (B)</th>
+                        <th>Material Name (C)</th>
+                        <th>UOM (D)</th>
+                        <th>Op.Stock (E)</th>
+                        <th>Receipt (F) [+]</th>
+                        <th>Issues (G) [-]</th>
+                        <th>Return (H) [+]</th>
+                        <th>Closing Stock (K)</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTable">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Settings & XML Restore Modal -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-sliders"></i> System Settings & XML Restore</h3>
+            <button class="close-btn" onclick="closeSettings()">&times;</button>
+        </div>
+        
+        <div class="setting-option">
+            <label><i class="fa-solid fa-file-code"></i> XML File මගින් Restore කරන්න:</label>
+            <p>පෙර Backup ගන්නා ලද XML File එක තෝරා දත්ත නැවත ලබාගන්න (Restore Data).</p>
+            <input type="file" id="xmlFileInput" accept=".xml" style="margin-bottom: 10px;">
+            <button class="btn btn-primary" style="margin-top:0;" onclick="restoreFromXML()"><i class="fa-solid fa-upload"></i> Restore Data</button>
+        </div>
+
+        <div class="setting-option">
+            <label><i class="fa-solid fa-download"></i> වත්මන් දත්ත XML එකක් ලෙස Backup ගන්න:</label>
+            <p>දැනට පද්ධතියේ ඇති සියලුම දත්ත XML File එකක් ලෙස Download කරගන්න.</p>
+            <button class="btn btn-success" onclick="downloadXMLBackup()"><i class="fa-solid fa-file-export"></i> Download XML Backup</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // Embedded Data from 07.09.2026.xlsx
-    let rawItems = [
+    // Initial Material Master Data (Extracted from 07.09.2026.xlsx)
+    let defaultItems = [
         {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000},
         {"type":"RM","code":"11061702","name":"WHITE SUGAR","uom":"KG","op_stock":2500},
         {"type":"RM","code":"11002301","name":"MONOSODIUM GLUTAMATE","uom":"KG","op_stock":4525},
@@ -229,8 +445,7 @@
         {"type":"RM","code":"11002210","name":"SPICE CINNAMON POWDER","uom":"KG","op_stock":2}
     ];
 
-    // Main App Data State
-    let inventoryData = rawItems.map(item => ({
+    let inventory = defaultItems.map(item => ({
         ...item,
         f_receipt: 0,
         g_issues: 0,
@@ -240,12 +455,11 @@
 
     let selectedIndex = -1;
 
-    // Element references
-    const searchInput = document.getElementById('search');
+    // Search Filtering
+    const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
-    const selectedInfo = document.getElementById('selectedInfo');
+    const selectedBadge = document.getElementById('selectedBadge');
 
-    // Search event listener
     searchInput.addEventListener('input', function() {
         const query = this.value.toLowerCase().trim();
         searchResults.innerHTML = '';
@@ -254,7 +468,7 @@
             return;
         }
 
-        const filtered = inventoryData.filter(item => 
+        const filtered = inventory.filter(item => 
             item.code.toLowerCase().includes(query) || 
             item.name.toLowerCase().includes(query)
         );
@@ -262,7 +476,7 @@
         if (filtered.length > 0) {
             searchResults.style.display = 'block';
             filtered.forEach(item => {
-                const idx = inventoryData.findIndex(i => i.code === item.code && i.name === item.name);
+                const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name);
                 const div = document.createElement('div');
                 div.className = 'search-item';
                 div.innerHTML = `<strong>${item.code}</strong> - ${item.name}`;
@@ -276,7 +490,7 @@
 
     function selectItem(index) {
         selectedIndex = index;
-        const item = inventoryData[index];
+        const item = inventory[index];
         searchInput.value = `${item.code} - ${item.name}`;
         searchResults.style.display = 'none';
 
@@ -284,66 +498,62 @@
         document.getElementById('dispName').innerText = item.name;
         document.getElementById('dispUom').innerText = item.uom;
         document.getElementById('dispOp').innerText = item.op_stock;
-        selectedInfo.style.display = 'block';
+        selectedBadge.style.display = 'block';
     }
 
-    function calculateClosing(item) {
-        return item.op_stock + item.f_receipt - item.g_issues + item.h_return;
-    }
-
-    function submitData() {
+    function addValues() {
         if (selectedIndex === -1) {
             alert('කරුණාකර Material Code එකක් හෝ Name එකක් Search කර Select කරගන්න!');
             return;
         }
 
-        const valF = parseFloat(document.getElementById('valF').value) || 0;
-        const valG = parseFloat(document.getElementById('valG').value) || 0;
-        const valH = parseFloat(document.getElementById('valH').value) || 0;
+        const f = parseFloat(document.getElementById('inputF').value) || 0;
+        const g = parseFloat(document.getElementById('inputG').value) || 0;
+        const h = parseFloat(document.getElementById('inputH').value) || 0;
 
-        let item = inventoryData[selectedIndex];
+        let item = inventory[selectedIndex];
 
-        // Cumulative Addition (කලින් අගයන්ට එකතු වීම)
-        item.f_receipt += valF;
-        item.g_issues += valG;
-        item.h_return += valH;
+        // Smart Cumulative Addition (පරණ අගයන්ට එකතු වීම)
+        item.f_receipt += f;
+        item.g_issues += g;
+        item.h_return += h;
 
-        // Recalculate Closing Stock (K)
-        item.closing = calculateClosing(item);
+        // Formula: K = E + F - G + H
+        item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return;
 
-        // Reset Inputs
-        document.getElementById('valF').value = '';
-        document.getElementById('valG').value = '';
-        document.getElementById('valH').value = '';
+        // Clear Form Inputs
+        document.getElementById('inputF').value = '';
+        document.getElementById('inputG').value = '';
+        document.getElementById('inputH').value = '';
 
         renderTable();
         alert(`${item.name} සඳහා අගයන් සාර්ථකව එකතු විය!`);
     }
 
     function renderTable() {
-        const tbody = document.getElementById('stockTableBody');
+        const tbody = document.getElementById('inventoryTable');
         tbody.innerHTML = '';
 
-        inventoryData.forEach(item => {
+        inventory.forEach(item => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${item.type}</td>
-                <td>${item.code}</td>
-                <td style="text-align:left;">${item.name}</td>
+                <td><span style="background:#e2e8f0; padding:2px 8px; border-radius:4px; font-weight:600;">${item.type}</span></td>
+                <td><strong>${item.code}</strong></td>
+                <td>${item.name}</td>
                 <td>${item.uom}</td>
-                <td>${item.op_stock}</td>
-                <td>${item.f_receipt > 0 ? item.f_receipt : '-'}</td>
-                <td>${item.g_issues > 0 ? item.g_issues : '-'}</td>
-                <td>${item.h_return > 0 ? item.h_return : '-'}</td>
-                <td class="highlight">${item.closing}</td>
+                <td>${item.op_stock.toLocaleString()}</td>
+                <td>${item.f_receipt > 0 ? '+' + item.f_receipt.toLocaleString() : '-'}</td>
+                <td>${item.g_issues > 0 ? '-' + item.g_issues.toLocaleString() : '-'}</td>
+                <td>${item.h_return > 0 ? '+' + item.h_return.toLocaleString() : '-'}</td>
+                <td class="closing-stock">${item.closing.toLocaleString()}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    function downloadAndReset() {
-        // 1. Prepare Export Data
-        const exportData = inventoryData.map(item => ({
+    // Excel Download & Reset Logic
+    function downloadExcelAndReset() {
+        const exportData = inventory.map(item => ({
             "Type": item.type,
             "Material Code": item.code,
             "Material Name": item.name,
@@ -355,36 +565,132 @@
             "Closing Stock": item.closing
         }));
 
-        // 2. Create Sheet and Download
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data");
 
-        // Generate Filename with Auto Date (YYYY-MM-DD)
         const today = new Date().toISOString().split('T')[0];
         const filename = `Stock_Data_${today}.xlsx`;
 
         XLSX.writeFile(workbook, filename);
 
-        // 3. Shift Closing Stock (K) to Opening Stock (E) & Reset F, G, H, K
-        inventoryData.forEach(item => {
-            item.op_stock = item.closing; // Closing stock becomes new Opening stock
+        // Shift Closing Stock to Opening Stock & Reset F, G, H, K
+        inventory.forEach(item => {
+            item.op_stock = item.closing;
             item.f_receipt = 0;
             item.g_issues = 0;
             item.h_return = 0;
-            item.closing = item.op_stock; // Reset closing stock to reflect new opening stock
+            item.closing = item.op_stock;
         });
 
-        // Clear Selection Form
         selectedIndex = -1;
         searchInput.value = '';
-        selectedInfo.style.display = 'none';
+        selectedBadge.style.display = 'none';
 
         renderTable();
-        alert(`Excel file එක (${filename}) download වූ අතර F, G, H clear කර Closing Stock එක Opening Stock ලෙස යාවත්කාලීන කරන ලදී!`);
+        alert(`Excel file එක (${filename}) download වූ අතර, K (Closing Stock) හි අගයන් E (Opening Stock) ස්ථානයට මාරු වී F, G, H clear විය!`);
     }
 
-    // Initial render
+    // Modal Settings Controls
+    function openSettings() {
+        document.getElementById('settingsModal').style.display = 'flex';
+    }
+
+    function closeSettings() {
+        document.getElementById('settingsModal').style.display = 'none';
+    }
+
+    // Download Backup XML
+    function downloadXMLBackup() {
+        let xmlStr = '<?xml version="1.0" encoding="UTF-8"?>\n<materials>\n';
+        inventory.forEach(item => {
+            xmlStr += `  <material>\n`;
+            xmlStr += `    <type>${item.type}</type>\n`;
+            xmlStr += `    <code>${item.code}</code>\n`;
+            xmlStr += `    <name>${escapeXml(item.name)}</name>\n`;
+            xmlStr += `    <uom>${item.uom}</uom>\n`;
+            xmlStr += `    <op_stock>${item.op_stock}</op_stock>\n`;
+            xmlStr += `    <f_receipt>${item.f_receipt}</f_receipt>\n`;
+            xmlStr += `    <g_issues>${item.g_issues}</g_issues>\n`;
+            xmlStr += `    <h_return>${item.h_return}</h_return>\n`;
+            xmlStr += `    <closing>${item.closing}</closing>\n`;
+            xmlStr += `  </material>\n`;
+        });
+        xmlStr += '</materials>';
+
+        const blob = new Blob([xmlStr], { type: 'text/xml' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        const today = new Date().toISOString().split('T')[0];
+        link.download = `Material_Backup_${today}.xml`;
+        link.click();
+    }
+
+    function escapeXml(unsafe) {
+        return unsafe.replace(/[<>&'"]/g, function (c) {
+            switch (c) {
+                case '<': return '&lt;';
+                case '>': return '&gt;';
+                case '&': return '&amp;';
+                case '\'': return '&apos;';
+                case '"': return '&quot;';
+            }
+        });
+    }
+
+    // Restore Data from XML File
+    function restoreFromXML() {
+        const fileInput = document.getElementById('xmlFileInput');
+        const file = fileInput.files[0];
+        if (!file) {
+            alert('කරුණාකර Restore කිරීමට XML File එකක් තෝරන්න!');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const xmlText = e.target.result;
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+                const materials = xmlDoc.getElementsByTagName("material");
+
+                if (materials.length === 0) {
+                    alert('තෝරාගත් XML file එකෙහි නිවැරදි Material දත්ත අඩංගු නොවේ!');
+                    return;
+                }
+
+                let restoredItems = [];
+                for (let i = 0; i < materials.length; i++) {
+                    let m = materials[i];
+                    let getVal = (tag) => m.getElementsByTagName(tag)[0] ? m.getElementsByTagName(tag)[0].textContent : "";
+
+                    let item = {
+                        type: getVal('type') || 'RM',
+                        code: getVal('code'),
+                        name: getVal('name'),
+                        uom: getVal('uom') || 'KG',
+                        op_stock: parseFloat(getVal('op_stock')) || 0,
+                        f_receipt: parseFloat(getVal('f_receipt')) || 0,
+                        g_issues: parseFloat(getVal('g_issues')) || 0,
+                        h_return: parseFloat(getVal('h_return')) || 0,
+                        closing: parseFloat(getVal('closing')) || 0
+                    };
+                    restoredItems.push(item);
+                }
+
+                inventory = restoredItems;
+                renderTable();
+                closeSettings();
+                alert(`XML file එක සාර්ථකව Restore විය! Item ${inventory.length} ක දත්ත යාවත්කාලීන විය.`);
+            } catch (err) {
+                alert('XML file එක කියවීමේදී දෝෂයක් සිදු විය: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // Load initial table
     renderTable();
 </script>
 
