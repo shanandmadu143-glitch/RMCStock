@@ -111,17 +111,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08); 
 } 
 
-.header-block::before { 
-  content: ''; 
-  position: absolute; 
-  top: -50%; 
-  right: -20%; 
-  width: 200px; 
-  height: 200px; 
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.3) 0%, rgba(0,0,0,0) 70%); 
-  pointer-events: none; 
-} 
-
 .brand-title { 
   display: flex; 
   align-items: center; 
@@ -307,13 +296,12 @@ input:focus, select:focus {
   transform: translateY(-2px); 
 } 
 
-.btn-icon-excel { 
+.btn-icon-excel, .btn-icon-share { 
   width: 52px; 
   height: 52px; 
-  background: linear-gradient(135deg, var(--success) 0%, var(--success-hover) 100%); 
   color: white; 
   border-radius: var(--radius-md); 
-  font-size: 1.4rem; 
+  font-size: 1.3rem; 
   border: none; 
   cursor: pointer; 
   display: flex; 
@@ -323,12 +311,21 @@ input:focus, select:focus {
   flex-shrink: 0; 
 } 
 
-.btn-secondary { 
-  background: #475569; 
-  color: white; 
+.btn-icon-excel { 
+  background: linear-gradient(135deg, var(--success) 0%, var(--success-hover) 100%); 
+  font-size: 1.4rem; 
 } 
 
-/* --- Animated Watermark Footer --- */ 
+.btn-icon-share { 
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
+} 
+
+.btn-icon-excel:hover, .btn-icon-share:hover { 
+  transform: translateY(-2px); 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+} 
+
+/* --- Footer --- */ 
 .footer-note { 
   text-align: center; 
   margin-top: 24px; 
@@ -354,7 +351,7 @@ input:focus, select:focus {
   100% { opacity: 0.2; transform: scale(0.98); } 
 } 
 
-/* --- Modal Styling --- */ 
+/* --- Modals --- */ 
 .modal { 
   display: none; 
   position: fixed; 
@@ -393,7 +390,7 @@ input:focus, select:focus {
 } 
 
 .modal-content-large { 
-  max-width: 800px; 
+  max-width: 600px; 
 } 
 
 .modal-header { 
@@ -427,6 +424,56 @@ input:focus, select:focus {
   align-items: center; 
   justify-content: center; 
 } 
+
+/* --- Clickable Material Name Link in Summary --- */
+.material-link {
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: var(--transition-smooth);
+}
+.material-link:hover {
+  color: var(--primary-hover);
+  opacity: 0.85;
+}
+
+/* --- Detail View Card UI Inside Modal --- */
+.detail-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.detail-item-box {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+}
+
+.detail-item-box.full-width {
+  grid-column: span 2;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
 
 /* --- Data Table --- */ 
 .table-responsive { 
@@ -462,11 +509,6 @@ td {
   padding: 14px 16px; 
   border-bottom: 1px solid var(--border-color); 
 } 
-
-.val-receipt { color: var(--success); font-weight: 600; } 
-.val-issues { color: var(--danger); font-weight: 600; } 
-.val-return { color: var(--warning); font-weight: 600; } 
-.closing-stock { font-weight: 700; color: var(--primary); } 
 
 .setting-option { 
   margin-bottom: 16px; 
@@ -524,6 +566,8 @@ td {
 
 @media (max-width: 640px) { 
   .form-grid { grid-template-columns: 1fr; } 
+  .detail-card-grid { grid-template-columns: 1fr; }
+  .detail-item-box.full-width { grid-column: span 1; }
   body { padding: 12px; } 
   .header-block { padding: 16px 20px; } 
   .card { padding: 20px; } 
@@ -585,8 +629,11 @@ td {
       <button class="btn btn-primary" onclick="addSingleSectionData()" id="btnSave"> 
         <i class="fa-solid fa-floppy-disk"></i> Save 
       </button> 
-      <button class="btn-icon-excel" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock"> 
+      <button class="btn-icon-excel" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock" id="btnExcel"> 
         <i class="fa-solid fa-file-excel"></i> 
+      </button> 
+      <button class="btn-icon-share" onclick="shareStockSummary()" title="Share Summary" id="btnShare"> 
+        <i class="fa-solid fa-share-nodes"></i> 
       </button> 
     </div> 
   </div> 
@@ -605,7 +652,7 @@ td {
   <div class="modal-content modal-content-large"> 
     <div class="modal-header"> 
       <h3 id="txtSummaryTitle"><i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary</h3> 
-      <button class="close-btn" onclick="closeRecordsModal()">&times;</button> 
+      <button class="close-btn" onclick="openRecordsModal()">&times;</button> <!-- Fixed close click --> 
     </div> 
     <div style="margin-bottom: 14px;"> 
       <input type="text" id="modalSearchInput" placeholder="Quick filter summary list..." style="padding: 10px 14px; font-size:0.88rem;"> 
@@ -614,16 +661,56 @@ td {
       <table> 
         <thead> 
           <tr> 
-            <th id="thCode">Material Code</th> 
             <th id="thName">Material Name</th> 
-            <th id="thReceipt">Receipt (F)</th> 
-            <th id="thIssues">Issues (G)</th> 
-            <th id="thReturn">Return (H)</th> 
             <th id="thClosing">Closing Stock (K)</th> 
           </tr> 
         </thead> 
         <tbody id="summaryTableBody"></tbody> 
       </table> 
+    </div> 
+  </div> 
+</div> 
+
+<!-- MODAL 3: SINGLE MATERIAL DETAIL VIEW (UI POPUP) --> 
+<div id="itemDetailModal" class="modal"> 
+  <div class="modal-content modal-content-large"> 
+    <div class="modal-header"> 
+      <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3> 
+      <button class="close-btn" onclick="closeItemDetailModal()">&times;</button> 
+    </div> 
+    <div class="detail-card-grid"> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div> 
+        <div class="detail-value" id="detCode">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-tag"></i> Unit of Measure (UOM)</div> 
+        <div class="detail-value" id="detUom">-</div> 
+      </div> 
+      <div class="detail-item-box full-width"> 
+        <div class="detail-label"><i class="fa-solid fa-box"></i> Material Name</div> 
+        <div class="detail-value" id="detName" style="color:var(--primary);">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock</div> 
+        <div class="detail-value" id="detOp">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-arrow-down" style="color:var(--success);"></i> Receipt (F)</div> 
+        <div class="detail-value" id="detReceipt" style="color:var(--success);">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-arrow-up" style="color:var(--danger);"></i> Issues (G)</div> 
+        <div class="detail-value" id="detIssues" style="color:var(--danger);">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-rotate-left" style="color:var(--warning);"></i> Return (H)</div> 
+        <div class="detail-value" id="detReturn" style="color:var(--warning);">-</div> 
+      </div> 
+      <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);"> 
+        <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock (K)</div> 
+        <div class="detail-value" id="detClosing" style="font-size: 1.3rem; color:var(--primary);">-</div> 
+      </div> 
     </div> 
   </div> 
 </div> 
@@ -661,7 +748,7 @@ td {
       <label id="lblRestore"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label> 
       <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p> 
       <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 10px;"> 
-      <button class="btn btn-success" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore"> 
+      <button class="btn" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore"> 
         <i class="fa-solid fa-upload"></i> Restore Excel Data 
       </button> 
     </div> 
@@ -670,7 +757,7 @@ td {
     <div class="setting-option"> 
       <label id="lblBackup"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label> 
       <p id="descBackup">වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p> 
-      <button class="btn btn-secondary" style="width:100%; padding: 12px;" onclick="downloadXLSXBackup()" id="btnBackup"> 
+      <button class="btn btn-secondary" style="width:100%; padding: 12px; background:#475569; color:white;" onclick="downloadXLSXBackup()" id="btnBackup"> 
         <i class="fa-solid fa-download"></i> Download Backup File 
       </button> 
     </div> 
@@ -687,7 +774,6 @@ td {
 </div> 
 
 <script> 
-// Translations Data Object
 const i18n = {
   si: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Code හෝ Name මගින් සොයන්න:',
@@ -698,13 +784,11 @@ const i18n = {
     optReturn: 'Return (නැවත භාරදීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    titleExcel: 'Download Excel & Shift Stock',
+    titleShare: 'Share Summary',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> තොග විස්තර සාරාංශය',
     placeholderModalSearch: 'සාරාංශ ලැයිස්තුව සොයන්න...',
-    thCode: 'Material Code',
-    thName: 'Material Name',
-    thReceipt: 'Receipt (F)',
-    thIssues: 'Issues (G)',
-    thReturn: 'Return (H)',
+    thName: 'Material Name (නම)',
     thClosing: 'Closing Stock (K)',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
@@ -721,11 +805,13 @@ const i18n = {
     lblFooter: 'Created By <span>Yomal Lakshan</span>',
     msgSelectMaterial: 'කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!',
     msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න!',
-    msgAdded: 'වෙත එක් විය!',
+    msgAdded: 'වෙَت එක් විය!',
     msgExcelShift: 'Excel ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
     msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
     msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
-    msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?'
+    msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
+    shareTitle: 'RMC Daily Stock Summary',
+    shareCopied: 'සාරාංශ විස්තරය Copy කරගන්නා ලදී!'
   },
   en: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
@@ -736,13 +822,11 @@ const i18n = {
     optReturn: 'Return',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    titleExcel: 'Download Excel & Shift Stock',
+    titleShare: 'Share Summary',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary',
     placeholderModalSearch: 'Quick filter summary list...',
-    thCode: 'Material Code',
     thName: 'Material Name',
-    thReceipt: 'Receipt (F)',
-    thIssues: 'Issues (G)',
-    thReturn: 'Return (H)',
     thClosing: 'Closing Stock (K)',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:',
@@ -763,7 +847,9 @@ const i18n = {
     msgExcelShift: 'Excel downloaded and Stock shifted successfully!',
     msgRestoreSelect: 'Please select an Excel file!',
     msgRestoreSuccess: 'Excel Restore Successful!',
-    msgResetConfirm: 'Are you sure you want to reset to default data?'
+    msgResetConfirm: 'Are you sure you want to reset to default data?',
+    shareTitle: 'RMC Daily Stock Summary',
+    shareCopied: 'Summary copied to clipboard!'
   },
   ta: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீடு மூலம் தேடுக:',
@@ -774,13 +860,11 @@ const i18n = {
     optReturn: 'திரும்பப் பெறுதல் (Return)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
+    titleExcel: 'Download Excel & Shift Stock',
+    titleShare: 'Share Summary',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> இருப்பு சுருக்கம்',
     placeholderModalSearch: 'சுருக்கப் பட்டியலைத் தேடுக...',
-    thCode: 'பொருள் குறியீடு',
     thName: 'பொருள் பெயர்',
-    thReceipt: 'ரசீது (F)',
-    thIssues: 'வழங்கல்கள் (G)',
-    thReturn: 'திரும்பல் (H)',
     thClosing: 'இறுதி இருப்பு (K)',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
@@ -801,7 +885,9 @@ const i18n = {
     msgExcelShift: 'எக்செல் பதிவிறக்கம் செய்யப்பட்டது, இருப்பு புதுப்பிக்கப்பட்டது!',
     msgRestoreSelect: 'தயவுசெய்து எக்செல் கோப்பைத் தேர்ந்தெடுக்கவும்!',
     msgRestoreSuccess: 'எக்செல் மீட்டமைப்பு வெற்றிகரமாக முடிந்தது!',
-    msgResetConfirm: 'ஆரம்ப தரவுக்கு மீட்டமைக்க நிச்சயமாக விரும்புகிறீர்களா?'
+    msgResetConfirm: 'ஆரம்ப தரவுக்கு மீட்டமைக்க நிச்சயமாக விரும்புகிறீர்களா?',
+    shareTitle: 'RMC Daily Stock Summary',
+    shareCopied: 'சுருக்கம் நகலெடுக்கப்பட்டது!'
   }
 };
 
@@ -811,18 +897,18 @@ let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
 function applyTheme(theme) {
   currentTheme = theme;
   document.documentElement.setAttribute('data-theme', theme);
-  document.getElementById('themeSelect').value = theme;
+  const themeSelect = document.getElementById('themeSelect');
+  if (themeSelect) themeSelect.value = theme;
   localStorage.setItem('rmc_app_theme', theme);
 }
 
-function changeTheme(theme) {
-  applyTheme(theme);
-}
+function changeTheme(theme) { applyTheme(theme); }
 
 function applyLanguage(lang) {
   currentLang = lang;
   localStorage.setItem('rmc_app_lang', lang);
-  document.getElementById('langSelect').value = lang;
+  const langSelect = document.getElementById('langSelect');
+  if (langSelect) langSelect.value = lang;
   
   const t = i18n[lang];
   document.getElementById('lblSearch').innerHTML = t.lblSearch;
@@ -833,13 +919,11 @@ function applyLanguage(lang) {
   document.getElementById('optReturn').innerText = t.optReturn;
   document.getElementById('lblAmount').innerHTML = t.lblAmount;
   document.getElementById('btnSave').innerHTML = t.btnSave;
+  document.getElementById('btnExcel').title = t.titleExcel;
+  document.getElementById('btnShare').title = t.titleShare;
   document.getElementById('txtSummaryTitle').innerHTML = t.txtSummaryTitle;
   document.getElementById('modalSearchInput').placeholder = t.placeholderModalSearch;
-  document.getElementById('thCode').innerText = t.thCode;
   document.getElementById('thName').innerText = t.thName;
-  document.getElementById('thReceipt').innerText = t.thReceipt;
-  document.getElementById('thIssues').innerText = t.thIssues;
-  document.getElementById('thReturn').innerText = t.thReturn;
   document.getElementById('thClosing').innerText = t.thClosing;
   document.getElementById('txtSettingsTitle').innerHTML = t.txtSettingsTitle;
   document.getElementById('lblLanguage').innerHTML = t.lblLanguage;
@@ -856,11 +940,8 @@ function applyLanguage(lang) {
   document.getElementById('lblFooter').innerHTML = t.lblFooter;
 }
 
-function changeLanguage(lang) {
-  applyLanguage(lang);
-}
+function changeLanguage(lang) { applyLanguage(lang); }
 
-// Initial application of settings
 applyTheme(currentTheme);
 applyLanguage(currentLang);
 
@@ -873,9 +954,7 @@ function showToast(message, type = 'success') {
   if (type === 'warning') iconClass = 'fa-triangle-exclamation'; 
   toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${message}</span>`; 
   container.appendChild(toast); 
-  setTimeout(() => { 
-    toast.remove(); 
-  }, 3500); 
+  setTimeout(() => { toast.remove(); }, 3500); 
 } 
 
 const defaultItems = [ 
@@ -908,30 +987,18 @@ let inventory = [];
 function loadInventoryData() { 
   const savedData = localStorage.getItem('rmc_stock_inventory'); 
   if (savedData) { 
-    try { 
-      inventory = JSON.parse(savedData); 
-    } catch(e) { 
-      initDefaultInventory(); 
-    } 
-  } else { 
-    initDefaultInventory(); 
-  } 
+    try { inventory = JSON.parse(savedData); } catch(e) { initDefaultInventory(); } 
+  } else { initDefaultInventory(); } 
 } 
 
 function initDefaultInventory() { 
   inventory = defaultItems.map(item => ({ 
-    ...item, 
-    f_receipt: 0, 
-    g_issues: 0, 
-    h_return: 0, 
-    closing: item.op_stock 
+    ...item, f_receipt: 0, g_issues: 0, h_return: 0, closing: item.op_stock 
   })); 
   saveInventoryData(); 
 } 
 
-function saveInventoryData() { 
-  localStorage.setItem('rmc_stock_inventory', JSON.stringify(inventory)); 
-} 
+function saveInventoryData() { localStorage.setItem('rmc_stock_inventory', JSON.stringify(inventory)); } 
 
 loadInventoryData(); 
 
@@ -943,13 +1010,9 @@ const selectedBadge = document.getElementById('selectedBadge');
 searchInput.addEventListener('input', function() { 
   const query = this.value.toLowerCase().trim(); 
   searchResults.innerHTML = ''; 
-  if (!query) { 
-    searchResults.style.display = 'none'; 
-    return; 
-  } 
+  if (!query) { searchResults.style.display = 'none'; return; } 
   const filtered = inventory.filter(item => 
-    String(item.code).toLowerCase().includes(query) || 
-    String(item.name).toLowerCase().includes(query) 
+    String(item.code).toLowerCase().includes(query) || String(item.name).toLowerCase().includes(query) 
   ); 
   if (filtered.length > 0) { 
     searchResults.style.display = 'block'; 
@@ -961,9 +1024,7 @@ searchInput.addEventListener('input', function() {
       div.onclick = () => selectItem(idx); 
       searchResults.appendChild(div); 
     }); 
-  } else { 
-    searchResults.style.display = 'none'; 
-  } 
+  } else { searchResults.style.display = 'none'; } 
 }); 
 
 function selectItem(index) { 
@@ -980,24 +1041,14 @@ function selectItem(index) {
 
 function addSingleSectionData() { 
   const t = i18n[currentLang];
-  if (selectedIndex === -1) { 
-    showToast(t.msgSelectMaterial, 'warning'); 
-    return; 
-  } 
+  if (selectedIndex === -1) { showToast(t.msgSelectMaterial, 'warning'); return; } 
   const targetSection = document.getElementById('sectionSelect').value; 
   const amount = parseFloat(document.getElementById('inputAmount').value) || 0; 
-  if (amount <= 0) { 
-    showToast(t.msgValidAmount, 'error'); 
-    return; 
-  } 
+  if (amount <= 0) { showToast(t.msgValidAmount, 'error'); return; } 
   let item = inventory[selectedIndex]; 
-  if (targetSection === 'F') { 
-    item.f_receipt += amount; 
-  } else if (targetSection === 'G') { 
-    item.g_issues += amount; 
-  } else if (targetSection === 'H') { 
-    item.h_return += amount; 
-  } 
+  if (targetSection === 'F') item.f_receipt += amount; 
+  else if (targetSection === 'G') item.g_issues += amount; 
+  else if (targetSection === 'H') item.h_return += amount; 
   item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return; 
   saveInventoryData(); 
   document.getElementById('inputAmount').value = ''; 
@@ -1029,22 +1080,42 @@ function closeSettings() {
   setTimeout(() => modal.style.display = 'none', 300); 
 } 
 
+/* --- Summary Table with Clickable Material Name --- */
 function renderSummaryTable() { 
   const tbody = document.getElementById('summaryTableBody'); 
   tbody.innerHTML = ''; 
-  inventory.forEach(item => { 
+  inventory.forEach((item, idx) => { 
     const tr = document.createElement('tr'); 
     tr.innerHTML = ` 
-      <td><strong>${item.code}</strong></td> 
-      <td>${item.name}</td> 
-      <td class="val-receipt">${Number(item.f_receipt).toLocaleString()}</td> 
-      <td class="val-issues">${Number(item.g_issues).toLocaleString()}</td> 
-      <td class="val-return">${Number(item.h_return).toLocaleString()}</td> 
-      <td class="closing-stock">${Number(item.closing).toLocaleString()} ${item.uom}</td> 
+      <td><span class="material-link" onclick="openItemDetails(${idx})">${item.name}</span></td> 
+      <td style="font-weight: 700; color: var(--primary);">${Number(item.closing).toLocaleString()} ${item.uom}</td> 
     `; 
     tbody.appendChild(tr); 
   }); 
 } 
+
+/* --- Open Item Detail Modal --- */
+function openItemDetails(index) {
+  const item = inventory[index];
+  document.getElementById('detCode').innerText = item.code;
+  document.getElementById('detName').innerText = item.name;
+  document.getElementById('detUom').innerText = item.uom;
+  document.getElementById('detOp').innerText = Number(item.op_stock).toLocaleString() + ' ' + item.uom;
+  document.getElementById('detReceipt').innerText = Number(item.f_receipt).toLocaleString() + ' ' + item.uom;
+  document.getElementById('detIssues').innerText = Number(item.g_issues).toLocaleString() + ' ' + item.uom;
+  document.getElementById('detReturn').innerText = Number(item.h_return).toLocaleString() + ' ' + item.uom;
+  document.getElementById('detClosing').innerText = Number(item.closing).toLocaleString() + ' ' + item.uom;
+
+  const modal = document.getElementById('itemDetailModal');
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function closeItemDetailModal() {
+  const modal = document.getElementById('itemDetailModal');
+  modal.classList.remove('show');
+  setTimeout(() => modal.style.display = 'none', 300);
+}
 
 document.getElementById('modalSearchInput').addEventListener('input', function() { 
   const q = this.value.toLowerCase().trim(); 
@@ -1058,15 +1129,9 @@ document.getElementById('modalSearchInput').addEventListener('input', function()
 function downloadExcelAndReset() { 
   const t = i18n[currentLang];
   const exportData = inventory.map(item => ({ 
-    "Type": item.type, 
-    "Material Code": item.code, 
-    "Material Name": item.name, 
-    "UOM": item.uom, 
-    "Op.Stock-Warehouse": item.op_stock, 
-    "Receipt": item.f_receipt, 
-    "Issues": item.g_issues, 
-    "Return": item.h_return, 
-    "Closing Stock": item.closing 
+    "Type": item.type, "Material Code": item.code, "Material Name": item.name, "UOM": item.uom, 
+    "Op.Stock-Warehouse": item.op_stock, "Receipt": item.f_receipt, "Issues": item.g_issues, 
+    "Return": item.h_return, "Closing Stock": item.closing 
   })); 
   const worksheet = XLSX.utils.json_to_sheet(exportData); 
   const workbook = XLSX.utils.book_new(); 
@@ -1076,26 +1141,36 @@ function downloadExcelAndReset() {
 
   inventory.forEach(item => { 
     item.op_stock = item.closing; 
-    item.f_receipt = 0; 
-    item.g_issues = 0; 
-    item.h_return = 0; 
-    item.closing = item.op_stock; 
+    item.f_receipt = 0; item.g_issues = 0; item.h_return = 0; item.closing = item.op_stock; 
   }); 
   saveInventoryData(); 
-  selectedIndex = -1; 
-  searchInput.value = ''; 
-  selectedBadge.style.display = 'none'; 
+  selectedIndex = -1; searchInput.value = ''; selectedBadge.style.display = 'none'; 
   showToast(t.msgExcelShift, 'success'); 
 } 
+
+async function shareStockSummary() {
+  const t = i18n[currentLang];
+  const today = new Date().toISOString().split('T')[0];
+  let summaryText = `📊 *RMC Daily Stock Summary (${today})*\n\n`;
+  inventory.forEach(item => {
+    if(item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0) {
+      summaryText += `• *${item.name}* (${item.code})\n  Closing: ${item.closing} ${item.uom} | Rec: ${item.f_receipt} | Iss: ${item.g_issues} | Ret: ${item.h_return}\n`;
+    }
+  });
+
+  if (navigator.share) {
+    try { await navigator.share({ title: t.shareTitle, text: summaryText, url: window.location.href }); } catch (err) {}
+  } else {
+    navigator.clipboard.writeText(summaryText);
+    showToast(t.shareCopied, 'success');
+  }
+}
 
 function restoreFromXLSX() { 
   const t = i18n[currentLang];
   const fileInput = document.getElementById('xlsxFileInput'); 
   const file = fileInput.files[0]; 
-  if (!file) { 
-    showToast(t.msgRestoreSelect, 'warning'); 
-    return; 
-  } 
+  if (!file) { showToast(t.msgRestoreSelect, 'warning'); return; } 
   const reader = new FileReader(); 
   reader.onload = function(e) { 
     try { 
@@ -1105,8 +1180,7 @@ function restoreFromXLSX() {
       const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); 
       if (!matrix || matrix.length === 0) return; 
       
-      let headerIndex = -1; 
-      let colMap = {}; 
+      let headerIndex = -1; let colMap = {}; 
       for (let r = 0; r < matrix.length; r++) { 
         const rowStr = matrix[r].map(c => String(c).toLowerCase().trim()); 
         if (rowStr.some(c => c.includes("code") || c.includes("material") || c.includes("name"))) { 
@@ -1149,9 +1223,7 @@ function restoreFromXLSX() {
         closeSettings(); 
         showToast(t.msgRestoreSuccess, 'success'); 
       } 
-    } catch (err) { 
-      showToast('Error reading Excel file!', 'error'); 
-    } 
+    } catch (err) { showToast('Error reading Excel file!', 'error'); } 
   }; 
   reader.readAsArrayBuffer(file); 
 } 
@@ -1168,15 +1240,9 @@ function resetToDefault() {
 
 function downloadXLSXBackup() { 
   const exportData = inventory.map(item => ({ 
-    "Type": item.type, 
-    "Material Code": item.code, 
-    "Material Name": item.name, 
-    "UOM": item.uom, 
-    "Op.Stock-Warehouse": item.op_stock, 
-    "Receipt": item.f_receipt, 
-    "Issues": item.g_issues, 
-    "Return": item.h_return, 
-    "Closing Stock": item.closing 
+    "Type": item.type, "Material Code": item.code, "Material Name": item.name, "UOM": item.uom, 
+    "Op.Stock-Warehouse": item.op_stock, "Receipt": item.f_receipt, "Issues": item.g_issues, 
+    "Return": item.h_return, "Closing Stock": item.closing 
   })); 
   const worksheet = XLSX.utils.json_to_sheet(exportData); 
   const workbook = XLSX.utils.book_new(); 
