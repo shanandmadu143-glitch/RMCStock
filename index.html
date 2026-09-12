@@ -386,7 +386,7 @@ input:focus, select:focus {
   display: flex; 
   flex-direction: column; 
   border: 1px solid var(--border-color); 
-  overflow: hidden; /* Prevent container layout shifts */
+  overflow: hidden; 
 } 
 
 .modal-header { 
@@ -1274,22 +1274,32 @@ async function shareStockSummary() {
   }
 }
 
+/* --- FIXED & FULLY ROBUST EXCEL RESTORE FUNCTION --- */
 function restoreFromXLSX() { 
   const t = i18n[currentLang];
   const fileInput = document.getElementById('xlsxFileInput'); 
   const file = fileInput.files[0]; 
   if (!file) { showToast(t.msgRestoreSelect, 'warning'); return; } 
+  
   const reader = new FileReader(); 
   reader.onload = function(e) { 
     try { 
       const data = new Uint8Array(e.target.result); 
       const workbook = XLSX.read(data, { type: 'array' }); 
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]]; 
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName]; 
       const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); 
-      if (!matrix || matrix.length === 0) return; 
       
-      let headerIndex = -1; let colMap = {}; 
-      for (let r = 0; r < matrix.length; r++) { 
+      if (!matrix || matrix.length === 0) { 
+        showToast('Excel file is empty!', 'error'); 
+        return; 
+      } 
+      
+      let headerIndex = -1; 
+      // Default fallback column mapping based on standard RMC export format
+      let colMap = { type: 0, code: 1, name: 2, uom: 3, op_stock: 4, f_receipt: 5, g_issues: 6, h_return: 7, i_ssl_received: 8, j_ssl_sent: 9, closing: 10, l_rejection: 11 }; 
+      
+      for (let r = 0; r < Math.min(matrix.length, 5); r++) { 
         const rowStr = matrix[r].map(c => String(c).toLowerCase().trim()); 
         if (rowStr.some(c => c.includes("code") || c.includes("material") || c.includes("name"))) { 
           headerIndex = r; 
@@ -1298,46 +1308,81 @@ function restoreFromXLSX() {
             if (cellVal.includes("code")) colMap.code = colIdx; 
             if (cellVal.includes("name")) colMap.name = colIdx; 
             if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
-            if (cellVal.includes("op") || cellVal.includes("open")) colMap.op_stock = colIdx; 
-            if (cellVal.includes("receipt") || cellVal.includes("(f)")) colMap.f_receipt = colIdx; 
-            if (cellVal.includes("issue") || cellVal.includes("(g)")) colMap.g_issues = colIdx; 
-            if (cellVal.includes("return") || cellVal.includes("(h)")) colMap.h_return = colIdx; 
-            if (cellVal.includes("ssl i") || cellVal.includes("received to ssl") || cellVal.includes("(i)")) colMap.i_ssl_received = colIdx; 
-            if (cellVal.includes("ssl j") || cellVal.includes("sent to ssl") || cellVal.includes("(j)")) colMap.j_ssl_sent = colIdx; 
-            if (cellVal.includes("rejection") || cellVal.includes("(l)")) colMap.l_rejection = colIdx; 
-            if (cellVal.includes("closing") || cellVal.includes("(k)")) colMap.closing = colIdx; 
+            if (cellVal.includes("op") || cellVal.includes("open") || cellVal.includes("stock")) colMap.op_stock = colIdx; 
+            if (cellVal.includes("receipt") || cellVal.includes("f")) colMap.f_receipt = colIdx; 
+            if (cellVal.includes("issue") || cellVal.includes("g")) colMap.g_issues = colIdx; 
+            if (cellVal.includes("return") || cellVal.includes("h")) colMap.h_return = colIdx; 
+            if (cellVal.includes("ssl i") || cellVal.includes("received")) colMap.i_ssl_received = colIdx; 
+            if (cellVal.includes("ssl j") || cellVal.includes("sent")) colMap.j_ssl_sent = colIdx; 
+            if (cellVal.includes("rejection") || cellVal.includes("l")) colMap.l_rejection = colIdx; 
+            if (cellVal.includes("closing")) colMap.closing = colIdx; 
           }); 
           break; 
         } 
       } 
+
+      const startIndex = headerIndex !== -1 ? headerIndex + 1 : 1; 
       let restored = []; 
-      if (headerIndex !== -1) { 
-        for (let r = headerIndex + 1; r < matrix.length; r++) { 
-          const row = matrix[r]; 
-          let code = colMap.code !== undefined ? String(row[colMap.code] || "").trim() : ""; 
-          let name = colMap.name !== undefined ? String(row[colMap.name] || "").trim() : ""; 
-          if (code || name) { 
-            let type = colMap.type !== undefined && row[colMap.type] ? String(row[colMap.type]).trim() : "RM"; 
-            let uom = colMap.uom !== undefined && row[colMap.uom] ? String(row[colMap.uom]).trim() : "KG"; 
-            let op_stock = colMap.op_stock !== undefined ? (parseFloat(row[colMap.op_stock]) || 0) : 0; 
-            let f_receipt = colMap.f_receipt !== undefined ? (parseFloat(row[colMap.f_receipt]) || 0) : 0; 
-            let g_issues = colMap.g_issues !== undefined ? (parseFloat(row[colMap.g_issues]) || 0) : 0; 
-            let h_return = colMap.h_return !== undefined ? (parseFloat(row[colMap.h_return]) || 0) : 0; 
-            let i_ssl_received = colMap.i_ssl_received !== undefined ? (parseFloat(row[colMap.i_ssl_received]) || 0) : 0; 
-            let j_ssl_sent = colMap.j_ssl_sent !== undefined ? (parseFloat(row[colMap.j_ssl_sent]) || 0) : 0; 
-            let l_rejection = colMap.l_rejection !==_undefined && row[colMap.l_rejection] !== undefined ? (parseFloat(row[colMap.l_rejection]) || 0) : 0; 
-            let closing = colMap.closing !== undefined && row[colMap.closing] !== "" ? parseFloat(row[colMap.closing]) : (op_stock + f_receipt - g_issues + h_return + i_ssl_received - j_ssl_sent - l_rejection); 
-            restored.push({ type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, closing, checked: false }); 
-          } 
+
+      for (let r = startIndex; r < matrix.length; r++) { 
+        const row = matrix[r]; 
+        if (!row || row.length === 0) continue; 
+        
+        let code = row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : ""; 
+        let name = row[colMap.name] !== undefined ? String(row[colMap.name]).trim() : ""; 
+        
+        if (!code && !name && row.length > 2) {
+          code = String(row[1] || "").trim();
+          name = String(row[2] || "").trim();
+        }
+
+        if (code || name) { 
+          let type = row[colMap.type] !== undefined && row[colMap.type] !== "" ? String(row[colMap.type]).trim() : "RM"; 
+          let uom = row[colMap.uom] !== undefined && row[colMap.uom] !== "" ? String(row[colMap.uom]).trim() : "KG"; 
+          let op_stock = parseFloat(row[colMap.op_stock]) || 0; 
+          let f_receipt = parseFloat(row[colMap.f_receipt]) || 0; 
+          let g_issues = parseFloat(row[colMap.g_issues]) || 0; 
+          let h_return = parseFloat(row[colMap.h_return]) || 0; 
+          let i_ssl_received = parseFloat(row[colMap.i_ssl_received]) || 0; 
+          let j_ssl_sent = parseFloat(row[colMap.j_ssl_sent]) || 0; 
+          let l_rejection = parseFloat(row[colMap.l_rejection]) || 0; 
+          
+          let closingVal = row[colMap.closing]; 
+          let closing = (closingVal !== undefined && closingVal !== "" && !isNaN(closingVal)) 
+            ? parseFloat(closingVal) 
+            : (op_stock + f_receipt - g_issues + h_return + i_ssl_received - j_ssl_sent - l_rejection); 
+            
+          restored.push({ 
+            type, 
+            code, 
+            name, 
+            uom, 
+            op_stock, 
+            f_receipt, 
+            g_issues, 
+            h_return, 
+            i_ssl_received, 
+            j_ssl_sent, 
+            l_rejection, 
+            closing, 
+            checked: false 
+          }); 
         } 
       } 
+
       if (restored.length > 0) { 
         inventory = restored; 
         saveInventoryData(); 
+        fileInput.value = ""; 
         closeSettings(); 
         showToast(t.msgRestoreSuccess, 'success'); 
+      } else { 
+        showToast('No valid data found in Excel file!', 'error'); 
       } 
-    } catch (err) { showToast('Error reading Excel file!', 'error'); } 
+    } catch (err) { 
+      console.error(err);
+      showToast('Error reading Excel file!', 'error'); 
+    } 
   }; 
   reader.readAsArrayBuffer(file); 
 } 
