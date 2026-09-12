@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Material & Inventory Management Portal</title>
+    <title>Enterprise Material & Inventory Portal</title>
     <!-- SheetJS (XLSX) Library -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- FontAwesome Pro/Free Icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,7 +14,6 @@
     <style>
         :root {
             --primary-bg: #0f172a;
-            --sidebar-bg: #1e293b;
             --accent-blue: #2563eb;
             --accent-blue-hover: #1d4ed8;
             --accent-green: #10b981;
@@ -40,44 +39,46 @@
         body {
             background-color: var(--bg-body);
             color: var(--text-dark);
-            padding: 24px;
+            padding: 30px 20px;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
-        /* Top Header Navigation */
-        .top-navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Top Header Navigation Block */
+        .header-block {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             color: #ffffff;
-            padding: 18px 28px;
-            border-radius: 16px;
+            padding: 28px 32px;
+            border-radius: 20px;
             box-shadow: var(--shadow-md);
             margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         .brand-title {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 700;
             letter-spacing: -0.3px;
         }
 
         .brand-title i {
             color: #60a5fa;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
         }
 
-        .header-actions {
+        /* Buttons under the Title Name */
+        .sub-header-actions {
             display: flex;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
         /* Button Styling */
@@ -85,7 +86,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 18px;
+            padding: 10px 20px;
             border-radius: 10px;
             font-size: 0.9rem;
             font-weight: 600;
@@ -100,14 +101,14 @@
         }
 
         .btn-header {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
             color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(8px);
         }
 
         .btn-header:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
         }
 
         .btn-primary {
@@ -128,34 +129,12 @@
             background: var(--accent-green-hover);
         }
 
-        .btn-amber {
-            background: var(--accent-amber);
-            color: white;
-        }
-
-        .btn-amber:hover {
-            background: #d97706;
-        }
-
-        /* Dashboard Overview Cards Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-
-        @media (max-width: 1024px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
+        /* Main Entry Card */
         .card {
             background: var(--card-bg);
-            border-radius: 16px;
+            border-radius: 20px;
             border: 1px solid var(--border-color);
-            padding: 24px;
+            padding: 30px;
             box-shadow: var(--shadow-sm);
         }
 
@@ -163,11 +142,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .card-title {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--text-dark);
             display: flex;
@@ -179,15 +158,15 @@
             color: var(--accent-blue);
         }
 
-        /* Data Entry Form Styling */
+        /* Form Controls */
         .form-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr 1.2fr;
+            grid-template-columns: 1.5fr 1fr;
             gap: 16px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 600px) {
             .form-grid {
                 grid-template-columns: 1fr;
             }
@@ -202,14 +181,14 @@
             font-size: 0.82rem;
             font-weight: 600;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         input[type="text"], input[type="number"], select, input[type="file"] {
             width: 100%;
-            padding: 11px 16px;
+            padding: 12px 16px;
             border: 1px solid var(--border-color);
             border-radius: 10px;
             font-size: 0.95rem;
@@ -224,7 +203,7 @@
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
 
-        /* Search Dropdown */
+        /* Search Results Dropdown */
         .search-results {
             position: absolute;
             top: 100%;
@@ -233,7 +212,7 @@
             background: white;
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            max-height: 220px;
+            max-height: 240px;
             overflow-y: auto;
             z-index: 100;
             box-shadow: var(--shadow-lg);
@@ -257,92 +236,15 @@
         .selected-badge {
             background: #eff6ff;
             border: 1px solid #bfdbfe;
-            padding: 12px 16px;
-            border-radius: 10px;
+            padding: 14px 18px;
+            border-radius: 12px;
             font-size: 0.9rem;
             color: #1e40af;
             display: none;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
-        /* Actions Summary Card Side */
-        .summary-box {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 100%;
-        }
-
-        .stat-card {
-            background: #f8fafc;
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .stat-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            background: #e0e7ff;
-            color: #4338ca;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        /* Main Data Table */
-        .table-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-            max-height: 450px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        th {
-            background: #f1f5f9;
-            color: var(--text-dark);
-            font-weight: 600;
-            padding: 14px 18px;
-            position: sticky;
-            top: 0;
-            border-bottom: 2px solid var(--border-color);
-            z-index: 10;
-        }
-
-        td {
-            padding: 12px 18px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        tr:hover {
-            background-color: #f8fafc;
-        }
-
-        .closing-stock {
-            font-weight: 700;
-            color: var(--accent-blue);
-        }
-
-        /* Modal / Popup Windows Styling */
+        /* Modal / Popup Styling */
         .modal {
             display: none;
             position: fixed;
@@ -360,7 +262,7 @@
         .modal-content {
             background: white;
             padding: 28px;
-            border-radius: 16px;
+            border-radius: 18px;
             width: 90%;
             max-width: 600px;
             box-shadow: var(--shadow-lg);
@@ -398,8 +300,8 @@
         .close-btn {
             background: #f1f5f9;
             border: none;
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             font-size: 1rem;
             cursor: pointer;
@@ -415,8 +317,45 @@
             color: var(--text-dark);
         }
 
+        .table-responsive {
+            overflow-x: auto;
+            max-height: 480px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 14px 16px;
+            position: sticky;
+            top: 0;
+            border-bottom: 2px solid var(--border-color);
+            z-index: 10;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .closing-stock {
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
         .setting-option {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             background: #f8fafc;
             padding: 18px;
             border-radius: 12px;
@@ -431,193 +370,140 @@
 
         .badge-type {
             background: #e2e8f0;
-            padding: 2px 8px;
+            padding: 3px 8px;
             border-radius: 6px;
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Header Navigation Portal -->
-    <div class="top-navbar">
+    <!-- Header Block with Title and Buttons Directly Underneath -->
+    <div class="header-block">
         <div class="brand-title">
-            <i class="fa-solid fa-boxes-stacked"></i> Enterprise Stock & Inventory Management Portal
+            <i class="fa-solid fa-boxes-stacked"></i> Inventory & Material Management Portal
         </div>
-        <div class="header-actions">
-            <button class="btn btn-header" onclick="openRecordsModal()"><i class="fa-solid fa-chart-pie"></i> Records Summary</button>
-            <button class="btn btn-header" onclick="openSettings()"><i class="fa-solid fa-gear"></i> Settings</button>
-        </div>
-    </div>
-
-    <!-- Main Dashboard Body Grid -->
-    <div class="dashboard-grid">
-        <!-- Data Entry Card -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title"><i class="fa-solid fa-file-pen"></i> Stock Transaction Entry</div>
-            </div>
-
-            <!-- Material Search -->
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label><i class="fa-solid fa-magnifying-glass"></i> Search Material (B Section Code / C Section Name):</label>
-                <input type="text" id="searchInput" placeholder="Search by Code or Item Name..." autocomplete="off">
-                <div id="searchResults" class="search-results" style="display:none;"></div>
-            </div>
-
-            <!-- Selected Item Preview Badge -->
-            <div id="selectedBadge" class="selected-badge">
-                <i class="fa-solid fa-circle-check"></i> Selected: <strong id="dispCode"></strong> - <span id="dispName"></span> | UOM: <strong id="dispUom"></strong> | Opening Stock (E): <strong id="dispOp"></strong>
-            </div>
-
-            <!-- Flexible Section Entry Selection -->
-            <div class="form-grid">
-                <div class="form-group">
-                    <label><i class="fa-solid fa-filter"></i> Target Section Select:</label>
-                    <select id="sectionSelect">
-                        <option value="F">F Section - Receipt (එකතු වේ [+])</option>
-                        <option value="G">G Section - Issues (අඩු වේ [-])</option>
-                        <option value="H">H Section - Return (එකතු වේ [+])</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label><i class="fa-solid fa-arrow-up-9-5"></i> Enter Amount:</label>
-                    <input type="number" id="inputAmount" min="0" placeholder="0.00">
-                </div>
-                <div class="form-group" style="display: flex; align-items: flex-end;">
-                    <button class="btn btn-primary" style="width: 100%; justify-content: center; height: 44px;" onclick="addSingleSectionData()">
-                        <i class="fa-solid fa-check"></i> Submit Data
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Panel & Summary Stats Card -->
-        <div class="card summary-box">
-            <div>
-                <div class="card-header">
-                    <div class="card-title"><i class="fa-solid fa-bolt"></i> Quick Actions & Status</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-box-archive"></i></div>
-                    <div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">TOTAL REGISTERED ITEMS</div>
-                        <div style="font-size: 1.3rem; font-weight: 700;" id="totalItemCount">229 Items</div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button class="btn btn-amber" style="justify-content: center; width: 100%; padding: 12px;" onclick="openRecordsModal()">
-                    <i class="fa-solid fa-chart-pie"></i> View Records Summary (Popup)
-                </button>
-                <button class="btn btn-success" style="justify-content: center; width: 100%; padding: 12px;" onclick="downloadExcelAndReset()">
-                    <i class="fa-solid fa-file-excel"></i> Download Excel & Shift Stock
-                </button>
-            </div>
+        <div class="sub-header-actions">
+            <button class="btn btn-header" onclick="openRecordsModal()">
+                <i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i> Inventory Records Summary
+            </button>
+            <button class="btn btn-header" onclick="openSettings()">
+                <i class="fa-solid fa-gear" style="color: #60a5fa;"></i> Settings & Backup
+            </button>
         </div>
     </div>
 
-    <!-- Main Live Inventory Table -->
-    <div class="table-card">
-        <div class="card-header" style="padding: 16px 20px 0 20px;">
-            <div class="card-title"><i class="fa-solid fa-list-check"></i> Live Material Inventory Grid</div>
+    <!-- Main Data Entry Form Card -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title"><i class="fa-solid fa-file-pen"></i> Stock Transaction Data Entry</div>
+        </div>
+
+        <!-- Search Material -->
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label><i class="fa-solid fa-magnifying-glass"></i> Search Material (Code / Name):</label>
+            <input type="text" id="searchInput" placeholder="Search by Material Code or Item Name..." autocomplete="off">
+            <div id="searchResults" class="search-results" style="display:none;"></div>
+        </div>
+
+        <!-- Selected Item Badge -->
+        <div id="selectedBadge" class="selected-badge">
+            <i class="fa-solid fa-circle-check"></i> Selected: <strong id="dispCode"></strong> - <span id="dispName"></span> | UOM: <strong id="dispUom"></strong> | Opening Stock (E): <strong id="dispOp"></strong>
+        </div>
+
+        <!-- Section Select & Amount Input Grid -->
+        <div class="form-grid">
+            <div class="form-group">
+                <label><i class="fa-solid fa-filter"></i> Select Section:</label>
+                <select id="sectionSelect">
+                    <option value="F">F Section - Receipt (එකතු වේ [+])</option>
+                    <option value="G">G Section - Issues (අඩු වේ [-])</option>
+                    <option value="H">H Section - Return (එකතු වේ [+])</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-arrow-up-9-5"></i> Enter Amount:</label>
+                <input type="number" id="inputAmount" min="0" placeholder="0.00">
+            </div>
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; height: 48px; font-size: 1rem;" onclick="addSingleSectionData()">
+            <i class="fa-solid fa-check-circle"></i> Submit Transaction
+        </button>
+    </div>
+</div>
+
+<!-- POPUP MODAL 1: INVENTORY RECORDS SUMMARY -->
+<div id="recordsModal" class="modal">
+    <div class="modal-content modal-content-large">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-chart-pie" style="color:var(--accent-amber);"></i> Inventory Records Summary</h3>
+            <button class="close-btn" onclick="closeRecordsModal()">&times;</button>
+        </div>
+        <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <input type="text" id="modalSearchInput" placeholder="Filter inventory records..." style="max-width: 350px;">
+            <button class="btn btn-success" onclick="downloadExcelAndReset()"><i class="fa-solid fa-file-excel"></i> Download Excel & Shift Stock</button>
         </div>
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
-                        <th>Type (A)</th>
-                        <th>Material Code (B)</th>
-                        <th>Material Name (C)</th>
-                        <th>UOM (D)</th>
-                        <th>Op.Stock (E)</th>
+                        <th>Type</th>
+                        <th>Material Code</th>
+                        <th>Material Name</th>
+                        <th>UOM</th>
+                        <th>Op. Stock (E)</th>
                         <th>Receipt (F) [+]</th>
                         <th>Issues (G) [-]</th>
                         <th>Return (H) [+]</th>
                         <th>Closing Stock (K)</th>
                     </tr>
                 </thead>
-                <tbody id="inventoryTable">
-                    <!-- Data Rows Injected Dynamically -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL 1: RECORDS SUMMARY POPUP UI -->
-<div id="recordsModal" class="modal">
-    <div class="modal-content modal-content-large">
-        <div class="modal-header">
-            <h3><i class="fa-solid fa-chart-pie" style="color:var(--accent-amber);"></i> Inventory Records Summary Dashboard</h3>
-            <button class="close-btn" onclick="closeRecordsModal()">&times;</button>
-        </div>
-        <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-            <input type="text" id="modalSearchInput" placeholder="Filter summary table..." style="max-width: 350px;">
-            <button class="btn btn-success" onclick="downloadExcelAndReset()"><i class="fa-solid fa-download"></i> Export Dated Excel</button>
-        </div>
-        <div class="table-responsive" style="max-height: 500px;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Code</th>
-                        <th>Material Name</th>
-                        <th>UOM</th>
-                        <th>Opening (E)</th>
-                        <th>Receipt (F)</th>
-                        <th>Issues (G)</th>
-                        <th>Return (H)</th>
-                        <th>Closing (K)</th>
-                    </tr>
-                </thead>
                 <tbody id="summaryTableBody">
-                    <!-- Populated dynamically -->
+                    <!-- Populated Dynamically -->
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- MODAL 2: SYSTEM SETTINGS & RESTORE POPUP -->
+<!-- POPUP MODAL 2: SETTINGS & RESTORE -->
 <div id="settingsModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3><i class="fa-solid fa-sliders" style="color:var(--accent-blue);"></i> System Settings & Data Restore</h3>
+            <h3><i class="fa-solid fa-sliders" style="color:var(--accent-blue);"></i> Settings & Data Restore</h3>
             <button class="close-btn" onclick="closeSettings()">&times;</button>
         </div>
         
-        <!-- XLSX File Restore -->
+        <!-- XLSX Restore -->
         <div class="setting-option">
             <label><i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> Restore Excel (.xlsx / .xls) File:</label>
-            <p>Excel File එකක් Upload කර දත්ත එසැනින් පද්ධතියට Restore කරන්න.</p>
+            <p>පෙර Save කරන ලද Excel File එකක් Upload කර දත්ත Restore කරගන්න.</p>
             <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 10px;">
             <button class="btn btn-success" style="width:100%; justify-content:center;" onclick="restoreFromXLSX()"><i class="fa-solid fa-file-import"></i> Restore Excel Data</button>
         </div>
 
-        <!-- XML File Restore -->
+        <!-- XML Restore -->
         <div class="setting-option">
             <label><i class="fa-solid fa-file-code" style="color:#2563eb;"></i> Restore XML (.xml) File:</label>
-            <p>පෙර Backup ගන්නා ලද XML File එක තෝරා දත්ත Restore කරන්න.</p>
+            <p>XML Backup file එකකින් පද්ධතියේ දත්ත නැවත ලබාගන්න.</p>
             <input type="file" id="xmlFileInput" accept=".xml" style="margin-bottom: 10px;">
             <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="restoreFromXML()"><i class="fa-solid fa-upload"></i> Restore XML Data</button>
         </div>
 
-        <!-- XML Backup Download -->
+        <!-- XML Backup Export -->
         <div class="setting-option">
             <label><i class="fa-solid fa-download"></i> Download XML Backup File:</label>
-            <p>දැනට පද්ධතියේ ඇති සියලුම දත්ත XML Backup එකක් ලෙස Download කරන්න.</p>
+            <p>දැනට පද්ධතියේ ඇති සියලුම දත්ත XML Backup එකක් ලෙස Download කර තබාගන්න.</p>
             <button class="btn" style="background:#475569; color:white; width:100%; justify-content:center;" onclick="downloadXMLBackup()"><i class="fa-solid fa-file-export"></i> Export XML Backup</button>
         </div>
     </div>
 </div>
 
 <script>
-    // Initial Master Items (Extracted from 07.09.2026.xlsx)
+    // Initial Master Items Extracted from 07.09.2026.xlsx
     let defaultItems = [
         {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000},
         {"type":"RM","code":"11061702","name":"WHITE SUGAR","uom":"KG","op_stock":2500},
@@ -653,7 +539,7 @@
 
     let selectedIndex = -1;
 
-    // Search Box Listener
+    // Search Box Implementation
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     const selectedBadge = document.getElementById('selectedBadge');
@@ -699,7 +585,7 @@
         selectedBadge.style.display = 'block';
     }
 
-    // Single Dropdown Selection Data Entry
+    // Single Section Data Addition Logic
     function addSingleSectionData() {
         if (selectedIndex === -1) {
             alert('කරුණාකර Material Code එකක් හෝ Name එකක් Search කර Select කරගන්න!');
@@ -716,7 +602,6 @@
 
         let item = inventory[selectedIndex];
 
-        // Cumulative addition based on selected section
         if (targetSection === 'F') {
             item.f_receipt += amount;
         } else if (targetSection === 'G') {
@@ -728,77 +613,11 @@
         // Calculate K = E + F - G + H
         item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return;
 
-        // Reset Amount Input
         document.getElementById('inputAmount').value = '';
-
-        renderTable();
-        alert(`${item.name} හි ${targetSection} Section එකට ${amount} හි අගයක් සාර්ථකව එකතු විය!`);
+        alert(`${item.name} හි ${targetSection} Section එකට ${amount} හි අගයක් සාර්ථකව ඇතුළත් විය!`);
     }
 
-    function renderTable() {
-        const tbody = document.getElementById('inventoryTable');
-        tbody.innerHTML = '';
-        document.getElementById('totalItemCount').innerText = `${inventory.length} Items`;
-
-        inventory.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><span class="badge-type">${item.type || 'RM'}</span></td>
-                <td><strong>${item.code}</strong></td>
-                <td>${item.name}</td>
-                <td>${item.uom || 'KG'}</td>
-                <td>${Number(item.op_stock).toLocaleString()}</td>
-                <td>${item.f_receipt > 0 ? '+' + item.f_receipt.toLocaleString() : '-'}</td>
-                <td>${item.g_issues > 0 ? '-' + item.g_issues.toLocaleString() : '-'}</td>
-                <td>${item.h_return > 0 ? '+' + item.h_return.toLocaleString() : '-'}</td>
-                <td class="closing-stock">${Number(item.closing).toLocaleString()}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    // EXCEL EXPORT & SHIFT LOGIC
-    function downloadExcelAndReset() {
-        const exportData = inventory.map(item => ({
-            "Type": item.type,
-            "Material Code": item.code,
-            "Material Name": item.name,
-            "UOM": item.uom,
-            "Op.Stock-Warehouse": item.op_stock,
-            "Receipt": item.f_receipt,
-            "Issues": item.g_issues,
-            "Return": item.h_return,
-            "Closing Stock": item.closing
-        }));
-
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data");
-
-        const today = new Date().toISOString().split('T')[0];
-        const filename = `Stock_Data_${today}.xlsx`;
-
-        XLSX.writeFile(workbook, filename);
-
-        // Shift Closing Stock to Opening Stock & Reset F, G, H, K
-        inventory.forEach(item => {
-            item.op_stock = item.closing;
-            item.f_receipt = 0;
-            item.g_issues = 0;
-            item.h_return = 0;
-            item.closing = item.op_stock;
-        });
-
-        selectedIndex = -1;
-        searchInput.value = '';
-        selectedBadge.style.display = 'none';
-
-        renderTable();
-        closeRecordsModal();
-        alert(`Excel file එක (${filename}) download වූ අතර, Closing Stock (K) හි අගයන් Opening Stock (E) ස්ථානයට මාරු වී F, G, H clear විය!`);
-    }
-
-    // MODAL POPUP CONTROLS
+    // Modal Control Functions
     function openRecordsModal() {
         renderSummaryTable();
         document.getElementById('recordsModal').style.display = 'flex';
@@ -819,9 +638,9 @@
                 <td>${item.name}</td>
                 <td>${item.uom}</td>
                 <td>${Number(item.op_stock).toLocaleString()}</td>
-                <td>${item.f_receipt}</td>
-                <td>${item.g_issues}</td>
-                <td>${item.h_return}</td>
+                <td>${item.f_receipt > 0 ? '+' + item.f_receipt.toLocaleString() : '-'}</td>
+                <td>${item.g_issues > 0 ? '-' + item.g_issues.toLocaleString() : '-'}</td>
+                <td>${item.h_return > 0 ? '+' + item.h_return.toLocaleString() : '-'}</td>
                 <td class="closing-stock">${Number(item.closing).toLocaleString()}</td>
             `;
             tbody.appendChild(tr);
@@ -845,12 +664,52 @@
         document.getElementById('settingsModal').style.display = 'none';
     }
 
-    // RESTORE FROM EXCEL (.XLSX)
+    // Download Excel & Auto Shift Logic
+    function downloadExcelAndReset() {
+        const exportData = inventory.map(item => ({
+            "Type": item.type,
+            "Material Code": item.code,
+            "Material Name": item.name,
+            "UOM": item.uom,
+            "Op.Stock-Warehouse": item.op_stock,
+            "Receipt": item.f_receipt,
+            "Issues": item.g_issues,
+            "Return": item.h_return,
+            "Closing Stock": item.closing
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data");
+
+        const today = new Date().toISOString().split('T')[0];
+        const filename = `Stock_Data_${today}.xlsx`;
+
+        XLSX.writeFile(workbook, filename);
+
+        // Shift Closing Stock -> Opening Stock & Clear F, G, H
+        inventory.forEach(item => {
+            item.op_stock = item.closing;
+            item.f_receipt = 0;
+            item.g_issues = 0;
+            item.h_return = 0;
+            item.closing = item.op_stock;
+        });
+
+        selectedIndex = -1;
+        searchInput.value = '';
+        selectedBadge.style.display = 'none';
+
+        closeRecordsModal();
+        alert(`Excel file එක (${filename}) download වූ අතර, Closing Stock (K) හි අගයන් Opening Stock (E) වෙත මාරු වී F, G, H clear විය!`);
+    }
+
+    // Restore Excel (.xlsx) File
     function restoreFromXLSX() {
         const fileInput = document.getElementById('xlsxFileInput');
         const file = fileInput.files[0];
         if (!file) {
-            alert('කරුණාකර Restore කිරීමට Excel File (.xlsx) එකක් තෝරන්න!');
+            alert('කරුණාකර Excel File (.xlsx) එකක් තෝරන්න!');
             return;
         }
 
@@ -862,17 +721,10 @@
                 const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                 const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
-                if (rawJson.length === 0) {
-                    alert('තෝරාගත් Excel file එකෙහි දත්ත හමු නොවිණි!');
-                    return;
-                }
-
                 let restoredInventory = [];
-
                 rawJson.forEach(row => {
                     let code = row["Material Code"] || row["Code"] || row["code"] || "";
                     let name = row["Material Name"] || row["Name"] || row["name"] || "";
-                    
                     if (code || name) {
                         let type = row["Type"] || row["type"] || "RM";
                         let uom = row["UOM"] || row["uom"] || "KG";
@@ -880,29 +732,17 @@
                         let f_receipt = parseFloat(row["Receipt"] || row["f_receipt"]) || 0;
                         let g_issues = parseFloat(row["Issues"] || row["g_issues"]) || 0;
                         let h_return = parseFloat(row["Return"] || row["h_return"]) || 0;
-                        
                         let closing = row["Closing Stock"] !== undefined && row["Closing Stock"] !== "" 
                                       ? parseFloat(row["Closing Stock"]) 
                                       : (op_stock + f_receipt - g_issues + h_return);
 
-                        restoredInventory.push({
-                            type: String(type),
-                            code: String(code),
-                            name: String(name),
-                            uom: String(uom),
-                            op_stock: op_stock,
-                            f_receipt: f_receipt,
-                            g_issues: g_issues,
-                            h_return: h_return,
-                            closing: closing
-                        });
+                        restoredInventory.push({ type: String(type), code: String(code), name: String(name), uom: String(uom), op_stock, f_receipt, g_issues, h_return, closing });
                     }
                 });
 
                 inventory = restoredInventory;
-                renderTable();
                 closeSettings();
-                alert(`Excel File එක සාර්ථකව Restore විය! Items ${inventory.length} ක් පද්ධතියට එක් විය.`);
+                alert(`Excel File එක සාර්ථකව Restore විය! Items ${inventory.length} ක් එක් විය.`);
             } catch (err) {
                 alert('Excel File එක කියවීමේදී දෝෂයක් සිදු විය: ' + err.message);
             }
@@ -910,12 +750,12 @@
         reader.readAsArrayBuffer(file);
     }
 
-    // RESTORE FROM XML
+    // Restore XML File
     function restoreFromXML() {
         const fileInput = document.getElementById('xmlFileInput');
         const file = fileInput.files[0];
         if (!file) {
-            alert('කරුණාකර Restore කිරීමට XML File එකක් තෝරන්න!');
+            alert('කරුණාකර XML File එකක් තෝරන්න!');
             return;
         }
 
@@ -927,17 +767,12 @@
                 const xmlDoc = parser.parseFromString(xmlText, "text/xml");
                 const materials = xmlDoc.getElementsByTagName("material");
 
-                if (materials.length === 0) {
-                    alert('තෝරාගත් XML file එකෙහි නිවැරදි Material දත්ත අඩංගු නොවේ!');
-                    return;
-                }
-
                 let restoredItems = [];
                 for (let i = 0; i < materials.length; i++) {
                     let m = materials[i];
                     let getVal = (tag) => m.getElementsByTagName(tag)[0] ? m.getElementsByTagName(tag)[0].textContent : "";
 
-                    let item = {
+                    restoredItems.push({
                         type: getVal('type') || 'RM',
                         code: getVal('code'),
                         name: getVal('name'),
@@ -947,12 +782,10 @@
                         g_issues: parseFloat(getVal('g_issues')) || 0,
                         h_return: parseFloat(getVal('h_return')) || 0,
                         closing: parseFloat(getVal('closing')) || 0
-                    };
-                    restoredItems.push(item);
+                    });
                 }
 
                 inventory = restoredItems;
-                renderTable();
                 closeSettings();
                 alert(`XML file එක සාර්ථකව Restore විය! Item ${inventory.length} ක දත්ත යාවත්කාලීන විය.`);
             } catch (err) {
@@ -962,7 +795,7 @@
         reader.readAsText(file);
     }
 
-    // BACKUP TO XML
+    // XML Backup Export
     function downloadXMLBackup() {
         let xmlStr = '<?xml version="1.0" encoding="UTF-8"?>\n<materials>\n';
         inventory.forEach(item => {
@@ -999,9 +832,6 @@
             }
         });
     }
-
-    // Initial Table Render
-    renderTable();
 </script>
 
 </body>
