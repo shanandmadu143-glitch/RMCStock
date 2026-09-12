@@ -124,6 +124,18 @@ const i18n = {
 let currentLang = localStorage.getItem('rmc_app_lang') || 'si';
 let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
 
+function calculateClosingStock(item) {
+  const op = parseFloat(item.op_stock) || 0;
+  const f = parseFloat(item.f_receipt) || 0;
+  const g = parseFloat(item.g_issues) || 0;
+  const h = parseFloat(item.h_return) || 0;
+  const i = parseFloat(item.i_ssl_received) || 0;
+  const j = parseFloat(item.j_ssl_sent) || 0;
+  const l = parseFloat(item.l_rejection) || 0;
+  
+  return op + f - g + h + i - j - l;
+}
+
 function applyTheme(theme) {
   currentTheme = theme;
   document.documentElement.setAttribute('data-theme', theme);
@@ -222,6 +234,16 @@ function loadInventoryData() {
   if (savedData) { 
     try { 
       inventory = JSON.parse(savedData); 
+      inventory.forEach(item => {
+        item.op_stock = parseFloat(item.op_stock) || 0;
+        item.f_receipt = parseFloat(item.f_receipt) || 0;
+        item.g_issues = parseFloat(item.g_issues) || 0;
+        item.h_return = parseFloat(item.h_return) || 0;
+        item.i_ssl_received = parseFloat(item.i_ssl_received) || 0;
+        item.j_ssl_sent = parseFloat(item.j_ssl_sent) || 0;
+        item.l_rejection = parseFloat(item.l_rejection) || 0;
+        item.closing = calculateClosingStock(item);
+      });
     } catch(e) { 
       initDefaultInventory(); 
     } 
@@ -231,17 +253,21 @@ function loadInventoryData() {
 } 
 
 function initDefaultInventory() { 
-  inventory = defaultItems.map(item => ({ 
-    ...item, 
-    f_receipt: 0, 
-    g_issues: 0, 
-    h_return: 0, 
-    i_ssl_received: 0, 
-    j_ssl_sent: 0, 
-    l_rejection: 0, 
-    closing: item.op_stock, 
-    checked: false 
-  })); 
+  inventory = defaultItems.map(item => {
+    const obj = { 
+      ...item, 
+      op_stock: parseFloat(item.op_stock) || 0,
+      f_receipt: 0, 
+      g_issues: 0, 
+      h_return: 0, 
+      i_ssl_received: 0, 
+      j_ssl_sent: 0, 
+      l_rejection: 0, 
+      checked: false 
+    };
+    obj.closing = calculateClosingStock(obj);
+    return obj;
+  }); 
   saveInventoryData(); 
 } 
 
@@ -321,8 +347,10 @@ function addSingleSectionData() {
   else if (targetSection === 'J') item.j_ssl_sent += amount; 
   else if (targetSection === 'L') item.l_rejection += amount; 
 
-  item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return + item.i_ssl_received - item.j_ssl_sent - item.l_rejection; 
+  item.closing = calculateClosingStock(item); 
   saveInventoryData(); 
+  
+  document.getElementById('dispOp').innerText = Number(item.op_stock).toLocaleString();
   document.getElementById('inputAmount').value = ''; 
   showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
 } 
@@ -404,6 +432,8 @@ function renderChecklist() {
 
 function openItemDetails(index) {
   const item = inventory[index];
+  item.closing = calculateClosingStock(item);
+
   document.getElementById('detCode').innerText = item.code;
   document.getElementById('detName').innerText = item.name;
   document.getElementById('detUom').innerText = item.uom;
@@ -442,6 +472,7 @@ document.getElementById('modalSearchInput').addEventListener('input', function()
 function generateWorkbookWithFormulas() {
   const exportData = inventory.map((item, index) => {
     const rowNum = index + 2; 
+    item.closing = calculateClosingStock(item);
     return { 
       "Type": item.type, 
       "Material Code": item.code, 
@@ -471,7 +502,7 @@ function downloadExcelAndReset() {
   XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
 
   inventory.forEach(item => { 
-    item.op_stock = item.closing; 
+    item.op_stock = calculateClosingStock(item); 
     item.f_receipt = 0; 
     item.g_issues = 0; 
     item.h_return = 0; 
@@ -549,11 +580,11 @@ function restoreFromXLSX() {
             if (cellVal.includes("name")) colMap.name = colIdx; 
             if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
             if (cellVal.includes("op") || cellVal.includes("open") || cellVal.includes("stock")) colMap.op_stock = colIdx; 
-            if (cellVal.includes("received") || cellVal.includes("receipt") || cellVal.includes("f")) colMap.f_receipt = colIdx; 
+            if (cellVal.includes("received to ssl")) colMap.i_ssl_received = colIdx; 
+            else if (cellVal.includes("received") || cellVal.includes("receipt") || cellVal.includes("f")) colMap.f_receipt = colIdx; 
             if (cellVal.includes("issue") || cellVal.includes("g")) colMap.g_issues = colIdx; 
             if (cellVal.includes("return") || cellVal.includes("h")) colMap.h_return = colIdx; 
-            if (cellVal.includes("ssl i") || cellVal.includes("ssl") || cellVal.includes("received to ssl")) colMap.i_ssl_received = colIdx; 
-            if (cellVal.includes("ssl j") || cellVal.includes("sent to ssl")) colMap.j_ssl_sent = colIdx; 
+            if (cellVal.includes("sent to ssl")) colMap.j_ssl_sent = colIdx; 
             if (cellVal.includes("rejection") || cellVal.includes("l")) colMap.l_rejection = colIdx; 
             if (cellVal.includes("closing")) colMap.closing = colIdx; 
           }); 
@@ -587,12 +618,7 @@ function restoreFromXLSX() {
           let j_ssl_sent = parseFloat(row[colMap.j_ssl_sent]) || 0; 
           let l_rejection = parseFloat(row[colMap.l_rejection]) || 0; 
           
-          let closingVal = row[colMap.closing]; 
-          let closing = (closingVal !== undefined && closingVal !== "" && !isNaN(closingVal)) 
-            ? parseFloat(closingVal) 
-            : (op_stock + f_receipt - g_issues + h_return + i_ssl_received - j_ssl_sent - l_rejection); 
-            
-          restored.push({ 
+          let itemObj = { 
             type, 
             code, 
             name, 
@@ -604,9 +630,11 @@ function restoreFromXLSX() {
             i_ssl_received, 
             j_ssl_sent, 
             l_rejection, 
-            closing, 
             checked: false 
-          }); 
+          }; 
+          
+          itemObj.closing = calculateClosingStock(itemObj);
+          restored.push(itemObj); 
         } 
       } 
 
