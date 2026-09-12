@@ -1,3 +1,6 @@
+ඔබ ඉල්ලා සිටින ආකාරයට, Excel Backup/Download සහ Share කිරීමේදී සරල අගයන් (Plain values) පමණක් නොව, Closing Stock එක ගණනය කිරීම සඳහා අවශ්‍ය වන Excel සූත්‍රය (Formula) ද ඇතුළත් වන පරිදි කේතය යාවත්කාලීන කර ඇත.
+මෙහිදී Excel හි සූත්‍රය ලෙස {op_stock} + {f_receipt} - {g_issues} + {h_return} යන සමීකරණය (උදාහරණයක් ලෙස: =E2+F2-G2+H2) ස්වයංක්‍රීයව එකතු වන සේ සකසා ඇත.
+පහත දැක්වෙන්නේ එම වෙනස්කම් සිදුකළ සම්පූර්ණ නිවැරදි කේතයයි:
 <!DOCTYPE html> 
 <html lang="si"> 
 <head> 
@@ -431,7 +434,6 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
-/* --- Clickable Material Name Link in Summary --- */
 .material-link {
   color: var(--primary);
   font-weight: 600;
@@ -445,7 +447,6 @@ input:focus, select:focus {
   opacity: 0.85;
 }
 
-/* --- Detail View Card UI Inside Modal --- */
 .detail-card-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -481,7 +482,6 @@ input:focus, select:focus {
   color: var(--text-dark);
 }
 
-/* --- Data Table --- */ 
 .table-responsive { 
   overflow-x: auto; 
   overflow-y: auto; 
@@ -531,7 +531,6 @@ td {
   line-height: 1.4; 
 } 
 
-/* --- Toast Notifications --- */ 
 #toastContainer { 
   position: fixed; 
   top: 24px; 
@@ -677,7 +676,7 @@ td {
   </div> 
 </div> 
 
-<!-- MODAL 3: SINGLE MATERIAL DETAIL VIEW (UI POPUP) --> 
+<!-- MODAL 3: SINGLE MATERIAL DETAIL VIEW --> 
 <div id="itemDetailModal" class="modal"> 
   <div class="modal-content modal-content-large"> 
     <div class="modal-header"> 
@@ -1089,7 +1088,6 @@ function closeSettings() {
   setTimeout(() => modal.style.display = 'none', 300); 
 } 
 
-/* --- Summary Table with Clickable Material Name --- */
 function renderSummaryTable() { 
   const tbody = document.getElementById('summaryTableBody'); 
   tbody.innerHTML = ''; 
@@ -1103,7 +1101,6 @@ function renderSummaryTable() {
   }); 
 } 
 
-/* --- Open Item Detail Modal --- */
 function openItemDetails(index) {
   const item = inventory[index];
   document.getElementById('detCode').innerText = item.code;
@@ -1135,16 +1132,33 @@ document.getElementById('modalSearchInput').addEventListener('input', function()
   }); 
 }); 
 
+/* --- Helper to generate workbook with Excel formulas for Upload format compatibility --- */
+function generateWorkbookWithFormulas() {
+  const exportData = inventory.map((item, index) => {
+    const rowNum = index + 2; // Row starts at 2 (Row 1 is Header)
+    return { 
+      "Type": item.type, 
+      "Material Code": item.code, 
+      "Material Name": item.name, 
+      "UOM": item.uom, 
+      "Op.Stock-Warehouse": item.op_stock, 
+      "Receipt": item.f_receipt, 
+      "Issues": item.g_issues, 
+      "Return": item.h_return, 
+      // Excel Formula: Closing Stock = Op.Stock (Col E) + Receipt (Col F) - Issues (Col G) + Return (Col H)
+      "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}`, v: item.closing } 
+    }; 
+  }); 
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData, { cellFormula: true }); 
+  const workbook = XLSX.utils.book_new(); 
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data");
+  return workbook;
+}
+
 function downloadExcelAndReset() { 
   const t = i18n[currentLang];
-  const exportData = inventory.map(item => ({ 
-    "Type": item.type, "Material Code": item.code, "Material Name": item.name, "UOM": item.uom, 
-    "Op.Stock-Warehouse": item.op_stock, "Receipt": item.f_receipt, "Issues": item.g_issues, 
-    "Return": item.h_return, "Closing Stock": item.closing 
-  })); 
-  const worksheet = XLSX.utils.json_to_sheet(exportData); 
-  const workbook = XLSX.utils.book_new(); 
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data"); 
+  const workbook = generateWorkbookWithFormulas();
   const today = new Date().toISOString().split('T')[0]; 
   XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
 
@@ -1157,22 +1171,12 @@ function downloadExcelAndReset() {
   showToast(t.msgExcelShift, 'success'); 
 } 
 
-/* --- Share Excel File Functionality --- */
 async function shareStockSummary() {
   const t = i18n[currentLang];
   const today = new Date().toISOString().split('T')[0];
-  const exportData = inventory.map(item => ({ 
-    "Type": item.type, "Material Code": item.code, "Material Name": item.name, "UOM": item.uom, 
-    "Op.Stock-Warehouse": item.op_stock, "Receipt": item.f_receipt, "Issues": item.g_issues, 
-    "Return": item.h_return, "Closing Stock": item.closing 
-  })); 
+  const workbook = generateWorkbookWithFormulas();
   
-  const worksheet = XLSX.utils.json_to_sheet(exportData); 
-  const workbook = XLSX.utils.book_new(); 
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data"); 
-  
-  // Generate Excel binary array
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', cellFormula: true });
   const fileName = `RMC_Daily_Stock_${today}.xlsx`;
   const file = new File([excelBuffer], fileName, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
@@ -1190,7 +1194,6 @@ async function shareStockSummary() {
       }
     }
   } else {
-    // Fallback: If direct file sharing is not supported by device/browser, download it instead
     XLSX.writeFile(workbook, fileName);
     showToast(t.shareNotSupported, 'warning');
   }
@@ -1269,14 +1272,7 @@ function resetToDefault() {
 } 
 
 function downloadXLSXBackup() { 
-  const exportData = inventory.map(item => ({ 
-    "Type": item.type, "Material Code": item.code, "Material Name": item.name, "UOM": item.uom, 
-    "Op.Stock-Warehouse": item.op_stock, "Receipt": item.f_receipt, "Issues": item.g_issues, 
-    "Return": item.h_return, "Closing Stock": item.closing 
-  })); 
-  const worksheet = XLSX.utils.json_to_sheet(exportData); 
-  const workbook = XLSX.utils.book_new(); 
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Backup_Data"); 
+  const workbook = generateWorkbookWithFormulas();
   const today = new Date().toISOString().split('T')[0]; 
   XLSX.writeFile(workbook, `RMC_Stock_Backup_${today}.xlsx`); 
   showToast('Backup File Downloaded!', 'success'); 
