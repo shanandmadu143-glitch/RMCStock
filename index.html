@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Entry Web App - Stock Management</title>
+    <!-- XLSX Library for Downloading Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #1a365d;
+            margin-bottom: 20px;
+        }
+        .entry-card {
+            background: #edf2f7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #cbd5e0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        label {
+            font-weight: 600;
+            color: #2d3748;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #a0aec0;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #cbd5e0;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .search-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .search-item:hover {
+            background-color: #ebf8ff;
+            color: #2b6cb0;
+        }
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .btn-add {
+            background-color: #3182ce;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+        .btn-add:hover {
+            background-color: #2b6cb0;
+        }
+        .btn-download {
+            background-color: #38a169;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            float: right;
+            margin-bottom: 15px;
+        }
+        .btn-download:hover {
+            background-color: #2f855a;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #cbd5e0;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #2d3748;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #2b6cb0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📦 Material Data Entry Web App</h2>
+
+    <!-- Search and Entry Form -->
+    <div class="entry-card">
+        <div class="form-group">
+            <label for="search">Material Code හෝ Name සෙවීම (Search B/C Section):</label>
+            <input type="text" id="search" placeholder="Type Material Code or Name..." autocomplete="off">
+            <div id="searchResults" class="search-results" style="display:none;"></div>
+        </div>
+
+        <div id="selectedInfo" style="display:none; margin-bottom: 15px; background: #e2e8f0; padding: 10px; border-radius: 6px;">
+            <strong>Selected:</strong> <span id="dispCode"></span> - <span id="dispName"></span> (<span id="dispUom"></span>) | 
+            <strong>Opening Stock:</strong> <span id="dispOp"></span>
+        </div>
+
+        <div class="grid-inputs">
+            <div>
+                <label for="valF">F Section (Receipt [+]):</label>
+                <input type="number" id="valF" min="0" placeholder="0">
+            </div>
+            <div>
+                <label for="valG">G Section (Issues [-]):</label>
+                <input type="number" id="valG" min="0" placeholder="0">
+            </div>
+            <div>
+                <label for="valH">H Section (Return [+]):</label>
+                <input type="number" id="valH" min="0" placeholder="0">
+            </div>
+        </div>
+
+        <button class="btn-add" onclick="submitData()">ඇතුළත් කරන්න / Update කරන්න</button>
+    </div>
+
+    <div>
+        <button class="btn-download" onclick="downloadAndReset()">📥 Download Excel & Reset Sections</button>
+        <div style="clear:both;"></div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Type (A)</th>
+                    <th>Code (B)</th>
+                    <th>Name (C)</th>
+                    <th>UOM (D)</th>
+                    <th>Op.Stock (E)</th>
+                    <th>Receipt (F) [+]</th>
+                    <th>Issues (G) [-]</th>
+                    <th>Return (H) [+]</th>
+                    <th>Closing Stock (K)</th>
+                </tr>
+            </thead>
+            <tbody id="stockTableBody">
+                <!-- Rows injected dynamically -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Embedded Data from 07.09.2026.xlsx
+    let rawItems = [
+        {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000},
+        {"type":"RM","code":"11061702","name":"WHITE SUGAR","uom":"KG","op_stock":2500},
+        {"type":"RM","code":"11002301","name":"MONOSODIUM GLUTAMATE","uom":"KG","op_stock":4525},
+        {"type":"RM","code":"67548375","name":"ONION POWDER","uom":"KG","op_stock":120},
+        {"type":"RM","code":"11067473","name":"CITRIC ACID MONOHYDRATE (FOOD GRADE)","uom":"KG","op_stock":50},
+        {"type":"RM","code":"11002242","name":"SPICE CELERY POWDER","uom":"KG","op_stock":25},
+        {"type":"RM","code":"67550393","name":"GARLIC POWDER","uom":"KG","op_stock":25},
+        {"type":"RM","code":"67548417","name":"WHITE PEPPER","uom":"KG","op_stock":15},
+        {"type":"RM","code":"11002253","name":"SPICE TURMERIC POWDER","uom":"KG","op_stock":4},
+        {"type":"RM","code":"11061729","name":"I+G SODIUM 5'RIBONUCLEOTID","uom":"KG","op_stock":40},
+        {"type":"RM","code":"11827361","name":"DRIED CORN STARCH 5% MOISTURE-SSL","uom":"KG","op_stock":6000},
+        {"type":"RM","code":"11061758","name":"CORN STARCH - IMPORT","uom":"KG","op_stock":0},
+        {"type":"RM","code":"11067112","name":"YEAST EXTR. MICROGRANUL. STANDARD 18% SA","uom":"KG","op_stock":400},
+        {"type":"RM","code":"11067118","name":"FLAVOUR CHICKEN POWDER (S-2182)","uom":"KG","op_stock":25},
+        {"type":"RM","code":"11061730","name":"CARAMEL COLOUR CLASS III (E150C)","uom":"KG","op_stock":20},
+        {"type":"RM","code":"11067140","name":"MALTO DEXTRIN 18-20 (M20)","uom":"KG","op_stock":500},
+        {"type":"RM","code":"11002220","name":"SPICE NUTMEG POWDER","uom":"KG","op_stock":10},
+        {"type":"RM","code":"11002206","name":"SPICE BLACK PEPPER POWDER","uom":"KG","op_stock":150},
+        {"type":"RM","code":"11002213","name":"SPICE CORIANDER POWDER","uom":"KG","op_stock":0},
+        {"type":"RM","code":"11002214","name":"SPICE CUMIN POWDER","uom":"KG","op_stock":100},
+        {"type":"RM","code":"11002211","name":"SPICE CLOVE POWDER","uom":"KG","op_stock":10},
+        {"type":"RM","code":"11002210","name":"SPICE CINNAMON POWDER","uom":"KG","op_stock":2}
+    ];
+
+    // Main App Data State
+    let inventoryData = rawItems.map(item => ({
+        ...item,
+        f_receipt: 0,
+        g_issues: 0,
+        h_return: 0,
+        closing: item.op_stock
+    }));
+
+    let selectedIndex = -1;
+
+    // Element references
+    const searchInput = document.getElementById('search');
+    const searchResults = document.getElementById('searchResults');
+    const selectedInfo = document.getElementById('selectedInfo');
+
+    // Search event listener
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        searchResults.innerHTML = '';
+        if (!query) {
+            searchResults.style.display = 'none';
+            return;
+        }
+
+        const filtered = inventoryData.filter(item => 
+            item.code.toLowerCase().includes(query) || 
+            item.name.toLowerCase().includes(query)
+        );
+
+        if (filtered.length > 0) {
+            searchResults.style.display = 'block';
+            filtered.forEach(item => {
+                const idx = inventoryData.findIndex(i => i.code === item.code && i.name === item.name);
+                const div = document.createElement('div');
+                div.className = 'search-item';
+                div.innerHTML = `<strong>${item.code}</strong> - ${item.name}`;
+                div.onclick = () => selectItem(idx);
+                searchResults.appendChild(div);
+            });
+        } else {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    function selectItem(index) {
+        selectedIndex = index;
+        const item = inventoryData[index];
+        searchInput.value = `${item.code} - ${item.name}`;
+        searchResults.style.display = 'none';
+
+        document.getElementById('dispCode').innerText = item.code;
+        document.getElementById('dispName').innerText = item.name;
+        document.getElementById('dispUom').innerText = item.uom;
+        document.getElementById('dispOp').innerText = item.op_stock;
+        selectedInfo.style.display = 'block';
+    }
+
+    function calculateClosing(item) {
+        return item.op_stock + item.f_receipt - item.g_issues + item.h_return;
+    }
+
+    function submitData() {
+        if (selectedIndex === -1) {
+            alert('කරුණාකර Material Code එකක් හෝ Name එකක් Search කර Select කරගන්න!');
+            return;
+        }
+
+        const valF = parseFloat(document.getElementById('valF').value) || 0;
+        const valG = parseFloat(document.getElementById('valG').value) || 0;
+        const valH = parseFloat(document.getElementById('valH').value) || 0;
+
+        let item = inventoryData[selectedIndex];
+
+        // Cumulative Addition (කලින් අගයන්ට එකතු වීම)
+        item.f_receipt += valF;
+        item.g_issues += valG;
+        item.h_return += valH;
+
+        // Recalculate Closing Stock (K)
+        item.closing = calculateClosing(item);
+
+        // Reset Inputs
+        document.getElementById('valF').value = '';
+        document.getElementById('valG').value = '';
+        document.getElementById('valH').value = '';
+
+        renderTable();
+        alert(`${item.name} සඳහා අගයන් සාර්ථකව එකතු විය!`);
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('stockTableBody');
+        tbody.innerHTML = '';
+
+        inventoryData.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.type}</td>
+                <td>${item.code}</td>
+                <td style="text-align:left;">${item.name}</td>
+                <td>${item.uom}</td>
+                <td>${item.op_stock}</td>
+                <td>${item.f_receipt > 0 ? item.f_receipt : '-'}</td>
+                <td>${item.g_issues > 0 ? item.g_issues : '-'}</td>
+                <td>${item.h_return > 0 ? item.h_return : '-'}</td>
+                <td class="highlight">${item.closing}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function downloadAndReset() {
+        // 1. Prepare Export Data
+        const exportData = inventoryData.map(item => ({
+            "Type": item.type,
+            "Material Code": item.code,
+            "Material Name": item.name,
+            "UOM": item.uom,
+            "Op.Stock-Warehouse": item.op_stock,
+            "Receipt": item.f_receipt,
+            "Issues": item.g_issues,
+            "Return": item.h_return,
+            "Closing Stock": item.closing
+        }));
+
+        // 2. Create Sheet and Download
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data");
+
+        // Generate Filename with Auto Date (YYYY-MM-DD)
+        const today = new Date().toISOString().split('T')[0];
+        const filename = `Stock_Data_${today}.xlsx`;
+
+        XLSX.writeFile(workbook, filename);
+
+        // 3. Shift Closing Stock (K) to Opening Stock (E) & Reset F, G, H, K
+        inventoryData.forEach(item => {
+            item.op_stock = item.closing; // Closing stock becomes new Opening stock
+            item.f_receipt = 0;
+            item.g_issues = 0;
+            item.h_return = 0;
+            item.closing = item.op_stock; // Reset closing stock to reflect new opening stock
+        });
+
+        // Clear Selection Form
+        selectedIndex = -1;
+        searchInput.value = '';
+        selectedInfo.style.display = 'none';
+
+        renderTable();
+        alert(`Excel file එක (${filename}) download වූ අතර F, G, H clear කර Closing Stock එක Opening Stock ලෙස යාවත්කාලීන කරන ලදී!`);
+    }
+
+    // Initial render
+    renderTable();
+</script>
+
+</body>
+</html>
