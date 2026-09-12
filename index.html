@@ -121,7 +121,7 @@
 
         .icon-actions {
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
 
         .btn-icon-header {
@@ -270,6 +270,12 @@
         }
 
         /* --- Buttons --- */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
         .btn {
             display: inline-flex;
             align-items: center;
@@ -286,29 +292,11 @@
             overflow: hidden;
         }
 
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s ease-out, height 0.3s ease-out;
-        }
-
-        .btn:active::after {
-            width: 200px;
-            height: 200px;
-            opacity: 0;
-        }
-
         .btn-primary {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
             color: white;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            flex: 1;
         }
 
         .btn-primary:hover {
@@ -316,14 +304,25 @@
             box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
         }
 
-        .btn-success {
+        .btn-icon-excel {
+            width: 52px;
+            height: 52px;
             background: linear-gradient(135deg, var(--success) 0%, var(--success-hover) 100%);
             color: white;
+            border-radius: var(--radius-md);
+            font-size: 1.4rem;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
         }
 
-        .btn-success:hover {
-            transform: translateY(-2px);
+        .btn-icon-excel:hover {
+            transform: translateY(-2px) scale(1.05);
             box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
         }
 
@@ -475,10 +474,6 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        tbody tr {
-            transition: var(--transition-smooth);
-        }
-
         tbody tr:hover {
             background-color: #f8fafc;
         }
@@ -594,7 +589,7 @@
     <div class="card">
         <!-- Search Material -->
         <div class="form-group">
-            <label><i class="fa-solid fa-magnifying-glass"></i> Search Material (Code / Name):</label>
+            <label><i class="fa-solid fa-magnifying-glass"></i> Name or Codes:</label>
             <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off">
             <div id="searchResults" class="search-results" style="display:none;"></div>
         </div>
@@ -614,9 +609,9 @@
             <div class="form-group" style="margin-bottom:0;">
                 <label><i class="fa-solid fa-layer-group"></i> Select Section:</label>
                 <select id="sectionSelect">
-                    <option value="F">F Section - Receipt (+)</option>
-                    <option value="G">G Section - Issues (-)</option>
-                    <option value="H">H Section - Return (+)</option>
+                    <option value="F">Receipt</option>
+                    <option value="G">Issues</option>
+                    <option value="H">Return</option>
                 </select>
             </div>
             <div class="form-group" style="margin-bottom:0;">
@@ -625,14 +620,15 @@
             </div>
         </div>
 
-        <!-- Buttons -->
-        <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px; margin-top: 10px;" onclick="addSingleSectionData()">
-            <i class="fa-solid fa-circle-plus"></i> Submit Transaction
-        </button>
-
-        <button class="btn btn-success" style="width: 100%;" onclick="downloadExcelAndReset()">
-            <i class="fa-solid fa-file-excel"></i> Download Excel & Shift Stock
-        </button>
+        <!-- Buttons Row with Icon Button for Excel Export -->
+        <div class="btn-row" style="margin-top: 10px;">
+            <button class="btn btn-primary" onclick="addSingleSectionData()">
+                <i class="fa-solid fa-circle-plus"></i> Submit Transaction
+            </button>
+            <button class="btn-icon-excel" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock">
+                <i class="fa-solid fa-file-excel"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Footer -->
@@ -702,7 +698,6 @@
 </div>
 
 <script>
-    // --- Toast Notification Handler ---
     function showToast(message, type = 'success') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
@@ -723,7 +718,6 @@
         }, 3500);
     }
 
-    // Default Stock Items
     let defaultItems = [
         {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000},
         {"type":"RM","code":"11061702","name":"WHITE SUGAR","uom":"KG","op_stock":2500},
@@ -759,7 +753,6 @@
 
     let selectedIndex = -1;
 
-    // Search Filtering
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     const selectedBadge = document.getElementById('selectedBadge');
@@ -806,7 +799,6 @@
         selectedBadge.style.display = 'block';
     }
 
-    // Submit Action
     function addSingleSectionData() {
         if (selectedIndex === -1) {
             showToast('කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!', 'warning');
@@ -837,7 +829,6 @@
         showToast(`${item.name} වෙත ${targetSection} Section එකට ${amount} ක් එක් විය!`, 'success');
     }
 
-    // Modal Control
     function openRecordsModal() {
         renderSummaryTable();
         const modal = document.getElementById('recordsModal');
@@ -889,7 +880,6 @@
         });
     });
 
-    // Excel Actions
     function downloadExcelAndReset() {
         const exportData = inventory.map(item => ({
             "Type": item.type,
@@ -910,7 +900,6 @@
         const today = new Date().toISOString().split('T')[0];
         XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`);
 
-        // Reset
         inventory.forEach(item => {
             item.op_stock = item.closing;
             item.f_receipt = 0;
