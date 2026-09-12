@@ -428,7 +428,7 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
-/* --- Checklist Layout (Fixed & Screen Fitted) --- */
+/* --- Checklist Layout --- */
 .checklist-container {
   display: flex;
   flex-direction: column;
@@ -695,9 +695,7 @@ input:focus, select:focus {
     <div style="margin-bottom: 12px; flex-shrink: 0;"> 
       <input type="text" id="modalSearchInput" placeholder="Quick filter checklist..." style="padding: 12px 16px; font-size:0.9rem;"> 
     </div> 
-    <div class="checklist-container" id="summaryCardsContainer">
-      <!-- Dynamic Checklist Items Injected via JS -->
-    </div>
+    <div class="checklist-container" id="summaryCardsContainer"></div>
   </div> 
 </div> 
 
@@ -848,7 +846,7 @@ const i18n = {
     lblFooter: 'Created By <span>Yomal Lakshan</span>',
     msgSelectMaterial: 'කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!',
     msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න!',
-    msgAdded: 'වෙَت එක් විය!',
+    msgAdded: 'සාර්ථකව එකතු විය!',
     msgExcelShift: 'Excel ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
     msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
     msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
@@ -1198,9 +1196,10 @@ document.getElementById('modalSearchInput').addEventListener('input', function()
   }); 
 }); 
 
+// Excel සූත්‍ර (Formulas) සහ දත්ත නිවැරදිව ජනනය කිරීම
 function generateWorkbookWithFormulas() {
   const exportData = inventory.map((item, index) => {
-    const rowNum = index + 2; 
+    const rowNum = index + 2; // Excel පේළි අංකය (Row Number)
     return { 
       "Type": item.type, 
       "Material Code": item.code, 
@@ -1212,6 +1211,7 @@ function generateWorkbookWithFormulas() {
       "Return": item.h_return, 
       "Received to SSL I": item.i_ssl_received || 0, 
       "Sent to SSL J": item.j_ssl_sent || 0, 
+      // Section අදාළ ගණනය කිරීමේ සමීකරණය (Formula) මෙහි ඇතුළත් කර ඇත
       "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-L${rowNum}`, v: item.closing }, 
       "Rejection L": item.l_rejection || 0 
     }; 
