@@ -807,8 +807,8 @@ const i18n = {
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> තොග විස්තර සාරාංශය',
-    placeholderModalSearch: 'සාරාංශ ලැයිස්තුව සොයන්න...',
-    thName: 'Material Name (නම)',
+    placeholderModalSearch: 'සාරාංශ ලැයිස්තුව Code හෝ Name මගින් සොයන්න...',
+    thName: 'Material Name & Code',
     thClosing: 'Closing Stock (K)',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
@@ -849,8 +849,8 @@ const i18n = {
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary',
-    placeholderModalSearch: 'Quick filter summary list...',
-    thName: 'Material Name',
+    placeholderModalSearch: 'Quick filter by Code or Name...',
+    thName: 'Material Name & Code',
     thClosing: 'Closing Stock (K)',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:',
@@ -891,8 +891,8 @@ const i18n = {
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> இருப்பு சுருக்கம்',
-    placeholderModalSearch: 'சுருக்கப் பட்டியலைத் தேடுக...',
-    thName: 'பொருள் பெயர்',
+    placeholderModalSearch: 'குறியீடு அல்லது பெயர் மூலம் தேடுக...',
+    thName: 'பொருள் பெயர் & குறியீடு',
     thClosing: 'இறுதி இருப்பு (K)',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
@@ -1123,8 +1123,13 @@ function renderSummaryTable() {
   inventory.forEach((item, idx) => { 
     const tr = document.createElement('tr'); 
     tr.innerHTML = ` 
-      <td><span class="material-link" onclick="openItemDetails(${idx})">${item.name}</span></td> 
-      <td style="font-weight: 700; color: var(--primary);">${Number(item.closing).toLocaleString()} ${item.uom}</td> 
+      <td>
+        <span class="material-link" onclick="openItemDetails(${idx})">${item.name}</span>
+        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; font-weight: 500;">
+          <i class="fa-solid fa-barcode" style="font-size: 0.7rem;"></i> Code: ${item.code} | Closing Stock: <span style="color: var(--primary); font-weight: 600;">${Number(item.closing).toLocaleString()} ${item.uom}</span>
+        </div>
+      </td> 
+      <td style="font-weight: 700; color: var(--primary); vertical-align: middle;">${Number(item.closing).toLocaleString()} ${item.uom}</td> 
     `; 
     tbody.appendChild(tr); 
   }); 
@@ -1158,8 +1163,9 @@ function closeItemDetailModal() {
 document.getElementById('modalSearchInput').addEventListener('input', function() { 
   const q = this.value.toLowerCase().trim(); 
   const rows = document.querySelectorAll('#summaryTableBody tr'); 
-  rows.forEach(row => { 
-    const text = row.innerText.toLowerCase(); 
+  rows.forEach((row, idx) => { 
+    const item = inventory[idx];
+    const text = (item.name + " " + item.code).toLowerCase(); 
     row.style.display = text.includes(q) ? '' : 'none'; 
   }); 
 }); 
