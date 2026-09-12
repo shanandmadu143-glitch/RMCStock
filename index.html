@@ -26,6 +26,8 @@
   --text-dark: #0f172a; 
   --text-muted: #64748b; 
   --border-color: #e2e8f0; 
+  --header-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --input-bg: #ffffff;
   --radius-md: 12px; 
   --radius-lg: 20px; 
   --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.05); 
@@ -33,6 +35,30 @@
   --shadow-modal: 0 25px 50px -12px rgba(15, 23, 42, 0.25); 
   --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
 } 
+
+/* --- Dark Theme --- */
+[data-theme="dark"] {
+  --bg-main: #0f172a;
+  --card-bg: #1e293b;
+  --text-dark: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --header-bg: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+  --input-bg: #0f172a;
+  --primary-light: rgba(37, 99, 235, 0.2);
+}
+
+/* --- Slate Blue Theme --- */
+[data-theme="blue"] {
+  --bg-main: #1e293b;
+  --card-bg: #334155;
+  --text-dark: #f8fafc;
+  --text-muted: #cbd5e1;
+  --border-color: #475569;
+  --header-bg: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  --input-bg: #1e293b;
+  --primary-light: rgba(99, 102, 241, 0.25);
+}
 
 * { 
   box-sizing: border-box; 
@@ -47,13 +73,14 @@ h1, h2, h3, h4, .brand-title {
 } 
 
 body { 
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); 
+  background: var(--bg-main); 
   color: var(--text-dark); 
   padding: 24px 16px; 
   display: flex; 
   justify-content: center; 
   align-items: flex-start; 
   min-height: 100vh; 
+  transition: var(--transition-smooth);
 } 
 
 .container { 
@@ -70,7 +97,7 @@ body {
 
 /* --- Header Styling --- */ 
 .header-block { 
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+  background: var(--header-bg); 
   color: #ffffff; 
   padding: 20px 26px; 
   border-radius: var(--radius-lg); 
@@ -145,10 +172,6 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); 
 } 
 
-.btn-icon-header:active { 
-  transform: translateY(0); 
-} 
-
 /* --- Main App Card --- */ 
 .card { 
   background: var(--card-bg); 
@@ -157,10 +180,6 @@ body {
   padding: 28px; 
   box-shadow: var(--shadow-subtle); 
   transition: var(--transition-smooth); 
-} 
-
-.card:hover { 
-  box-shadow: var(--shadow-hover); 
 } 
 
 .form-group { 
@@ -193,7 +212,7 @@ input[type="text"], input[type="number"], select, input[type="file"] {
   font-size: 0.95rem; 
   font-weight: 500; 
   color: var(--text-dark); 
-  background-color: #ffffff; 
+  background-color: var(--input-bg); 
   outline: none; 
   transition: var(--transition-smooth); 
 } 
@@ -201,7 +220,6 @@ input[type="text"], input[type="number"], select, input[type="file"] {
 input:focus, select:focus { 
   border-color: var(--primary); 
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12); 
-  background-color: #ffffff; 
 } 
 
 /* --- Search Dropdown --- */ 
@@ -210,7 +228,7 @@ input:focus, select:focus {
   top: 100%; 
   left: 0; 
   right: 0; 
-  background: #ffffff; 
+  background: var(--card-bg); 
   border: 1px solid var(--border-color); 
   border-radius: var(--radius-md); 
   max-height: 240px; 
@@ -218,22 +236,17 @@ input:focus, select:focus {
   z-index: 100; 
   box-shadow: var(--shadow-modal); 
   margin-top: 6px; 
-  animation: fadeIn 0.2s ease-out; 
 } 
 
 .search-item { 
   padding: 12px 16px; 
   cursor: pointer; 
-  border-bottom: 1px solid #f1f5f9; 
+  border-bottom: 1px solid var(--border-color); 
   font-size: 0.9rem; 
   display: flex; 
   justify-content: space-between; 
   align-items: center; 
   transition: var(--transition-smooth); 
-} 
-
-.search-item:last-child { 
-  border-bottom: none; 
 } 
 
 .search-item:hover { 
@@ -244,21 +257,15 @@ input:focus, select:focus {
 
 /* --- Badge Card --- */ 
 .selected-badge { 
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); 
-  border: 1px solid #bfdbfe; 
+  background: var(--primary-light); 
+  border: 1px solid var(--primary); 
   padding: 16px 20px; 
   border-radius: var(--radius-md); 
   font-size: 0.9rem; 
-  color: #1e40af; 
+  color: var(--text-dark); 
   display: none; 
   margin-bottom: 20px; 
   line-height: 1.6; 
-  animation: pulseIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
-} 
-
-@keyframes pulseIn { 
-  from { opacity: 0; transform: scale(0.96); } 
-  to { opacity: 1; transform: scale(1); } 
 } 
 
 .form-grid { 
@@ -287,8 +294,6 @@ input:focus, select:focus {
   border: none; 
   cursor: pointer; 
   transition: var(--transition-smooth); 
-  position: relative; 
-  overflow: hidden; 
 } 
 
 .btn-primary { 
@@ -300,7 +305,6 @@ input:focus, select:focus {
 
 .btn-primary:hover { 
   transform: translateY(-2px); 
-  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35); 
 } 
 
 .btn-icon-excel { 
@@ -315,24 +319,13 @@ input:focus, select:focus {
   display: flex; 
   align-items: center; 
   justify-content: center; 
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); 
   transition: var(--transition-smooth); 
   flex-shrink: 0; 
-} 
-
-.btn-icon-excel:hover { 
-  transform: translateY(-2px) scale(1.05); 
-  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35); 
 } 
 
 .btn-secondary { 
   background: #475569; 
   color: white; 
-} 
-
-.btn-secondary:hover { 
-  background: #334155; 
-  transform: translateY(-2px); 
 } 
 
 /* --- Animated Watermark Footer --- */ 
@@ -356,19 +349,9 @@ input:focus, select:focus {
 } 
 
 @keyframes watermarkFade { 
-  0% { 
-    opacity: 0.2; 
-    transform: scale(0.98); 
-  } 
-  50% { 
-    opacity: 0.95; 
-    transform: scale(1.03); 
-    text-shadow: 0 0 12px rgba(37, 99, 235, 0.3);
-  } 
-  100% { 
-    opacity: 0.2; 
-    transform: scale(0.98); 
-  } 
+  0% { opacity: 0.2; transform: scale(0.98); } 
+  50% { opacity: 0.95; transform: scale(1.03); text-shadow: 0 0 12px rgba(37, 99, 235, 0.3); } 
+  100% { opacity: 0.2; transform: scale(0.98); } 
 } 
 
 /* --- Modal Styling --- */ 
@@ -379,7 +362,7 @@ input:focus, select:focus {
   left: 0; 
   width: 100%; 
   height: 100%; 
-  background: rgba(15, 23, 42, 0.65); 
+  background: rgba(15, 23, 42, 0.7); 
   backdrop-filter: blur(6px); 
   z-index: 1000; 
   justify-content: center; 
@@ -395,22 +378,18 @@ input:focus, select:focus {
 } 
 
 .modal-content { 
-  background: #ffffff; 
+  background: var(--card-bg); 
+  color: var(--text-dark);
   padding: 24px; 
   border-radius: var(--radius-lg); 
   width: 100%; 
   max-width: 550px; 
   box-shadow: var(--shadow-modal); 
-  transform: scale(0.92); 
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
   max-height: 90vh; 
   display: flex; 
   flex-direction: column; 
   border: 1px solid var(--border-color); 
-} 
-
-.modal.show .modal-content { 
-  transform: scale(1); 
+  overflow-y: auto;
 } 
 
 .modal-content-large { 
@@ -436,7 +415,7 @@ input:focus, select:focus {
 } 
 
 .close-btn { 
-  background: #f1f5f9; 
+  background: var(--border-color); 
   border: none; 
   width: 36px; 
   height: 36px; 
@@ -447,13 +426,6 @@ input:focus, select:focus {
   display: flex; 
   align-items: center; 
   justify-content: center; 
-  transition: var(--transition-smooth); 
-} 
-
-.close-btn:hover { 
-  background: var(--danger-light); 
-  color: var(--danger); 
-  transform: rotate(90deg); 
 } 
 
 /* --- Data Table --- */ 
@@ -474,12 +446,11 @@ table {
 } 
 
 th { 
-  background: #f8fafc; 
+  background: var(--bg-main); 
   color: var(--text-muted); 
   font-weight: 700; 
   text-transform: uppercase; 
   font-size: 0.75rem; 
-  letter-spacing: 0.5px; 
   padding: 12px 16px; 
   position: sticky; 
   top: 0; 
@@ -492,33 +463,14 @@ td {
   border-bottom: 1px solid var(--border-color); 
 } 
 
-tbody tr:hover { 
-  background-color: #f8fafc; 
-} 
-
-.val-receipt { 
-  color: var(--success); 
-  font-weight: 600; 
-} 
-
-.val-issues { 
-  color: var(--danger); 
-  font-weight: 600; 
-} 
-
-.val-return { 
-  color: var(--warning); 
-  font-weight: 600; 
-} 
-
-.closing-stock { 
-  font-weight: 700; 
-  color: var(--primary); 
-} 
+.val-receipt { color: var(--success); font-weight: 600; } 
+.val-issues { color: var(--danger); font-weight: 600; } 
+.val-return { color: var(--warning); font-weight: 600; } 
+.closing-stock { font-weight: 700; color: var(--primary); } 
 
 .setting-option { 
   margin-bottom: 16px; 
-  background: #f8fafc; 
+  background: var(--bg-main); 
   padding: 18px; 
   border-radius: var(--radius-md); 
   border: 1px solid var(--border-color); 
@@ -552,79 +504,29 @@ tbody tr:hover {
   gap: 14px; 
   padding: 16px 20px; 
   border-radius: var(--radius-md); 
-  background: #ffffff; 
+  background: var(--card-bg); 
   color: var(--text-dark); 
   box-shadow: var(--shadow-modal); 
   border-left: 6px solid var(--primary); 
   font-size: 0.92rem; 
   font-weight: 600; 
   animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-  transition: var(--transition-smooth); 
 } 
 
-.toast.toast-success { 
-  border-left-color: var(--success); 
-} 
-
-.toast.toast-error { 
-  border-left-color: var(--danger); 
-} 
-
-.toast.toast-warning { 
-  border-left-color: var(--warning); 
-} 
-
-.toast i { 
-  font-size: 1.35rem; 
-} 
-
-.toast-success i { 
-  color: var(--success); 
-} 
-
-.toast-error i { 
-  color: var(--danger); 
-} 
-
-.toast-warning i { 
-  color: var(--warning); 
-} 
-
-.toast-hide { 
-  animation: slideOutRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-} 
+.toast.toast-success { border-left-color: var(--success); } 
+.toast.toast-error { border-left-color: var(--danger); } 
+.toast.toast-warning { border-left-color: var(--warning); } 
 
 @keyframes slideInRight { 
   from { opacity: 0; transform: translateX(100%) scale(0.9); } 
   to { opacity: 1; transform: translateX(0) scale(1); } 
 } 
 
-@keyframes slideOutRight { 
-  from { opacity: 1; transform: translateX(0) scale(1); } 
-  to { opacity: 0; transform: translateX(100%) scale(0.9); } 
-} 
-
 @media (max-width: 640px) { 
-  .form-grid { 
-    grid-template-columns: 1fr; 
-  } 
-  body { 
-    padding: 12px; 
-  } 
-  .header-block { 
-    padding: 16px 20px; 
-  } 
-  .brand-title { 
-    font-size: 1.2rem; 
-  } 
-  .card { 
-    padding: 20px; 
-  } 
-  #toastContainer { 
-    right: 50%; 
-    transform: translateX(50%); 
-    top: 16px; 
-  } 
+  .form-grid { grid-template-columns: 1fr; } 
+  body { padding: 12px; } 
+  .header-block { padding: 16px 20px; } 
+  .card { padding: 20px; } 
 } 
 </style> 
 </head> 
@@ -640,7 +542,7 @@ tbody tr:hover {
       <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Summary"> 
         <i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i> 
       </button> 
-      <button class="btn-icon-header" onclick="openSettings()" title="Settings & Backup"> 
+      <button class="btn-icon-header" onclick="openSettings()" title="Settings & Preferences"> 
         <i class="fa-solid fa-gear" style="color: #60a5fa;"></i> 
       </button> 
     </div> 
@@ -648,14 +550,12 @@ tbody tr:hover {
 
   <!-- Main Data Entry Form Card --> 
   <div class="card"> 
-    <!-- Search Material --> 
     <div class="form-group"> 
-      <label><i class="fa-solid fa-magnifying-glass"></i> Name or Codes:</label> 
+      <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Name or Codes:</label> 
       <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off"> 
       <div id="searchResults" class="search-results" style="display:none;"></div> 
     </div> 
 
-    <!-- Selected Item Badge --> 
     <div id="selectedBadge" class="selected-badge"> 
       <div style="font-weight:700; margin-bottom: 4px;"> 
         <i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> 
@@ -666,25 +566,23 @@ tbody tr:hover {
       </div> 
     </div> 
 
-    <!-- Inputs Grid --> 
     <div class="form-grid"> 
       <div class="form-group" style="margin-bottom:0;"> 
-        <label><i class="fa-solid fa-layer-group"></i> Select Section:</label> 
+        <label id="lblSection"><i class="fa-solid fa-layer-group"></i> Select Section:</label> 
         <select id="sectionSelect"> 
-          <option value="F">Receipt</option> 
-          <option value="G">Issues</option> 
-          <option value="H">Return</option> 
+          <option value="F" id="optReceipt">Receipt</option> 
+          <option value="G" id="optIssues">Issues</option> 
+          <option value="H" id="optReturn">Return</option> 
         </select> 
       </div> 
       <div class="form-group" style="margin-bottom:0;"> 
-        <label><i class="fa-solid fa-calculator"></i> Enter Amount:</label> 
+        <label id="lblAmount"><i class="fa-solid fa-calculator"></i> Enter Amount:</label> 
         <input type="number" id="inputAmount" min="0" placeholder="0.00" inputmode="decimal"> 
       </div> 
     </div> 
 
-    <!-- Buttons Row with Icon Button for Excel Export --> 
     <div class="btn-row" style="margin-top: 10px;"> 
-      <button class="btn btn-primary" onclick="addSingleSectionData()"> 
+      <button class="btn btn-primary" onclick="addSingleSectionData()" id="btnSave"> 
         <i class="fa-solid fa-floppy-disk"></i> Save 
       </button> 
       <button class="btn-icon-excel" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock"> 
@@ -694,7 +592,7 @@ tbody tr:hover {
   </div> 
 
   <!-- Animated Watermark Footer --> 
-  <div class="footer-note"> 
+  <div class="footer-note" id="lblFooter"> 
     Created By <span>Yomal Lakshan</span> 
   </div> 
 </div> 
@@ -706,7 +604,7 @@ tbody tr:hover {
 <div id="recordsModal" class="modal"> 
   <div class="modal-content modal-content-large"> 
     <div class="modal-header"> 
-      <h3><i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Records Summary</h3> 
+      <h3 id="txtSummaryTitle"><i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary</h3> 
       <button class="close-btn" onclick="closeRecordsModal()">&times;</button> 
     </div> 
     <div style="margin-bottom: 14px;"> 
@@ -716,47 +614,72 @@ tbody tr:hover {
       <table> 
         <thead> 
           <tr> 
-            <th>Material Code</th> 
-            <th>Material Name</th> 
-            <th>Receipt (F)</th> <th>Issues (G)</th> 
-            <th>Return (H)</th> 
-            <th>Closing Stock (K)</th> 
+            <th id="thCode">Material Code</th> 
+            <th id="thName">Material Name</th> 
+            <th id="thReceipt">Receipt (F)</th> 
+            <th id="thIssues">Issues (G)</th> 
+            <th id="thReturn">Return (H)</th> 
+            <th id="thClosing">Closing Stock (K)</th> 
           </tr> 
         </thead> 
-        <tbody id="summaryTableBody"> 
-          <!-- Dynamic Rows --> 
-        </tbody> 
+        <tbody id="summaryTableBody"></tbody> 
       </table> 
     </div> 
   </div> 
 </div> 
 
-<!-- MODAL 2: SETTINGS & RESTORE --> 
+<!-- MODAL 2: SETTINGS & PREFERENCES --> 
 <div id="settingsModal" class="modal"> 
   <div class="modal-content"> 
     <div class="modal-header"> 
-      <h3><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Data Restore</h3> 
+      <h3 id="txtSettingsTitle"><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences</h3> 
       <button class="close-btn" onclick="closeSettings()">&times;</button> 
     </div> 
+
+    <!-- Language Setting -->
     <div class="setting-option"> 
-      <label><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label> 
-      <p>පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න. (ස්වයංක්‍රීයව Save වේ)</p> 
+      <label id="lblLanguage"><i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language / භාෂාව / மொழி:</label> 
+      <select id="langSelect" onchange="changeLanguage(this.value)"> 
+        <option value="si">සිංහල (Sinhala)</option> 
+        <option value="en">English</option> 
+        <option value="ta">தமிழ் (Tamil)</option> 
+      </select> 
+    </div> 
+
+    <!-- Theme Setting -->
+    <div class="setting-option"> 
+      <label id="lblTheme"><i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:</label> 
+      <select id="themeSelect" onchange="changeTheme(this.value)"> 
+        <option value="light">Light Theme (Default)</option> 
+        <option value="dark">Dark Theme</option> 
+        <option value="blue">Slate Blue Theme</option> 
+      </select> 
+    </div> 
+
+    <!-- Excel Restore -->
+    <div class="setting-option"> 
+      <label id="lblRestore"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label> 
+      <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p> 
       <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 10px;"> 
-      <button class="btn btn-success" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()"> 
+      <button class="btn btn-success" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore"> 
         <i class="fa-solid fa-upload"></i> Restore Excel Data 
       </button> 
     </div> 
+
+    <!-- Excel Backup -->
     <div class="setting-option"> 
-      <label><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label> 
-      <p>වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p> 
-      <button class="btn btn-secondary" style="width:100%; padding: 12px;" onclick="downloadXLSXBackup()"> 
+      <label id="lblBackup"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label> 
+      <p id="descBackup">වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p> 
+      <button class="btn btn-secondary" style="width:100%; padding: 12px;" onclick="downloadXLSXBackup()" id="btnBackup"> 
         <i class="fa-solid fa-download"></i> Download Backup File 
       </button> 
     </div> 
+
+    <!-- Reset Data -->
     <div class="setting-option"> 
-      <label><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label> 
-      <p>මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p> 
-      <button class="btn" style="width:100%; padding: 10px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()"> 
+      <label id="lblReset"><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label> 
+      <p id="descReset">මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p> 
+      <button class="btn" style="width:100%; padding: 10px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()" id="btnReset"> 
         <i class="fa-solid fa-trash-can"></i> Reset All Data 
       </button> 
     </div> 
@@ -764,6 +687,183 @@ tbody tr:hover {
 </div> 
 
 <script> 
+// Translations Data Object
+const i18n = {
+  si: {
+    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Code හෝ Name මගින් සොයන්න:',
+    placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...',
+    lblSection: '<i class="fa-solid fa-layer-group"></i> Section එක තෝරන්න:',
+    optReceipt: 'Receipt (ලැබීම්)',
+    optIssues: 'Issues (නිකුත් කිරීම්)',
+    optReturn: 'Return (නැවත භාරදීම්)',
+    lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
+    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> තොග විස්තර සාරාංශය',
+    placeholderModalSearch: 'සාරාංශ ලැයිස්තුව සොයන්න...',
+    thCode: 'Material Code',
+    thName: 'Material Name',
+    thReceipt: 'Receipt (F)',
+    thIssues: 'Issues (G)',
+    thReturn: 'Return (H)',
+    thClosing: 'Closing Stock (K)',
+    txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
+    lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
+    lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:',
+    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Excel (.xlsx) Restore කරන්න:',
+    descRestore: 'පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.',
+    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
+    lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup එකක් ගන්න:',
+    descBackup: 'වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.',
+    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
+    lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> මුල් තත්වයට Reset කරන්න:',
+    descReset: 'මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.',
+    btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
+    lblFooter: 'Created By <span>Yomal Lakshan</span>',
+    msgSelectMaterial: 'කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!',
+    msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න!',
+    msgAdded: 'වෙත එක් විය!',
+    msgExcelShift: 'Excel ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
+    msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
+    msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
+    msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?'
+  },
+  en: {
+    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
+    placeholderSearch: 'Type Code or Name to filter...',
+    lblSection: '<i class="fa-solid fa-layer-group"></i> Select Section:',
+    optReceipt: 'Receipt',
+    optIssues: 'Issues',
+    optReturn: 'Return',
+    lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
+    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary',
+    placeholderModalSearch: 'Quick filter summary list...',
+    thCode: 'Material Code',
+    thName: 'Material Name',
+    thReceipt: 'Receipt (F)',
+    thIssues: 'Issues (G)',
+    thReturn: 'Return (H)',
+    thClosing: 'Closing Stock (K)',
+    txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
+    lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:',
+    lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:',
+    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:',
+    descRestore: 'Update current inventory using a previously saved Excel file.',
+    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
+    lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:',
+    descBackup: 'Get a safe backup copy of current inventory data.',
+    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
+    lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:',
+    descReset: 'Reset all records back to default starting items.',
+    btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
+    lblFooter: 'Created By <span>Yomal Lakshan</span>',
+    msgSelectMaterial: 'Please select a Material Code or Name!',
+    msgValidAmount: 'Please enter a valid amount greater than 0!',
+    msgAdded: 'successfully added!',
+    msgExcelShift: 'Excel downloaded and Stock shifted successfully!',
+    msgRestoreSelect: 'Please select an Excel file!',
+    msgRestoreSuccess: 'Excel Restore Successful!',
+    msgResetConfirm: 'Are you sure you want to reset to default data?'
+  },
+  ta: {
+    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீடு மூலம் தேடுக:',
+    placeholderSearch: 'தேட குறியீடு அல்லது பெயரை தட்டச்சு செய்க...',
+    lblSection: '<i class="fa-solid fa-layer-group"></i> பிரிவைத் தேர்ந்தெடுக்கவும்:',
+    optReceipt: 'ரசீது (Receipt)',
+    optIssues: 'வழங்கல்கள் (Issues)',
+    optReturn: 'திரும்பப் பெறுதல் (Return)',
+    lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
+    btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
+    txtSummaryTitle: '<i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> இருப்பு சுருக்கம்',
+    placeholderModalSearch: 'சுருக்கப் பட்டியலைத் தேடுக...',
+    thCode: 'பொருள் குறியீடு',
+    thName: 'பொருள் பெயர்',
+    thReceipt: 'ரசீது (F)',
+    thIssues: 'வழங்கல்கள் (G)',
+    thReturn: 'திரும்பல் (H)',
+    thClosing: 'இறுதி இருப்பு (K)',
+    txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
+    lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
+    lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> தீம் தேர்ந்தெடுக்கவும்:',
+    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> எக்செல் கோப்பை மீட்டெடுக்க:',
+    descRestore: 'முன்பு சேமிக்கப்பட்ட எக்செல் கோப்பைப் பயன்படுத்தித் தரவைப் புதுப்பிக்கவும்.',
+    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
+    lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> காப்புப் பிரதி பெற:',
+    descBackup: 'தற்போதைய தரவின் பாதுகாப்பான காப்புப் பிரதியைப் பெறவும்.',
+    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
+    lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> இயல்புநிலைக்கு மீட்டமைக்க:',
+    descReset: 'அனைத்து தரவையும் ஆரம்ப நிலைக்கு மீட்டமைக்கவும்.',
+    btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
+    lblFooter: 'Created By <span>Yomal Lakshan</span>',
+    msgSelectMaterial: 'தயவுசெய்து ஒரு பொருளைத் தேர்ந்தெடுக்கவும்!',
+    msgValidAmount: 'தயவுசெய்து 0 ஐ விட அதிகமான அளவை உள்ளிடவும்!',
+    msgAdded: 'வெற்றிகரமாக சேர்க்கப்பட்டது!',
+    msgExcelShift: 'எக்செல் பதிவிறக்கம் செய்யப்பட்டது, இருப்பு புதுப்பிக்கப்பட்டது!',
+    msgRestoreSelect: 'தயவுசெய்து எக்செல் கோப்பைத் தேர்ந்தெடுக்கவும்!',
+    msgRestoreSuccess: 'எக்செல் மீட்டமைப்பு வெற்றிகரமாக முடிந்தது!',
+    msgResetConfirm: 'ஆரம்ப தரவுக்கு மீட்டமைக்க நிச்சயமாக விரும்புகிறீர்களா?'
+  }
+};
+
+let currentLang = localStorage.getItem('rmc_app_lang') || 'si';
+let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
+
+function applyTheme(theme) {
+  currentTheme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeSelect').value = theme;
+  localStorage.setItem('rmc_app_theme', theme);
+}
+
+function changeTheme(theme) {
+  applyTheme(theme);
+}
+
+function applyLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('rmc_app_lang', lang);
+  document.getElementById('langSelect').value = lang;
+  
+  const t = i18n[lang];
+  document.getElementById('lblSearch').innerHTML = t.lblSearch;
+  document.getElementById('searchInput').placeholder = t.placeholderSearch;
+  document.getElementById('lblSection').innerHTML = t.lblSection;
+  document.getElementById('optReceipt').innerText = t.optReceipt;
+  document.getElementById('optIssues').innerText = t.optIssues;
+  document.getElementById('optReturn').innerText = t.optReturn;
+  document.getElementById('lblAmount').innerHTML = t.lblAmount;
+  document.getElementById('btnSave').innerHTML = t.btnSave;
+  document.getElementById('txtSummaryTitle').innerHTML = t.txtSummaryTitle;
+  document.getElementById('modalSearchInput').placeholder = t.placeholderModalSearch;
+  document.getElementById('thCode').innerText = t.thCode;
+  document.getElementById('thName').innerText = t.thName;
+  document.getElementById('thReceipt').innerText = t.thReceipt;
+  document.getElementById('thIssues').innerText = t.thIssues;
+  document.getElementById('thReturn').innerText = t.thReturn;
+  document.getElementById('thClosing').innerText = t.thClosing;
+  document.getElementById('txtSettingsTitle').innerHTML = t.txtSettingsTitle;
+  document.getElementById('lblLanguage').innerHTML = t.lblLanguage;
+  document.getElementById('lblTheme').innerHTML = t.lblTheme;
+  document.getElementById('lblRestore').innerHTML = t.lblRestore;
+  document.getElementById('descRestore').innerText = t.descRestore;
+  document.getElementById('btnRestore').innerHTML = t.btnRestore;
+  document.getElementById('lblBackup').innerHTML = t.lblBackup;
+  document.getElementById('descBackup').innerText = t.descBackup;
+  document.getElementById('btnBackup').innerHTML = t.btnBackup;
+  document.getElementById('lblReset').innerHTML = t.lblReset;
+  document.getElementById('descReset').innerText = t.descReset;
+  document.getElementById('btnReset').innerHTML = t.btnReset;
+  document.getElementById('lblFooter').innerHTML = t.lblFooter;
+}
+
+function changeLanguage(lang) {
+  applyLanguage(lang);
+}
+
+// Initial application of settings
+applyTheme(currentTheme);
+applyLanguage(currentLang);
+
 function showToast(message, type = 'success') { 
   const container = document.getElementById('toastContainer'); 
   const toast = document.createElement('div'); 
@@ -774,10 +874,7 @@ function showToast(message, type = 'success') {
   toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${message}</span>`; 
   container.appendChild(toast); 
   setTimeout(() => { 
-    toast.classList.add('toast-hide'); 
-    toast.addEventListener('animationend', () => { 
-      toast.remove(); 
-    }); 
+    toast.remove(); 
   }, 3500); 
 } 
 
@@ -882,14 +979,15 @@ function selectItem(index) {
 } 
 
 function addSingleSectionData() { 
+  const t = i18n[currentLang];
   if (selectedIndex === -1) { 
-    showToast('කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!', 'warning'); 
+    showToast(t.msgSelectMaterial, 'warning'); 
     return; 
   } 
   const targetSection = document.getElementById('sectionSelect').value; 
   const amount = parseFloat(document.getElementById('inputAmount').value) || 0; 
   if (amount <= 0) { 
-    showToast('කරුණාකර වලංගු 0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න!', 'error'); 
+    showToast(t.msgValidAmount, 'error'); 
     return; 
   } 
   let item = inventory[selectedIndex]; 
@@ -903,7 +1001,7 @@ function addSingleSectionData() {
   item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return; 
   saveInventoryData(); 
   document.getElementById('inputAmount').value = ''; 
-  showToast(`${item.name} වෙත ${targetSection} Section එකට ${amount} ක් එක් විය!`, 'success'); 
+  showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
 } 
 
 function openRecordsModal() { 
@@ -958,6 +1056,7 @@ document.getElementById('modalSearchInput').addEventListener('input', function()
 }); 
 
 function downloadExcelAndReset() { 
+  const t = i18n[currentLang];
   const exportData = inventory.map(item => ({ 
     "Type": item.type, 
     "Material Code": item.code, 
@@ -986,14 +1085,15 @@ function downloadExcelAndReset() {
   selectedIndex = -1; 
   searchInput.value = ''; 
   selectedBadge.style.display = 'none'; 
-  showToast(`Excel ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!`, 'success'); 
+  showToast(t.msgExcelShift, 'success'); 
 } 
 
 function restoreFromXLSX() { 
+  const t = i18n[currentLang];
   const fileInput = document.getElementById('xlsxFileInput'); 
   const file = fileInput.files[0]; 
   if (!file) { 
-    showToast('කරුණාකර Excel File එකක් තෝරන්න!', 'warning'); 
+    showToast(t.msgRestoreSelect, 'warning'); 
     return; 
   } 
   const reader = new FileReader(); 
@@ -1003,10 +1103,8 @@ function restoreFromXLSX() {
       const workbook = XLSX.read(data, { type: 'array' }); 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]]; 
       const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); 
-      if (!matrix || matrix.length === 0) { 
-        showToast('Excel ගොනුවේ දත්ත නොමැත!', 'error'); 
-        return; 
-      } 
+      if (!matrix || matrix.length === 0) return; 
+      
       let headerIndex = -1; 
       let colMap = {}; 
       for (let r = 0; r < matrix.length; r++) { 
@@ -1018,7 +1116,7 @@ function restoreFromXLSX() {
             if (cellVal.includes("code")) colMap.code = colIdx; 
             if (cellVal.includes("name")) colMap.name = colIdx; 
             if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
-            if (cellVal.includes("op") || cellVal.includes("open") || cellVal.includes("opening")) colMap.op_stock = colIdx; 
+            if (cellVal.includes("op") || cellVal.includes("open")) colMap.op_stock = colIdx; 
             if (cellVal.includes("receipt") || cellVal.includes("(f)")) colMap.f_receipt = colIdx; 
             if (cellVal.includes("issue") || cellVal.includes("(g)")) colMap.g_issues = colIdx; 
             if (cellVal.includes("return") || cellVal.includes("(h)")) colMap.h_return = colIdx; 
@@ -1044,54 +1142,27 @@ function restoreFromXLSX() {
             restored.push({ type, code, name, uom, op_stock, f_receipt, g_issues, h_return, closing }); 
           } 
         } 
-      } else { 
-        const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: "" }); 
-        rawJson.forEach(row => { 
-          let code = ""; 
-          let name = ""; 
-          Object.keys(row).forEach(k => { 
-            const lk = k.toLowerCase(); 
-            if (lk.includes("code")) code = String(row[k]).trim(); 
-            if (lk.includes("name")) name = String(row[k]).trim(); 
-          }); 
-          if (code || name) { 
-            let op_stock = 0, f_receipt = 0, g_issues = 0, h_return = 0, closing = 0; 
-            Object.keys(row).forEach(k => { 
-              const lk = k.toLowerCase(); 
-              if (lk.includes("op")) op_stock = parseFloat(row[k]) || 0; 
-              if (lk.includes("receipt")) f_receipt = parseFloat(row[k]) || 0; 
-              if (lk.includes("issue")) g_issues = parseFloat(row[k]) || 0; 
-              if (lk.includes("return")) h_return = parseFloat(row[k]) || 0; 
-              if (lk.includes("closing")) closing = parseFloat(row[k]) || 0; 
-            }); 
-            if (!closing && (op_stock || f_receipt)) { 
-              closing = op_stock + f_receipt - g_issues + h_return; 
-            } 
-            restored.push({ type: String(row["Type"] || "RM"), code: code, name: name, uom: String(row["UOM"] || "KG"), op_stock, f_receipt, g_issues, h_return, closing }); 
-          } 
-        }); 
       } 
       if (restored.length > 0) { 
         inventory = restored; 
         saveInventoryData(); 
         closeSettings(); 
-        showToast(`Excel Restore සාර්ථකයි! Items ${inventory.length} ක් එක් වී Save විය.`, 'success'); 
-      } else { 
-        showToast('Excel Sheet එකෙහි Material Code/Name හඳුනාගත නොහැකි විය!', 'error'); 
+        showToast(t.msgRestoreSuccess, 'success'); 
       } 
     } catch (err) { 
-      showToast('Excel කියවීමේදී දෝෂයක් සිදු විය!', 'error'); 
+      showToast('Error reading Excel file!', 'error'); 
     } 
   }; 
   reader.readAsArrayBuffer(file); 
 } 
 
 function resetToDefault() { 
-  if (confirm("ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?")) { 
+  const t = i18n[currentLang];
+  if (confirm(t.msgResetConfirm)) { 
     localStorage.removeItem('rmc_stock_inventory'); 
     initDefaultInventory(); 
     closeSettings(); 
-    showToast("දත්ත මුල් තත්වයට Reset විය!", "success"); 
+    showToast("Reset Successful!", "success"); 
   } 
 } 
 
@@ -1112,7 +1183,7 @@ function downloadXLSXBackup() {
   XLSX.utils.book_append_sheet(workbook, worksheet, "Backup_Data"); 
   const today = new Date().toISOString().split('T')[0]; 
   XLSX.writeFile(workbook, `RMC_Stock_Backup_${today}.xlsx`); 
-  showToast('Backup Excel ගොනුව බාගත විය!', 'success'); 
+  showToast('Backup File Downloaded!', 'success'); 
 } 
 </script> 
 </body> 
