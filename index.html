@@ -33,7 +33,7 @@
   <!-- Main Data Entry Form Card --> 
   <div class="card"> 
     <div class="form-group"> 
-      <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Name or Codes:</label> 
+      <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Search by Code or Name:</label> 
       <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off"> 
       <div id="searchResults" class="search-results" style="display:none;"></div> 
     </div> 
@@ -52,12 +52,12 @@
       <div class="form-group" style="margin-bottom:0;"> 
         <label id="lblSection"><i class="fa-solid fa-layer-group"></i> Select Section:</label> 
         <select id="sectionSelect"> 
-          <option value="F" id="optReceipt">Receipt</option> 
-          <option value="G" id="optIssues">Issues</option> 
-          <option value="H" id="optReturn">Return</option> 
-          <option value="I" id="optSslI">Received to SSL</option> 
-          <option value="J" id="optSslJ">Sent to SSL</option> 
-          <option value="L" id="optRejectionL">Rejection</option> 
+          <option value="F" id="optReceipt">Receipt (F)</option> 
+          <option value="G" id="optIssues">Issues (G)</option> 
+          <option value="H" id="optReturn">Return (H)</option> 
+          <option value="I" id="optSslI">Received to SSL (I)</option> 
+          <option value="J" id="optSslJ">Sent to SSL (J)</option> 
+          <option value="L" id="optRejectionL">Rejection (L)</option> 
         </select> 
       </div> 
       <div class="form-group" style="margin-bottom:0;"> 
@@ -123,7 +123,7 @@
         <div class="detail-value" id="detName" style="color:var(--primary);">-</div> 
       </div> 
       <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock</div> 
+        <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock (E)</div> 
         <div class="detail-value" id="detOp">-</div> 
       </div> 
       <div class="detail-item-box"> 
@@ -139,15 +139,15 @@
         <div class="detail-value" id="detReturn" style="color:var(--warning);">-</div> 
       </div> 
       <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--success);"></i> Received to SSL</div> 
+        <div class="detail-label"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--success);"></i> Received to SSL (I)</div> 
         <div class="detail-value" id="detSslI" style="color:var(--success);">-</div> 
       </div> 
       <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--danger);"></i> Sent to SSL</div> 
+        <div class="detail-label"><i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--danger);"></i> Sent to SSL (J)</div> 
         <div class="detail-value" id="detSslJ" style="color:var(--danger);">-</div> 
       </div> 
       <div class="detail-item-box"> 
-        <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection</div> 
+        <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection (L)</div> 
         <div class="detail-value" id="detRejectionL" style="color:var(--danger);">-</div> 
       </div> 
       <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);"> 
