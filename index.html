@@ -423,7 +423,13 @@ input:focus, select:focus {
   display: flex; 
   align-items: center; 
   justify-content: center; 
+  transition: var(--transition-smooth);
 } 
+
+.close-btn:hover {
+  background: var(--danger-light);
+  color: var(--danger);
+}
 
 /* --- Clickable Material Name Link in Summary --- */
 .material-link {
@@ -652,7 +658,7 @@ td {
   <div class="modal-content modal-content-large"> 
     <div class="modal-header"> 
       <h3 id="txtSummaryTitle"><i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Summary</h3> 
-      <button class="close-btn" onclick="openRecordsModal()">&times;</button> <!-- Fixed close click --> 
+      <button class="close-btn" onclick="closeRecordsModal()">&times;</button> <!-- Fixed to close properly --> 
     </div> 
     <div style="margin-bottom: 14px;"> 
       <input type="text" id="modalSearchInput" placeholder="Quick filter summary list..." style="padding: 10px 14px; font-size:0.88rem;"> 
