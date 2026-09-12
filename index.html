@@ -3,44 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RMC Daily Stock</title>
+    <title>RMC Daily Stock | Professional Dashboard</title>
     <!-- SheetJS (XLSX) Library -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary-bg: #0f172a;
-            --accent-blue: #2563eb;
-            --accent-blue-hover: #1d4ed8;
-            --accent-green: #10b981;
-            --accent-green-hover: #059669;
-            --accent-amber: #f59e0b;
-            --bg-body: #f8fafc;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --success: #10b981;
+            --success-hover: #059669;
+            --success-light: #ecfdf5;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --bg-main: #f1f5f9;
             --card-bg: #ffffff;
             --text-dark: #0f172a;
             --text-muted: #64748b;
             --border-color: #e2e8f0;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+            --shadow-hover: 0 12px 28px -4px rgba(15, 23, 42, 0.12);
+            --shadow-modal: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+            --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
+        h1, h2, h3, h4, .brand-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
         body {
-            background-color: var(--bg-body);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             color: var(--text-dark);
-            padding: 16px;
+            padding: 24px 16px;
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -49,227 +59,302 @@
 
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 850px;
             margin: 0 auto;
+            animation: appSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Top Header Navigation Block */
+        @keyframes appSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Header Styling --- */
         .header-block {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: #ffffff;
-            padding: 18px 22px;
-            border-radius: 16px;
-            box-shadow: var(--shadow-md);
-            margin-bottom: 16px;
+            padding: 20px 26px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-hover);
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header-block::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.3) 0%, rgba(0,0,0,0) 70%);
+            pointer-events: none;
         }
 
         .brand-title {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 1.35rem;
-            font-weight: 700;
-            letter-spacing: -0.3px;
+            gap: 14px;
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
-        .brand-title i {
-            color: #60a5fa;
-            font-size: 1.5rem;
-        }
-
-        /* Top-Right Icon Actions */
-        .icon-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-icon-header {
-            width: 42px;
-            height: 42px;
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(37, 99, 235, 0.2);
+            border: 1px solid rgba(96, 165, 250, 0.3);
             border-radius: 12px;
-            background: rgba(255, 255, 255, 0.12);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            color: #60a5fa;
+            font-size: 1.3rem;
+            box-shadow: inset 0 0 10px rgba(37, 99, 235, 0.2);
+        }
+
+        .icon-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-icon-header {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: var(--transition-smooth);
         }
 
-        .btn-icon-header:active, .btn-icon-header:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: scale(1.05);
+        .btn-icon-header:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        /* Main Entry Card */
+        .btn-icon-header:active {
+            transform: translateY(0);
+        }
+
+        /* --- Main App Card --- */
         .card {
             background: var(--card-bg);
-            border-radius: 16px;
+            border-radius: var(--radius-lg);
             border: 1px solid var(--border-color);
-            padding: 22px;
-            box-shadow: var(--shadow-sm);
+            padding: 28px;
+            box-shadow: var(--shadow-subtle);
+            transition: var(--transition-smooth);
         }
 
-        /* Form Controls */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 640px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            body {
-                padding: 10px;
-            }
-            .header-block {
-                padding: 16px 18px;
-            }
-            .brand-title {
-                font-size: 1.2rem;
-            }
-            .card {
-                padding: 16px;
-            }
+        .card:hover {
+            box-shadow: var(--shadow-hover);
         }
 
         .form-group {
             position: relative;
+            margin-bottom: 20px;
         }
 
         label {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
+        }
+
+        label i {
+            color: var(--primary);
+            font-size: 0.95rem;
         }
 
         input[type="text"], input[type="number"], select, input[type="file"] {
             width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
             font-size: 0.95rem;
+            font-weight: 500;
             color: var(--text-dark);
-            background-color: #fff;
+            background-color: #ffffff;
             outline: none;
-            transition: all 0.2s;
+            transition: var(--transition-smooth);
         }
 
         input:focus, select:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+            background-color: #ffffff;
         }
 
-        /* Search Results Dropdown */
+        /* --- Search Dropdown --- */
         .search-results {
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
-            background: white;
+            background: #ffffff;
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            max-height: 220px;
+            border-radius: var(--radius-md);
+            max-height: 240px;
             overflow-y: auto;
             z-index: 100;
-            box-shadow: var(--shadow-lg);
-            margin-top: 4px;
+            box-shadow: var(--shadow-modal);
+            margin-top: 6px;
+            animation: fadeIn 0.2s ease-out;
         }
 
         .search-item {
-            padding: 12px 14px;
+            padding: 12px 16px;
             cursor: pointer;
             border-bottom: 1px solid #f1f5f9;
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: var(--transition-smooth);
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
         }
 
         .search-item:hover {
-            background-color: #eff6ff;
-            color: var(--accent-blue);
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding-left: 20px;
         }
 
+        /* --- Badge Card --- */
         .selected-badge {
-            background: #eff6ff;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             border: 1px solid #bfdbfe;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 0.88rem;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
             color: #1e40af;
             display: none;
-            margin-bottom: 16px;
-            line-height: 1.5;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            animation: pulseIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Standard Buttons */
+        @keyframes pulseIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* --- Buttons --- */
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-size: 0.92rem;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 22px;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
             font-weight: 600;
             border: none;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: var(--shadow-sm);
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease-out, height 0.3s ease-out;
+        }
+
+        .btn:active::after {
+            width: 200px;
+            height: 200px;
+            opacity: 0;
         }
 
         .btn-primary {
-            background: var(--accent-blue);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
             color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
         }
 
-        .btn-primary:active {
-            background: var(--accent-blue-hover);
-            transform: scale(0.99);
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
         }
 
         .btn-success {
-            background: var(--accent-green);
+            background: linear-gradient(135deg, var(--success) 0%, var(--success-hover) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-secondary {
+            background: #475569;
             color: white;
         }
 
-        .btn-success:active {
-            background: var(--accent-green-hover);
-            transform: scale(0.99);
+        .btn-secondary:hover {
+            background: #334155;
+            transform: translateY(-2px);
         }
 
-        /* Footer Branding */
+        /* --- Footer --- */
         .footer-note {
             text-align: center;
-            margin-top: 20px;
-            padding: 10px 0;
-            font-size: 0.78rem;
+            margin-top: 24px;
+            padding: 12px 0;
+            font-size: 0.82rem;
             font-weight: 600;
             color: var(--text-muted);
-            letter-spacing: 0.6px;
-            opacity: 0.8;
+            letter-spacing: 0.8px;
+            transition: var(--transition-smooth);
         }
 
-        .footer-note i {
-            font-size: 0.75rem;
-            color: #ef4444;
-            margin: 0 2px;
+        .footer-note span {
+            color: var(--primary);
+            font-weight: 700;
         }
 
-        /* Modal / Popup Styling */
+        /* --- Modal Styling --- */
         .modal {
             display: none;
             position: fixed;
@@ -277,73 +362,89 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(6px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            padding: 12px;
+            padding: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
         }
 
         .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
+            background: #ffffff;
+            padding: 24px;
+            border-radius: var(--radius-lg);
             width: 100%;
             max-width: 550px;
-            box-shadow: var(--shadow-lg);
-            animation: fadeIn 0.2s ease-out;
+            box-shadow: var(--shadow-modal);
+            transform: scale(0.92);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             max-height: 90vh;
             display: flex;
             flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
         }
 
         .modal-content-large {
-            max-width: 750px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.97); }
-            to { opacity: 1; transform: scale(1); }
+            max-width: 800px;
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
         }
 
         .modal-header h3 {
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-dark);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .close-btn {
             background: #f1f5f9;
             border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-size: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            font-size: 1.1rem;
             cursor: pointer;
             color: var(--text-muted);
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: var(--transition-smooth);
         }
 
+        .close-btn:hover {
+            background: var(--danger-light);
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        /* --- Data Table --- */
         .table-responsive {
             overflow-x: auto;
             overflow-y: auto;
-            max-height: 60vh;
-            border-radius: 8px;
+            max-height: 55vh;
+            border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
         }
 
@@ -356,10 +457,13 @@
         }
 
         th {
-            background: #f1f5f9;
-            color: var(--text-dark);
-            font-weight: 600;
-            padding: 10px 12px;
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
             position: sticky;
             top: 0;
             border-bottom: 2px solid var(--border-color);
@@ -367,123 +471,98 @@
         }
 
         td {
-            padding: 10px 12px;
+            padding: 14px 16px;
             border-bottom: 1px solid var(--border-color);
         }
 
-        .val-receipt {
-            color: var(--accent-green);
-            font-weight: 600;
+        tbody tr {
+            transition: var(--transition-smooth);
         }
 
-        .val-issues {
-            color: #ef4444;
-            font-weight: 600;
+        tbody tr:hover {
+            background-color: #f8fafc;
         }
 
-        .val-return {
-            color: var(--accent-amber);
-            font-weight: 600;
-        }
-
-        .closing-stock {
-            font-weight: 700;
-            color: var(--accent-blue);
-        }
+        .val-receipt { color: var(--success); font-weight: 600; }
+        .val-issues { color: var(--danger); font-weight: 600; }
+        .val-return { color: var(--warning); font-weight: 600; }
+        .closing-stock { font-weight: 700; color: var(--primary); }
 
         .setting-option {
-            margin-bottom: 14px;
+            margin-bottom: 16px;
             background: #f8fafc;
-            padding: 14px;
-            border-radius: 10px;
+            padding: 18px;
+            border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
         }
 
         .setting-option p {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            line-height: 1.4;
         }
 
-        /* --- Top Positioned Toast Notifications System --- */
+        /* --- Toast Notifications --- */
         #toastContainer {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 24px;
+            right: 24px;
             z-index: 9999;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             pointer-events: none;
             max-width: 90vw;
-            width: 360px;
+            width: 380px;
         }
 
         .toast {
             pointer-events: auto;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 14px 18px;
-            border-radius: 12px;
+            gap: 14px;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
             background: #ffffff;
             color: var(--text-dark);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid var(--accent-blue);
-            font-size: 0.9rem;
-            font-weight: 500;
-            animation: slideInDown 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
-            transition: all 0.3s ease;
+            box-shadow: var(--shadow-modal);
+            border-left: 6px solid var(--primary);
+            font-size: 0.92rem;
+            font-weight: 600;
+            animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: var(--transition-smooth);
         }
 
-        .toast.toast-success {
-            border-left-color: var(--accent-green);
-        }
+        .toast.toast-success { border-left-color: var(--success); }
+        .toast.toast-error { border-left-color: var(--danger); }
+        .toast.toast-warning { border-left-color: var(--warning); }
 
-        .toast.toast-error {
-            border-left-color: #ef4444;
-        }
-
-        .toast.toast-warning {
-            border-left-color: var(--accent-amber);
-        }
-
-        .toast i {
-            font-size: 1.25rem;
-        }
-
-        .toast-success i { color: var(--accent-green); }
-        .toast-error i { color: #ef4444; }
-        .toast-warning i { color: var(--accent-amber); }
+        .toast i { font-size: 1.35rem; }
+        .toast-success i { color: var(--success); }
+        .toast-error i { color: var(--danger); }
+        .toast-warning i { color: var(--warning); }
 
         .toast-hide {
-            animation: slideOutUp 0.35s forwards;
+            animation: slideOutRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Top-to-Bottom Animation Effects */
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-100%) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%) scale(0.9); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
         }
 
-        @keyframes slideOutUp {
-            from {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(-80%) scale(0.9);
-            }
+        @keyframes slideOutRight {
+            from { opacity: 1; transform: translateX(0) scale(1); }
+            to { opacity: 0; transform: translateX(100%) scale(0.9); }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+            body { padding: 12px; }
+            .header-block { padding: 16px 20px; }
+            .brand-title { font-size: 1.2rem; }
+            .card { padding: 20px; }
             #toastContainer {
                 right: 50%;
                 transform: translateX(50%);
@@ -495,13 +574,14 @@
 <body>
 
 <div class="container">
-    <!-- Header Block with Icon Buttons on Top Right -->
+    <!-- Header Block -->
     <div class="header-block">
         <div class="brand-title">
-            <i class="fa-solid fa-boxes-stacked"></i> RMC Daily Stock
+            <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+            RMC Daily Stock
         </div>
         <div class="icon-actions">
-            <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Records Summary">
+            <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Summary">
                 <i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i>
             </button>
             <button class="btn-icon-header" onclick="openSettings()" title="Settings & Backup">
@@ -512,63 +592,67 @@
 
     <!-- Main Data Entry Form Card -->
     <div class="card">
-        <!-- Material Search -->
-        <div class="form-group" style="margin-bottom: 16px;">
+        <!-- Search Material -->
+        <div class="form-group">
             <label><i class="fa-solid fa-magnifying-glass"></i> Search Material (Code / Name):</label>
-            <input type="text" id="searchInput" placeholder="Search Material Code or Name..." autocomplete="off">
+            <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off">
             <div id="searchResults" class="search-results" style="display:none;"></div>
         </div>
 
         <!-- Selected Item Badge -->
         <div id="selectedBadge" class="selected-badge">
-            <div><i class="fa-solid fa-circle-check"></i> <strong>Selected:</strong> <span id="dispCode"></span> - <span id="dispName"></span></div>
-            <div>UOM: <strong id="dispUom"></strong> | Op. Stock (E): <strong id="dispOp"></strong></div>
+            <div style="font-weight:700; margin-bottom: 4px;">
+                <i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> <span id="dispCode"></span> - <span id="dispName"></span>
+            </div>
+            <div style="font-size: 0.85rem; opacity: 0.9;">
+                UOM: <strong id="dispUom"></strong> &nbsp;|&nbsp; Op. Stock (E): <strong id="dispOp"></strong>
+            </div>
         </div>
 
-        <!-- Section Select & Amount Input Grid -->
+        <!-- Inputs Grid -->
         <div class="form-grid">
-            <div class="form-group">
-                <label><i class="fa-solid fa-filter"></i> Select Section:</label>
+            <div class="form-group" style="margin-bottom:0;">
+                <label><i class="fa-solid fa-layer-group"></i> Select Section:</label>
                 <select id="sectionSelect">
-                    <option value="F">F Section - Receipt (එකතු වේ [+])</option>
-                    <option value="G">G Section - Issues (අඩු වේ [-])</option>
-                    <option value="H">H Section - Return (එකතු වේ [+])</option>
+                    <option value="F">F Section - Receipt (+)</option>
+                    <option value="G">G Section - Issues (-)</option>
+                    <option value="H">H Section - Return (+)</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label><i class="fa-solid fa-arrow-up-9-5"></i> Enter Amount:</label>
+            <div class="form-group" style="margin-bottom:0;">
+                <label><i class="fa-solid fa-calculator"></i> Enter Amount:</label>
                 <input type="number" id="inputAmount" min="0" placeholder="0.00" inputmode="decimal">
             </div>
         </div>
 
-        <!-- Action Buttons -->
-        <button class="btn btn-primary" style="width: 100%; justify-content: center; height: 46px; margin-bottom: 10px;" onclick="addSingleSectionData()">
-            <i class="fa-solid fa-check-circle"></i> Submit Transaction
+        <!-- Buttons -->
+        <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px; margin-top: 10px;" onclick="addSingleSectionData()">
+            <i class="fa-solid fa-circle-plus"></i> Submit Transaction
         </button>
 
-        <button class="btn btn-success" style="width: 100%; justify-content: center; height: 46px;" onclick="downloadExcelAndReset()">
-            <i class="fa-solid fa-file-excel"></i> Download Excel & Reset
+        <button class="btn btn-success" style="width: 100%;" onclick="downloadExcelAndReset()">
+            <i class="fa-solid fa-file-excel"></i> Download Excel & Shift Stock
         </button>
     </div>
 
-    <!-- Bottom Footer Note -->
+    <!-- Footer -->
     <div class="footer-note">
-        Created BY Yomal Lakshan
+        Create BY <span>Yomal Lakshan</span>
     </div>
 </div>
 
-<!-- Animated Top Toast Messages Container -->
+<!-- Toast Notifications -->
 <div id="toastContainer"></div>
 
-<!-- POPUP MODAL 1: INVENTORY RECORDS SUMMARY -->
+<!-- MODAL 1: INVENTORY RECORDS SUMMARY -->
 <div id="recordsModal" class="modal">
     <div class="modal-content modal-content-large">
         <div class="modal-header">
-            <h3><i class="fa-solid fa-chart-pie" style="color:var(--accent-amber);"></i> Inventory Records Summary</h3>
+            <h3><i class="fa-solid fa-chart-pie" style="color:var(--warning);"></i> Inventory Records Summary</h3>
             <button class="close-btn" onclick="closeRecordsModal()">&times;</button>
         </div>
-        <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <input type="text" id="modalSearchInput" placeholder="Filter items..." style="max-width: 260px; padding: 8px 12px; font-size:0.88rem;">
+        <div style="margin-bottom: 14px;">
+            <input type="text" id="modalSearchInput" placeholder="Quick filter summary list..." style="padding: 10px 14px; font-size:0.88rem;">
         </div>
         <div class="table-responsive">
             <table>
@@ -583,40 +667,42 @@
                     </tr>
                 </thead>
                 <tbody id="summaryTableBody">
-                    <!-- Dynamic Data -->
+                    <!-- Dynamic Rows -->
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- POPUP MODAL 2: SETTINGS & RESTORE -->
+<!-- MODAL 2: SETTINGS & RESTORE -->
 <div id="settingsModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3><i class="fa-solid fa-sliders" style="color:var(--accent-blue);"></i> Settings & Data Restore</h3>
+            <h3><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Data Restore</h3>
             <button class="close-btn" onclick="closeSettings()">&times;</button>
         </div>
         
-        <!-- XLSX Restore -->
         <div class="setting-option">
-            <label><i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> Restore Excel (.xlsx) File:</label>
-            <p>පෙර Save කළ Excel File එකකින් දත්ත Restore කරන්න.</p>
-            <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 8px;">
-            <button class="btn btn-success" style="width:100%; justify-content:center; padding: 10px;" onclick="restoreFromXLSX()"><i class="fa-solid fa-file-import"></i> Restore Excel Data</button>
+            <label><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label>
+            <p>පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p>
+            <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 10px;">
+            <button class="btn btn-success" style="width:100%; padding: 12px;" onclick="restoreFromXLSX()">
+                <i class="fa-solid fa-upload"></i> Restore Excel Data
+            </button>
         </div>
 
-        <!-- XLSX Backup Export -->
         <div class="setting-option">
-            <label><i class="fa-solid fa-download"></i> Download Excel (.xlsx) Backup File:</label>
-            <p>දත්ත වල Backup එකක් Excel File එකක් ලෙස Download කරගන්න.</p>
-            <button class="btn" style="background:#475569; color:white; width:100%; justify-content:center; padding: 10px;" onclick="downloadXLSXBackup()"><i class="fa-solid fa-file-export"></i> Export Excel Backup</button>
+            <label><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label>
+            <p>වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p>
+            <button class="btn btn-secondary" style="width:100%; padding: 12px;" onclick="downloadXLSXBackup()">
+                <i class="fa-solid fa-download"></i> Download Backup File
+            </button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- Toast Notification Handler with Top Slide Animation ---
+    // --- Toast Notification Handler ---
     function showToast(message, type = 'success') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
@@ -629,7 +715,6 @@
         toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${message}</span>`;
         container.appendChild(toast);
 
-        // Auto dismiss after 3.5 seconds with Animation
         setTimeout(() => {
             toast.classList.add('toast-hide');
             toast.addEventListener('animationend', () => {
@@ -638,7 +723,7 @@
         }, 3500);
     }
 
-    // Initial Master Items
+    // Default Stock Items
     let defaultItems = [
         {"type":"RM","code":"11067431","name":"SALT - FLOW","uom":"KG","op_stock":11000},
         {"type":"RM","code":"11061702","name":"WHITE SUGAR","uom":"KG","op_stock":2500},
@@ -674,7 +759,7 @@
 
     let selectedIndex = -1;
 
-    // Search Logic
+    // Search Filtering
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     const selectedBadge = document.getElementById('selectedBadge');
@@ -698,7 +783,7 @@
                 const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name);
                 const div = document.createElement('div');
                 div.className = 'search-item';
-                div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.75rem;">${item.op_stock} ${item.uom}</span>`;
+                div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.78rem;">${item.op_stock} ${item.uom}</span>`;
                 div.onclick = () => selectItem(idx);
                 searchResults.appendChild(div);
             });
@@ -721,10 +806,10 @@
         selectedBadge.style.display = 'block';
     }
 
-    // Submit Transaction
+    // Submit Action
     function addSingleSectionData() {
         if (selectedIndex === -1) {
-            showToast('කරුණාකර Material Code එකක් හෝ Name එකක් Select කරන්න!', 'warning');
+            showToast('කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!', 'warning');
             return;
         }
 
@@ -732,7 +817,7 @@
         const amount = parseFloat(document.getElementById('inputAmount').value) || 0;
 
         if (amount <= 0) {
-            showToast('කරුණාකර වලංගු 0 ට වැඩි අගයක් ඇතුළත් කරන්න!', 'error');
+            showToast('කරුණාකර වලංගු 0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න!', 'error');
             return;
         }
 
@@ -746,25 +831,38 @@
             item.h_return += amount;
         }
 
-        // Calculate K = E + F - G + H
         item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return;
-
         document.getElementById('inputAmount').value = '';
 
-        showToast(`${item.name} හි ${targetSection} Section එකට ${amount} ක් එකතු විය!`, 'success');
+        showToast(`${item.name} වෙත ${targetSection} Section එකට ${amount} ක් එක් විය!`, 'success');
     }
 
-    // Modals
+    // Modal Control
     function openRecordsModal() {
         renderSummaryTable();
-        document.getElementById('recordsModal').style.display = 'flex';
+        const modal = document.getElementById('recordsModal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
     }
 
     function closeRecordsModal() {
-        document.getElementById('recordsModal').style.display = 'none';
+        const modal = document.getElementById('recordsModal');
+        modal.classList.remove('show');
+        setTimeout(() => modal.style.display = 'none', 300);
     }
 
-    // Renders Material Code, Material Name, Dynamic Receipt, Issues, Return, and Closing Stock (K)
+    function openSettings() {
+        const modal = document.getElementById('settingsModal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
+    }
+
+    function closeSettings() {
+        const modal = document.getElementById('settingsModal');
+        modal.classList.remove('show');
+        setTimeout(() => modal.style.display = 'none', 300);
+    }
+
     function renderSummaryTable() {
         const tbody = document.getElementById('summaryTableBody');
         tbody.innerHTML = '';
@@ -791,15 +889,7 @@
         });
     });
 
-    function openSettings() {
-        document.getElementById('settingsModal').style.display = 'flex';
-    }
-
-    function closeSettings() {
-        document.getElementById('settingsModal').style.display = 'none';
-    }
-
-    // Excel Download & Shift Logic
+    // Excel Actions
     function downloadExcelAndReset() {
         const exportData = inventory.map(item => ({
             "Type": item.type,
@@ -818,11 +908,9 @@
         XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data");
 
         const today = new Date().toISOString().split('T')[0];
-        const filename = `RMC_Daily_Stock_${today}.xlsx`;
+        XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`);
 
-        XLSX.writeFile(workbook, filename);
-
-        // Shift Closing Stock -> Opening Stock & Reset
+        // Reset
         inventory.forEach(item => {
             item.op_stock = item.closing;
             item.f_receipt = 0;
@@ -835,15 +923,14 @@
         searchInput.value = '';
         selectedBadge.style.display = 'none';
 
-        showToast(`Excel file එක Download වූ අතර දත්ත Reset විය!`, 'success');
+        showToast(`Excel ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!`, 'success');
     }
 
-    // Restore Excel (.xlsx)
     function restoreFromXLSX() {
         const fileInput = document.getElementById('xlsxFileInput');
         const file = fileInput.files[0];
         if (!file) {
-            showToast('කරුණාකර Excel File (.xlsx) එකක් තෝරන්න!', 'warning');
+            showToast('කරුණාකර Excel File එකක් තෝරන්න!', 'warning');
             return;
         }
 
@@ -855,26 +942,28 @@
                 const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                 const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
-                let restoredInventory = [];
+                let restored = [];
                 rawJson.forEach(row => {
-                    let code = row["Material Code"] || row["Code"] || row["code"] || "";
-                    let name = row["Material Name"] || row["Name"] || row["name"] || "";
+                    let code = row["Material Code"] || row["Code"] || "";
+                    let name = row["Material Name"] || row["Name"] || "";
                     if (code || name) {
-                        let type = row["Type"] || row["type"] || "RM";
-                        let uom = row["UOM"] || row["uom"] || "KG";
-                        let op_stock = parseFloat(row["Op.Stock-Warehouse"] || row["Op.Stock"] || row["op_stock"]) || 0;
+                        let op_stock = parseFloat(row["Op.Stock-Warehouse"] || row["op_stock"]) || 0;
                         let f_receipt = parseFloat(row["Receipt"] || row["f_receipt"]) || 0;
                         let g_issues = parseFloat(row["Issues"] || row["g_issues"]) || 0;
                         let h_return = parseFloat(row["Return"] || row["h_return"]) || 0;
-                        let closing = row["Closing Stock"] !== undefined && row["Closing Stock"] !== "" 
-                                      ? parseFloat(row["Closing Stock"]) 
-                                      : (op_stock + f_receipt - g_issues + h_return);
+                        let closing = row["Closing Stock"] !== undefined ? parseFloat(row["Closing Stock"]) : (op_stock + f_receipt - g_issues + h_return);
 
-                        restoredInventory.push({ type: String(type), code: String(code), name: String(name), uom: String(uom), op_stock, f_receipt, g_issues, h_return, closing });
+                        restored.push({
+                            type: String(row["Type"] || "RM"),
+                            code: String(code),
+                            name: String(name),
+                            uom: String(row["UOM"] || "KG"),
+                            op_stock, f_receipt, g_issues, h_return, closing
+                        });
                     }
                 });
 
-                inventory = restoredInventory;
+                inventory = restored;
                 closeSettings();
                 showToast(`Excel Restore සාර්ථකයි! Items ${inventory.length} ක් එක් විය.`, 'success');
             } catch (err) {
@@ -884,7 +973,6 @@
         reader.readAsArrayBuffer(file);
     }
 
-    // Excel Backup Export (Without Resetting Stocks)
     function downloadXLSXBackup() {
         const exportData = inventory.map(item => ({
             "Type": item.type,
@@ -903,10 +991,8 @@
         XLSX.utils.book_append_sheet(workbook, worksheet, "Backup_Data");
 
         const today = new Date().toISOString().split('T')[0];
-        const filename = `RMC_Stock_Backup_${today}.xlsx`;
-
-        XLSX.writeFile(workbook, filename);
-        showToast('Backup Excel ගොනුව Download විය!', 'success');
+        XLSX.writeFile(workbook, `RMC_Stock_Backup_${today}.xlsx`);
+        showToast('Backup Excel ගොනුව බාගත විය!', 'success');
     }
 </script>
 
