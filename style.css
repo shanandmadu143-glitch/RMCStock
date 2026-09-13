@@ -99,9 +99,11 @@ body {
   display: flex; 
   align-items: center; 
   gap: 14px; 
+  font-size: 1.45rem; 
+  font-weight: 800; 
+  letter-spacing: -0.5px; 
 } 
 
-/* නවීන 2026 Stock Counting Name Badge / Logo Style එක */
 .brand-name-wrapper {
   display: flex;
   flex-direction: column;
@@ -112,7 +114,6 @@ body {
   font-size: 1.4rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  color: #ffffff;
 }
 
 .sub-badge-counting {
