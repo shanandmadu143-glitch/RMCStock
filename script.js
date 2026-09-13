@@ -189,12 +189,12 @@ function showToast(message, type = 'success') {
   let iconClass = 'fa-circle-check'; 
   if (type === 'error') iconClass = 'fa-circle-xmark'; 
   if (type === 'warning') iconClass = 'fa-triangle-exclamation'; 
-  toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${message}</span>`; 
+  toast.innerHTML = `<i class="fa-solid ${iconClass}" style="font-size: 1.2rem;"></i> <span>${message}</span>`; 
   container.appendChild(toast); 
   setTimeout(() => { 
     toast.style.opacity = '0';
-    toast.style.transform = 'translateX(100%)';
-    setTimeout(() => toast.remove(), 300);
+    toast.style.transform = 'translateX(100%) scale(0.9)';
+    setTimeout(() => toast.remove(), 350);
   }, 3200); 
 } 
 
@@ -226,7 +226,6 @@ const defaultItems = [
 let inventory = []; 
 let selectedIndex = -1;
 
-// දශම සංඛ්‍යා ගැටලු (Floating Point Precision) නිවැරදි කිරීමට round කිරීම
 function roundNum(val) {
   return Math.round((Number(val) + Number.EPSILON) * 1000) / 1000;
 }
@@ -316,7 +315,7 @@ if (searchInput) {
           const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name); 
           const div = document.createElement('div'); 
           div.className = 'search-item'; 
-          div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.78rem;">${Number(item.closing).toLocaleString()} ${item.uom}</span>`; 
+          div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--primary); font-weight:700; font-size:0.82rem;">${Number(item.closing).toLocaleString()} ${item.uom}</span>`; 
           div.onclick = () => selectItem(idx); 
           fragment.appendChild(div); 
         }); 
@@ -363,7 +362,6 @@ function addSingleSectionData() {
   const targetSection = sectionSelect.value; 
   const amount = parseFloat(inputAmount.value) || 0; 
   
-  // ඍණ අගයන් (Negative numbers) වැළැක්වීමේ දැඩි පාලනය
   if (amount <= 0 || isNaN(amount)) { 
     showToast(t.msgValidAmount, 'error'); 
     return; 
@@ -588,7 +586,6 @@ async function shareStockSummary() {
   }
 }
 
-// වඩාත් නිවැරදිව Excel Column Mapping සහ Data Restore කිරීම සඳහා යාවත්කාලීන කළ කොටස
 function restoreFromXLSX() { 
   const t = i18n[currentLang] || i18n['si'];
   const fileInput = document.getElementById('xlsxFileInput'); 
