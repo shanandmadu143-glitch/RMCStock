@@ -1,4 +1,4 @@
-ල්const i18n = {
+const i18n = {
   si: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Code හෝ Name මගින් සොයන්න:',
     placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...',
