@@ -222,6 +222,19 @@ function loadInventoryData() {
   if (savedData) { 
     try { 
       inventory = JSON.parse(savedData); 
+      // Ensure all items have calculated closing stock accurately based on fields
+      inventory.forEach(item => {
+        item.f_receipt = Number(item.f_receipt) || 0;
+        item.g_issues = Number(item.g_issues) || 0;
+        item.h_return = Number(item.h_return) || 0;
+        item.i_ssl_received = Number(item.i_ssl_received) || 0;
+        item.j_ssl_sent = Number(item.j_ssl_sent) || 0;
+        item.l_rejection = Number(item.l_rejection) || 0;
+        item.op_stock = Number(item.op_stock) || 0;
+        
+        // නිවැරදි සූත්‍රය මගින් Closing Stock යළි ගණනය කිරීම
+        item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return + item.i_ssl_received - item.j_ssl_sent - item.l_rejection;
+      });
     } catch(e) { 
       initDefaultInventory(); 
     } 
@@ -321,8 +334,9 @@ function addSingleSectionData() {
   else if (targetSection === 'J') item.j_ssl_sent += amount; 
   else if (targetSection === 'L') item.l_rejection += amount; 
 
-  // නිවැරදි කරන ලද Closing Stock සූත්‍රය (Opening + Receipt - Issues + Return + Received(SSL) - Sent(SSL) - Rejection)
-  item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return + item.i_ssl_received - item.j_ssl_sent - item.l_rejection; 
+  // නිවැරදි කරන ලද Closing Stock සමීකරණය
+  item.closing = Number(item.op_stock) + Number(item.f_receipt) - Number(item.g_issues) + Number(item.h_return) + Number(item.i_ssl_received) - Number(item.j_ssl_sent) - Number(item.l_rejection); 
+  
   saveInventoryData(); 
   document.getElementById('inputAmount').value = ''; 
   showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
@@ -471,7 +485,7 @@ function downloadExcelAndReset() {
   const today = new Date().toISOString().split('T')[0]; 
   XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
 
-  // Stock Shift: Closing Stock එක අලුත් Opening Stock එක බවට පත් කිරීම
+  // Stock Shift: Closing Stock එක ඊළඟ දවසට Opening Stock එක බවට පත් කිරීම
   inventory.forEach(item => { 
     item.op_stock = item.closing; 
     item.f_receipt = 0; 
@@ -589,10 +603,8 @@ function restoreFromXLSX() {
           let j_ssl_sent = parseFloat(row[colMap.j_ssl_sent]) || 0; 
           let l_rejection = parseFloat(row[colMap.l_rejection]) || 0; 
           
-          let closingVal = row[colMap.closing]; 
-          let closing = (closingVal !== undefined && closingVal !== "" && !isNaN(closingVal)) 
-            ? parseFloat(closingVal) 
-            : (op_stock + f_receipt - g_issues + h_return + i_ssl_received - j_ssl_sent - l_rejection); 
+          // Restore කිරීමේදී Closing අගය හෝ නිවැරදි සූත්‍රය ලබාදීම
+          let closing = op_stock + f_receipt - g_issues + h_return + i_ssl_received - j_ssl_sent - l_rejection; 
             
           restored.push({ 
             type, 
@@ -652,4 +664,3 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(currentTheme);
   applyLanguage(currentLang);
 });
-
