@@ -35,7 +35,7 @@ const i18n = {
     msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
     msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
     msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
-    shareTitle: 'RMC Daily Stock Summary',
+    shareTitle: 'Stock Counting Summary',
     shareSuccess: 'Excel ගොනුව Share කිරීමට සූදානම්!',
     shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි.'
   },
@@ -75,7 +75,7 @@ const i18n = {
     msgRestoreSelect: 'Please select an Excel file!',
     msgRestoreSuccess: 'Excel Restore Successful!',
     msgResetConfirm: 'Are you sure you want to reset to default data?',
-    shareTitle: 'RMC Daily Stock Summary',
+    shareTitle: 'Stock Counting Summary',
     shareSuccess: 'Excel file ready to share!',
     shareNotSupported: 'Your browser does not support file sharing.'
   },
@@ -115,7 +115,7 @@ const i18n = {
     msgRestoreSelect: 'தயவுசெய்து எக்செல் கோப்பைத் தேர்ந்தெடுக்கவும்!',
     msgRestoreSuccess: 'எக்செல் மீட்டமைப்பு வெற்றிகரமாக முடிந்தது!',
     msgResetConfirm: 'ஆரம்ப தரவுக்கு மீட்டமைக்க நிச்சயமாக விரும்புகிறீர்களா?',
-    shareTitle: 'RMC Daily Stock Summary',
+    shareTitle: 'Stock Counting Summary',
     shareSuccess: 'பகிர எக்செல் கோப்பு தயாராக உள்ளது!',
     shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.'
   }
@@ -226,7 +226,6 @@ const defaultItems = [
 let inventory = []; 
 let selectedIndex = -1;
 
-// මධ්‍යගත Closing Stock සමීකරණය: Op + Receipt - Issues + Return + SSL Rec - SSL Sent - Rejection
 function calculateClosingStock(item) {
   const op = Number(item.op_stock) || 0;
   const receipt = Number(item.f_receipt) || 0;
@@ -341,8 +340,17 @@ function selectItem(index) {
   const dispName = document.getElementById('dispName'); if(dispName) dispName.innerText = item.name; 
   const dispUom = document.getElementById('dispUom'); if(dispUom) dispUom.innerText = item.uom; 
   const dispOp = document.getElementById('dispOp'); if(dispOp) dispOp.innerText = Number(item.op_stock).toLocaleString(); 
-  if(selectedBadge) selectedBadge.style.display = 'block'; 
+  if(selectedBadge) {
+    selectedBadge.style.display = 'flex';
+    selectedbadgeAnimation();
+  }
 } 
+
+function selectedbadgeAnimation() {
+  selectedBadge.classList.remove('animate-pop');
+  void selectedBadge.offsetWidth;
+  selectedBadge.classList.add('animate-pop');
+}
 
 function addSingleSectionData() { 
   const t = i18n[currentLang] || i18n['si'];
@@ -535,7 +543,7 @@ function downloadExcelAndReset() {
   const t = i18n[currentLang] || i18n['si'];
   const workbook = generateWorkbookWithFormulas();
   const today = new Date().toISOString().split('T')[0]; 
-  XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
+  XLSX.writeFile(workbook, `Stock_Counting_${today}.xlsx`); 
 
   inventory.forEach(item => { 
     item.op_stock = Number(item.closing) || 0; 
@@ -561,14 +569,14 @@ async function shareStockSummary() {
   const workbook = generateWorkbookWithFormulas();
   
   const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', cellFormula: true });
-  const fileName = `RMC_Daily_Stock_${today}.xlsx`;
+  const fileName = `Stock_Counting_${today}.xlsx`;
   const file = new File([excelBuffer], fileName, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({
         title: t.shareTitle,
-        text: `RMC Daily Stock Report - ${today}`,
+        text: `Stock Counting Report - ${today}`,
         files: [file]
       });
       showToast(t.shareSuccess, 'success');
@@ -583,7 +591,6 @@ async function shareStockSummary() {
   }
 }
 
-// Excel Restore කිරීමේදී Receipt, Issues, Return, SSL සහ Rejection යන අංශ 0 කර දත්ත ලබා ගැනීම
 function restoreFromXLSX() { 
   const t = i18n[currentLang] || i18n['si'];
   const fileInput = document.getElementById('xlsxFileInput'); 
@@ -646,34 +653,20 @@ function restoreFromXLSX() {
           let type = row[colMap.type] !== undefined && row[colMap.type] !== "" ? String(row[colMap.type]).trim() : "RM"; 
           let uom = row[colMap.uom] !== undefined && row[colMap.uom] !== "" ? String(row[colMap.uom]).trim() : "KG"; 
           
-          // Excel ගොනුවෙන් ලබා ගන්නා අගය Opening Stock ලෙස සටහන් වේ
           let op_stock = parseFloat(row[colMap.op_stock]) || 0; 
-          
-          // ඉල්ලුම් කළ පරිදි සියලුම අංශ (Sections) 0 (Zero) ලෙස සකස් කෙරේ
           let f_receipt = 0; 
           let g_issues = 0; 
           let h_return = 0; 
           let i_ssl_received = 0; 
           let j_ssl_sent = 0; 
           let l_rejection = 0; 
-          
-          // Closing Stock එක යනු මෙහිදී අලුත් Opening Stock එකම වේ
           let closing = op_stock; 
             
           restored.push({ 
-            type, 
-            code, 
-            name, 
-            uom, 
-            op_stock, 
-            f_receipt, 
-            g_issues, 
-            h_return, 
-            i_ssl_received, 
-            j_ssl_sent, 
-            l_rejection, 
-            closing, 
-            checked: false 
+            type, code, name, uom, op_stock, 
+            f_receipt, g_issues, h_return, 
+            i_ssl_received, j_ssl_sent, l_rejection, 
+            closing, checked: false 
           }); 
         } 
       } 
@@ -708,11 +701,10 @@ function resetToDefault() {
 function downloadXLSXBackup() { 
   const workbook = generateWorkbookWithFormulas();
   const today = new Date().toISOString().split('T')[0]; 
-  XLSX.writeFile(workbook, `RMC_Stock_Backup_${today}.xlsx`); 
+  XLSX.writeFile(workbook, `Stock_Backup_${today}.xlsx`); 
   showToast('Backup File Downloaded!', 'success'); 
 }
 
-// Global Initialization
 document.addEventListener('DOMContentLoaded', () => {
   loadInventoryData();
   applyTheme(currentTheme);
