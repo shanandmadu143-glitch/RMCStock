@@ -379,9 +379,10 @@ input:focus, select:focus {
 }
 
 .btn-icon-today:hover, .btn-icon-today.active {
-  background: var(--primary-light);
-  color: var(--primary);
-  border-color: var(--primary);
+  background: var(--primary-light) !important;
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
 .ripple {
@@ -674,4 +675,3 @@ input:focus, select:focus {
   .header-block { padding: 18px 20px; }
   .card { padding: 22px; }
 }
-
