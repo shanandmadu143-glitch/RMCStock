@@ -287,18 +287,34 @@ function saveInventoryData() {
 } 
 
 const searchInput = document.getElementById('searchInput'); 
+const clearSearchBtn = document.getElementById('clearSearchBtn');
 const searchResults = document.getElementById('searchResults'); 
 const selectedBadge = document.getElementById('selectedBadge'); 
 const footerNote = document.getElementById('lblFooter');
-const btnClearSearch = document.getElementById('btnClearSearch');
 
 function updateVisibilityState(isTypingOrSelected) {
   if (footerNote) {
     footerNote.style.display = isTypingOrSelected ? 'none' : 'block';
   }
-  if (btnClearSearch) {
-    btnClearSearch.style.display = isTypingOrSelected ? 'flex' : 'none';
+}
+
+function updateClearBtnVisibility() {
+  if (!clearSearchBtn || !searchInput) return;
+  if (searchInput.value.trim() !== '' || selectedIndex !== -1) {
+    clearSearchBtn.style.display = 'flex';
+  } else {
+    clearSearchBtn.style.display = 'none';
   }
+}
+
+function clearSearchInput() {
+  if (searchInput) searchInput.value = '';
+  selectedIndex = -1;
+  if (selectedBadge) selectedBadge.style.display = 'none';
+  if (searchResults) searchResults.style.display = 'none';
+  updateVisibilityState(false);
+  updateClearBtnVisibility();
+  if (searchInput) searchInput.focus();
 }
 
 let searchDebounceTimeout = null;
@@ -307,6 +323,8 @@ if (searchInput) {
     clearTimeout(searchDebounceTimeout);
     const query = this.value.toLowerCase().trim(); 
     
+    updateClearBtnVisibility();
+
     if (query === '') {
       selectedIndex = -1;
       if (selectedBadge) selectedBadge.style.display = 'none';
@@ -346,20 +364,8 @@ if (searchInput) {
   }); 
 }
 
-// Clear search input function
-function clearSearchInput() {
-  if (searchInput) {
-    searchInput.value = '';
-    searchInput.focus();
-  }
-  selectedIndex = -1;
-  if (searchResults) searchResults.style.display = 'none';
-  if (selectedBadge) selectedBadge.style.display = 'none';
-  updateVisibilityState(false);
-}
-
 document.addEventListener('click', function(e) {
-  if (searchInput && searchResults && !searchInput.contains(e.target) && !searchResults.contains(e.target) && (!btnClearSearch || !btnClearSearch.contains(e.target))) {
+  if (searchInput && searchResults && !searchInput.contains(e.target) && !searchResults.contains(e.target) && clearSearchBtn && !clearSearchBtn.contains(e.target)) {
     searchResults.style.display = 'none';
   }
 });
@@ -380,6 +386,7 @@ function selectItem(index) {
   
   if(selectedBadge) selectedBadge.style.display = 'block'; 
   updateVisibilityState(true);
+  updateClearBtnVisibility();
 } 
 
 function addSingleSectionData() { 
@@ -635,10 +642,7 @@ function downloadExcelAndReset() {
     item.checked = false;
   }); 
   saveInventoryData(); 
-  selectedIndex = -1; 
-  if (searchInput) searchInput.value = ''; 
-  if (selectedBadge) selectedBadge.style.display = 'none'; 
-  updateVisibilityState(false);
+  clearSearchInput();
   showToast(t.msgExcelShift, 'success'); 
 } 
 
@@ -775,6 +779,7 @@ function resetToDefault() {
   if (confirm(t.msgResetConfirm)) { 
     localStorage.removeItem('rmc_stock_inventory'); 
     initDefaultInventory(); 
+    clearSearchInput();
     closeSettings(); 
     showToast("Reset Successful!", "success"); 
   } 
@@ -817,5 +822,5 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(currentTheme);
   applyLanguage(currentLang);
   updateVisibilityState(false);
+  updateClearBtnVisibility();
 });
-
