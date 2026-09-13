@@ -124,6 +124,35 @@ const i18n = {
 let currentLang = localStorage.getItem('rmc_app_lang') || 'si';
 let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
 let isTodayOnlyFilter = false;
+let inventory = []; 
+let selectedIndex = -1;
+let searchDebounceTimeout = null;
+let modalSearchTimeout = null;
+
+const defaultItems = [ 
+  {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000}, 
+  {type: "RM", code: "11061702", name: "WHITE SUGAR", uom: "KG", op_stock: 2500}, 
+  {type: "RM", code: "11002301", name: "MONOSODIUM GLUTAMATE", uom: "KG", op_stock: 4525}, 
+  {type: "RM", code: "67548375", name: "ONION POWDER", uom: "KG", op_stock: 120}, 
+  {type: "RM", code: "11067473", name: "CITRIC ACID MONOHYDRATE (FOOD GRADE)", uom: "KG", op_stock: 50}, 
+  {type: "RM", code: "11002242", name: "SPICE CELERY POWDER", uom: "KG", op_stock: 25}, 
+  {type: "RM", code: "67550393", name: "GARLIC POWDER", uom: "KG", op_stock: 25}, 
+  {type: "RM", code: "67548417", name: "WHITE PEPPER", uom: "KG", op_stock: 15}, 
+  {type: "RM", code: "11002253", name: "SPICE TURMERIC POWDER", uom: "KG", op_stock: 4}, 
+  {type: "RM", code: "11061729", name: "I+G SODIUM 5'RIBONUCLEOTID", uom: "KG", op_stock: 40}, 
+  {type: "RM", code: "11827361", name: "DRIED CORN STARCH 5% MOISTURE-SSL", uom: "KG", op_stock: 6000}, 
+  {type: "RM", code: "11061758", name: "CORN STARCH - IMPORT", uom: "KG", op_stock: 0}, 
+  {type: "RM", code: "11067112", name: "YEAST EXTR. MICROGRANUL. STANDARD 18% SA", uom: "KG", op_stock: 400}, 
+  {type: "RM", code: "11067118", name: "FLAVOUR CHICKEN POWDER (S-2182)", uom: "KG", op_stock: 25}, 
+  {type: "RM", code: "11061730", name: "CARAMEL COLOUR CLASS III (E150C)", uom: "KG", op_stock: 20}, 
+  {type: "RM", code: "11067140", name: "MALTO DEXTRIN 18-20 (M20)", uom: "KG", op_stock: 500}, 
+  {type: "RM", code: "11002220", name: "SPICE NUTMEG POWDER", uom: "KG", op_stock: 10}, 
+  {type: "RM", code: "11002206", name: "SPICE BLACK PEPPER POWDER", uom: "KG", op_stock: 150}, 
+  {type: "RM", code: "11002213", name: "SPICE CORIANDER POWDER", uom: "KG", op_stock: 0}, 
+  {type: "RM", code: "11002214", name: "SPICE CUMIN POWDER", uom: "KG", op_stock: 100}, 
+  {type: "RM", code: "11002211", name: "SPICE CLOVE POWDER", uom: "KG", op_stock: 10}, 
+  {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2} 
+]; 
 
 function applyTheme(theme) {
   currentTheme = theme;
@@ -200,34 +229,6 @@ function showToast(message, type = 'success') {
   }, 2500); 
 } 
 
-const defaultItems = [ 
-  {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000}, 
-  {type: "RM", code: "11061702", name: "WHITE SUGAR", uom: "KG", op_stock: 2500}, 
-  {type: "RM", code: "11002301", name: "MONOSODIUM GLUTAMATE", uom: "KG", op_stock: 4525}, 
-  {type: "RM", code: "67548375", name: "ONION POWDER", uom: "KG", op_stock: 120}, 
-  {type: "RM", code: "11067473", name: "CITRIC ACID MONOHYDRATE (FOOD GRADE)", uom: "KG", op_stock: 50}, 
-  {type: "RM", code: "11002242", name: "SPICE CELERY POWDER", uom: "KG", op_stock: 25}, 
-  {type: "RM", code: "67550393", name: "GARLIC POWDER", uom: "KG", op_stock: 25}, 
-  {type: "RM", code: "67548417", name: "WHITE PEPPER", uom: "KG", op_stock: 15}, 
-  {type: "RM", code: "11002253", name: "SPICE TURMERIC POWDER", uom: "KG", op_stock: 4}, 
-  {type: "RM", code: "11061729", name: "I+G SODIUM 5'RIBONUCLEOTID", uom: "KG", op_stock: 40}, 
-  {type: "RM", code: "11827361", name: "DRIED CORN STARCH 5% MOISTURE-SSL", uom: "KG", op_stock: 6000}, 
-  {type: "RM", code: "11061758", name: "CORN STARCH - IMPORT", uom: "KG", op_stock: 0}, 
-  {type: "RM", code: "11067112", name: "YEAST EXTR. MICROGRANUL. STANDARD 18% SA", uom: "KG", op_stock: 400}, 
-  {type: "RM", code: "11067118", name: "FLAVOUR CHICKEN POWDER (S-2182)", uom: "KG", op_stock: 25}, 
-  {type: "RM", code: "11061730", name: "CARAMEL COLOUR CLASS III (E150C)", uom: "KG", op_stock: 20}, 
-  {type: "RM", code: "11067140", name: "MALTO DEXTRIN 18-20 (M20)", uom: "KG", op_stock: 500}, 
-  {type: "RM", code: "11002220", name: "SPICE NUTMEG POWDER", uom: "KG", op_stock: 10}, 
-  {type: "RM", code: "11002206", name: "SPICE BLACK PEPPER POWDER", uom: "KG", op_stock: 150}, 
-  {type: "RM", code: "11002213", name: "SPICE CORIANDER POWDER", uom: "KG", op_stock: 0}, 
-  {type: "RM", code: "11002214", name: "SPICE CUMIN POWDER", uom: "KG", op_stock: 100}, 
-  {type: "RM", code: "11002211", name: "SPICE CLOVE POWDER", uom: "KG", op_stock: 10}, 
-  {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2} 
-]; 
-
-let inventory = []; 
-let selectedIndex = -1;
-
 function getTodayStr() {
   const d = new Date();
   const year = d.getFullYear();
@@ -296,19 +297,16 @@ function saveInventoryData() {
   localStorage.setItem('rmc_stock_inventory', JSON.stringify(inventory)); 
 } 
 
-const searchInput = document.getElementById('searchInput'); 
-const clearSearchBtn = document.getElementById('clearSearchBtn');
-const searchResults = document.getElementById('searchResults'); 
-const selectedBadge = document.getElementById('selectedBadge'); 
-const footerNote = document.getElementById('lblFooter');
-
 function updateVisibilityState(isTypingOrSelected) {
+  const footerNote = document.getElementById('lblFooter');
   if (footerNote) {
     footerNote.style.display = isTypingOrSelected ? 'none' : 'block';
   }
 }
 
 function updateClearBtnVisibility() {
+  const searchInput = document.getElementById('searchInput');
+  const clearSearchBtn = document.getElementById('clearSearchBtn');
   if (!clearSearchBtn || !searchInput) return;
   if (searchInput.value.trim() !== '' || selectedIndex !== -1) {
     clearSearchBtn.style.display = 'flex';
@@ -318,6 +316,10 @@ function updateClearBtnVisibility() {
 }
 
 function clearSearchInput() {
+  const searchInput = document.getElementById('searchInput');
+  const selectedBadge = document.getElementById('selectedBadge');
+  const searchResults = document.getElementById('searchResults');
+  
   if (searchInput) searchInput.value = '';
   selectedIndex = -1;
   if (selectedBadge) selectedBadge.style.display = 'none';
@@ -327,63 +329,15 @@ function clearSearchInput() {
   if (searchInput) searchInput.focus();
 }
 
-let searchDebounceTimeout = null;
-if (searchInput) {
-  searchInput.addEventListener('input', function() { 
-    clearTimeout(searchDebounceTimeout);
-    const query = this.value.toLowerCase().trim(); 
-    
-    updateClearBtnVisibility();
-
-    if (query === '') {
-      selectedIndex = -1;
-      if (selectedBadge) selectedBadge.style.display = 'none';
-      updateVisibilityState(false);
-    } else {
-      updateVisibilityState(true);
-    }
-
-    searchDebounceTimeout = setTimeout(() => {
-      if (!searchResults) return;
-      searchResults.innerHTML = ''; 
-      if (!query) { 
-        searchResults.style.display = 'none'; 
-        return; 
-      } 
-      
-      const filtered = inventory.filter(item => 
-        String(item.code).toLowerCase().includes(query) || String(item.name).toLowerCase().includes(query) 
-      ); 
-      
-      if (filtered.length > 0) { 
-        searchResults.style.display = 'block'; 
-        const fragment = document.createDocumentFragment();
-        filtered.forEach(item => { 
-          const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name); 
-          const div = document.createElement('div'); 
-          div.className = 'search-item'; 
-          div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--primary); font-weight:700; font-size:0.82rem;">${Number(item.closing).toLocaleString()} ${item.uom}</span>`; 
-          div.onclick = () => selectItem(idx); 
-          fragment.appendChild(div); 
-        }); 
-        searchResults.appendChild(fragment);
-      } else { 
-        searchResults.style.display = 'none'; 
-      } 
-    }, 100);
-  }); 
-}
-
-document.addEventListener('click', function(e) {
-  if (searchInput && searchResults && !searchInput.contains(e.target) && !searchResults.contains(e.target) && clearSearchBtn && !clearSearchBtn.contains(e.target)) {
-    searchResults.style.display = 'none';
-  }
-});
-
 function selectItem(index) { 
   selectedIndex = index; 
   const item = inventory[index]; 
   if (!item) return;
+  
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
+  const selectedBadge = document.getElementById('selectedBadge');
+
   if (searchInput) searchInput.value = `${item.code} - ${item.name}`; 
   if (searchResults) searchResults.style.display = 'none'; 
   
@@ -586,8 +540,6 @@ function filterChecklist() {
     if (!item) return;
 
     const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(q);
-    
-    // Check if the item had any transactions/changes today or last_updated matches today
     const hasTodayActivity = (item.last_updated === todayStr) || 
                              (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0);
                              
@@ -627,8 +579,6 @@ function closeItemDetailModal() {
   hideModal('itemDetailModal');
 }
 
-let modalSearchTimeout = null;
-
 function generateWorkbookWithFormulas() {
   const exportData = inventory.map((item, index) => {
     const rowNum = index + 2; 
@@ -654,14 +604,12 @@ function generateWorkbookWithFormulas() {
   return workbook;
 }
 
-// Location picker & Custom Name feature added here
 async function downloadExcelAndReset() { 
   const t = i18n[currentLang] || i18n['si'];
   const workbook = generateWorkbookWithFormulas();
   const today = getTodayStr(); 
   const defaultFileName = `Stock_Counting_${today}.xlsx`;
 
-  // Modern browsers (Chrome, Edge, Opera) - Save File Picker API
   if (window.showSaveFilePicker) {
     try {
       const handle = await window.showSaveFilePicker({
@@ -680,13 +628,12 @@ async function downloadExcelAndReset() {
       resetStockAndComplete(t);
       return;
     } catch (err) {
-      if (err.name === 'AbortError') return; // User cancelled prompt
+      if (err.name === 'AbortError') return; 
     }
   }
 
-  // Fallback for browsers that don't support showSaveFilePicker (Mobile, Firefox, etc.)
   const userFileName = prompt("File Name එක ඇතුළත් කරන්න:", defaultFileName);
-  if (userFileName === null) return; // User clicked Cancel
+  if (userFileName === null) return; 
 
   const finalFileName = userFileName.trim() ? 
     (userFileName.endsWith('.xlsx') ? userFileName : userFileName + '.xlsx') : 
@@ -922,6 +869,63 @@ document.addEventListener('DOMContentLoaded', () => {
   applyLanguage(currentLang);
   updateVisibilityState(false);
   updateClearBtnVisibility();
+
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
+  const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() { 
+      clearTimeout(searchDebounceTimeout);
+      const query = this.value.toLowerCase().trim(); 
+      
+      updateClearBtnVisibility();
+
+      if (query === '') {
+        selectedIndex = -1;
+        const selectedBadge = document.getElementById('selectedBadge');
+        if (selectedBadge) selectedBadge.style.display = 'none';
+        updateVisibilityState(false);
+      } else {
+        updateVisibilityState(true);
+      }
+
+      searchDebounceTimeout = setTimeout(() => {
+        if (!searchResults) return;
+        searchResults.innerHTML = ''; 
+        if (!query) { 
+          searchResults.style.display = 'none'; 
+          return; 
+        } 
+        
+        const filtered = inventory.filter(item => 
+          String(item.code).toLowerCase().includes(query) || String(item.name).toLowerCase().includes(query) 
+        ); 
+        
+        if (filtered.length > 0) { 
+          searchResults.style.display = 'block'; 
+          const fragment = document.createDocumentFragment();
+          filtered.forEach(item => { 
+            const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name); 
+            const div = document.createElement('div'); 
+            div.className = 'search-item'; 
+            div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--primary); font-weight:700; font-size:0.82rem;">${Number(item.closing).toLocaleString()} ${item.uom}</span>`; 
+            div.onclick = () => selectItem(idx); 
+            fragment.appendChild(div); 
+          }); 
+          searchResults.appendChild(fragment);
+        } else { 
+          searchResults.style.display = 'none'; 
+        } 
+      }, 100);
+    }); 
+  }
+
+  document.addEventListener('click', function(e) {
+    if (searchInput && searchResults && !searchInput.contains(e.target) && !searchResults.contains(e.target) && clearSearchBtn && !clearSearchBtn.contains(e.target)) {
+      searchResults.style.display = 'none';
+    }
+  });
 
   const modalSearch = document.getElementById('modalSearchInput');
   if (modalSearch) {
