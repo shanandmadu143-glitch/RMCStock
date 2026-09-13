@@ -290,10 +290,14 @@ const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults'); 
 const selectedBadge = document.getElementById('selectedBadge'); 
 const footerNote = document.getElementById('lblFooter');
+const btnClearSearch = document.getElementById('btnClearSearch');
 
 function updateVisibilityState(isTypingOrSelected) {
   if (footerNote) {
     footerNote.style.display = isTypingOrSelected ? 'none' : 'block';
+  }
+  if (btnClearSearch) {
+    btnClearSearch.style.display = isTypingOrSelected ? 'flex' : 'none';
   }
 }
 
@@ -342,8 +346,20 @@ if (searchInput) {
   }); 
 }
 
+// Clear search input function
+function clearSearchInput() {
+  if (searchInput) {
+    searchInput.value = '';
+    searchInput.focus();
+  }
+  selectedIndex = -1;
+  if (searchResults) searchResults.style.display = 'none';
+  if (selectedBadge) selectedBadge.style.display = 'none';
+  updateVisibilityState(false);
+}
+
 document.addEventListener('click', function(e) {
-  if (searchInput && searchResults && !searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+  if (searchInput && searchResults && !searchInput.contains(e.target) && !searchResults.contains(e.target) && (!btnClearSearch || !btnClearSearch.contains(e.target))) {
     searchResults.style.display = 'none';
   }
 });
@@ -355,7 +371,6 @@ function selectItem(index) {
   if (searchInput) searchInput.value = `${item.code} - ${item.name}`; 
   if (searchResults) searchResults.style.display = 'none'; 
   
-  // Live Closing stock එක යාවත්කාලීන කිරීම
   item.closing = calculateClosingStock(item);
 
   const dispCode = document.getElementById('dispCode'); if(dispCode) dispCode.innerText = item.code; 
@@ -398,7 +413,6 @@ function addSingleSectionData() {
 
   item.closing = calculateClosingStock(item); 
   
-  // Save වූ වහාම selectedBadge එකේ Live closing stock අගය අලුත් කිරීම
   const dispClosing = document.getElementById('dispClosing');
   if (dispClosing) {
     dispClosing.innerText = Number(item.closing).toLocaleString() + ' ' + item.uom;
@@ -491,7 +505,6 @@ function renderChecklist() {
   const fragment = document.createDocumentFragment();
 
   inventory.forEach((item, idx) => { 
-    // සෑම විටම Live Closing Stock එක ගණනය කර පෙන්වීම
     item.closing = calculateClosingStock(item);
 
     const itemDiv = document.createElement('div'); 
