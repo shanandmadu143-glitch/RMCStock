@@ -654,12 +654,49 @@ function generateWorkbookWithFormulas() {
   return workbook;
 }
 
-function downloadExcelAndReset() { 
+// Location picker & Custom Name feature added here
+async function downloadExcelAndReset() { 
   const t = i18n[currentLang] || i18n['si'];
   const workbook = generateWorkbookWithFormulas();
   const today = getTodayStr(); 
-  XLSX.writeFile(workbook, `Stock_Counting_${today}.xlsx`); 
+  const defaultFileName = `Stock_Counting_${today}.xlsx`;
 
+  // Modern browsers (Chrome, Edge, Opera) - Save File Picker API
+  if (window.showSaveFilePicker) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: defaultFileName,
+        types: [{
+          description: 'Excel File',
+          accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
+        }]
+      });
+      
+      const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const writable = await handle.createWritable();
+      await writable.write(buffer);
+      await writable.close();
+      
+      resetStockAndComplete(t);
+      return;
+    } catch (err) {
+      if (err.name === 'AbortError') return; // User cancelled prompt
+    }
+  }
+
+  // Fallback for browsers that don't support showSaveFilePicker (Mobile, Firefox, etc.)
+  const userFileName = prompt("File Name එක ඇතුළත් කරන්න:", defaultFileName);
+  if (userFileName === null) return; // User clicked Cancel
+
+  const finalFileName = userFileName.trim() ? 
+    (userFileName.endsWith('.xlsx') ? userFileName : userFileName + '.xlsx') : 
+    defaultFileName;
+
+  XLSX.writeFile(workbook, finalFileName); 
+  resetStockAndComplete(t);
+}
+
+function resetStockAndComplete(t) {
   inventory.forEach(item => { 
     item.op_stock = Number(item.closing) || 0; 
     item.f_receipt = 0; 
@@ -674,7 +711,7 @@ function downloadExcelAndReset() {
   saveInventoryData(); 
   clearSearchInput();
   showToast(t.msgExcelShift, 'success'); 
-} 
+}
 
 async function shareStockSummary() {
   const t = i18n[currentLang] || i18n['si'];
@@ -816,10 +853,41 @@ function resetToDefault() {
   } 
 } 
 
-function downloadXLSXBackup() { 
+async function downloadXLSXBackup() { 
   const workbook = generateWorkbookWithFormulas();
   const today = getTodayStr(); 
-  XLSX.writeFile(workbook, `Stock_Counting_Backup_${today}.xlsx`); 
+  const defaultFileName = `Stock_Counting_Backup_${today}.xlsx`;
+
+  if (window.showSaveFilePicker) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: defaultFileName,
+        types: [{
+          description: 'Excel File',
+          accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
+        }]
+      });
+      
+      const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const writable = await handle.createWritable();
+      await writable.write(buffer);
+      await writable.close();
+      
+      showToast('Backup File Downloaded!', 'success');
+      return;
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+    }
+  }
+
+  const userFileName = prompt("Backup File Name එක ඇතුළත් කරන්න:", defaultFileName);
+  if (userFileName === null) return;
+
+  const finalFileName = userFileName.trim() ? 
+    (userFileName.endsWith('.xlsx') ? userFileName : userFileName + '.xlsx') : 
+    defaultFileName;
+
+  XLSX.writeFile(workbook, finalFileName); 
   showToast('Backup File Downloaded!', 'success'); 
 }
 
