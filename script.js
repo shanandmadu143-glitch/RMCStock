@@ -1,4 +1,4 @@
-const i18n = {
+ල්const i18n = {
   si: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Code හෝ Name මගින් සොයන්න:',
     placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...',
@@ -434,6 +434,7 @@ function showModal(modalId) {
   const modal = document.getElementById(modalId);
   if (!modal) return;
   modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
   requestAnimationFrame(() => {
     modal.classList.add('show');
   });
@@ -443,6 +444,7 @@ function hideModal(modalId) {
   const modal = document.getElementById(modalId);
   if (!modal) return;
   modal.classList.remove('show');
+  document.body.style.overflow = 'auto';
   setTimeout(() => {
     modal.style.display = 'none';
   }, 200);
