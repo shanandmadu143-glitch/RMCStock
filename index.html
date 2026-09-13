@@ -1,227 +1,219 @@
-<!DOCTYPE html>
-<html lang="si" data-theme="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stock - Counting</title>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts - Poppins -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- SheetJS for Excel -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!DOCTYPE html> 
+<html lang="si"> 
+<head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+  <title>Stock Counting | Professional Dashboard</title> 
+  
+  <!-- External Libraries & Fonts -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script> 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"> 
+  
   <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-  <!-- Top Floating Header -->
-  <header class="app-header">
-    <div class="brand-container animate-fade-down">
-      <div class="brand-icon-pulse">
-        <i class="fa-solid fa-boxes-stacked"></i>
+</head> 
+<body> 
+<div class="container"> 
+  <!-- Header Block --> 
+  <div class="header-block"> 
+    <div class="brand-title"> 
+      <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div> 
+      <div class="brand-name-wrapper">
+        <span class="main-brand-text">Stock</span>
+        <span class="sub-badge-counting">Counting</span>
       </div>
-      <div class="brand-text">
-        <h1>Stock</h1>
-        <span class="subtitle-badge">counting</span>
-      </div>
-    </div>
-    
-    <div class="header-actions animate-fade-down">
-      <button class="icon-btn tooltip" id="btnExcel" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock">
-        <i class="fa-solid fa-file-excel"></i>
-      </button>
-      <button class="icon-btn tooltip" id="btnShare" onclick="shareStockSummary()" title="Share Excel File">
-        <i class="fa-solid fa-share-nodes"></i>
-      </button>
-      <button class="icon-btn tooltip" onclick="openRecordsModal()" title="Stock Check List">
-        <i class="fa-solid fa-clipboard-list"></i>
-      </button>
-      <button class="icon-btn tooltip" onclick="openSettings()" title="Settings">
-        <i class="fa-solid fa-gear"></i>
-      </button>
-    </div>
-  </header>
+    </div> 
+    <div class="icon-actions"> 
+      <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Summary Checklist" type="button"> 
+        <i class="fa-solid fa-list-check" style="color: #f59e0b;"></i> 
+      </button> 
+      <button class="btn-icon-header" onclick="openSettings()" title="Settings & Preferences" type="button"> 
+        <i class="fa-solid fa-gear" style="color: #60a5fa;"></i> 
+      </button> 
+    </div> 
+  </div> 
 
-  <!-- Main Container -->
-  <main class="main-container">
-    <div class="card glass-card animate-scale-up">
-      
-      <!-- Search Section -->
-      <div class="input-group">
-        <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Code හෝ Name මගින් සොයන්න:</label>
-        <div class="search-box-wrapper">
-          <input type="text" id="searchInput" placeholder="සොයන්න Code හෝ Name ඇතුලත් කරන්න..." autocomplete="off">
-          <div id="searchResults" class="search-dropdown"></div>
-        </div>
-      </div>
+  <!-- Main Data Entry Form Card --> 
+  <div class="card"> 
+    <div class="form-group"> 
+      <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Name or Codes:</label> 
+      <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off"> 
+      <div id="searchResults" class="search-results" style="display:none;"></div> 
+    </div> 
 
-      <!-- Selected Material Badge -->
-      <div id="selectedBadge" class="selected-badge animate-pop" style="display: none;">
-        <div class="badge-info">
-          <span class="badge-code" id="dispCode">---</span>
-          <h3 class="badge-name" id="dispName">Select Material</h3>
-        </div>
-        <div class="badge-metrics">
-          <div class="metric-pill">
-            <span class="m-label">UOM</span>
-            <span class="m-val" id="dispUom">KG</span>
-          </div>
-          <div class="metric-pill">
-            <span class="m-label">Op.Stock</span>
-            <span class="m-val" id="dispOp">0</span>
-          </div>
-        </div>
-      </div>
+    <div id="selectedBadge" class="selected-badge"> 
+      <div style="font-weight:700; margin-bottom: 4px;"> 
+        <i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> 
+        <span id="dispCode"></span> - <span id="dispName"></span> 
+      </div> 
+      <div style="font-size: 0.85rem; opacity: 0.9;"> 
+        UOM: <strong id="dispUom"></strong> &nbsp;|&nbsp; Op. Stock: <strong id="dispOp"></strong> 
+      </div> 
+    </div> 
 
-      <!-- Section Select -->
-      <div class="input-group">
-        <label id="lblSection"><i class="fa-solid fa-layer-group"></i> Section එක තෝරන්න:</label>
-        <div class="select-wrapper">
-          <select id="sectionSelect">
-            <option value="F" id="optReceipt">Receipt (ලැබීම්)</option>
-            <option value="G" id="optIssues">Issues (නිකුත් කිරීම්)</option>
-            <option value="H" id="optReturn">Return (නැවත භාරදීම්)</option>
-            <option value="I" id="optSslI">Received to SSL (SSL ලැබීම්)</option>
-            <option value="J" id="optSslJ">Sent to SSL (SSL යැවීම්)</option>
-            <option value="L" id="optRejectionL">Rejection (ප්‍රතික්ෂේප කිරීම්)</option>
-          </select>
-          <i class="fa-solid fa-chevron-down select-arrow"></i>
-        </div>
-      </div>
+    <div class="form-grid"> 
+      <div class="form-group" style="margin-bottom:0;"> 
+        <label id="lblSection"><i class="fa-solid fa-layer-group"></i> Select Section:</label> 
+        <select id="sectionSelect"> 
+          <option value="F" id="optReceipt">Receipt</option> 
+          <option value="G" id="optIssues">Issues</option> 
+          <option value="H" id="optReturn">Return</option> 
+          <option value="I" id="optSslI">Received to SSL</option> 
+          <option value="J" id="optSslJ">Sent to SSL</option> 
+          <option value="L" id="optRejectionL">Rejection</option> 
+        </select> 
+      </div> 
+      <div class="form-group" style="margin-bottom:0;"> 
+        <label id="lblAmount"><i class="fa-solid fa-calculator"></i> Enter Amount:</label> 
+        <input type="number" id="inputAmount" min="0" step="any" placeholder="0.00" inputmode="decimal"> 
+      </div> 
+    </div> 
 
-      <!-- Amount Input -->
-      <div class="input-group">
-        <label id="lblAmount"><i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:</label>
-        <input type="number" id="inputAmount" placeholder="0.00" step="any">
-      </div>
+    <div class="btn-row" style="margin-top: 14px;"> 
+      <button class="btn btn-primary" onclick="addSingleSectionData()" id="btnSave" type="button"> 
+        <i class="fa-solid fa-floppy-disk"></i> Save 
+      </button> 
+      <button class="btn-icon-excel" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock" id="btnExcel" type="button"> 
+        <i class="fa-solid fa-file-excel"></i> 
+      </button> 
+      <button class="btn-icon-share" onclick="shareStockSummary()" title="Share Excel File" id="btnShare" type="button"> 
+        <i class="fa-solid fa-share-nodes"></i> 
+      </button> 
+    </div> 
+  </div> 
 
-      <!-- Save Button -->
-      <button class="btn-primary ripple-btn" onclick="addSingleSectionData()">
-        <span id="btnSave"><i class="fa-solid fa-floppy-disk"></i> Save</span>
-        <i class="fa-solid fa-arrow-right-long btn-icon-slide"></i>
-      </button>
+  <!-- Animated Watermark Footer --> 
+  <div class="footer-note" id="lblFooter"> 
+    Created By <span>Yomal Lakshan</span> 
+  </div> 
+</div> 
 
-    </div>
-  </main>
+<!-- Toast Notifications --> 
+<div id="toastContainer"></div> 
 
-  <!-- Footer -->
-  <footer class="app-footer animate-fade-up">
-    <p id="lblFooter">Created By <span>Yomal Lakshan</span></p>
-  </footer>
+<!-- MODAL: INVENTORY CHECKLIST SUMMARY --> 
+<div id="recordsModal" class="modal"> 
+  <div class="modal-content"> 
+    <div class="modal-header"> 
+      <h3 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check List</h3> 
+      <button class="close-btn" onclick="closeRecordsModal()" type="button">&times;</button> 
+    </div> 
+    <div style="margin-bottom: 12px; flex-shrink: 0;"> 
+      <input type="text" id="modalSearchInput" placeholder="Quick filter checklist..." autocomplete="off"> 
+    </div> 
+    <div class="checklist-container" id="summaryCardsContainer"></div> 
+  </div> 
+</div> 
 
-  <!-- Records / Checklist Modal -->
-  <div id="recordsModal" class="modal-backdrop">
-    <div class="modal-content glass-modal animate-modal">
-      <div class="modal-header">
-        <h2 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> තොග පරීක්ෂාව (Stock Check List)</h2>
-        <button class="close-btn" onclick="closeRecordsModal()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="modal-search">
-        <input type="text" id="modalSearchInput" placeholder="චෙක්ලිස්ට් එක සෙවීමට Code හෝ Name ලියන්න...">
-      </div>
-      <div id="summaryCardsContainer" class="modal-body-list">
-        <!-- Dynamic Checklist items -->
-      </div>
-    </div>
-  </div>
+<!-- MODAL: SINGLE MATERIAL DETAIL VIEW --> 
+<div id="itemDetailModal" class="modal"> 
+  <div class="modal-content"> 
+    <div class="modal-header"> 
+      <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3> 
+      <button class="close-btn" onclick="closeItemDetailModal()" type="button">&times;</button> 
+    </div> 
+    <div class="detail-card-grid" style="overflow-y: auto;"> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div> 
+        <div class="detail-value" id="detCode">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-tag"></i> Unit of Measure (UOM)</div> 
+        <div class="detail-value" id="detUom">-</div> 
+      </div> 
+      <div class="detail-item-box full-width"> 
+        <div class="detail-label"><i class="fa-solid fa-box"></i> Material Name</div> 
+        <div class="detail-value" id="detName" style="color:var(--primary);">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock</div> 
+        <div class="detail-value" id="detOp">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-arrow-down" style="color:var(--success);"></i> Receipt (F)</div> 
+        <div class="detail-value" id="detReceipt" style="color:var(--success);">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-arrow-up" style="color:var(--danger);"></i> Issues (G)</div> 
+        <div class="detail-value" id="detIssues" style="color:var(--danger);">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-rotate-left" style="color:var(--warning);"></i> Return (H)</div> 
+        <div class="detail-value" id="detReturn" style="color:var(--warning);">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--success);"></i> Received to SSL</div> 
+        <div class="detail-value" id="detSslI" style="color:var(--success);">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--danger);"></i> Sent to SSL</div> 
+        <div class="detail-value" id="detSslJ" style="color:var(--danger);">-</div> 
+      </div> 
+      <div class="detail-item-box"> 
+        <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection</div> 
+        <div class="detail-value" id="detRejectionL" style="color:var(--danger);">-</div> 
+      </div> 
+      <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);"> 
+        <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock</div> 
+        <div class="detail-value" id="detClosing" style="font-size: 1.3rem; color:var(--primary);">-</div> 
+      </div> 
+    </div> 
+  </div> 
+</div> 
 
-  <!-- Item Details Modal -->
-  <div id="itemDetailModal" class="modal-backdrop">
-    <div class="modal-content glass-modal animate-modal detail-modal-content">
-      <div class="modal-header">
-        <h2><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Breakdown</h2>
-        <button class="close-btn" onclick="closeItemDetailModal()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="modal-body-list detail-body">
-        <div class="detail-hero">
-          <span id="detCode" class="d-code">---</span>
-          <h3 id="detName" class="d-name">Material Name</h3>
-          <span id="detUom" class="d-uom-tag">KG</span>
-        </div>
-        <div class="detail-grid">
-          <div class="detail-card"><span>Op. Stock</span><strong id="detOp">0</strong></div>
-          <div class="detail-card"><span>Receipt</span><strong id="detReceipt" style="color:var(--success);">0</strong></div>
-          <div class="detail-card"><span>Issues</span><strong id="detIssues" style="color:var(--danger);">0</strong></div>
-          <div class="detail-card"><span>Return</span><strong id="detReturn" style="color:var(--warning);">0</strong></div>
-          <div class="detail-card"><span>SSL Rec</span><strong id="detSslI" style="color:var(--info);">0</strong></div>
-          <div class="detail-card"><span>SSL Sent</span><strong id="detSslJ" style="color:var(--danger);">0</strong></div>
-          <div class="detail-card"><span>Rejection</span><strong id="detRejectionL" style="color:var(--danger);">0</strong></div>
-          <div class="detail-card closing-card"><span>Closing Stock</span><strong id="detClosing">0</strong></div>
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- MODAL: SETTINGS & PREFERENCES --> 
+<div id="settingsModal" class="modal"> 
+  <div class="modal-content" style="overflow-y: auto;"> 
+    <div class="modal-header"> 
+      <h3 id="txtSettingsTitle"><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences</h3> 
+      <button class="close-btn" onclick="closeSettings()" type="button">&times;</button> 
+    </div> 
 
-  <!-- Settings Modal -->
-  <div id="settingsModal" class="modal-backdrop">
-    <div class="modal-content glass-modal animate-modal">
-      <div class="modal-header">
-        <h2 id="txtSettingsTitle"><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)</h2>
-        <button class="close-btn" onclick="closeSettings()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="modal-body-list settings-body">
-        
-        <!-- Language Selection -->
-        <div class="setting-item">
-          <span id="lblLanguage"><i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව (Language):</span>
-          <div class="select-wrapper sm-select">
-            <select id="langSelect" onchange="changeLanguage(this.value)">
-              <option value="si">සිංහල</option>
-              <option value="en">English</option>
-              <option value="ta">தமிழ்</option>
-            </select>
-            <i class="fa-solid fa-chevron-down select-arrow"></i>
-          </div>
-        </div>
+    <div class="setting-option"> 
+      <label id="lblLanguage"><i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language / භාෂාව / மொழி:</label> 
+      <select id="langSelect" onchange="changeLanguage(this.value)"> 
+        <option value="si">සිංහල (Sinhala)</option> 
+        <option value="en">English</option> 
+        <option value="ta">தமிழ் (Tamil)</option> 
+      </select> 
+    </div> 
 
-        <!-- Theme Selection -->
-        <div class="setting-item">
-          <span id="lblTheme"><i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme:</span>
-          <div class="select-wrapper sm-select">
-            <select id="themeSelect" onchange="changeTheme(this.value)">
-              <option value="light">Light Mode</option>
-              <option value="dark">Dark Mode</option>
-              <option value="cyberpunk">Cyberpunk Glow</option>
-            </select>
-            <i class="fa-solid fa-chevron-down select-arrow"></i>
-          </div>
-        </div>
+    <div class="setting-option"> 
+      <label id="lblTheme"><i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:</label> 
+      <select id="themeSelect" onchange="changeTheme(this.value)"> 
+        <option value="light">Light Theme (Default)</option> 
+        <option value="dark">Dark Theme</option> 
+        <option value="blue">Slate Blue Theme</option> 
+      </select> 
+    </div> 
 
-        <!-- Restore Excel -->
-        <div class="setting-card-box">
-          <h4 id="lblRestore"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Excel Restore</h4>
-          <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p>
-          <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" class="file-input-styled">
-          <button class="btn-success-soft" id="btnRestore" onclick="restoreFromXLSX()">
-            <i class="fa-solid fa-upload"></i> Restore Excel Data
-          </button>
-        </div>
+    <div class="setting-option"> 
+      <label id="lblRestore"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label> 
+      <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p> 
+      <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 10px;"> 
+      <button class="btn" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button"> 
+        <i class="fa-solid fa-upload"></i> Restore Excel Data 
+      </button> 
+    </div> 
 
-        <!-- Backup Excel -->
-        <div class="setting-card-box">
-          <h4 id="lblBackup"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup</h4>
-          <p id="descBackup">වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p>
-          <button class="btn-primary-soft" id="btnBackup" onclick="downloadXLSXBackup()">
-            <i class="fa-solid fa-download"></i> Download Backup File
-          </button>
-        </div>
+    <div class="setting-option"> 
+      <label id="lblBackup"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label> 
+      <p id="descBackup">වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p> 
+      <button class="btn btn-secondary" style="width:100%; padding: 12px; background:#475569; color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="downloadXLSXBackup()" id="btnBackup" type="button"> 
+        <i class="fa-solid fa-download"></i> Download Backup File 
+      </button> 
+    </div> 
 
-        <!-- Reset Data -->
-        <div class="setting-card-box danger-box">
-          <h4 id="lblReset"><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset Data</h4>
-          <p id="descReset">මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p>
-          <button class="btn-danger-soft" id="btnReset" onclick="resetToDefault()">
-            <i class="fa-solid fa-trash-can"></i> Reset All Data
-          </button>
-        </div>
+    <div class="setting-option"> 
+      <label id="lblReset"><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label> 
+      <p id="descReset">මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p> 
+      <button class="btn" style="width:100%; padding: 10px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()" id="btnReset" type="button"> 
+        <i class="fa-solid fa-trash-can"></i> Reset All Data 
+      </button> 
+    </div> 
+  </div> 
+</div> 
 
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Notification Container -->
-  <div id="toastContainer" class="toast-container"></div>
-
-  <script src="script.js"></script>
-</body>
+<script src="script.js"></script> 
+</body> 
 </html>
