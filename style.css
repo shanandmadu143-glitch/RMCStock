@@ -216,6 +216,39 @@ input:focus, select:focus {
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
 }
 
+/* Search input container & clear button style */
+.search-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-container input {
+  padding-right: 45px;
+}
+
+.btn-clear-search {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: var(--transition-smooth);
+}
+
+.btn-clear-search:hover {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
 .search-results {
   position: absolute;
   top: 100%;
@@ -621,4 +654,3 @@ input:focus, select:focus {
   .header-block { padding: 18px 20px; }
   .card { padding: 22px; }
 }
-
