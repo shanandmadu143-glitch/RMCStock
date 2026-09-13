@@ -90,6 +90,7 @@
 
 <div id="toastContainer"></div>
 
+<!-- Stock Check List Modal -->
 <div id="recordsModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -103,6 +104,7 @@
   </div>
 </div>
 
+<!-- Material Detail Modal -->
 <div id="itemDetailModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -158,6 +160,7 @@
   </div>
 </div>
 
+<!-- Settings Modal -->
 <div id="settingsModal" class="modal">
   <div class="modal-content" style="overflow-y: auto;">
     <div class="modal-header">
@@ -183,8 +186,14 @@
       </select>
     </div>
 
+    <!-- Restore Excel Option with Help Button -->
     <div class="setting-option">
-      <label id="lblRestore"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <label id="lblRestore" style="margin-bottom: 0;"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label>
+        <button class="btn ripple" onclick="openRestoreHelpModal()" type="button" style="padding: 5px 10px; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+          <i class="fa-solid fa-circle-question"></i> Help / උදව්
+        </button>
+      </div>
       <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p>
       <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 12px;">
       <button class="btn ripple" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button">
@@ -206,6 +215,28 @@
       <button class="btn ripple" style="width:100%; padding: 12px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()" id="btnReset" type="button">
         <i class="fa-solid fa-trash-can"></i> Reset All Data
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Restore Help & Web App Guide Modal -->
+<div id="restoreHelpModal" class="modal">
+  <div class="modal-content" style="overflow-y: auto; max-width: 650px;">
+    <div class="modal-header">
+      <h3 id="helpModalTitle"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore & Web App Help</h3>
+      <button class="close-btn ripple" onclick="closeRestoreHelpModal()" type="button">&times;</button>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label id="helpSelectLabel"><i class="fa-solid fa-list"></i> ඔබට දැනගැනීමට අවශ්‍ය මාතෘකාව තෝරන්න:</label>
+      <select id="helpTopicSelect" onchange="switchHelpTopic(this.value)">
+        <option value="fileType">1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</option>
+        <option value="howToDo">2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</option>
+        <option value="appFeatures">3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</option>
+      </select>
+    </div>
+
+    <div id="helpContentBox" style="background: var(--bg-main); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-size: 0.92rem; line-height: 1.6; color: var(--text-dark);">
     </div>
   </div>
 </div>
