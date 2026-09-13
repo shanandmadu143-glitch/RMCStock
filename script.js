@@ -13,7 +13,8 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> තොග පරීක්ෂාව (Stock Check List)',
+    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> තොග පරීක්ෂාව (Stock Check)',
+    txtTodayLogsTitle: '<i class="fa-solid fa-calendar-day" style="color:var(--success);"></i> අද එකතු කළ දත්ත (Today\'s Data)',
     placeholderModalSearch: 'චෙක්ලිස්ට් එක සෙවීමට Code හෝ Name ලියන්න...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
@@ -53,7 +54,8 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check List',
+    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
+    txtTodayLogsTitle: '<i class="fa-solid fa-calendar-day" style="color:var(--success);"></i> Today\'s Data',
     placeholderModalSearch: 'Quick filter checklist...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:',
@@ -93,7 +95,8 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு பட்டியல்',
+    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு (Stock Check)',
+    txtTodayLogsTitle: '<i class="fa-solid fa-calendar-day" style="color:var(--success);"></i> இன்று சேர்க்கப்பட்ட தரவு',
     placeholderModalSearch: 'குறியீடு அல்லது பெயர் மூலம் தேடுக...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
@@ -161,6 +164,7 @@ function applyLanguage(lang) {
   const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
   
   setHtml('txtSummaryTitle', t.txtSummaryTitle);
+  setHtml('txtTodayLogsTitle', t.txtTodayLogsTitle);
   const modalSearchInput = document.getElementById('modalSearchInput');
   if(modalSearchInput) modalSearchInput.placeholder = t.placeholderModalSearch;
   
@@ -276,8 +280,7 @@ function initDefaultInventory() {
     i_ssl_received: 0, 
     j_ssl_sent: 0, 
     l_rejection: 0, 
-    closing: Number(item.op_stock) || 0, 
-    checked: false 
+    closing: Number(item.op_stock) || 0
   })); 
   saveInventoryData(); 
 } 
@@ -459,6 +462,15 @@ function closeRecordsModal() {
   hideModal('recordsModal');
 } 
 
+function openTodayLogsModal() {
+  renderTodayLogs();
+  showModal('todayLogsModal');
+}
+
+function closeTodayLogsModal() {
+  hideModal('todayLogsModal');
+}
+
 function openSettings() { 
   showModal('settingsModal');
 } 
@@ -522,7 +534,6 @@ function renderChecklist() {
 
     itemDiv.innerHTML = ` 
       <div class="checklist-left">
-        <input type="checkbox" class="checklist-checkbox" ${item.checked ? 'checked' : ''}>
         <div class="checklist-info">
           <div class="checklist-name" title="${item.name}">${item.name}</div>
           <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
@@ -534,19 +545,8 @@ function renderChecklist() {
       </div>
     `; 
 
-    const checkbox = itemDiv.querySelector('.checklist-checkbox');
-    if (checkbox) {
-      checkbox.addEventListener('change', (e) => {
-        e.stopPropagation();
-        inventory[idx].checked = e.target.checked;
-        saveInventoryData();
-      });
-    }
-
-    itemDiv.addEventListener('click', (e) => {
-      if (!e.target.classList.contains('checklist-checkbox')) {
-        openItemDetails(idx);
-      }
+    itemDiv.addEventListener('click', () => {
+      openItemDetails(idx);
     });
 
     fragment.appendChild(itemDiv); 
@@ -554,6 +554,68 @@ function renderChecklist() {
 
   container.appendChild(fragment);
 } 
+
+function renderTodayLogs() {
+  const container = document.getElementById('todayLogsContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const modifiedItems = inventory.filter(item => 
+    (item.f_receipt || 0) > 0 ||
+    (item.g_issues || 0) > 0 ||
+    (item.h_return || 0) > 0 ||
+    (item.i_ssl_received || 0) > 0 ||
+    (item.j_ssl_sent || 0) > 0 ||
+    (item.l_rejection || 0) > 0
+  );
+
+  if (modifiedItems.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+        <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5;"></i>
+        <p style="font-weight: 600;">අද දවසේ කිසිදු දත්තයක් එකතු කර නොමැත.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  modifiedItems.forEach((item) => {
+    const origIdx = inventory.findIndex(i => i.code === item.code);
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'checklist-item';
+
+    itemDiv.innerHTML = `
+      <div class="checklist-left">
+        <div class="checklist-info">
+          <div class="checklist-name">${item.name}</div>
+          <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
+          <div style="font-size: 0.75rem; color: var(--primary); margin-top: 4px; font-weight: 600;">
+            ${item.f_receipt ? `Receipt: +${item.f_receipt} ` : ''}
+            ${item.g_issues ? `Issues: -${item.g_issues} ` : ''}
+            ${item.h_return ? `Return: +${item.h_return} ` : ''}
+            ${item.i_ssl_received ? `SSL Rec: +${item.i_ssl_received} ` : ''}
+            ${item.j_ssl_sent ? `SSL Sent: -${item.j_ssl_sent} ` : ''}
+            ${item.l_rejection ? `Rejection: -${item.l_rejection} ` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="checklist-right">
+        <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
+        <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Closing</div>
+      </div>
+    `;
+
+    itemDiv.addEventListener('click', () => {
+      openItemDetails(origIdx);
+    });
+
+    fragment.appendChild(itemDiv);
+  });
+
+  container.appendChild(fragment);
+}
 
 function openItemDetails(index) {
   const item = inventory[index];
@@ -641,7 +703,6 @@ function downloadExcelAndReset() {
     item.j_ssl_sent = 0; 
     item.l_rejection = 0; 
     item.closing = item.op_stock; 
-    item.checked = false;
   }); 
   saveInventoryData(); 
   clearSearchInput();
@@ -755,7 +816,7 @@ function restoreFromXLSX() {
           let closing = calculateClosingStock(tempItem); 
             
           restored.push({ 
-            type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, closing, checked: false 
+            type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, closing
           }); 
         } 
       } 
