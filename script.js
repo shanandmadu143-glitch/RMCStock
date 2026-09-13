@@ -35,7 +35,7 @@ const i18n = {
     msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
     msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
     msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
-    shareTitle: 'Stock Counting Summary',
+    shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'Excel ගොනුව Share කිරීමට සූදානම්!',
     shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි.'
   },
@@ -75,7 +75,7 @@ const i18n = {
     msgRestoreSelect: 'Please select an Excel file!',
     msgRestoreSuccess: 'Excel Restore Successful!',
     msgResetConfirm: 'Are you sure you want to reset to default data?',
-    shareTitle: 'Stock Counting Summary',
+    shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'Excel file ready to share!',
     shareNotSupported: 'Your browser does not support file sharing.'
   },
@@ -115,7 +115,7 @@ const i18n = {
     msgRestoreSelect: 'தயவுசெய்து எக்செல் கோப்பைத் தேர்ந்தெடுக்கவும்!',
     msgRestoreSuccess: 'எக்செல் மீட்டமைப்பு வெற்றிகரமாக முடிந்தது!',
     msgResetConfirm: 'ஆரம்ப தரவுக்கு மீட்டமைக்க நிச்சயமாக விரும்புகிறீர்களா?',
-    shareTitle: 'Stock Counting Summary',
+    shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'பகிர எக்செல் கோப்பு தயாராக உள்ளது!',
     shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.'
   }
