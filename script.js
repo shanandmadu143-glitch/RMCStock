@@ -583,7 +583,7 @@ async function shareStockSummary() {
   }
 }
 
-// Excel Restore කිරීමේදී සියලුම අංශ (Sections) සහ සමීකරණ නිවැරදිව මැප් කර ලබා ගැනීම
+// Excel Restore කිරීමේදී Receipt, Issues, Return, SSL සහ Rejection යන අංශ 0 කර දත්ත ලබා ගැනීම
 function restoreFromXLSX() { 
   const t = i18n[currentLang] || i18n['si'];
   const fileInput = document.getElementById('xlsxFileInput'); 
@@ -608,8 +608,7 @@ function restoreFromXLSX() {
       } 
       
       let headerIndex = -1; 
-      // මූලික තීරු සිතියම්ගත කිරීම (Default column indices)
-      let colMap = { type: 0, code: 1, name: 2, uom: 3, op_stock: 4, f_receipt: 5, g_issues: 6, h_return: 7, i_ssl_received: 8, j_ssl_sent: 9, closing: 10, l_rejection: 11 }; 
+      let colMap = { type: 0, code: 1, name: 2, uom: 3, op_stock: 4 }; 
       
       for (let r = 0; r < Math.min(matrix.length, 10); r++) { 
         const rowStr = matrix[r].map(c => String(c).toLowerCase().trim()); 
@@ -620,16 +619,9 @@ function restoreFromXLSX() {
             if (cellVal.includes("code")) colMap.code = colIdx; 
             if (cellVal.includes("name")) colMap.name = colIdx; 
             if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
-            if (cellVal.includes("op") || cellVal.includes("open") || cellVal.includes("stock")) colMap.op_stock = colIdx; 
-            
-            // Sections / Formulas අදාළ තීරු හඳුනා ගැනීම
-            if (cellVal.includes("receipt") || cellVal === "f") colMap.f_receipt = colIdx; 
-            if (cellVal.includes("issue") || cellVal === "g") colMap.g_issues = colIdx; 
-            if (cellVal.includes("return") || cellVal === "h") colMap.h_return = colIdx; 
-            if (cellVal.includes("received to ssl") || cellVal.includes("ssl i") || cellVal === "i") colMap.i_ssl_received = colIdx; 
-            if (cellVal.includes("sent to ssl") || cellVal.includes("ssl j") || cellVal === "j") colMap.j_ssl_sent = colIdx; 
-            if (cellVal.includes("rejection") || cellVal === "l") colMap.l_rejection = colIdx; 
-            if (cellVal.includes("closing")) colMap.closing = colIdx; 
+            if (cellVal.includes("closing") || cellVal.includes("op") || cellVal.includes("open") || cellVal.includes("stock")) {
+              colMap.op_stock = colIdx; 
+            }
           }); 
           break; 
         } 
@@ -654,27 +646,19 @@ function restoreFromXLSX() {
           let type = row[colMap.type] !== undefined && row[colMap.type] !== "" ? String(row[colMap.type]).trim() : "RM"; 
           let uom = row[colMap.uom] !== undefined && row[colMap.uom] !== "" ? String(row[colMap.uom]).trim() : "KG"; 
           
-          // සෑම අංශයකටම අදාළ අගයන් නිවැරදිව අංක ලෙස ලබා ගැනීම
+          // Excel ගොනුවෙන් ලබා ගන්නා අගය Opening Stock ලෙස සටහන් වේ
           let op_stock = parseFloat(row[colMap.op_stock]) || 0; 
-          let f_receipt = parseFloat(row[colMap.f_receipt]) || 0; 
-          let g_issues = parseFloat(row[colMap.g_issues]) || 0; 
-          let h_return = parseFloat(row[colMap.h_return]) || 0; 
-          let i_ssl_received = parseFloat(row[colMap.i_ssl_received]) || 0; 
-          let j_ssl_sent = parseFloat(row[colMap.j_ssl_sent]) || 0; 
-          let l_rejection = parseFloat(row[colMap.l_rejection]) || 0; 
           
-          let tempItem = {
-            op_stock,
-            f_receipt,
-            g_issues,
-            h_return,
-            i_ssl_received,
-            j_ssl_sent,
-            l_rejection
-          };
+          // ඉල්ලුම් කළ පරිදි සියලුම අංශ (Sections) 0 (Zero) ලෙස සකස් කෙරේ
+          let f_receipt = 0; 
+          let g_issues = 0; 
+          let h_return = 0; 
+          let i_ssl_received = 0; 
+          let j_ssl_sent = 0; 
+          let l_rejection = 0; 
           
-          // සැමවිටම නිවැරදි සමීකරණය මගින් Closing Stock එක ස්වයංක්‍රීයව ගණනය කිරීම
-          let closing = calculateClosingStock(tempItem); 
+          // Closing Stock එක යනු මෙහිදී අලුත් Opening Stock එකම වේ
+          let closing = op_stock; 
             
           restored.push({ 
             type, 
