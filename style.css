@@ -399,19 +399,20 @@ input:focus, select:focus {
   font-weight: 800;
 }
 
+/* FULL SCREEN MODAL STYLING */
 .modal {
   display: none;
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
   z-index: 1000;
   justify-content: center;
   align-items: center;
-  padding: 16px;
+  padding: 0;
 }
 
 .modal.show {
@@ -421,15 +422,14 @@ input:focus, select:focus {
 .modal-content {
   background: var(--card-bg);
   color: var(--text-dark);
-  padding: 26px;
-  border-radius: var(--radius-lg);
-  width: 100%;
-  max-width: 600px;
-  box-shadow: var(--shadow-modal);
-  max-height: 90vh;
+  padding: 24px;
+  border-radius: 0;
+  width: 100vw;
+  height: 100vh;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-color);
+  border: none;
   overflow: hidden;
 }
 
@@ -437,14 +437,14 @@ input:focus, select:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 
 .modal-header h3 {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--text-dark);
   display: flex;
@@ -455,10 +455,10 @@ input:focus, select:focus {
 .close-btn {
   background: var(--border-color);
   border: none;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  font-size: 1.2rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 1.4rem;
   cursor: pointer;
   color: var(--text-muted);
   display: flex;
@@ -472,12 +472,18 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
+.modal-body-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
 .checklist-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   overflow-y: auto;
-  max-height: calc(90vh - 140px);
+  flex: 1;
   padding-right: 4px;
   width: 100%;
 }
@@ -486,7 +492,7 @@ input:focus, select:focus {
   background: var(--bg-main);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 14px 16px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -510,8 +516,8 @@ input:focus, select:focus {
 }
 
 .checklist-checkbox {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   accent-color: var(--primary);
   cursor: pointer;
   flex-shrink: 0;
@@ -528,7 +534,7 @@ input:focus, select:focus {
 }
 
 .checklist-name {
-  font-size: 0.92rem;
+  font-size: 0.98rem;
   font-weight: 700;
   color: var(--text-dark);
   overflow: hidden;
@@ -536,7 +542,7 @@ input:focus, select:focus {
 }
 
 .checklist-code {
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -550,7 +556,7 @@ input:focus, select:focus {
 }
 
 .checklist-stock {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: var(--primary);
 }
@@ -560,12 +566,14 @@ input:focus, select:focus {
   grid-template-columns: 1fr 1fr;
   gap: 14px;
   margin-top: 10px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .detail-item-box {
   background: var(--bg-main);
   border: 1px solid var(--border-color);
-  padding: 16px;
+  padding: 18px;
   border-radius: var(--radius-md);
 }
 
@@ -574,7 +582,7 @@ input:focus, select:focus {
 }
 
 .detail-label {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -582,24 +590,24 @@ input:focus, select:focus {
 }
 
 .detail-value {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-dark);
 }
 
 .setting-option {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   background: var(--bg-main);
-  padding: 18px;
+  padding: 20px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
 }
 
 .setting-option p {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: var(--text-muted);
   margin-bottom: 12px;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 #toastContainer {
