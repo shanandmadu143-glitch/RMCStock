@@ -399,7 +399,7 @@ input:focus, select:focus {
   font-weight: 800;
 }
 
-/* FULL SCREEN MODAL STYLING */
+/* MODAL STYLING */
 .modal {
   display: none;
   position: fixed;
@@ -513,15 +513,6 @@ input:focus, select:focus {
   gap: 14px;
   overflow: hidden;
   flex: 1;
-}
-
-.checklist-checkbox {
-  width: 22px;
-  height: 22px;
-  accent-color: var(--primary);
-  cursor: pointer;
-  flex-shrink: 0;
-  border-radius: 6px;
 }
 
 .checklist-info {
