@@ -725,6 +725,32 @@ function downloadXLSXBackup() {
   showToast('Backup File Downloaded!', 'success'); 
 }
 
+// Global Click Ripple Animation Effect Engine
+document.addEventListener('click', function (e) {
+  const target = e.target.closest('.ripple');
+  if (target) {
+    const rect = target.getBoundingClientRect();
+    const circle = document.createElement('span');
+    const diameter = Math.max(rect.width, rect.height);
+    const radius = diameter / 2;
+
+    circle.style.width = circle.style.height = `${diameter}px`;
+    circle.style.left = `${e.clientX - rect.left - radius}px`;
+    circle.style.top = `${e.clientY - rect.top - radius}px`;
+    circle.classList.add('ripple-effect');
+
+    const existingRipple = target.querySelector('.ripple-effect');
+    if (existingRipple) {
+      existingRipple.remove();
+    }
+
+    target.appendChild(circle);
+    setTimeout(() => {
+      circle.remove();
+    }, 550);
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   loadInventoryData();
   applyTheme(currentTheme);
