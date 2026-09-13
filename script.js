@@ -13,8 +13,7 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> තොග පරීක්ෂාව (Stock Check)',
-    txtTodayLogsTitle: '<i class="fa-solid fa-calendar-day" style="color:var(--success);"></i> අද එකතු කළ දත්ත (Today\'s Data)',
+    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
     placeholderModalSearch: 'චෙක්ලිස්ට් එක සෙවීමට Code හෝ Name ලියන්න...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
@@ -55,7 +54,6 @@ const i18n = {
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
-    txtTodayLogsTitle: '<i class="fa-solid fa-calendar-day" style="color:var(--success);"></i> Today\'s Data',
     placeholderModalSearch: 'Quick filter checklist...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:',
@@ -95,8 +93,7 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
     titleExcel: 'Download Excel & Shift Stock',
     titleShare: 'Share Excel File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு (Stock Check)',
-    txtTodayLogsTitle: '<i class="fa-solid fa-calendar-day" style="color:var(--success);"></i> இன்று சேர்க்கப்பட்ட தரவு',
+    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு',
     placeholderModalSearch: 'குறியீடு அல்லது பெயர் மூலம் தேடுக...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
@@ -126,6 +123,7 @@ const i18n = {
 
 let currentLang = localStorage.getItem('rmc_app_lang') || 'si';
 let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
+let isTodayOnlyFilter = false;
 
 function applyTheme(theme) {
   currentTheme = theme;
@@ -164,7 +162,6 @@ function applyLanguage(lang) {
   const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
   
   setHtml('txtSummaryTitle', t.txtSummaryTitle);
-  setHtml('txtTodayLogsTitle', t.txtTodayLogsTitle);
   const modalSearchInput = document.getElementById('modalSearchInput');
   if(modalSearchInput) modalSearchInput.placeholder = t.placeholderModalSearch;
   
@@ -231,6 +228,10 @@ const defaultItems = [
 let inventory = []; 
 let selectedIndex = -1;
 
+function getTodayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+
 function roundNum(val) {
   return Math.round((Number(val) + Number.EPSILON) * 1000) / 1000;
 }
@@ -261,6 +262,7 @@ function loadInventoryData() {
         item.j_ssl_sent = Number(item.j_ssl_sent) || 0;
         item.l_rejection = Number(item.l_rejection) || 0;
         item.closing = calculateClosingStock(item);
+        item.last_updated = item.last_updated || "";
       });
     } catch(e) { 
       initDefaultInventory(); 
@@ -280,7 +282,8 @@ function initDefaultInventory() {
     i_ssl_received: 0, 
     j_ssl_sent: 0, 
     l_rejection: 0, 
-    closing: Number(item.op_stock) || 0
+    closing: Number(item.op_stock) || 0,
+    last_updated: ""
   })); 
   saveInventoryData(); 
 } 
@@ -422,7 +425,8 @@ function addSingleSectionData() {
   else if (targetSection === 'L') item.l_rejection = roundNum(item.l_rejection + amount); 
 
   item.closing = calculateClosingStock(item); 
-  
+  item.last_updated = getTodayStr();
+
   const dispClosing = document.getElementById('dispClosing');
   if (dispClosing) {
     dispClosing.innerText = Number(item.closing).toLocaleString() + ' ' + item.uom;
@@ -454,6 +458,12 @@ function hideModal(modalId) {
 }
 
 function openRecordsModal() { 
+  isTodayOnlyFilter = false;
+  const btnToday = document.getElementById('btnTodayFilter');
+  if (btnToday) btnToday.classList.remove('active');
+  const modalSearchInput = document.getElementById('modalSearchInput');
+  if (modalSearchInput) modalSearchInput.value = '';
+  
   renderChecklist(); 
   showModal('recordsModal');
 } 
@@ -461,15 +471,6 @@ function openRecordsModal() {
 function closeRecordsModal() { 
   hideModal('recordsModal');
 } 
-
-function openTodayLogsModal() {
-  renderTodayLogs();
-  showModal('todayLogsModal');
-}
-
-function closeTodayLogsModal() {
-  hideModal('todayLogsModal');
-}
 
 function openSettings() { 
   showModal('settingsModal');
@@ -519,6 +520,19 @@ function switchHelpTopic(topic) {
   }
 }
 
+function toggleTodayFilter() {
+  isTodayOnlyFilter = !isTodayOnlyFilter;
+  const btnToday = document.getElementById('btnTodayFilter');
+  if (btnToday) {
+    if (isTodayOnlyFilter) {
+      btnToday.classList.add('active');
+    } else {
+      btnToday.classList.remove('active');
+    }
+  }
+  filterChecklist();
+}
+
 function renderChecklist() { 
   const container = document.getElementById('summaryCardsContainer'); 
   if (!container) return;
@@ -553,68 +567,24 @@ function renderChecklist() {
   }); 
 
   container.appendChild(fragment);
+  filterChecklist();
 } 
 
-function renderTodayLogs() {
-  const container = document.getElementById('todayLogsContainer');
-  if (!container) return;
-  container.innerHTML = '';
+function filterChecklist() {
+  const q = (document.getElementById('modalSearchInput')?.value || '').toLowerCase().trim();
+  const todayStr = getTodayStr();
+  const items = document.querySelectorAll('#summaryCardsContainer .checklist-item');
 
-  const modifiedItems = inventory.filter(item => 
-    (item.f_receipt || 0) > 0 ||
-    (item.g_issues || 0) > 0 ||
-    (item.h_return || 0) > 0 ||
-    (item.i_ssl_received || 0) > 0 ||
-    (item.j_ssl_sent || 0) > 0 ||
-    (item.l_rejection || 0) > 0
-  );
+  items.forEach((itemDiv) => {
+    const idx = itemDiv.dataset.index;
+    const item = inventory[idx];
+    if (!item) return;
 
-  if (modifiedItems.length === 0) {
-    container.innerHTML = `
-      <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
-        <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5;"></i>
-        <p style="font-weight: 600;">අද දවසේ කිසිදු දත්තයක් එකතු කර නොමැත.</p>
-      </div>
-    `;
-    return;
-  }
+    const matchesSearch = (item.name + " " + item.code).toLowerCase().includes(q);
+    const matchesToday = !isTodayOnlyFilter || (item.last_updated === todayStr);
 
-  const fragment = document.createDocumentFragment();
-
-  modifiedItems.forEach((item) => {
-    const origIdx = inventory.findIndex(i => i.code === item.code);
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'checklist-item';
-
-    itemDiv.innerHTML = `
-      <div class="checklist-left">
-        <div class="checklist-info">
-          <div class="checklist-name">${item.name}</div>
-          <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
-          <div style="font-size: 0.75rem; color: var(--primary); margin-top: 4px; font-weight: 600;">
-            ${item.f_receipt ? `Receipt: +${item.f_receipt} ` : ''}
-            ${item.g_issues ? `Issues: -${item.g_issues} ` : ''}
-            ${item.h_return ? `Return: +${item.h_return} ` : ''}
-            ${item.i_ssl_received ? `SSL Rec: +${item.i_ssl_received} ` : ''}
-            ${item.j_ssl_sent ? `SSL Sent: -${item.j_ssl_sent} ` : ''}
-            ${item.l_rejection ? `Rejection: -${item.l_rejection} ` : ''}
-          </div>
-        </div>
-      </div>
-      <div class="checklist-right">
-        <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
-        <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Closing</div>
-      </div>
-    `;
-
-    itemDiv.addEventListener('click', () => {
-      openItemDetails(origIdx);
-    });
-
-    fragment.appendChild(itemDiv);
+    itemDiv.style.display = (matchesSearch && matchesToday) ? 'flex' : 'none';
   });
-
-  container.appendChild(fragment);
 }
 
 function openItemDetails(index) {
@@ -648,17 +618,8 @@ const modalSearchInput = document.getElementById('modalSearchInput');
 if (modalSearchInput) {
   modalSearchInput.addEventListener('input', function() { 
     clearTimeout(modalSearchTimeout);
-    const q = this.value.toLowerCase().trim(); 
-    
     modalSearchTimeout = setTimeout(() => {
-      const items = document.querySelectorAll('#summaryCardsContainer .checklist-item'); 
-      items.forEach((itemDiv) => { 
-        const idx = itemDiv.dataset.index;
-        const item = inventory[idx];
-        if(!item) return;
-        const text = (item.name + " " + item.code).toLowerCase(); 
-        itemDiv.style.display = text.includes(q) ? 'flex' : 'none'; 
-      }); 
+      filterChecklist();
     }, 100);
   }); 
 }
@@ -691,7 +652,7 @@ function generateWorkbookWithFormulas() {
 function downloadExcelAndReset() { 
   const t = i18n[currentLang] || i18n['si'];
   const workbook = generateWorkbookWithFormulas();
-  const today = new Date().toISOString().split('T')[0]; 
+  const today = getTodayStr(); 
   XLSX.writeFile(workbook, `Stock_Counting_${today}.xlsx`); 
 
   inventory.forEach(item => { 
@@ -703,6 +664,7 @@ function downloadExcelAndReset() {
     item.j_ssl_sent = 0; 
     item.l_rejection = 0; 
     item.closing = item.op_stock; 
+    item.last_updated = "";
   }); 
   saveInventoryData(); 
   clearSearchInput();
@@ -711,7 +673,7 @@ function downloadExcelAndReset() {
 
 async function shareStockSummary() {
   const t = i18n[currentLang] || i18n['si'];
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayStr();
   const workbook = generateWorkbookWithFormulas();
   
   const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', cellFormula: true });
@@ -814,9 +776,10 @@ function restoreFromXLSX() {
           
           let tempItem = { op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection };
           let closing = calculateClosingStock(tempItem); 
+          let last_updated = (f_receipt || g_issues || h_return || i_ssl_received || j_ssl_sent || l_rejection) ? getTodayStr() : "";
             
           restored.push({ 
-            type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, closing
+            type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, closing, last_updated
           }); 
         } 
       } 
@@ -850,7 +813,7 @@ function resetToDefault() {
 
 function downloadXLSXBackup() { 
   const workbook = generateWorkbookWithFormulas();
-  const today = new Date().toISOString().split('T')[0]; 
+  const today = getTodayStr(); 
   XLSX.writeFile(workbook, `Stock_Counting_Backup_${today}.xlsx`); 
   showToast('Backup File Downloaded!', 'success'); 
 }
