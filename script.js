@@ -229,7 +229,11 @@ let inventory = [];
 let selectedIndex = -1;
 
 function getTodayStr() {
-  return new Date().toISOString().split('T')[0];
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function roundNum(val) {
@@ -571,19 +575,29 @@ function renderChecklist() {
 } 
 
 function filterChecklist() {
-  const q = (document.getElementById('modalSearchInput')?.value || '').toLowerCase().trim();
+  const modalInput = document.getElementById('modalSearchInput');
+  const q = (modalInput ? modalInput.value : '').toLowerCase().trim();
   const todayStr = getTodayStr();
   const items = document.querySelectorAll('#summaryCardsContainer .checklist-item');
 
   items.forEach((itemDiv) => {
-    const idx = itemDiv.dataset.index;
+    const idx = parseInt(itemDiv.dataset.index, 10);
     const item = inventory[idx];
     if (!item) return;
 
-    const matchesSearch = (item.name + " " + item.code).toLowerCase().includes(q);
-    const matchesToday = !isTodayOnlyFilter || (item.last_updated === todayStr);
+    const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(q);
+    
+    // Check if the item had any transactions/changes today or last_updated matches today
+    const hasTodayActivity = (item.last_updated === todayStr) || 
+                             (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0);
+                             
+    const matchesToday = !isTodayOnlyFilter || hasTodayActivity;
 
-    itemDiv.style.display = (matchesSearch && matchesToday) ? 'flex' : 'none';
+    if (matchesSearch && matchesToday) {
+      itemDiv.style.display = 'flex';
+    } else {
+      itemDiv.style.display = 'none';
+    }
   });
 }
 
@@ -614,15 +628,6 @@ function closeItemDetailModal() {
 }
 
 let modalSearchTimeout = null;
-const modalSearchInput = document.getElementById('modalSearchInput');
-if (modalSearchInput) {
-  modalSearchInput.addEventListener('input', function() { 
-    clearTimeout(modalSearchTimeout);
-    modalSearchTimeout = setTimeout(() => {
-      filterChecklist();
-    }, 100);
-  }); 
-}
 
 function generateWorkbookWithFormulas() {
   const exportData = inventory.map((item, index) => {
@@ -849,4 +854,14 @@ document.addEventListener('DOMContentLoaded', () => {
   applyLanguage(currentLang);
   updateVisibilityState(false);
   updateClearBtnVisibility();
+
+  const modalSearch = document.getElementById('modalSearchInput');
+  if (modalSearch) {
+    modalSearch.addEventListener('input', function() { 
+      clearTimeout(modalSearchTimeout);
+      modalSearchTimeout = setTimeout(() => {
+        filterChecklist();
+      }, 100);
+    }); 
+  }
 });
