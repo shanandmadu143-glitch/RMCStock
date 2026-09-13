@@ -20,7 +20,7 @@
   --shadow-subtle: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
   --shadow-hover: 0 20px 40px -10px rgba(37, 99, 235, 0.15);
   --shadow-modal: 0 25px 50px -12px rgba(15, 23, 42, 0.3);
-  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme="dark"] {
@@ -67,19 +67,13 @@ body {
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .container {
   width: 100%;
   max-width: 850px;
   margin: 0 auto;
-  animation: appSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes appSlideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .header-block {
@@ -146,7 +140,6 @@ body {
   justify-content: center;
   color: #60a5fa;
   font-size: 1.35rem;
-  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.1);
 }
 
 .icon-actions {
@@ -171,8 +164,7 @@ body {
 
 .btn-icon-header:hover {
   background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .card {
@@ -181,13 +173,7 @@ body {
   border: 1px solid var(--border-color);
   padding: 30px;
   box-shadow: var(--shadow-subtle);
-  transition: var(--transition-smooth);
   position: relative;
-  overflow: hidden;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-hover);
 }
 
 .form-group {
@@ -222,13 +208,12 @@ input[type="text"], input[type="number"], select, input[type="file"] {
   color: var(--text-dark);
   background-color: var(--input-bg);
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 input:focus, select:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
-  transform: translateY(-1px);
 }
 
 .search-results {
@@ -244,12 +229,6 @@ input:focus, select:focus {
   z-index: 100;
   box-shadow: var(--shadow-modal);
   margin-top: 6px;
-  animation: dropdownFade 0.2s ease-out;
-}
-
-@keyframes dropdownFade {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .search-item {
@@ -260,7 +239,7 @@ input:focus, select:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background-color 0.15s ease, padding-left 0.15s ease;
+  transition: background-color 0.1s ease;
 }
 
 .search-item:last-child {
@@ -270,7 +249,6 @@ input:focus, select:focus {
 .search-item:hover {
   background-color: var(--primary-light);
   color: var(--primary);
-  padding-left: 22px;
 }
 
 .selected-badge {
@@ -283,13 +261,6 @@ input:focus, select:focus {
   display: none;
   margin-bottom: 20px;
   line-height: 1.6;
-  animation: badgePop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.08);
-}
-
-@keyframes badgePop {
-  0% { opacity: 0; transform: scale(0.97); }
-  100% { opacity: 1; transform: scale(1); }
 }
 
 .form-grid {
@@ -317,8 +288,6 @@ input:focus, select:focus {
   border: none;
   cursor: pointer;
   transition: var(--transition-smooth);
-  position: relative;
-  overflow: hidden;
 }
 
 .btn-primary {
@@ -330,7 +299,6 @@ input:focus, select:focus {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
 }
 
 .btn-icon-excel, .btn-icon-share {
@@ -346,14 +314,11 @@ input:focus, select:focus {
   justify-content: center;
   transition: var(--transition-smooth);
   flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
 }
 
 .btn-icon-excel {
   background: linear-gradient(135deg, var(--success) 0%, var(--success-hover) 100%);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
-  font-size: 1.4rem;
 }
 
 .btn-icon-share {
@@ -362,11 +327,9 @@ input:focus, select:focus {
 }
 
 .btn-icon-excel:hover, .btn-icon-share:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
-/* Smooth Ripple Effect Animation */
 .ripple {
   position: relative;
   overflow: hidden;
@@ -375,15 +338,15 @@ input:focus, select:focus {
 .ripple-effect {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.4);
   transform: scale(0);
-  animation: rippleAnimation 0.5s linear;
+  animation: rippleAnimation 0.4s linear;
   pointer-events: none;
 }
 
 @keyframes rippleAnimation {
   to {
-    transform: scale(4);
+    transform: scale(3.5);
     opacity: 0;
   }
 }
@@ -397,13 +360,11 @@ input:focus, select:focus {
   color: var(--text-muted);
   letter-spacing: 1.8px;
   text-transform: uppercase;
-  user-select: none;
 }
 
 .footer-note span {
   color: var(--primary);
   font-weight: 800;
-  letter-spacing: 2px;
 }
 
 .modal {
@@ -414,18 +375,15 @@ input:focus, select:focus {
   width: 100%;
   height: 100%;
   background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(4px);
   z-index: 1000;
   justify-content: center;
   align-items: center;
   padding: 16px;
-  opacity: 0;
-  transition: opacity 0.25s ease;
 }
 
 .modal.show {
   display: flex;
-  opacity: 1;
 }
 
 .modal-content {
@@ -441,12 +399,6 @@ input:focus, select:focus {
   flex-direction: column;
   border: 1px solid var(--border-color);
   overflow: hidden;
-  transform: translateY(15px) scale(0.97);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modal.show .modal-content {
-  transform: translateY(0) scale(1);
 }
 
 .modal-header {
@@ -486,7 +438,6 @@ input:focus, select:focus {
 .close-btn:hover {
   background: var(--danger-light);
   color: var(--danger);
-  transform: rotate(90deg);
 }
 
 .checklist-container {
@@ -516,8 +467,6 @@ input:focus, select:focus {
 .checklist-item:hover {
   border-color: var(--primary);
   background: var(--primary-light);
-  transform: translateX(3px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06);
 }
 
 .checklist-left {
@@ -586,11 +535,6 @@ input:focus, select:focus {
   border: 1px solid var(--border-color);
   padding: 16px;
   border-radius: var(--radius-md);
-  transition: border-color 0.2s ease;
-}
-
-.detail-item-box:hover {
-  border-color: var(--primary);
 }
 
 .detail-item-box.full-width {
@@ -603,9 +547,6 @@ input:focus, select:focus {
   color: var(--text-muted);
   text-transform: uppercase;
   margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
 .detail-value {
@@ -620,11 +561,6 @@ input:focus, select:focus {
   padding: 18px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  transition: var(--transition-smooth);
-}
-
-.setting-option:hover {
-  border-color: var(--primary);
 }
 
 .setting-option p {
@@ -634,17 +570,20 @@ input:focus, select:focus {
   line-height: 1.4;
 }
 
+/* 🌟 POPUP / TOAST ALERTS - මැදට (Center) පැමිණෙන සේ සකසා ඇත */
 #toastContainer {
   position: fixed;
-  top: 24px;
-  right: 24px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 9999;
   display: flex;
   flex-direction: column;
   gap: 12px;
   pointer-events: none;
-  max-width: 90vw;
-  width: 380px;
+  width: 90%;
+  max-width: 400px;
+  align-items: center;
 }
 
 .toast {
@@ -652,26 +591,27 @@ input:focus, select:focus {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 16px 20px;
+  padding: 18px 24px;
   border-radius: var(--radius-md);
   background: var(--card-bg);
   color: var(--text-dark);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
   border-left: 6px solid var(--primary);
-  font-size: 0.92rem;
+  font-size: 0.98rem;
   font-weight: 600;
-  animation: slideInBounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: centerPopupAnim 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   border: 1px solid var(--border-color);
+  width: 100%;
+  text-align: center;
 }
 
 .toast.toast-success { border-left-color: var(--success); }
 .toast.toast-error { border-left-color: var(--danger); }
 .toast.toast-warning { border-left-color: var(--warning); }
 
-@keyframes slideInBounce {
-  0% { opacity: 0; transform: translateX(100%) scale(0.95); }
-  70% { transform: translateX(-8px) scale(1.01); }
-  100% { opacity: 1; transform: translateX(0) scale(1); }
+@keyframes centerPopupAnim {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 @media (max-width: 640px) {
