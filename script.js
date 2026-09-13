@@ -226,7 +226,7 @@ const defaultItems = [
 let inventory = []; 
 let selectedIndex = -1;
 
-// නිවැරදි ගණනය කිරීමේ සූත්‍රය (Central Calculation Function)
+// මධ්‍යගත Closing Stock සමීකරණය: Op + Receipt - Issues + Return + SSL Rec - SSL Sent - Rejection
 function calculateClosingStock(item) {
   const op = Number(item.op_stock) || 0;
   const receipt = Number(item.f_receipt) || 0;
@@ -236,7 +236,6 @@ function calculateClosingStock(item) {
   const sslSent = Number(item.j_ssl_sent) || 0;
   const rejection = Number(item.l_rejection) || 0;
 
-  // සමීකරණය: Op Stock + Receipt - Issues + Return + SSL Rec - SSL Sent - Rejection
   return op + receipt - issues + ret + sslRec - sslSent - rejection;
 }
 
@@ -245,7 +244,6 @@ function loadInventoryData() {
   if (savedData) { 
     try { 
       inventory = JSON.parse(savedData); 
-      // සෑම අයිතමයකම සංඛ්‍යාත්මක අගයන් තහවුරු කර Closing Stock එක නිවැරදිව යළි ගණනය කිරීම
       inventory.forEach(item => {
         item.op_stock = Number(item.op_stock) || 0;
         item.f_receipt = Number(item.f_receipt) || 0;
@@ -368,7 +366,6 @@ function addSingleSectionData() {
   
   let item = inventory[selectedIndex]; 
   
-  // දත්ත අදාළ කොටසට එකතු කිරීම
   if (targetSection === 'F') item.f_receipt = Number(item.f_receipt) + amount; 
   else if (targetSection === 'G') item.g_issues = Number(item.g_issues) + amount; 
   else if (targetSection === 'H') item.h_return = Number(item.h_return) + amount; 
@@ -376,7 +373,6 @@ function addSingleSectionData() {
   else if (targetSection === 'J') item.j_ssl_sent = Number(item.j_ssl_sent) + amount; 
   else if (targetSection === 'L') item.l_rejection = Number(item.l_rejection) + amount; 
 
-  // Closing Stock එක නැවත නිවැරදිව ගණනය කර ලබා දීම
   item.closing = calculateClosingStock(item); 
   
   saveInventoryData(); 
@@ -541,7 +537,6 @@ function downloadExcelAndReset() {
   const today = new Date().toISOString().split('T')[0]; 
   XLSX.writeFile(workbook, `RMC_Daily_Stock_${today}.xlsx`); 
 
-  // Stock Shift: Closing Stock එක ඊළඟ දවසට Opening Stock එක බවට පත් කිරීම
   inventory.forEach(item => { 
     item.op_stock = Number(item.closing) || 0; 
     item.f_receipt = 0; 
@@ -588,6 +583,7 @@ async function shareStockSummary() {
   }
 }
 
+// Excel Restore කිරීමේදී සියලුම අංශ (Sections) සහ සමීකරණ නිවැරදිව මැප් කර ලබා ගැනීම
 function restoreFromXLSX() { 
   const t = i18n[currentLang] || i18n['si'];
   const fileInput = document.getElementById('xlsxFileInput'); 
@@ -612,6 +608,7 @@ function restoreFromXLSX() {
       } 
       
       let headerIndex = -1; 
+      // මූලික තීරු සිතියම්ගත කිරීම (Default column indices)
       let colMap = { type: 0, code: 1, name: 2, uom: 3, op_stock: 4, f_receipt: 5, g_issues: 6, h_return: 7, i_ssl_received: 8, j_ssl_sent: 9, closing: 10, l_rejection: 11 }; 
       
       for (let r = 0; r < Math.min(matrix.length, 10); r++) { 
@@ -624,12 +621,14 @@ function restoreFromXLSX() {
             if (cellVal.includes("name")) colMap.name = colIdx; 
             if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
             if (cellVal.includes("op") || cellVal.includes("open") || cellVal.includes("stock")) colMap.op_stock = colIdx; 
-            if (cellVal.includes("receipt") || cellVal.includes("f")) colMap.f_receipt = colIdx; 
-            if (cellVal.includes("issue") || cellVal.includes("g")) colMap.g_issues = colIdx; 
-            if (cellVal.includes("return") || cellVal.includes("h")) colMap.h_return = colIdx; 
-            if (cellVal.includes("ssl i") || cellVal.includes("ssl") || cellVal.includes("received")) colMap.i_ssl_received = colIdx; 
-            if (cellVal.includes("ssl j") || cellVal.includes("sent")) colMap.j_ssl_sent = colIdx; 
-            if (cellVal.includes("rejection") || cellVal.includes("l")) colMap.l_rejection = colIdx; 
+            
+            // Sections / Formulas අදාළ තීරු හඳුනා ගැනීම
+            if (cellVal.includes("receipt") || cellVal === "f") colMap.f_receipt = colIdx; 
+            if (cellVal.includes("issue") || cellVal === "g") colMap.g_issues = colIdx; 
+            if (cellVal.includes("return") || cellVal === "h") colMap.h_return = colIdx; 
+            if (cellVal.includes("received to ssl") || cellVal.includes("ssl i") || cellVal === "i") colMap.i_ssl_received = colIdx; 
+            if (cellVal.includes("sent to ssl") || cellVal.includes("ssl j") || cellVal === "j") colMap.j_ssl_sent = colIdx; 
+            if (cellVal.includes("rejection") || cellVal === "l") colMap.l_rejection = colIdx; 
             if (cellVal.includes("closing")) colMap.closing = colIdx; 
           }); 
           break; 
@@ -654,6 +653,8 @@ function restoreFromXLSX() {
         if (code || name) { 
           let type = row[colMap.type] !== undefined && row[colMap.type] !== "" ? String(row[colMap.type]).trim() : "RM"; 
           let uom = row[colMap.uom] !== undefined && row[colMap.uom] !== "" ? String(row[colMap.uom]).trim() : "KG"; 
+          
+          // සෑම අංශයකටම අදාළ අගයන් නිවැරදිව අංක ලෙස ලබා ගැනීම
           let op_stock = parseFloat(row[colMap.op_stock]) || 0; 
           let f_receipt = parseFloat(row[colMap.f_receipt]) || 0; 
           let g_issues = parseFloat(row[colMap.g_issues]) || 0; 
@@ -672,6 +673,7 @@ function restoreFromXLSX() {
             l_rejection
           };
           
+          // සැමවිටම නිවැරදි සමීකරණය මගින් Closing Stock එක ස්වයංක්‍රීයව ගණනය කිරීම
           let closing = calculateClosingStock(tempItem); 
             
           restored.push({ 
