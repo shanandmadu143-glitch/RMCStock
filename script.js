@@ -289,6 +289,13 @@ function saveInventoryData() {
 const searchInput = document.getElementById('searchInput'); 
 const searchResults = document.getElementById('searchResults'); 
 const selectedBadge = document.getElementById('selectedBadge'); 
+const footerNote = document.getElementById('lblFooter');
+
+function updateVisibilityState(isTypingOrSelected) {
+  if (footerNote) {
+    footerNote.style.display = isTypingOrSelected ? 'none' : 'block';
+  }
+}
 
 let searchDebounceTimeout = null;
 if (searchInput) {
@@ -296,6 +303,14 @@ if (searchInput) {
     clearTimeout(searchDebounceTimeout);
     const query = this.value.toLowerCase().trim(); 
     
+    if (query === '') {
+      selectedIndex = -1;
+      if (selectedBadge) selectedBadge.style.display = 'none';
+      updateVisibilityState(false);
+    } else {
+      updateVisibilityState(true);
+    }
+
     searchDebounceTimeout = setTimeout(() => {
       if (!searchResults) return;
       searchResults.innerHTML = ''; 
@@ -340,11 +355,16 @@ function selectItem(index) {
   if (searchInput) searchInput.value = `${item.code} - ${item.name}`; 
   if (searchResults) searchResults.style.display = 'none'; 
   
+  // Live Closing stock එක යාවත්කාලීන කිරීම
+  item.closing = calculateClosingStock(item);
+
   const dispCode = document.getElementById('dispCode'); if(dispCode) dispCode.innerText = item.code; 
   const dispName = document.getElementById('dispName'); if(dispName) dispName.innerText = item.name; 
   const dispUom = document.getElementById('dispUom'); if(dispUom) dispUom.innerText = item.uom; 
-  const dispOp = document.getElementById('dispOp'); if(dispOp) dispOp.innerText = Number(item.op_stock).toLocaleString(); 
+  const dispClosing = document.getElementById('dispClosing'); if(dispClosing) dispClosing.innerText = Number(item.closing).toLocaleString() + ' ' + item.uom; 
+  
   if(selectedBadge) selectedBadge.style.display = 'block'; 
+  updateVisibilityState(true);
 } 
 
 function addSingleSectionData() { 
@@ -378,6 +398,12 @@ function addSingleSectionData() {
 
   item.closing = calculateClosingStock(item); 
   
+  // Save වූ වහාම selectedBadge එකේ Live closing stock අගය අලුත් කිරීම
+  const dispClosing = document.getElementById('dispClosing');
+  if (dispClosing) {
+    dispClosing.innerText = Number(item.closing).toLocaleString() + ' ' + item.uom;
+  }
+
   saveInventoryData(); 
   inputAmount.value = ''; 
   showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
@@ -418,7 +444,6 @@ function closeSettings() {
   hideModal('settingsModal');
 } 
 
-// Help Modal Open/Close & Guide Functions
 function openRestoreHelpModal() {
   showModal('restoreHelpModal');
   switchHelpTopic('fileType');
@@ -437,7 +462,7 @@ function switchHelpTopic(topic) {
       <h4 style="color: var(--primary); margin-bottom: 8px;"><i class="fa-solid fa-file-excel"></i> Upload කළ යුත්තේ මොන වගේ File එකක්ද?</h4>
       <p>• මෙම App එක මඟින් මීට පෙර Download කරගත් හෝ Backup එකක් ලෙස ලබාගත් <b>Excel (.xlsx හෝ .xls)</b> ගොනුවක් පමණක් upload කළ යුතුය.</p>
       <p>• එම Excel ගොනුව තුළ අනිවාර්යයෙන්ම <b>Material Code, Material Name, Op.Stock-Warehouse, Receipt, Issues, Return, Closing Stock</b> වැනි නිවැරදි ශීර්ෂ (Headers) අඩංගු විය යුතුය.</p>
-      <p>• වෙනත් වෙනත් අක්‍රමවත් Excel පත්‍ර උඩුගත කිරීමෙන් දත්ත දෝෂ ಸಹගත විය හැක.</p>
+      <p>• වෙනත් වෙනත් අක්‍රමවත් Excel පත්‍ර උඩුගත කිරීමෙන් දත්ත දෝෂ සහගත විය හැක.</p>
     `;
   } else if (topic === 'howToDo') {
     box.innerHTML = `
@@ -466,6 +491,9 @@ function renderChecklist() {
   const fragment = document.createDocumentFragment();
 
   inventory.forEach((item, idx) => { 
+    // සෑම විටම Live Closing Stock එක ගණනය කර පෙන්වීම
+    item.closing = calculateClosingStock(item);
+
     const itemDiv = document.createElement('div'); 
     itemDiv.className = 'checklist-item'; 
     itemDiv.dataset.index = idx;
@@ -509,6 +537,7 @@ function openItemDetails(index) {
   const item = inventory[index];
   if (!item) return;
   
+  item.closing = calculateClosingStock(item);
   const setText = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
   
   setText('detCode', item.code);
@@ -596,6 +625,7 @@ function downloadExcelAndReset() {
   selectedIndex = -1; 
   if (searchInput) searchInput.value = ''; 
   if (selectedBadge) selectedBadge.style.display = 'none'; 
+  updateVisibilityState(false);
   showToast(t.msgExcelShift, 'success'); 
 } 
 
@@ -773,4 +803,5 @@ document.addEventListener('DOMContentLoaded', () => {
   loadInventoryData();
   applyTheme(currentTheme);
   applyLanguage(currentLang);
+  updateVisibilityState(false);
 });
