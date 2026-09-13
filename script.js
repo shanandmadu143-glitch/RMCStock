@@ -604,18 +604,14 @@ function generateWorkbookWithFormulas() {
   return workbook;
 }
 
-async function downloadExcelAndReset() { 
-  const t = i18n[currentLang] || i18n['si'];
-  const workbook = generateWorkbookWithFormulas();
-  const today = getTodayStr(); 
-  const defaultFileName = `Stock_Counting_${today}.xlsx`;
-
+// Download Window/Location Picker Helper Function
+async function saveWorkbookWithLocationPicker(workbook, defaultFileName) {
   if (window.showSaveFilePicker) {
     try {
       const handle = await window.showSaveFilePicker({
         suggestedName: defaultFileName,
         types: [{
-          description: 'Excel File',
+          description: 'Excel Spreadsheet',
           accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
         }]
       });
@@ -624,23 +620,45 @@ async function downloadExcelAndReset() {
       const writable = await handle.createWritable();
       await writable.write(buffer);
       await writable.close();
-      
-      resetStockAndComplete(t);
-      return;
+      return true;
     } catch (err) {
-      if (err.name === 'AbortError') return; 
+      if (err.name === 'AbortError') return false; // User cancelled
     }
   }
 
-  const userFileName = prompt("File Name එක ඇතුළත් කරන්න:", defaultFileName);
-  if (userFileName === null) return; 
+  // Fallback for browsers that do not support showSaveFilePicker API
+  const userFileName = prompt("කරුණාකර File එක Save කළ යුතු Name එක ඇතුළත් කරන්න:", defaultFileName);
+  if (userFileName === null) return false;
 
   const finalFileName = userFileName.trim() ? 
     (userFileName.endsWith('.xlsx') ? userFileName : userFileName + '.xlsx') : 
     defaultFileName;
 
-  XLSX.writeFile(workbook, finalFileName); 
-  resetStockAndComplete(t);
+  XLSX.writeFile(workbook, finalFileName);
+  return true;
+}
+
+async function downloadExcelAndReset() { 
+  const t = i18n[currentLang] || i18n['si'];
+  const workbook = generateWorkbookWithFormulas();
+  const today = getTodayStr(); 
+  const defaultFileName = `Stock_Counting_${today}.xlsx`;
+
+  const isSaved = await saveWorkbookWithLocationPicker(workbook, defaultFileName);
+  if (isSaved) {
+    resetStockAndComplete(t);
+  }
+}
+
+async function downloadXLSXBackup() { 
+  const workbook = generateWorkbookWithFormulas();
+  const today = getTodayStr(); 
+  const defaultFileName = `Stock_Counting_Backup_${today}.xlsx`;
+
+  const isSaved = await saveWorkbookWithLocationPicker(workbook, defaultFileName);
+  if (isSaved) {
+    showToast('Backup File Downloaded Successfully!', 'success');
+  }
 }
 
 function resetStockAndComplete(t) {
@@ -799,44 +817,6 @@ function resetToDefault() {
     showToast("Reset Successful!", "success"); 
   } 
 } 
-
-async function downloadXLSXBackup() { 
-  const workbook = generateWorkbookWithFormulas();
-  const today = getTodayStr(); 
-  const defaultFileName = `Stock_Counting_Backup_${today}.xlsx`;
-
-  if (window.showSaveFilePicker) {
-    try {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: defaultFileName,
-        types: [{
-          description: 'Excel File',
-          accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
-        }]
-      });
-      
-      const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const writable = await handle.createWritable();
-      await writable.write(buffer);
-      await writable.close();
-      
-      showToast('Backup File Downloaded!', 'success');
-      return;
-    } catch (err) {
-      if (err.name === 'AbortError') return;
-    }
-  }
-
-  const userFileName = prompt("Backup File Name එක ඇතුළත් කරන්න:", defaultFileName);
-  if (userFileName === null) return;
-
-  const finalFileName = userFileName.trim() ? 
-    (userFileName.endsWith('.xlsx') ? userFileName : userFileName + '.xlsx') : 
-    defaultFileName;
-
-  XLSX.writeFile(workbook, finalFileName); 
-  showToast('Backup File Downloaded!', 'success'); 
-}
 
 document.addEventListener('click', function (e) {
   const target = e.target.closest('.ripple');
