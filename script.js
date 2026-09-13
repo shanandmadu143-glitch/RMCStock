@@ -141,40 +141,49 @@ function applyLanguage(lang) {
   if (langSelect) langSelect.value = lang;
   
   const t = i18n[lang] || i18n['si'];
-  document.getElementById('lblSearch').innerHTML = t.lblSearch;
-  document.getElementById('searchInput').placeholder = t.placeholderSearch;
-  document.getElementById('lblSection').innerHTML = t.lblSection;
-  document.getElementById('optReceipt').innerText = t.optReceipt;
-  document.getElementById('optIssues').innerText = t.optIssues;
-  document.getElementById('optReturn').innerText = t.optReturn;
-  document.getElementById('optSslI').innerText = t.optSslI;
-  document.getElementById('optSslJ').innerText = t.optSslJ;
-  document.getElementById('optRejectionL').innerText = t.optRejectionL;
-  document.getElementById('lblAmount').innerHTML = t.lblAmount;
-  document.getElementById('btnSave').innerHTML = t.btnSave;
-  document.getElementById('btnExcel').title = t.titleExcel;
-  document.getElementById('btnShare').title = t.titleShare;
-  document.getElementById('txtSummaryTitle').innerHTML = t.txtSummaryTitle;
-  document.getElementById('modalSearchInput').placeholder = t.placeholderModalSearch;
-  document.getElementById('txtSettingsTitle').innerHTML = t.txtSettingsTitle;
-  document.getElementById('lblLanguage').innerHTML = t.lblLanguage;
-  document.getElementById('lblTheme').innerHTML = t.lblTheme;
-  document.getElementById('lblRestore').innerHTML = t.lblRestore;
-  document.getElementById('descRestore').innerText = t.descRestore;
-  document.getElementById('btnRestore').innerHTML = t.btnRestore;
-  document.getElementById('lblBackup').innerHTML = t.lblBackup;
-  document.getElementById('descBackup').innerText = t.descBackup;
-  document.getElementById('btnBackup').innerHTML = t.btnBackup;
-  document.getElementById('lblReset').innerHTML = t.lblReset;
-  document.getElementById('descReset').innerText = t.descReset;
-  document.getElementById('btnReset').innerHTML = t.btnReset;
-  document.getElementById('lblFooter').innerHTML = t.lblFooter;
+  const setHtml = (id, html) => { const el = document.getElementById(id); if(el) el.innerHTML = html; };
+  const setText = (id, text) => { const el = document.getElementById(id); if(el) el.innerText = text; };
+
+  setHtml('lblSearch', t.lblSearch);
+  const searchInputEl = document.getElementById('searchInput');
+  if(searchInputEl) searchInputEl.placeholder = t.placeholderSearch;
+  setHtml('lblSection', t.lblSection);
+  setText('optReceipt', t.optReceipt);
+  setText('optIssues', t.optIssues);
+  setText('optReturn', t.optReturn);
+  setText('optSslI', t.optSslI);
+  setText('optSslJ', t.optSslJ);
+  setText('optRejectionL', t.optRejectionL);
+  setHtml('lblAmount', t.lblAmount);
+  setHtml('btnSave', t.btnSave);
+  
+  const btnExcel = document.getElementById('btnExcel'); if(btnExcel) btnExcel.title = t.titleExcel;
+  const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
+  
+  setHtml('txtSummaryTitle', t.txtSummaryTitle);
+  const modalSearchInput = document.getElementById('modalSearchInput');
+  if(modalSearchInput) modalSearchInput.placeholder = t.placeholderModalSearch;
+  
+  setHtml('txtSettingsTitle', t.txtSettingsTitle);
+  setHtml('lblLanguage', t.lblLanguage);
+  setHtml('lblTheme', t.lblTheme);
+  setHtml('lblRestore', t.lblRestore);
+  setText('descRestore', t.descRestore);
+  setHtml('btnRestore', t.btnRestore);
+  setHtml('lblBackup', t.lblBackup);
+  setText('descBackup', t.descBackup);
+  setHtml('btnBackup', t.btnBackup);
+  setHtml('lblReset', t.lblReset);
+  setText('descReset', t.descReset);
+  setHtml('btnReset', t.btnReset);
+  setHtml('lblFooter', t.lblFooter);
 }
 
 function changeLanguage(lang) { applyLanguage(lang); }
 
 function showToast(message, type = 'success') { 
   const container = document.getElementById('toastContainer'); 
+  if (!container) return;
   const toast = document.createElement('div'); 
   toast.className = `toast toast-${type}`; 
   let iconClass = 'fa-circle-check'; 
@@ -217,23 +226,36 @@ const defaultItems = [
 let inventory = []; 
 let selectedIndex = -1;
 
+// නිවැරදි ගණනය කිරීමේ සූත්‍රය (Central Calculation Function)
+function calculateClosingStock(item) {
+  const op = Number(item.op_stock) || 0;
+  const receipt = Number(item.f_receipt) || 0;
+  const issues = Number(item.g_issues) || 0;
+  const ret = Number(item.h_return) || 0;
+  const sslRec = Number(item.i_ssl_received) || 0;
+  const sslSent = Number(item.j_ssl_sent) || 0;
+  const rejection = Number(item.l_rejection) || 0;
+
+  // සමීකරණය: Op Stock + Receipt - Issues + Return + SSL Rec - SSL Sent - Rejection
+  return op + receipt - issues + ret + sslRec - sslSent - rejection;
+}
+
 function loadInventoryData() { 
   const savedData = localStorage.getItem('rmc_stock_inventory'); 
   if (savedData) { 
     try { 
       inventory = JSON.parse(savedData); 
-      // Ensure all items have calculated closing stock accurately based on fields
+      // සෑම අයිතමයකම සංඛ්‍යාත්මක අගයන් තහවුරු කර Closing Stock එක නිවැරදිව යළි ගණනය කිරීම
       inventory.forEach(item => {
+        item.op_stock = Number(item.op_stock) || 0;
         item.f_receipt = Number(item.f_receipt) || 0;
         item.g_issues = Number(item.g_issues) || 0;
         item.h_return = Number(item.h_return) || 0;
         item.i_ssl_received = Number(item.i_ssl_received) || 0;
         item.j_ssl_sent = Number(item.j_ssl_sent) || 0;
         item.l_rejection = Number(item.l_rejection) || 0;
-        item.op_stock = Number(item.op_stock) || 0;
         
-        // නිවැරදි සූත්‍රය මගින් Closing Stock යළි ගණනය කිරීම
-        item.closing = item.op_stock + item.f_receipt - item.g_issues + item.h_return + item.i_ssl_received - item.j_ssl_sent - item.l_rejection;
+        item.closing = calculateClosingStock(item);
       });
     } catch(e) { 
       initDefaultInventory(); 
@@ -246,13 +268,14 @@ function loadInventoryData() {
 function initDefaultInventory() { 
   inventory = defaultItems.map(item => ({ 
     ...item, 
+    op_stock: Number(item.op_stock) || 0,
     f_receipt: 0, 
     g_issues: 0, 
     h_return: 0, 
     i_ssl_received: 0, 
     j_ssl_sent: 0, 
     l_rejection: 0, 
-    closing: item.op_stock, 
+    closing: Number(item.op_stock) || 0, 
     checked: false 
   })); 
   saveInventoryData(); 
@@ -267,41 +290,44 @@ const searchResults = document.getElementById('searchResults');
 const selectedBadge = document.getElementById('selectedBadge'); 
 
 let searchDebounceTimeout = null;
-searchInput.addEventListener('input', function() { 
-  clearTimeout(searchDebounceTimeout);
-  const query = this.value.toLowerCase().trim(); 
-  
-  searchDebounceTimeout = setTimeout(() => {
-    searchResults.innerHTML = ''; 
-    if (!query) { 
-      searchResults.style.display = 'none'; 
-      return; 
-    } 
+if (searchInput) {
+  searchInput.addEventListener('input', function() { 
+    clearTimeout(searchDebounceTimeout);
+    const query = this.value.toLowerCase().trim(); 
     
-    const filtered = inventory.filter(item => 
-      String(item.code).toLowerCase().includes(query) || String(item.name).toLowerCase().includes(query) 
-    ); 
-    
-    if (filtered.length > 0) { 
-      searchResults.style.display = 'block'; 
-      const fragment = document.createDocumentFragment();
-      filtered.forEach(item => { 
-        const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name); 
-        const div = document.createElement('div'); 
-        div.className = 'search-item'; 
-        div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.78rem;">${item.closing} ${item.uom}</span>`; 
-        div.onclick = () => selectItem(idx); 
-        fragment.appendChild(div); 
-      }); 
-      searchResults.appendChild(fragment);
-    } else { 
-      searchResults.style.display = 'none'; 
-    } 
-  }, 150);
-}); 
+    searchDebounceTimeout = setTimeout(() => {
+      if (!searchResults) return;
+      searchResults.innerHTML = ''; 
+      if (!query) { 
+        searchResults.style.display = 'none'; 
+        return; 
+      } 
+      
+      const filtered = inventory.filter(item => 
+        String(item.code).toLowerCase().includes(query) || String(item.name).toLowerCase().includes(query) 
+      ); 
+      
+      if (filtered.length > 0) { 
+        searchResults.style.display = 'block'; 
+        const fragment = document.createDocumentFragment();
+        filtered.forEach(item => { 
+          const idx = inventory.findIndex(i => i.code === item.code && i.name === item.name); 
+          const div = document.createElement('div'); 
+          div.className = 'search-item'; 
+          div.innerHTML = `<span><strong>${item.code}</strong> - ${item.name}</span> <span style="color:var(--text-muted); font-size:0.78rem;">${Number(item.closing).toLocaleString()} ${item.uom}</span>`; 
+          div.onclick = () => selectItem(idx); 
+          fragment.appendChild(div); 
+        }); 
+        searchResults.appendChild(fragment);
+      } else { 
+        searchResults.style.display = 'none'; 
+      } 
+    }, 150);
+  }); 
+}
 
 document.addEventListener('click', function(e) {
-  if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+  if (searchInput && searchResults && !searchInput.contains(e.target) && !searchResults.contains(e.target)) {
     searchResults.style.display = 'none';
   }
 });
@@ -309,41 +335,58 @@ document.addEventListener('click', function(e) {
 function selectItem(index) { 
   selectedIndex = index; 
   const item = inventory[index]; 
-  searchInput.value = `${item.code} - ${item.name}`; 
-  searchResults.style.display = 'none'; 
-  document.getElementById('dispCode').innerText = item.code; 
-  document.getElementById('dispName').innerText = item.name; 
-  document.getElementById('dispUom').innerText = item.uom; 
-  document.getElementById('dispOp').innerText = Number(item.op_stock).toLocaleString(); 
-  selectedBadge.style.display = 'block'; 
+  if (!item) return;
+  if (searchInput) searchInput.value = `${item.code} - ${item.name}`; 
+  if (searchResults) searchResults.style.display = 'none'; 
+  
+  const dispCode = document.getElementById('dispCode'); if(dispCode) dispCode.innerText = item.code; 
+  const dispName = document.getElementById('dispName'); if(dispName) dispName.innerText = item.name; 
+  const dispUom = document.getElementById('dispUom'); if(dispUom) dispUom.innerText = item.uom; 
+  const dispOp = document.getElementById('dispOp'); if(dispOp) dispOp.innerText = Number(item.op_stock).toLocaleString(); 
+  if(selectedBadge) selectedBadge.style.display = 'block'; 
 } 
 
 function addSingleSectionData() { 
   const t = i18n[currentLang] || i18n['si'];
-  if (selectedIndex === -1) { showToast(t.msgSelectMaterial, 'warning'); return; } 
-  const targetSection = document.getElementById('sectionSelect').value; 
-  const amount = parseFloat(document.getElementById('inputAmount').value) || 0; 
-  if (amount <= 0) { showToast(t.msgValidAmount, 'error'); return; } 
+  if (selectedIndex === -1 || !inventory[selectedIndex]) { 
+    showToast(t.msgSelectMaterial, 'warning'); 
+    return; 
+  } 
+  
+  const sectionSelect = document.getElementById('sectionSelect');
+  const inputAmount = document.getElementById('inputAmount');
+  
+  if (!sectionSelect || !inputAmount) return;
+
+  const targetSection = sectionSelect.value; 
+  const amount = parseFloat(inputAmount.value) || 0; 
+  
+  if (amount <= 0) { 
+    showToast(t.msgValidAmount, 'error'); 
+    return; 
+  } 
   
   let item = inventory[selectedIndex]; 
   
-  if (targetSection === 'F') item.f_receipt += amount; 
-  else if (targetSection === 'G') item.g_issues += amount; 
-  else if (targetSection === 'H') item.h_return += amount; 
-  else if (targetSection === 'I') item.i_ssl_received += amount; 
-  else if (targetSection === 'J') item.j_ssl_sent += amount; 
-  else if (targetSection === 'L') item.l_rejection += amount; 
+  // දත්ත අදාළ කොටසට එකතු කිරීම
+  if (targetSection === 'F') item.f_receipt = Number(item.f_receipt) + amount; 
+  else if (targetSection === 'G') item.g_issues = Number(item.g_issues) + amount; 
+  else if (targetSection === 'H') item.h_return = Number(item.h_return) + amount; 
+  else if (targetSection === 'I') item.i_ssl_received = Number(item.i_ssl_received) + amount; 
+  else if (targetSection === 'J') item.j_ssl_sent = Number(item.j_ssl_sent) + amount; 
+  else if (targetSection === 'L') item.l_rejection = Number(item.l_rejection) + amount; 
 
-  // නිවැරදි කරන ලද Closing Stock සමීකරණය
-  item.closing = Number(item.op_stock) + Number(item.f_receipt) - Number(item.g_issues) + Number(item.h_return) + Number(item.i_ssl_received) - Number(item.j_ssl_sent) - Number(item.l_rejection); 
+  // Closing Stock එක නැවත නිවැරදිව ගණනය කර ලබා දීම
+  item.closing = calculateClosingStock(item); 
   
   saveInventoryData(); 
-  document.getElementById('inputAmount').value = ''; 
+  inputAmount.value = ''; 
   showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
 } 
 
 function showModal(modalId) {
   const modal = document.getElementById(modalId);
+  if (!modal) return;
   modal.style.display = 'flex';
   requestAnimationFrame(() => {
     modal.classList.add('show');
@@ -352,6 +395,7 @@ function showModal(modalId) {
 
 function hideModal(modalId) {
   const modal = document.getElementById(modalId);
+  if (!modal) return;
   modal.classList.remove('show');
   setTimeout(() => {
     modal.style.display = 'none';
@@ -377,6 +421,7 @@ function closeSettings() {
 
 function renderChecklist() { 
   const container = document.getElementById('summaryCardsContainer'); 
+  if (!container) return;
   container.innerHTML = ''; 
   const fragment = document.createDocumentFragment();
 
@@ -399,11 +444,14 @@ function renderChecklist() {
       </div>
     `; 
 
-    itemDiv.querySelector('.checklist-checkbox').addEventListener('change', (e) => {
-      e.stopPropagation();
-      inventory[idx].checked = e.target.checked;
-      saveInventoryData();
-    });
+    const checkbox = itemDiv.querySelector('.checklist-checkbox');
+    if (checkbox) {
+      checkbox.addEventListener('change', (e) => {
+        e.stopPropagation();
+        inventory[idx].checked = e.target.checked;
+        saveInventoryData();
+      });
+    }
 
     itemDiv.addEventListener('click', (e) => {
       if (!e.target.classList.contains('checklist-checkbox')) {
@@ -419,17 +467,21 @@ function renderChecklist() {
 
 function openItemDetails(index) {
   const item = inventory[index];
-  document.getElementById('detCode').innerText = item.code;
-  document.getElementById('detName').innerText = item.name;
-  document.getElementById('detUom').innerText = item.uom;
-  document.getElementById('detOp').innerText = Number(item.op_stock).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detReceipt').innerText = Number(item.f_receipt).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detIssues').innerText = Number(item.g_issues).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detReturn').innerText = Number(item.h_return).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detSslI').innerText = Number(item.i_ssl_received || 0).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detSslJ').innerText = Number(item.j_ssl_sent || 0).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detRejectionL').innerText = Number(item.l_rejection || 0).toLocaleString() + ' ' + item.uom;
-  document.getElementById('detClosing').innerText = Number(item.closing).toLocaleString() + ' ' + item.uom;
+  if (!item) return;
+  
+  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+  
+  setText('detCode', item.code);
+  setText('detName', item.name);
+  setText('detUom', item.uom);
+  setText('detOp', Number(item.op_stock).toLocaleString() + ' ' + item.uom);
+  setText('detReceipt', Number(item.f_receipt).toLocaleString() + ' ' + item.uom);
+  setText('detIssues', Number(item.g_issues).toLocaleString() + ' ' + item.uom);
+  setText('detReturn', Number(item.h_return).toLocaleString() + ' ' + item.uom);
+  setText('detSslI', Number(item.i_ssl_received || 0).toLocaleString() + ' ' + item.uom);
+  setText('detSslJ', Number(item.j_ssl_sent || 0).toLocaleString() + ' ' + item.uom);
+  setText('detRejectionL', Number(item.l_rejection || 0).toLocaleString() + ' ' + item.uom);
+  setText('detClosing', Number(item.closing).toLocaleString() + ' ' + item.uom);
 
   showModal('itemDetailModal');
 }
@@ -439,37 +491,41 @@ function closeItemDetailModal() {
 }
 
 let modalSearchTimeout = null;
-document.getElementById('modalSearchInput').addEventListener('input', function() { 
-  clearTimeout(modalSearchTimeout);
-  const q = this.value.toLowerCase().trim(); 
-  
-  modalSearchTimeout = setTimeout(() => {
-    const items = document.querySelectorAll('#summaryCardsContainer .checklist-item'); 
-    items.forEach((itemDiv) => { 
-      const idx = itemDiv.dataset.index;
-      const item = inventory[idx];
-      const text = (item.name + " " + item.code).toLowerCase(); 
-      itemDiv.style.display = text.includes(q) ? 'flex' : 'none'; 
-    }); 
-  }, 150);
-}); 
+const modalSearchInput = document.getElementById('modalSearchInput');
+if (modalSearchInput) {
+  modalSearchInput.addEventListener('input', function() { 
+    clearTimeout(modalSearchTimeout);
+    const q = this.value.toLowerCase().trim(); 
+    
+    modalSearchTimeout = setTimeout(() => {
+      const items = document.querySelectorAll('#summaryCardsContainer .checklist-item'); 
+      items.forEach((itemDiv) => { 
+        const idx = itemDiv.dataset.index;
+        const item = inventory[idx];
+        if(!item) return;
+        const text = (item.name + " " + item.code).toLowerCase(); 
+        itemDiv.style.display = text.includes(q) ? 'flex' : 'none'; 
+      }); 
+    }, 150);
+  }); 
+}
 
 function generateWorkbookWithFormulas() {
   const exportData = inventory.map((item, index) => {
     const rowNum = index + 2; 
     return { 
-      "Type": item.type, 
+      "Type": item.type || "RM", 
       "Material Code": item.code, 
       "Material Name": item.name, 
       "UOM": item.uom, 
-      "Op.Stock-Warehouse": item.op_stock, 
-      "Receipt": item.f_receipt, 
-      "Issues": item.g_issues, 
-      "Return": item.h_return, 
-      "Received to SSL": item.i_ssl_received || 0, 
-      "Sent to SSL": item.j_ssl_sent || 0, 
-      "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-L${rowNum}`, v: item.closing }, 
-      "Rejection": item.l_rejection || 0 
+      "Op.Stock-Warehouse": Number(item.op_stock) || 0, 
+      "Receipt": Number(item.f_receipt) || 0, 
+      "Issues": Number(item.g_issues) || 0, 
+      "Return": Number(item.h_return) || 0, 
+      "Received to SSL": Number(item.i_ssl_received) || 0, 
+      "Sent to SSL": Number(item.j_ssl_sent) || 0, 
+      "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-L${rowNum}`, v: Number(item.closing) || 0 }, 
+      "Rejection": Number(item.l_rejection) || 0 
     }; 
   }); 
 
@@ -487,7 +543,7 @@ function downloadExcelAndReset() {
 
   // Stock Shift: Closing Stock එක ඊළඟ දවසට Opening Stock එක බවට පත් කිරීම
   inventory.forEach(item => { 
-    item.op_stock = item.closing; 
+    item.op_stock = Number(item.closing) || 0; 
     item.f_receipt = 0; 
     item.g_issues = 0; 
     item.h_return = 0; 
@@ -499,8 +555,8 @@ function downloadExcelAndReset() {
   }); 
   saveInventoryData(); 
   selectedIndex = -1; 
-  searchInput.value = ''; 
-  selectedBadge.style.display = 'none'; 
+  if (searchInput) searchInput.value = ''; 
+  if (selectedBadge) selectedBadge.style.display = 'none'; 
   showToast(t.msgExcelShift, 'success'); 
 } 
 
@@ -535,9 +591,12 @@ async function shareStockSummary() {
 function restoreFromXLSX() { 
   const t = i18n[currentLang] || i18n['si'];
   const fileInput = document.getElementById('xlsxFileInput'); 
-  const file = fileInput.files[0]; 
-  if (!file) { showToast(t.msgRestoreSelect, 'warning'); return; } 
+  if (!fileInput || !fileInput.files[0]) { 
+    showToast(t.msgRestoreSelect, 'warning'); 
+    return; 
+  } 
   
+  const file = fileInput.files[0];
   const reader = new FileReader(); 
   reader.onload = function(e) { 
     try { 
@@ -603,8 +662,17 @@ function restoreFromXLSX() {
           let j_ssl_sent = parseFloat(row[colMap.j_ssl_sent]) || 0; 
           let l_rejection = parseFloat(row[colMap.l_rejection]) || 0; 
           
-          // Restore කිරීමේදී Closing අගය හෝ නිවැරදි සූත්‍රය ලබාදීම
-          let closing = op_stock + f_receipt - g_issues + h_return + i_ssl_received - j_ssl_sent - l_rejection; 
+          let tempItem = {
+            op_stock,
+            f_receipt,
+            g_issues,
+            h_return,
+            i_ssl_received,
+            j_ssl_sent,
+            l_rejection
+          };
+          
+          let closing = calculateClosingStock(tempItem); 
             
           restored.push({ 
             type, 
