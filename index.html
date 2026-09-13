@@ -24,10 +24,10 @@
       </div>
     </div> 
     <div class="icon-actions"> 
-      <button class="btn-icon-header" onclick="openRecordsModal()" title="Inventory Summary Checklist" type="button"> 
+      <button class="btn-icon-header ripple" onclick="openRecordsModal()" title="Inventory Summary Checklist" type="button"> 
         <i class="fa-solid fa-list-check" style="color: #f59e0b;"></i> 
       </button> 
-      <button class="btn-icon-header" onclick="openSettings()" title="Settings & Preferences" type="button"> 
+      <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button"> 
         <i class="fa-solid fa-gear" style="color: #60a5fa;"></i> 
       </button> 
     </div> 
@@ -37,16 +37,18 @@
   <div class="card"> 
     <div class="form-group"> 
       <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Name or Codes:</label> 
-      <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off"> 
+      <div class="input-glow-wrapper">
+        <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off"> 
+      </div>
       <div id="searchResults" class="search-results" style="display:none;"></div> 
     </div> 
 
     <div id="selectedBadge" class="selected-badge"> 
-      <div style="font-weight:700; margin-bottom: 4px;"> 
-        <i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> 
-        <span id="dispCode"></span> - <span id="dispName"></span> 
+      <div style="font-weight:700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;"> 
+        <i class="fa-solid fa-circle-check" style="color: var(--primary); font-size: 1.1rem;"></i> 
+        <span><span id="dispCode"></span> - <span id="dispName"></span></span> 
       </div> 
-      <div style="font-size: 0.85rem; opacity: 0.9;"> 
+      <div style="font-size: 0.85rem; opacity: 0.9; padding-left: 24px;"> 
         UOM: <strong id="dispUom"></strong> &nbsp;|&nbsp; Op. Stock: <strong id="dispOp"></strong> 
       </div> 
     </div> 
@@ -65,18 +67,20 @@
       </div> 
       <div class="form-group" style="margin-bottom:0;"> 
         <label id="lblAmount"><i class="fa-solid fa-calculator"></i> Enter Amount:</label> 
-        <input type="number" id="inputAmount" min="0" step="any" placeholder="0.00" inputmode="decimal"> 
+        <div class="input-glow-wrapper">
+          <input type="number" id="inputAmount" min="0" step="any" placeholder="0.00" inputmode="decimal"> 
+        </div>
       </div> 
     </div> 
 
-    <div class="btn-row" style="margin-top: 14px;"> 
-      <button class="btn btn-primary" onclick="addSingleSectionData()" id="btnSave" type="button"> 
+    <div class="btn-row" style="margin-top: 18px;"> 
+      <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button"> 
         <i class="fa-solid fa-floppy-disk"></i> Save 
       </button> 
-      <button class="btn-icon-excel" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock" id="btnExcel" type="button"> 
+      <button class="btn-icon-excel ripple" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock" id="btnExcel" type="button"> 
         <i class="fa-solid fa-file-excel"></i> 
       </button> 
-      <button class="btn-icon-share" onclick="shareStockSummary()" title="Share Excel File" id="btnShare" type="button"> 
+      <button class="btn-icon-share ripple" onclick="shareStockSummary()" title="Share Excel File" id="btnShare" type="button"> 
         <i class="fa-solid fa-share-nodes"></i> 
       </button> 
     </div> 
@@ -96,7 +100,7 @@
   <div class="modal-content"> 
     <div class="modal-header"> 
       <h3 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check List</h3> 
-      <button class="close-btn" onclick="closeRecordsModal()" type="button">&times;</button> 
+      <button class="close-btn ripple" onclick="closeRecordsModal()" type="button">&times;</button> 
     </div> 
     <div style="margin-bottom: 12px; flex-shrink: 0;"> 
       <input type="text" id="modalSearchInput" placeholder="Quick filter checklist..." autocomplete="off"> 
@@ -110,7 +114,7 @@
   <div class="modal-content"> 
     <div class="modal-header"> 
       <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3> 
-      <button class="close-btn" onclick="closeItemDetailModal()" type="button">&times;</button> 
+      <button class="close-btn ripple" onclick="closeItemDetailModal()" type="button">&times;</button> 
     </div> 
     <div class="detail-card-grid" style="overflow-y: auto;"> 
       <div class="detail-item-box"> 
@@ -166,7 +170,7 @@
   <div class="modal-content" style="overflow-y: auto;"> 
     <div class="modal-header"> 
       <h3 id="txtSettingsTitle"><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences</h3> 
-      <button class="close-btn" onclick="closeSettings()" type="button">&times;</button> 
+      <button class="close-btn ripple" onclick="closeSettings()" type="button">&times;</button> 
     </div> 
 
     <div class="setting-option"> 
@@ -191,7 +195,7 @@
       <label id="lblRestore"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label> 
       <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p> 
       <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 10px;"> 
-      <button class="btn" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button"> 
+      <button class="btn ripple" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button"> 
         <i class="fa-solid fa-upload"></i> Restore Excel Data 
       </button> 
     </div> 
@@ -199,7 +203,7 @@
     <div class="setting-option"> 
       <label id="lblBackup"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label> 
       <p id="descBackup">වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p> 
-      <button class="btn btn-secondary" style="width:100%; padding: 12px; background:#475569; color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="downloadXLSXBackup()" id="btnBackup" type="button"> 
+      <button class="btn btn-secondary ripple" style="width:100%; padding: 12px; background:#475569; color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="downloadXLSXBackup()" id="btnBackup" type="button"> 
         <i class="fa-solid fa-download"></i> Download Backup File 
       </button> 
     </div> 
@@ -207,7 +211,7 @@
     <div class="setting-option"> 
       <label id="lblReset"><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label> 
       <p id="descReset">මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p> 
-      <button class="btn" style="width:100%; padding: 10px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()" id="btnReset" type="button"> 
+      <button class="btn ripple" style="width:100%; padding: 10px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()" id="btnReset" type="button"> 
         <i class="fa-solid fa-trash-can"></i> Reset All Data 
       </button> 
     </div> 
