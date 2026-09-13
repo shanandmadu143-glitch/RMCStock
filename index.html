@@ -1,245 +1,137 @@
 <!DOCTYPE html>
-<html lang="si">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Stock Counting | High Performance Dashboard</title>
-  
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search by Name or Code</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons for Clear Button & Search Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-<div class="container">
-  <div class="header-block">
-    <div class="brand-title">
-      <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
-      <div class="brand-name-wrapper">
-        <span class="main-brand-text">Stock</span>
-        <span class="sub-badge-counting">Counting</span>
-      </div>
-    </div>
-    <div class="icon-actions">
-      <button class="btn-icon-header ripple" onclick="openRecordsModal()" title="Inventory Summary Checklist" type="button">
-        <i class="fa-solid fa-list-check" style="color: #f59e0b;"></i>
-      </button>
-      <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
-        <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
-      </button>
-    </div>
-  </div>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-  <div class="card">
-    <div class="form-group">
-      <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Name or Codes:</label>
-      <div class="input-glow-wrapper">
-        <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off">
-      </div>
-      <div id="searchResults" class="search-results" style="display:none;"></div>
-    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Item Directory</h2>
+        
+        <!-- Search Container -->
+        <div class="relative flex items-center mb-4">
+            <!-- Search Icon (Optional styling enhancement) -->
+            <span class="absolute left-3 text-gray-400">
+                <i class="fa-solid fa-magnifying-glass text-sm"></i>
+            </span>
 
-    <div id="selectedBadge" class="selected-badge">
-      <div style="font-weight:700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-circle-check" style="color: var(--primary); font-size: 1.1rem;"></i>
-        <span><span id="dispCode"></span> - <span id="dispName"></span></span>
-      </div>
-      <div style="font-size: 0.85rem; opacity: 0.9; padding-left: 24px;">
-        UOM: <strong id="dispUom"></strong> &nbsp;|&nbsp; Closing Stock: <strong id="dispClosing"></strong>
-      </div>
-    </div>
-
-    <div class="form-grid">
-      <div class="form-group" style="margin-bottom:0;">
-        <label id="lblSection"><i class="fa-solid fa-layer-group"></i> Select Section:</label>
-        <select id="sectionSelect">
-          <option value="F" id="optReceipt">Receipt</option>
-          <option value="G" id="optIssues">Issues</option>
-          <option value="H" id="optReturn">Return</option>
-          <option value="I" id="optSslI">Received to SSL</option>
-          <option value="J" id="optSslJ">Sent to SSL</option>
-          <option value="L" id="optRejectionL">Rejection</option>
-        </select>
-      </div>
-      <div class="form-group" style="margin-bottom:0;">
-        <label id="lblAmount"><i class="fa-solid fa-calculator"></i> Enter Amount:</label>
-        <div class="input-glow-wrapper">
-          <input type="number" id="inputAmount" min="0" step="any" placeholder="0.00" inputmode="decimal">
+            <!-- Search Input -->
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Search by Name or Code..." 
+                class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all"
+                oninput="handleSearch()"
+            >
+            
+            <!-- Clear Button (Hidden by default) -->
+            <button 
+                id="clearBtn" 
+                type="button" 
+                onclick="clearSearch()" 
+                class="absolute right-3 text-gray-400 hover:text-red-500 focus:outline-none hidden transition-colors"
+                title="Clear search"
+            >
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
         </div>
-      </div>
+
+        <!-- Results List Container -->
+        <div id="resultList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+            <!-- JavaScript මඟින් ඩේටා මෙතැනට Load වේ -->
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="hidden text-center py-6 text-gray-500 text-sm">
+            No matching items found.
+        </div>
     </div>
 
-    <div class="btn-row" style="margin-top: 22px;">
-      <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
-        <i class="fa-solid fa-floppy-disk"></i> Save
-      </button>
-      <button class="btn-icon-excel ripple" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock" id="btnExcel" type="button">
-        <i class="fa-solid fa-file-excel"></i>
-      </button>
-      <button class="btn-icon-share ripple" onclick="shareStockSummary()" title="Share Excel File" id="btnShare" type="button">
-        <i class="fa-solid fa-share-nodes"></i>
-      </button>
-    </div>
-  </div>
+    <!-- JavaScript Implementation -->
+    <script>
+        // සාම්පල දත්ත ලැයිස්තුව (ඔබට අවශ්‍ය දත්ත මෙයට මාරු කරගත හැක)
+        const itemsData = [
+            { code: "PRD-001", name: "Wireless Mouse" },
+            { code: "PRD-002", name: "Mechanical Keyboard" },
+            { code: "PRD-003", name: "Gaming Monitor" },
+            { code: "PRD-004", name: "USB-C Hub" },
+            { code: "PRD-005", name: "Bluetooth Headphones" },
+            { code: "PRD-006", name: "External Hard Drive" }
+        ];
 
-  <div class="footer-note" id="lblFooter">
-    Created By <span>Yomal Lakshan</span>
-  </div>
-</div>
+        const searchInput = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultList = document.getElementById('resultList');
+        const noResults = document.getElementById('noResults');
 
-<div id="toastContainer"></div>
+        // මුල් අවස්ථාවේ සියලු දත්ත පෙන්වීම සඳහා
+        window.onload = function() {
+            displayItems(itemsData);
+            toggleClearButton();
+        };
 
-<!-- Stock Check List Modal -->
-<div id="recordsModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check List</h3>
-      <button class="close-btn ripple" onclick="closeRecordsModal()" type="button">&times;</button>
-    </div>
-    <div style="margin-bottom: 14px; flex-shrink: 0;">
-      <input type="text" id="modalSearchInput" placeholder="Quick filter checklist..." autocomplete="off">
-    </div>
-    <div class="checklist-container" id="summaryCardsContainer"></div>
-  </div>
-</div>
+        // Search සහ Clear බටන් පාලනය කරන ප්‍රධාන කාර්යය
+        function handleSearch() {
+            const query = searchInput.value.trim().toLowerCase();
+            toggleClearButton();
 
-<!-- Material Detail Modal -->
-<div id="itemDetailModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3>
-      <button class="close-btn ripple" onclick="closeItemDetailModal()" type="button">&times;</button>
-    </div>
-    <div class="detail-card-grid" style="overflow-y: auto;">
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div>
-        <div class="detail-value" id="detCode">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-tag"></i> Unit of Measure (UOM)</div>
-        <div class="detail-value" id="detUom">-</div>
-      </div>
-      <div class="detail-item-box full-width">
-        <div class="detail-label"><i class="fa-solid fa-box"></i> Material Name</div>
-        <div class="detail-value" id="detName" style="color:var(--primary);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock</div>
-        <div class="detail-value" id="detOp">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-down" style="color:var(--success);"></i> Receipt (F)</div>
-        <div class="detail-value" id="detReceipt" style="color:var(--success);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-up" style="color:var(--danger);"></i> Issues (G)</div>
-        <div class="detail-value" id="detIssues" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-rotate-left" style="color:var(--warning);"></i> Return (H)</div>
-        <div class="detail-value" id="detReturn" style="color:var(--warning);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--success);"></i> Received to SSL</div>
-        <div class="detail-value" id="detSslI" style="color:var(--success);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--danger);"></i> Sent to SSL</div>
-        <div class="detail-value" id="detSslJ" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection</div>
-        <div class="detail-value" id="detRejectionL" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);">
-        <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock</div>
-        <div class="detail-value" id="detClosing" style="font-size: 1.3rem; color:var(--primary);">-</div>
-      </div>
-    </div>
-  </div>
-</div>
+            // නම හෝ කේතය (Name or Code) හරහා ෆිල්ටර් කිරීම
+            const filteredData = itemsData.filter(item => 
+                item.name.toLowerCase().includes(query) || 
+                item.code.toLowerCase().includes(query)
+            );
 
-<!-- Settings Modal -->
-<div id="settingsModal" class="modal">
-  <div class="modal-content" style="overflow-y: auto;">
-    <div class="modal-header">
-      <h3 id="txtSettingsTitle"><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences</h3>
-      <button class="close-btn ripple" onclick="closeSettings()" type="button">&times;</button>
-    </div>
+            displayItems(filteredData);
+        }
 
-    <div class="setting-option">
-      <label id="lblLanguage"><i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language / භාෂාව / மொழி:</label>
-      <select id="langSelect" onchange="changeLanguage(this.value)">
-        <option value="si">සිංහල (Sinhala)</option>
-        <option value="en">English</option>
-        <option value="ta">தமிழ் (Tamil)</option>
-      </select>
-    </div>
+        // ලැයිස්තුව HTML වෙත Render කිරීම
+        function displayItems(data) {
+            resultList.innerHTML = '';
 
-    <div class="setting-option">
-      <label id="lblTheme"><i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:</label>
-      <select id="themeSelect" onchange="changeTheme(this.value)">
-        <option value="light">Light Theme (Default)</option>
-        <option value="dark">Dark Theme</option>
-        <option value="blue">Slate Blue Theme</option>
-      </select>
-    </div>
+            if (data.length === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+                data.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = "flex justify-between items-center p-3 bg-gray-50 hover:bg-blue-50 rounded-lg border border-gray-200 transition-colors cursor-pointer";
+                    div.innerHTML = `
+                        <span class="font-medium text-gray-800 text-sm">${item.name}</span>
+                        <span class="text-xs font-semibold bg-blue-100 text-blue-600 px-2 py-1 rounded-md">${item.code}</span>
+                    `;
+                    // කෝඩ් එකක් හෝ නමක් ක්ලික් කළ විට ඉන්පුට් එකට ලබාදීමට අවශ්‍ය නම්:
+                    div.onclick = function() {
+                        searchInput.value = item.name;
+                        handleSearch();
+                    };
+                    resultList.appendChild(div);
+                });
+            }
+        }
 
-    <div class="setting-option">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <label id="lblRestore" style="margin-bottom: 0;"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label>
-        <button class="btn ripple" onclick="openRestoreHelpModal()" type="button" style="padding: 5px 10px; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
-          <i class="fa-solid fa-circle-question"></i> Help / උදව්
-        </button>
-      </div>
-      <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p>
-      <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 12px;">
-      <button class="btn ripple" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button">
-        <i class="fa-solid fa-upload"></i> Restore Excel Data
-      </button>
-    </div>
+        // Clear බටන් එක පෙන්වීම හෝ සැඟවීම
+        function toggleClearButton() {
+            if (searchInput.value.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+        }
 
-    <div class="setting-option">
-      <label id="lblBackup"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label>
-      <p id="descBackup">වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p>
-      <button class="btn btn-secondary ripple" style="width:100%; padding: 12px; background:#475569; color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="downloadXLSXBackup()" id="btnBackup" type="button">
-        <i class="fa-solid fa-download"></i> Download Backup File
-      </button>
-    </div>
+        // ඉන්පුට් එක Clear කිරීමේ ක්‍රියාවලිය
+        function clearSearch() {
+            searchInput.value = '';
+            clearBtn.classList.add('hidden');
+            displayItems(itemsData); // මුල් ලැයිස්තුව නැවත පෙන්වයි
+            searchInput.focus();     // නැවත ඉන්පුට් එකට Focus කරයි
+        }
+    </script>
 
-    <div class="setting-option">
-      <label id="lblReset"><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label>
-      <p id="descReset">මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p>
-      <button class="btn ripple" style="width:100%; padding: 12px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()" id="btnReset" type="button">
-        <i class="fa-solid fa-trash-can"></i> Reset All Data
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Restore Help & Web App Guide Modal -->
-<div id="restoreHelpModal" class="modal">
-  <div class="modal-content" style="overflow-y: auto; max-width: 650px;">
-    <div class="modal-header">
-      <h3 id="helpModalTitle"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore & Web App Help</h3>
-      <button class="close-btn ripple" onclick="closeRestoreHelpModal()" type="button">&times;</button>
-    </div>
-
-    <div class="form-group" style="margin-bottom: 16px;">
-      <label id="helpSelectLabel"><i class="fa-solid fa-list"></i> ඔබට දැනගැනීමට අවශ්‍ය මාතෘකාව තෝරන්න:</label>
-      <select id="helpTopicSelect" onchange="switchHelpTopic(this.value)">
-        <option value="fileType">1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</option>
-        <option value="howToDo">2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</option>
-        <option value="appFeatures">3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</option>
-      </select>
-    </div>
-
-    <div id="helpContentBox" style="background: var(--bg-main); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-size: 0.92rem; line-height: 1.6; color: var(--text-dark);">
-    </div>
-  </div>
-</div>
-
-<script src="script.js"></script>
 </body>
 </html>
