@@ -818,3 +818,4 @@ document.addEventListener('DOMContentLoaded', () => {
   applyLanguage(currentLang);
   updateVisibilityState(false);
 });
+
