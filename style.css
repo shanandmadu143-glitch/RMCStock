@@ -570,7 +570,6 @@ input:focus, select:focus {
   line-height: 1.4;
 }
 
-/* 🌟 POPUP / TOAST ALERTS - මැදට (Center) පැමිණෙන සේ සකසා ඇත */
 #toastContainer {
   position: fixed;
   top: 50%;
