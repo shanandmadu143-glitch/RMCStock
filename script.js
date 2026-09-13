@@ -226,6 +226,11 @@ const defaultItems = [
 let inventory = []; 
 let selectedIndex = -1;
 
+// දශම සංඛ්‍යා ගැටලු (Floating Point Precision) නිවැරදි කිරීමට round කිරීම
+function roundNum(val) {
+  return Math.round((Number(val) + Number.EPSILON) * 1000) / 1000;
+}
+
 function calculateClosingStock(item) {
   const op = Number(item.op_stock) || 0;
   const receipt = Number(item.f_receipt) || 0;
@@ -235,7 +240,7 @@ function calculateClosingStock(item) {
   const sslSent = Number(item.j_ssl_sent) || 0;
   const rejection = Number(item.l_rejection) || 0;
 
-  return op + receipt - issues + ret + sslRec - sslSent - rejection;
+  return roundNum(op + receipt - issues + ret + sslRec - sslSent - rejection);
 }
 
 function loadInventoryData() { 
@@ -358,19 +363,20 @@ function addSingleSectionData() {
   const targetSection = sectionSelect.value; 
   const amount = parseFloat(inputAmount.value) || 0; 
   
-  if (amount <= 0) { 
+  // ඍණ අගයන් (Negative numbers) වැළැක්වීමේ දැඩි පාලනය
+  if (amount <= 0 || isNaN(amount)) { 
     showToast(t.msgValidAmount, 'error'); 
     return; 
   } 
   
   let item = inventory[selectedIndex]; 
   
-  if (targetSection === 'F') item.f_receipt = Number(item.f_receipt) + amount; 
-  else if (targetSection === 'G') item.g_issues = Number(item.g_issues) + amount; 
-  else if (targetSection === 'H') item.h_return = Number(item.h_return) + amount; 
-  else if (targetSection === 'I') item.i_ssl_received = Number(item.i_ssl_received) + amount; 
-  else if (targetSection === 'J') item.j_ssl_sent = Number(item.j_ssl_sent) + amount; 
-  else if (targetSection === 'L') item.l_rejection = Number(item.l_rejection) + amount; 
+  if (targetSection === 'F') item.f_receipt = roundNum(item.f_receipt + amount); 
+  else if (targetSection === 'G') item.g_issues = roundNum(item.g_issues + amount); 
+  else if (targetSection === 'H') item.h_return = roundNum(item.h_return + amount); 
+  else if (targetSection === 'I') item.i_ssl_received = roundNum(item.i_ssl_received + amount); 
+  else if (targetSection === 'J') item.j_ssl_sent = roundNum(item.j_ssl_sent + amount); 
+  else if (targetSection === 'L') item.l_rejection = roundNum(item.l_rejection + amount); 
 
   item.closing = calculateClosingStock(item); 
   
@@ -582,6 +588,7 @@ async function shareStockSummary() {
   }
 }
 
+// වඩාත් නිවැරදිව Excel Column Mapping සහ Data Restore කිරීම සඳහා යාවත්කාලීන කළ කොටස
 function restoreFromXLSX() { 
   const t = i18n[currentLang] || i18n['si'];
   const fileInput = document.getElementById('xlsxFileInput'); 
@@ -606,7 +613,7 @@ function restoreFromXLSX() {
       } 
       
       let headerIndex = -1; 
-      let colMap = { type: 0, code: 1, name: 2, uom: 3, op_stock: 4, f_receipt: 5, g_issues: 6, h_return: 7, i_ssl_received: 8, j_ssl_sent: 9, closing: 10, l_rejection: 11 }; 
+      let colMap = { type: -1, code: -1, name: -1, uom: -1, op_stock: -1, f_receipt: -1, g_issues: -1, h_return: -1, i_ssl_received: -1, j_ssl_sent: -1, l_rejection: -1, closing: -1 }; 
       
       for (let r = 0; r < Math.min(matrix.length, 10); r++) { 
         const rowStr = matrix[r].map(c => String(c).toLowerCase().trim()); 
@@ -614,18 +621,17 @@ function restoreFromXLSX() {
           headerIndex = r; 
           rowStr.forEach((cellVal, colIdx) => { 
             if (cellVal.includes("type")) colMap.type = colIdx; 
-            if (cellVal.includes("code")) colMap.code = colIdx; 
-            if (cellVal.includes("name")) colMap.name = colIdx; 
-            if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
-            if (cellVal.includes("op") || cellVal.includes("open") || cellVal.includes("stock")) colMap.op_stock = colIdx; 
-            
-            if (cellVal.includes("receipt") || cellVal === "f") colMap.f_receipt = colIdx; 
-            if (cellVal.includes("issue") || cellVal === "g") colMap.g_issues = colIdx; 
-            if (cellVal.includes("return") || cellVal === "h") colMap.h_return = colIdx; 
-            if (cellVal.includes("received to ssl") || cellVal.includes("ssl i") || cellVal === "i") colMap.i_ssl_received = colIdx; 
-            if (cellVal.includes("sent to ssl") || cellVal.includes("ssl j") || cellVal === "j") colMap.j_ssl_sent = colIdx; 
-            if (cellVal.includes("rejection") || cellVal === "l") colMap.l_rejection = colIdx; 
-            if (cellVal.includes("closing")) colMap.closing = colIdx; 
+            else if (cellVal.includes("code")) colMap.code = colIdx; 
+            else if (cellVal.includes("name")) colMap.name = colIdx; 
+            else if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
+            else if (cellVal.includes("op") || cellVal.includes("open") || cellVal.includes("warehouse")) colMap.op_stock = colIdx; 
+            else if (cellVal.includes("receipt") || cellVal === "f") colMap.f_receipt = colIdx; 
+            else if (cellVal.includes("issue") || cellVal === "g") colMap.g_issues = colIdx; 
+            else if (cellVal.includes("return") || cellVal === "h") colMap.h_return = colIdx; 
+            else if (cellVal.includes("received to ssl") || cellVal.includes("ssl i") || cellVal === "i") colMap.i_ssl_received = colIdx; 
+            else if (cellVal.includes("sent to ssl") || cellVal.includes("ssl j") || cellVal === "j") colMap.j_ssl_sent = colIdx; 
+            else if (cellVal.includes("rejection") || cellVal === "l") colMap.l_rejection = colIdx; 
+            else if (cellVal.includes("closing")) colMap.closing = colIdx; 
           }); 
           break; 
         } 
@@ -638,8 +644,8 @@ function restoreFromXLSX() {
         const row = matrix[r]; 
         if (!row || row.length === 0) continue; 
         
-        let code = row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : ""; 
-        let name = row[colMap.name] !== undefined ? String(row[colMap.name]).trim() : ""; 
+        let code = colMap.code !== -1 && row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : ""; 
+        let name = colMap.name !== -1 && row[colMap.name] !== undefined ? String(row[colMap.name]).trim() : ""; 
         
         if (!code && !name && row.length > 2) {
           code = String(row[1] || "").trim();
@@ -647,16 +653,16 @@ function restoreFromXLSX() {
         }
 
         if (code || name) { 
-          let type = row[colMap.type] !== undefined && row[colMap.type] !== "" ? String(row[colMap.type]).trim() : "RM"; 
-          let uom = row[colMap.uom] !== undefined && row[colMap.uom] !== "" ? String(row[colMap.uom]).trim() : "KG"; 
+          let type = colMap.type !== -1 && row[colMap.type] !== undefined && row[colMap.type] !== "" ? String(row[colMap.type]).trim() : "RM"; 
+          let uom = colMap.uom !== -1 && row[colMap.uom] !== undefined && row[colMap.uom] !== "" ? String(row[colMap.uom]).trim() : "KG"; 
           
-          let op_stock = parseFloat(row[colMap.op_stock]) || 0; 
-          let f_receipt = parseFloat(row[colMap.f_receipt]) || 0; 
-          let g_issues = parseFloat(row[colMap.g_issues]) || 0; 
-          let h_return = parseFloat(row[colMap.h_return]) || 0; 
-          let i_ssl_received = parseFloat(row[colMap.i_ssl_received]) || 0; 
-          let j_ssl_sent = parseFloat(row[colMap.j_ssl_sent]) || 0; 
-          let l_rejection = parseFloat(row[colMap.l_rejection]) || 0; 
+          let op_stock = colMap.op_stock !== -1 ? parseFloat(row[colMap.op_stock]) || 0 : 0; 
+          let f_receipt = colMap.f_receipt !== -1 ? parseFloat(row[colMap.f_receipt]) || 0 : 0; 
+          let g_issues = colMap.g_issues !== -1 ? parseFloat(row[colMap.g_issues]) || 0 : 0; 
+          let h_return = colMap.h_return !== -1 ? parseFloat(row[colMap.h_return]) || 0 : 0; 
+          let i_ssl_received = colMap.i_ssl_received !== -1 ? parseFloat(row[colMap.i_ssl_received]) || 0 : 0; 
+          let j_ssl_sent = colMap.j_ssl_sent !== -1 ? parseFloat(row[colMap.j_ssl_sent]) || 0 : 0; 
+          let l_rejection = colMap.l_rejection !== -1 ? parseFloat(row[colMap.l_rejection]) || 0 : 0; 
           
           let tempItem = {
             op_stock,
