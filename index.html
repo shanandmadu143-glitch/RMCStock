@@ -22,9 +22,15 @@
       </div>
     </div>
     <div class="icon-actions">
-      <button class="btn-icon-header ripple" onclick="openRecordsModal()" title="Inventory Summary Checklist" type="button">
+      <!-- Stock Check Button -->
+      <button class="btn-icon-header ripple" onclick="openRecordsModal()" title="Stock Check" type="button">
         <i class="fa-solid fa-list-check" style="color: #f59e0b;"></i>
       </button>
+      <!-- Today's Added Logs Button -->
+      <button class="btn-icon-header ripple" onclick="openTodayLogsModal()" title="Today's Logs" type="button">
+        <i class="fa-solid fa-calendar-day" style="color: #10b981;"></i>
+      </button>
+      <!-- Settings Button -->
       <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
         <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
       </button>
@@ -93,17 +99,28 @@
 
 <div id="toastContainer"></div>
 
-<!-- Stock Check List Modal -->
+<!-- Stock Check Modal -->
 <div id="recordsModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check List</h3>
+      <h3 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check</h3>
       <button class="close-btn ripple" onclick="closeRecordsModal()" type="button">&times;</button>
     </div>
     <div style="margin-bottom: 14px; flex-shrink: 0;">
-      <input type="text" id="modalSearchInput" placeholder="Quick filter checklist..." autocomplete="off">
+      <input type="text" id="modalSearchInput" placeholder="Quick filter stock check..." autocomplete="off">
     </div>
     <div class="checklist-container" id="summaryCardsContainer"></div>
+  </div>
+</div>
+
+<!-- Today's Logs Modal -->
+<div id="todayLogsModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="txtTodayLogsTitle"><i class="fa-solid fa-calendar-day" style="color:var(--success);"></i> අද එකතු කළ දත්ත (Today's Data)</h3>
+      <button class="close-btn ripple" onclick="closeTodayLogsModal()" type="button">&times;</button>
+    </div>
+    <div class="checklist-container" id="todayLogsContainer"></div>
   </div>
 </div>
 
@@ -223,7 +240,7 @@
   </div>
 </div>
 
-<!-- Restore Help & Web App Guide Modal -->
+<!-- Restore Help Modal -->
 <div id="restoreHelpModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
