@@ -189,13 +189,14 @@ function showToast(message, type = 'success') {
   let iconClass = 'fa-circle-check'; 
   if (type === 'error') iconClass = 'fa-circle-xmark'; 
   if (type === 'warning') iconClass = 'fa-triangle-exclamation'; 
-  toast.innerHTML = `<i class="fa-solid ${iconClass}" style="font-size: 1.2rem;"></i> <span>${message}</span>`; 
+  toast.innerHTML = `<i class="fa-solid ${iconClass}" style="font-size: 1.2rem; color: var(--${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'warning'});"></i> <span>${message}</span>`; 
   container.appendChild(toast); 
+  
   setTimeout(() => { 
     toast.style.opacity = '0';
-    toast.style.transform = 'translateX(100%) scale(0.9)';
-    setTimeout(() => toast.remove(), 350);
-  }, 3200); 
+    toast.style.transform = 'scale(0.8)';
+    setTimeout(() => toast.remove(), 250);
+  }, 2500); 
 } 
 
 const defaultItems = [ 
@@ -255,7 +256,6 @@ function loadInventoryData() {
         item.i_ssl_received = Number(item.i_ssl_received) || 0;
         item.j_ssl_sent = Number(item.j_ssl_sent) || 0;
         item.l_rejection = Number(item.l_rejection) || 0;
-        
         item.closing = calculateClosingStock(item);
       });
     } catch(e) { 
@@ -323,7 +323,7 @@ if (searchInput) {
       } else { 
         searchResults.style.display = 'none'; 
       } 
-    }, 150);
+    }, 100);
   }); 
 }
 
@@ -398,7 +398,7 @@ function hideModal(modalId) {
   modal.classList.remove('show');
   setTimeout(() => {
     modal.style.display = 'none';
-  }, 250);
+  }, 200);
 }
 
 function openRecordsModal() { 
@@ -505,7 +505,7 @@ if (modalSearchInput) {
         const text = (item.name + " " + item.code).toLowerCase(); 
         itemDiv.style.display = text.includes(q) ? 'flex' : 'none'; 
       }); 
-    }, 150);
+    }, 100);
   }); 
 }
 
@@ -661,32 +661,11 @@ function restoreFromXLSX() {
           let j_ssl_sent = colMap.j_ssl_sent !== -1 ? parseFloat(row[colMap.j_ssl_sent]) || 0 : 0; 
           let l_rejection = colMap.l_rejection !== -1 ? parseFloat(row[colMap.l_rejection]) || 0 : 0; 
           
-          let tempItem = {
-            op_stock,
-            f_receipt,
-            g_issues,
-            h_return,
-            i_ssl_received,
-            j_ssl_sent,
-            l_rejection
-          };
-          
+          let tempItem = { op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection };
           let closing = calculateClosingStock(tempItem); 
             
           restored.push({ 
-            type, 
-            code, 
-            name, 
-            uom, 
-            op_stock, 
-            f_receipt, 
-            g_issues, 
-            h_return, 
-            i_ssl_received, 
-            j_ssl_sent, 
-            l_rejection, 
-            closing, 
-            checked: false 
+            type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, closing, checked: false 
           }); 
         } 
       } 
@@ -701,7 +680,6 @@ function restoreFromXLSX() {
         showToast('No valid data found in Excel file!', 'error'); 
       } 
     } catch (err) { 
-      console.error(err);
       showToast('Error reading Excel file!', 'error'); 
     } 
   }; 
@@ -747,7 +725,7 @@ document.addEventListener('click', function (e) {
     target.appendChild(circle);
     setTimeout(() => {
       circle.remove();
-    }, 550);
+    }, 400);
   }
 });
 
@@ -756,4 +734,3 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(currentTheme);
   applyLanguage(currentLang);
 });
-
