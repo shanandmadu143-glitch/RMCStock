@@ -93,27 +93,34 @@
 
 <div id="toastContainer"></div>
 
-<!-- Export Format Selector Modal -->
+<!-- Export Format & Options Selector Modal -->
 <div id="exportModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
-      <h3 id="txtExportTitle"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Select Format</h3>
+      <h3 id="txtExportTitle"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Download & Export</h3>
       <button class="close-btn ripple" onclick="closeExportModal()" type="button">&times;</button>
     </div>
     <div class="modal-body-scroll">
-      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">ඔබට අවශ්‍ය Format එක තෝරන්න:</p>
+      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">ඔබට අවශ්‍ය Format සහ ගොනුවේ තොරතුරු සකසන්න:</p>
       
       <div class="form-group">
         <label><i class="fa-solid fa-file-code"></i> Format:</label>
-        <select id="exportFormatSelect">
+        <select id="exportFormatSelect" onchange="updateDefaultFileName()">
           <option value="xlsx">Excel Workbook (.xlsx)</option>
           <option value="csv">CSV File (.csv)</option>
           <option value="txt">Text File (.txt)</option>
         </select>
       </div>
 
+      <div class="form-group" style="margin-top: 14px;">
+        <label><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
+        <div class="input-glow-wrapper">
+          <input type="text" id="exportFileNameInput" placeholder="Stock_Counting_YYYY-MM-DD">
+        </div>
+      </div>
+
       <div class="form-group" style="margin-top: 15px;">
-        <label><i class="fa-solid fa-toggle-on"></i> Actions Options:</label>
+        <label><i class="fa-solid fa-toggle-on"></i> Options:</label>
         <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
           <input type="checkbox" id="chkShiftStock" checked style="width:18px; height:18px; cursor:pointer;">
           <label for="chkShiftStock" style="text-transform:none; margin:0; cursor:pointer; font-size:0.88rem;">Shift Stock to Opening (Reset Daily Data)</label>
@@ -122,7 +129,7 @@
 
       <div class="btn-row" style="margin-top: 24px;">
         <button type="button" class="btn btn-primary ripple" id="btnConfirmExport" onclick="processExportAction()">
-          <i class="fa-solid fa-check"></i> Continue
+          <i class="fa-solid fa-download"></i> Save / Download
         </button>
       </div>
     </div>
