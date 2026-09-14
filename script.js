@@ -128,7 +128,7 @@ let inventory = [];
 let selectedIndex = -1;
 let searchDebounceTimeout = null;
 let modalSearchTimeout = null;
-let currentExportMode = 'excel'; // 'excel' or 'share'
+let currentExportMode = 'excel'; 
 
 const defaultItems = [ 
   {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000}, 
@@ -450,11 +450,22 @@ function closeRestoreHelpModal() {
 
 function openExportModal(mode) {
   currentExportMode = mode;
+  updateDefaultFileName();
   showModal('exportModal');
 }
 
 function closeExportModal() {
   hideModal('exportModal');
+}
+
+function updateDefaultFileName() {
+  const formatSelect = document.getElementById('exportFormatSelect');
+  const fileNameInput = document.getElementById('exportFileNameInput');
+  if (!formatSelect || !fileNameInput) return;
+
+  const ext = formatSelect.value;
+  const today = getTodayStr();
+  fileNameInput.value = `Stock_Counting_${today}.${ext}`;
 }
 
 function switchHelpTopic(topic) {
@@ -614,23 +625,23 @@ function generateWorkbookWithFormulas() {
   return workbook;
 }
 
-// Generate data string or buffer for CSV / TXT / XLSX
-function getFormattedFileData(format) {
+function getFormattedFileData(format, customName) {
   const today = getTodayStr();
   const workbook = generateWorkbookWithFormulas();
+  const fileName = customName || `Stock_Counting_${today}.${format}`;
 
   if (format === 'xlsx') {
     const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', cellFormula: true });
     return {
       blob: new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
-      filename: `Stock_Counting_${today}.xlsx`
+      filename: fileName
     };
   } else if (format === 'csv') {
     const worksheet = workbook.Sheets["Stock_Data"];
     const csvContent = XLSX.utils.sheet_to_csv(worksheet);
     return {
       blob: new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }),
-      filename: `Stock_Counting_${today}.csv`
+      filename: fileName
     };
   } else if (format === 'txt') {
     let txtContent = `STOCK COUNTING REPORT - ${today}\n\n`;
@@ -643,12 +654,11 @@ function getFormattedFileData(format) {
     });
     return {
       blob: new Blob([txtContent], { type: 'text/plain;charset=utf-8;' }),
-      filename: `Stock_Counting_${today}.txt`
+      filename: fileName
     };
   }
 }
 
-// Direct Download Helper
 function triggerDirectDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -660,30 +670,78 @@ function triggerDirectDownload(blob, filename) {
   URL.revokeObjectURL(url);
 }
 
-// Process Action for Download or Share based on modal option
 async function processExportAction() {
   const t = i18n[currentLang] || i18n['si'];
   const formatSelect = document.getElementById('exportFormatSelect');
+  const fileNameInput = document.getElementById('exportFileNameInput');
   const chkShiftStock = document.getElementById('chkShiftStock');
   
   const format = formatSelect ? formatSelect.value : 'xlsx';
   const shouldShift = chkShiftStock ? chkShiftStock.checked : false;
 
-  const fileData = getFormattedFileData(format);
+  let customFileName = fileNameInput && fileNameInput.value.trim() !== '' 
+    ? fileNameInput.value.trim() 
+    : `Stock_Counting_${getTodayStr()}.${format}`;
+
+  if (!customFileName.endsWith(`.${format}`)) {
+    customFileName += `.${format}`;
+  }
+
+  const fileData = getFormattedFileData(format, customFileName);
 
   closeExportModal();
 
   if (currentExportMode === 'excel') {
-    // Direct Download
-    triggerDirectDownload(fileData.blob, fileData.filename);
-    if (shouldShift) {
-      resetStockAndComplete(t);
+    if ('showSaveFilePicker' in window) {
+      try {
+        const pickerOptions = {
+          suggestedName: customFileName,
+          types: []
+        };
+
+        if (format === 'xlsx') {
+          pickerOptions.types.push({
+            description: 'Excel File',
+            accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
+          });
+        } else if (format === 'csv') {
+          pickerOptions.types.push({
+            description: 'CSV File',
+            accept: { 'text/csv': ['.csv'] }
+          });
+        } else if (format === 'txt') {
+          pickerOptions.types.push({
+            description: 'Text File',
+            accept: { 'text/plain': ['.txt'] }
+          });
+        }
+
+        const handle = await window.showSaveFilePicker(pickerOptions);
+        const writable = await handle.createWritable();
+        await writable.write(fileData.blob);
+        await writable.close();
+
+        if (shouldShift) {
+          resetStockAndComplete(t);
+        } else {
+          showToast('File Saved Successfully!', 'success');
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          triggerDirectDownload(fileData.blob, customFileName);
+          if (shouldShift) resetStockAndComplete(t);
+        }
+      }
     } else {
-      showToast('File Downloaded Successfully!', 'success');
+      triggerDirectDownload(fileData.blob, customFileName);
+      if (shouldShift) {
+        resetStockAndComplete(t);
+      } else {
+        showToast('File Downloaded Successfully!', 'success');
+      }
     }
   } else if (currentExportMode === 'share') {
-    // Native Share / Fallback Download
-    const file = new File([fileData.blob], fileData.filename, { type: fileData.blob.type });
+    const file = new File([fileData.blob], customFileName, { type: fileData.blob.type });
 
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
@@ -700,7 +758,7 @@ async function processExportAction() {
         }
       }
     } else {
-      triggerDirectDownload(fileData.blob, fileData.filename);
+      triggerDirectDownload(fileData.blob, customFileName);
       showToast(t.shareNotSupported + ' Downloaded directly instead.', 'warning');
       if (shouldShift) resetStockAndComplete(t);
     }
@@ -708,9 +766,32 @@ async function processExportAction() {
 }
 
 async function downloadXLSXBackup() { 
-  const fileData = getFormattedFileData('xlsx');
-  triggerDirectDownload(fileData.blob, `Stock_Counting_Backup_${getTodayStr()}.xlsx`);
-  showToast('Backup File Downloaded Successfully!', 'success');
+  const defaultName = `Stock_Counting_Backup_${getTodayStr()}.xlsx`;
+  const fileData = getFormattedFileData('xlsx', defaultName);
+
+  if ('showSaveFilePicker' in window) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: defaultName,
+        types: [{
+          description: 'Excel File',
+          accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
+        }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(fileData.blob);
+      await writable.close();
+      showToast('Backup File Saved Successfully!', 'success');
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        triggerDirectDownload(fileData.blob, defaultName);
+        showToast('Backup File Downloaded Successfully!', 'success');
+      }
+    }
+  } else {
+    triggerDirectDownload(fileData.blob, defaultName);
+    showToast('Backup File Downloaded Successfully!', 'success');
+  }
 }
 
 function resetStockAndComplete(t) {
