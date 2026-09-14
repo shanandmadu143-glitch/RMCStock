@@ -45,9 +45,14 @@
     </div>
 
     <div id="selectedBadge" class="selected-badge">
-      <div style="font-weight:700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-circle-check" style="color: var(--primary); font-size: 1.1rem;"></i>
-        <span><span id="dispCode"></span> - <span id="dispName"></span></span>
+      <div style="font-weight:700; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-circle-check" style="color: var(--primary); font-size: 1.1rem;"></i>
+          <span><span id="dispCode"></span> - <span id="dispName"></span></span>
+        </div>
+        <button type="button" class="btn-item-clear" onclick="clearSelectedItem()" title="Clear Selected Item">
+          <i class="fa-solid fa-rotate-left"></i> Reset Item
+        </button>
       </div>
       <div style="font-size: 0.85rem; opacity: 0.9; padding-left: 24px;">
         UOM: <strong id="dispUom"></strong> &nbsp;|&nbsp; Closing Stock: <strong id="dispClosing"></strong>
