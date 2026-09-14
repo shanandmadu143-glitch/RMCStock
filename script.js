@@ -230,6 +230,19 @@ function showToast(message, type = 'success') {
   }, 2500); 
 } 
 
+function updateFileNameDisplay(input) {
+  const display = document.getElementById('selectedFileNameDisplay');
+  if (display) {
+    if (input.files && input.files.length > 0) {
+      display.innerText = input.files[0].name;
+      display.style.color = 'var(--text-dark)';
+    } else {
+      display.innerText = 'ගොනුවක් තෝරා නොමැත';
+      display.style.color = 'var(--text-muted)';
+    }
+  }
+}
+
 function getTodayStr() {
   const d = new Date();
   const year = d.getFullYear();
@@ -477,24 +490,20 @@ function switchHelpTopic(topic) {
       <h4 style="color: var(--primary); margin-bottom: 8px;"><i class="fa-solid fa-file-excel"></i> Upload කළ යුත්තේ මොන වගේ File එකක්ද?</h4>
       <p>• මෙම App එක මඟින් මීට පෙර Download කරගත් හෝ Backup එකක් ලෙස ලබාගත් <b>Excel (.xlsx හෝ .xls)</b> ගොනුවක් පමණක් upload කළ යුතුය.</p>
       <p>• එම Excel ගොනුව තුළ අනිවාර්යයෙන්ම <b>Material Code, Material Name, Op.Stock-Warehouse, Receipt, Issues, Return, Closing Stock</b> වැනි නිවැරදි ශීර්ෂ (Headers) අඩංගු විය යුතුය.</p>
-      <p>• වෙනත් වෙනත් අක්‍රමවත් Excel පත්‍ර උඩුගත කිරීමෙන් දත්ත දෝෂ සහගත විය හැක.</p>
     `;
   } else if (topic === 'howToDo') {
     box.innerHTML = `
       <h4 style="color: var(--success); margin-bottom: 8px;"><i class="fa-solid fa-upload"></i> Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</h4>
-      <p>1. Settings වෙත ගොස් <b>'Restore Excel (.xlsx) File'</b> යටතේ ඇති <b>'Choose File'</b> බොත්තම ඔබන්න.</p>
+      <p>1. Settings වෙත ගොස් <b>'Restore Excel (.xlsx) File'</b> යටතේ ඇති <b>'File Choose'</b> බොත්තම ඔබන්න.</p>
       <p>2. ඔබගේ පරිගණකයෙන් හෝ දුරකථනයෙන් අදාළ Excel ගොනුව තෝරාගන්න.</p>
-      <p>3. ඉන්පසු කොළ පාටින් ඇති <b>'Restore Excel Data'</b> බොත්තම ක්ලික් කරන්න.</p>
-      <p>4. සාර්ථක පණිවිඩයක් සමඟින් ඔබගේ පැරණි දත්ත යාවත්කාලීන වනු ඇත.</p>
+      <p>3. කොළ පාටින් ඇති <b>'Restore Excel Data'</b> බොත්තම ක්ලික් කරන්න.</p>
     `;
   } else if (topic === 'appFeatures') {
     box.innerHTML = `
       <h4 style="color: var(--warning); margin-bottom: 8px;"><i class="fa-solid fa-boxes-stacked"></i> Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</h4>
-      <p>• <b>Stock Tracking:</b> ද්‍රව්‍යවල (Materials) Code හෝ Name මඟින් සෙවීම සහ Receipt, Issues, Return, SSL Received/Sent, Rejection ආදී විවිධ Sections යටතේ දත්ත ඇතුළත් කිරීම.</p>
+      <p>• <b>Stock Tracking:</b> ද්‍රව්‍යවල (Materials) Code හෝ Name මඟින් සෙවීම සහ Sections යටතේ දත්ත ඇතුළත් කිරීම.</p>
       <p>• <b>Real-time Closing Stock:</b> දත්ත ඇතුළත් කළ පසු ස්වයංක්‍රීයව Closing Stock එක ගණනය වීම.</p>
-      <p>• <b>Excel Export & Shift:</b> දිනපතා තොග වාර්තා Excel ගොනුවක් ලෙස ඩවුන්ලෝඩ් කර ගැනීම සහ Stock එක ඉදිරියට මාරු කිරීම (Shift Stock).</p>
-      <p>• <b>Share Report:</b> සකස් කළ වාර්තා WhatsApp හෝ වෙනත් යෙදුම් හරහා පහසුවෙන් Share කිරීම.</p>
-      <p>• <b>Multi-language & Theme:</b> සිංහල, ඉංග්‍රීසි සහ දෙමළ භාෂා මෙන්ම විවිධ Themes මාරු කරමින් භාවිත කිරීම.</p>
+      <p>• <b>Location Choice:</b> ගොනුව Download කර ගැනීමේදී Location එක නිවැරදිව තෝරා ගැනීමට පහසුකම සැලසීම.</p>
     `;
   }
 }
@@ -670,6 +679,7 @@ function triggerDirectDownload(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+// Fixed Location Picker & Saving
 async function processExportAction() {
   const t = i18n[currentLang] || i18n['si'];
   const formatSelect = document.getElementById('exportFormatSelect');
@@ -691,7 +701,7 @@ async function processExportAction() {
   closeExportModal();
 
   if (currentExportMode === 'excel') {
-    // 1. Desktop Google Chrome/Edge Supported FilePicker Dialogue
+    // Check Native File System Access API Support for Location Selection
     if ('showSaveFilePicker' in window) {
       try {
         const pickerOptions = {
@@ -727,15 +737,14 @@ async function processExportAction() {
           showToast('File Saved Successfully!', 'success');
         }
       } catch (err) {
-        // User Canceled directory picker dialog
         if (err.name === 'AbortError') {
-          return;
+          return; // User canceled location selection
         }
         triggerDirectDownload(fileData.blob, customFileName);
         if (shouldShift) resetStockAndComplete(t);
       }
     } else {
-      // 2. Mobile / Safari Browser Direct Download Prompt Handling
+      // Direct prompt fallback for devices without location picker window API
       triggerDirectDownload(fileData.blob, customFileName);
       if (shouldShift) {
         resetStockAndComplete(t);
@@ -903,6 +912,11 @@ function restoreFromXLSX() {
         inventory = restored; 
         saveInventoryData(); 
         fileInput.value = ""; 
+        const display = document.getElementById('selectedFileNameDisplay');
+        if (display) {
+          display.innerText = 'ගොනුවක් තෝරා නොමැත';
+          display.style.color = 'var(--text-muted)';
+        }
         closeSettings(); 
         showToast(t.msgRestoreSuccess, 'success'); 
       } else { 
