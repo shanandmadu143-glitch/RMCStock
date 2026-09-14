@@ -13,8 +13,7 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share Data File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
-    placeholderModalSearch: 'චෙක්ලිස්ට් එක සෙවීමට Code හෝ Name ලියන්න...',
+    txtTodayTitle: '<i class="fa-solid fa-calendar-check" style="color:var(--primary);"></i> අද දිනයේ යාවත්කාලීන කළ ද්‍රව්‍ය',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:',
@@ -54,8 +53,7 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
-    placeholderModalSearch: 'Quick filter checklist...',
+    txtTodayTitle: '<i class="fa-solid fa-calendar-check" style="color:var(--primary);"></i> Today\'s Updated Items',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:',
@@ -95,8 +93,7 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு',
-    placeholderModalSearch: 'குறியீடு அல்லது பெயர் மூலம் தேடுக...',
+    txtTodayTitle: '<i class="fa-solid fa-calendar-check" style="color:var(--primary);"></i> இன்று புதுப்பிக்கப்பட்ட பொருட்கள்',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> தீம் தேர்ந்தெடுக்கவும்:',
@@ -126,11 +123,9 @@ const i18n = {
 
 let currentLang = localStorage.getItem('rmc_app_lang') || 'si';
 let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
-let isTodayOnlyFilter = false;
 let inventory = []; 
 let selectedIndex = -1;
 let searchDebounceTimeout = null;
-let modalSearchTimeout = null;
 let currentExportMode = 'excel'; 
 
 const defaultItems = [ 
@@ -194,10 +189,7 @@ function applyLanguage(lang) {
   const btnExcel = document.getElementById('btnExcel'); if(btnExcel) btnExcel.title = t.titleExcel;
   const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
   
-  setHtml('txtSummaryTitle', t.txtSummaryTitle);
-  const modalSearchInput = document.getElementById('modalSearchInput');
-  if(modalSearchInput) modalSearchInput.placeholder = t.placeholderModalSearch;
-  
+  setHtml('txtTodayTitle', t.txtTodayTitle);
   setHtml('txtSettingsTitle', t.txtSettingsTitle);
   setHtml('lblLanguage', t.lblLanguage);
   setHtml('lblTheme', t.lblTheme);
@@ -279,6 +271,7 @@ function loadInventoryData() {
   } else { 
     initDefaultInventory(); 
   } 
+  renderChecklist();
 } 
 
 function initDefaultInventory() { 
@@ -395,6 +388,7 @@ function addSingleSectionData() {
   }
 
   saveInventoryData(); 
+  renderChecklist();
   inputAmount.value = ''; 
   showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
 } 
@@ -419,21 +413,6 @@ function hideModal(modalId) {
   }, 200);
 }
 
-function openRecordsModal() { 
-  isTodayOnlyFilter = false;
-  const btnToday = document.getElementById('btnTodayFilter');
-  if (btnToday) btnToday.classList.remove('active');
-  const modalSearchInput = document.getElementById('modalSearchInput');
-  if (modalSearchInput) modalSearchInput.value = '';
-  
-  renderChecklist(); 
-  showModal('recordsModal');
-} 
-
-function closeRecordsModal() { 
-  hideModal('recordsModal');
-} 
-
 function openSettings() { 
   showModal('settingsModal');
 } 
@@ -441,15 +420,6 @@ function openSettings() {
 function closeSettings() { 
   hideModal('settingsModal');
 } 
-
-function openRestoreHelpModal() {
-  showModal('restoreHelpModal');
-  switchHelpTopic('fileType');
-}
-
-function closeRestoreHelpModal() {
-  hideModal('restoreHelpModal');
-}
 
 function openExportModal(mode) {
   currentExportMode = mode;
@@ -459,6 +429,73 @@ function openExportModal(mode) {
 
 function closeExportModal() {
   hideModal('exportModal');
+}
+
+function openTodayModal() {
+  const container = document.getElementById('todayItemsContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  const todayStr = getTodayStr();
+  const todayItems = inventory.filter(item => 
+    item.last_updated === todayStr || 
+    (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0)
+  );
+
+  if (todayItems.length === 0) {
+    container.innerHTML = `<p style="text-align:center; padding: 20px; color:var(--text-muted);">අද දිනයේ කිසිදු දත්තයක් යාවත්කාලීන කර නොමැත.</p>`;
+  } else {
+    todayItems.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'detail-item-box';
+      card.style.marginBottom = '10px';
+      card.style.cursor = 'pointer';
+      card.onclick = () => {
+        const idx = inventory.findIndex(i => i.code === item.code);
+        openItemDetailModal(idx);
+      };
+
+      card.innerHTML = `
+        <div style="font-weight:700; color:var(--primary); font-size: 0.95rem;">${item.name} (${item.code})</div>
+        <div style="font-size:0.8rem; margin-top:4px; display:flex; justify-content:space-between;">
+          <span>Rec: ${item.f_receipt} | Iss: ${item.g_issues} | Ret: ${item.h_return}</span>
+          <strong style="color:var(--text-dark);">Closing: ${item.closing} ${item.uom}</strong>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  showModal('todayModal');
+}
+
+function closeTodayModal() {
+  hideModal('todayModal');
+}
+
+function openItemDetailModal(index) {
+  const item = inventory[index];
+  if (!item) return;
+
+  const setT = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+
+  setT('detCode', item.code);
+  setT('detUom', item.uom);
+  setT('detName', item.name);
+  setT('detOp', Number(item.op_stock).toLocaleString());
+  setT('detReceipt', Number(item.f_receipt).toLocaleString());
+  setT('detIssues', Number(item.g_issues).toLocaleString());
+  setT('detReturn', Number(item.h_return).toLocaleString());
+  setT('detSslI', Number(item.i_ssl_received || 0).toLocaleString());
+  setT('detSslJ', Number(item.j_ssl_sent || 0).toLocaleString());
+  setT('detRejectionL', Number(item.l_rejection || 0).toLocaleString());
+  setT('detClosing', `${Number(item.closing).toLocaleString()} ${item.uom}`);
+
+  showModal('itemDetailModal');
+}
+
+function closeItemDetailModal() {
+  hideModal('itemDetailModal');
 }
 
 function updateDefaultFileName() {
@@ -471,51 +508,6 @@ function updateDefaultFileName() {
   fileNameInput.value = `Stock_Counting_${today}.${ext}`;
 }
 
-function switchHelpTopic(topic) {
-  const box = document.getElementById('helpContentBox');
-  if (!box) return;
-
-  if (topic === 'fileType') {
-    box.innerHTML = `
-      <h4 style="color: var(--primary); margin-bottom: 8px;"><i class="fa-solid fa-file-excel"></i> Upload කළ යුත්තේ මොන වගේ File එකක්ද?</h4>
-      <p>• මෙම App එක මඟින් මීට පෙර Download කරගත් හෝ Backup එකක් ලෙස ලබාගත් <b>Excel (.xlsx හෝ .xls)</b> ගොනුවක් පමණක් upload කළ යුතුය.</p>
-      <p>• එම Excel ගොනුව තුළ අනිවාර්යයෙන්ම <b>Material Code, Material Name, Op.Stock-Warehouse, Receipt, Issues, Return, Closing Stock</b> වැනි නිවැරදි ශීර්ෂ (Headers) අඩංගු විය යුතුය.</p>
-      <p>• වෙනත් වෙනත් අක්‍රමවත් Excel පත්‍ර උඩුගත කිරීමෙන් දත්ත දෝෂ සහගත විය හැක.</p>
-    `;
-  } else if (topic === 'howToDo') {
-    box.innerHTML = `
-      <h4 style="color: var(--success); margin-bottom: 8px;"><i class="fa-solid fa-upload"></i> Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</h4>
-      <p>1. Settings වෙත ගොස් <b>'Restore Excel (.xlsx) File'</b> යටතේ ඇති <b>'Choose File'</b> බොත්තම ඔබන්න.</p>
-      <p>2. ඔබගේ පරිගණකයෙන් හෝ දුරකථනයෙන් අදාළ Excel ගොනුව තෝරාගන්න.</p>
-      <p>3. ඉන්පසු කොළ පාටින් ඇති <b>'Restore Excel Data'</b> බොත්තම ක්ලික් කරන්න.</p>
-      <p>4. සාර්ථක පණිවිඩයක් සමඟින් ඔබගේ පැරණි දත්ත යාවත්කාලීන වනු ඇත.</p>
-    `;
-  } else if (topic === 'appFeatures') {
-    box.innerHTML = `
-      <h4 style="color: var(--warning); margin-bottom: 8px;"><i class="fa-solid fa-boxes-stacked"></i> Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</h4>
-      <p>• <b>Stock Tracking:</b> ද්‍රව්‍යවල (Materials) Code හෝ Name මඟින් සෙවීම සහ Receipt, Issues, Return, SSL Received/Sent, Rejection ආදී විවිධ Sections යටතේ දත්ත ඇතුළත් කිරීම.</p>
-      <p>• <b>Real-time Closing Stock:</b> දත්ත ඇතුළත් කළ පසු ස්වයංක්‍රීයව Closing Stock එක ගණනය වීම.</p>
-      <p>• <b>Excel Export & Shift:</b> දිනපතා තොග වාර්තා Excel ගොනුවක් ලෙස ඩවුන්ලෝඩ් කර ගැනීම සහ Stock එක ඉදිරියට මාරු කිරීම (Shift Stock).</p>
-      <p>• <b>Share Report:</b> සකස් කළ වාර්තා WhatsApp හෝ වෙනත් යෙදුම් හරහා පහසුවෙන් Share කිරීම.</p>
-      <p>• <b>Multi-language & Theme:</b> සිංහල, ඉංග්‍රීසි සහ දෙමළ භාෂා මෙන්ම විවිධ Themes මාරු කරමින් භාවිත කිරීම.</p>
-    `;
-  }
-}
-
-function toggleTodayFilter() {
-  isTodayOnlyFilter = !isTodayOnlyFilter;
-  const btnToday = document.getElementById('btnTodayFilter');
-  if (btnToday) {
-    if (isTodayOnlyFilter) {
-      btnToday.classList.add('active');
-    } else {
-      btnToday.classList.remove('active');
-    }
-  }
-  filterChecklist();
-}
-
-/* Stock Check Card එක තුළ සියලුම විස්තර පෙන්වන පරිදි සකසන ලද renderChecklist function එක */
 function renderChecklist() { 
   const container = document.getElementById('summaryCardsContainer'); 
   if (!container) return;
@@ -558,6 +550,10 @@ function renderChecklist() {
         <div class="stat-pill text-danger"><span class="stat-lbl"><i class="fa-solid fa-ban"></i> Rejection:</span> <span class="stat-val">${Number(item.l_rejection || 0).toLocaleString()}</span></div>
       </div>
     `; 
+
+    itemDiv.onclick = (e) => {
+      openItemDetailModal(idx);
+    };
 
     let startX = 0;
     let startY = 0;
@@ -602,32 +598,12 @@ function renderChecklist() {
     itemDiv.addEventListener('touchmove', handleTouchMove, { passive: false });
     itemDiv.addEventListener('touchend', handleTouchEnd);
 
-    itemDiv.addEventListener('mousedown', handleTouchStart);
-    
-    const mouseMoveHandler = (e) => {
-      if (startX !== 0 && e.buttons === 1) handleTouchMove(e);
-    };
-    const mouseUpHandler = () => {
-      if (startX !== 0) {
-        handleTouchEnd();
-        startX = 0;
-      }
-      window.removeEventListener('mousemove', mouseMoveHandler);
-      window.removeEventListener('mouseup', mouseUpHandler);
-    };
-
-    itemDiv.addEventListener('mousedown', () => {
-      window.addEventListener('mousemove', mouseMoveHandler);
-      window.addEventListener('mouseup', mouseUpHandler);
-    });
-
     wrapper.appendChild(bgDiv);
     wrapper.appendChild(itemDiv);
     fragment.appendChild(wrapper); 
   }); 
 
   container.appendChild(fragment);
-  filterChecklist();
 } 
 
 function clearItemData(index, wrapperEl) {
@@ -661,31 +637,6 @@ function clearItemData(index, wrapperEl) {
 
   const t = i18n[currentLang] || i18n['si'];
   showToast(t.msgItemCleared, 'success');
-}
-
-function filterChecklist() {
-  const modalInput = document.getElementById('modalSearchInput');
-  const q = (modalInput ? modalInput.value : '').toLowerCase().trim();
-  const todayStr = getTodayStr();
-  const wrappers = document.querySelectorAll('#summaryCardsContainer .checklist-item-wrapper');
-
-  wrappers.forEach((wrapper) => {
-    const idx = parseInt(wrapper.dataset.index, 10);
-    const item = inventory[idx];
-    if (!item) return;
-
-    const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(q);
-    const hasTodayActivity = (item.last_updated === todayStr) || 
-                             (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0);
-                             
-    const matchesToday = !isTodayOnlyFilter || hasTodayActivity;
-
-    if (matchesSearch && matchesToday) {
-      wrapper.style.display = 'block';
-    } else {
-      wrapper.style.display = 'none';
-    }
-  });
 }
 
 function generateWorkbookWithFormulas() {
@@ -854,6 +805,7 @@ function resetStockAndComplete(t) {
     item.last_updated = "";
   }); 
   saveInventoryData(); 
+  renderChecklist();
   clearSearchInput();
   showToast(t.msgExcelShift, 'success'); 
 }
@@ -946,6 +898,7 @@ function restoreFromXLSX() {
       if (restored.length > 0) { 
         inventory = restored; 
         saveInventoryData(); 
+        renderChecklist();
         fileInput.value = ""; 
         closeSettings(); 
         showToast(t.msgRestoreSuccess, 'success'); 
@@ -964,6 +917,7 @@ function resetToDefault() {
   if (confirm(t.msgResetConfirm)) { 
     localStorage.removeItem('rmc_stock_inventory'); 
     initDefaultInventory(); 
+    renderChecklist();
     clearSearchInput();
     closeSettings(); 
     showToast("Reset Successful!", "success"); 
@@ -1058,14 +1012,4 @@ document.addEventListener('DOMContentLoaded', () => {
       searchResults.style.display = 'none';
     }
   });
-
-  const modalSearch = document.getElementById('modalSearchInput');
-  if (modalSearch) {
-    modalSearch.addEventListener('input', function() { 
-      clearTimeout(modalSearchTimeout);
-      modalSearchTimeout = setTimeout(() => {
-        filterChecklist();
-      }, 100);
-    }); 
-  }
 });
