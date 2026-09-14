@@ -360,17 +360,19 @@ input:focus, select:focus {
 }
 
 .btn-icon-today {
-  height: 42px;
+  width: 48px;
+  height: 48px;
   border-radius: var(--radius-md);
   background: var(--bg-main);
-  color: var(--text-dark);
+  color: var(--text-muted);
   border: 1.5px solid var(--border-color);
-  font-weight: 600;
+  font-size: 1.2rem;
   cursor: pointer;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   transition: var(--transition-smooth);
+  flex-shrink: 0;
 }
 
 .btn-icon-today:hover, .btn-icon-today.active {
@@ -417,7 +419,7 @@ input:focus, select:focus {
   font-weight: 800;
 }
 
-/* MODAL STYLING */
+/* MODAL STYLING & FULL SCREEN FIT ENHANCEMENT */
 .modal {
   display: none;
   position: fixed;
@@ -453,6 +455,15 @@ input:focus, select:focus {
   flex-direction: column;
   border: 1px solid var(--border-color);
   overflow: hidden;
+}
+
+/* Modal Fullscreen Utility Class */
+.modal-content.modal-fullscreen {
+  width: 96vw;
+  height: 94vh;
+  max-width: 1200px;
+  max-height: 96vh;
+  border-radius: var(--radius-lg);
 }
 
 .modal-header {
@@ -497,7 +508,7 @@ input:focus, select:focus {
 .checklist-container {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
@@ -505,7 +516,6 @@ input:focus, select:focus {
   width: 100%;
 }
 
-/* STOCK CHECK EXPANDED CARD DESIGN */
 .checklist-item-wrapper {
   position: relative;
   width: 100%;
@@ -541,14 +551,15 @@ input:focus, select:focus {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 16px 20px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
+  cursor: pointer;
   transition: transform 0.2s ease-out, border-color 0.2s ease, background 0.2s ease;
   width: 100%;
   will-change: transform;
-  cursor: pointer;
 }
 
 .checklist-item.swiping {
@@ -566,26 +577,34 @@ input:focus, select:focus {
   transform: scaleY(0);
 }
 
-.card-main-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  border-bottom: 1px dashed var(--border-color);
-  padding-bottom: 10px;
+.checklist-item:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
 }
 
-.card-item-title {
+.checklist-left {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 14px;
+  overflow: hidden;
   flex: 1;
 }
 
+.checklist-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .checklist-name {
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 700;
   color: var(--text-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .checklist-code {
@@ -594,76 +613,54 @@ input:focus, select:focus {
   color: var(--text-muted);
 }
 
-.card-closing-box {
-  background: var(--primary-light);
-  border: 1px solid var(--primary);
-  padding: 6px 14px;
-  border-radius: 10px;
+.checklist-right {
   text-align: right;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
 }
 
-.closing-val {
-  font-size: 1.1rem;
+.checklist-stock {
+  font-size: 1.05rem;
   font-weight: 800;
   color: var(--primary);
 }
 
-.closing-lbl {
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.card-details-grid {
+.detail-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 8px;
-}
-
-.stat-pill {
-  background: var(--bg-main);
-  border: 1px solid var(--border-color);
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 0.78rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.stat-lbl {
-  color: var(--text-muted);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.stat-val {
-  font-weight: 700;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 10px;
+  flex: 1;
+  overflow-y: auto;
+  align-content: start;
 }
 
 .detail-item-box {
   background: var(--bg-main);
   border: 1px solid var(--border-color);
-  padding: 10px 14px;
+  padding: 18px;
   border-radius: var(--radius-md);
-  font-size: 0.88rem;
+}
+
+.detail-item-box.full-width {
+  grid-column: 1 / -1;
 }
 
 .detail-label {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
   color: var(--text-muted);
-  font-weight: 600;
-  margin-bottom: 4px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
 }
 
-.text-success { color: var(--success); }
-.text-danger { color: var(--danger); }
-.text-warning { color: var(--warning); }
+.detail-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
 
 .setting-option {
   margin-bottom: 18px;
@@ -725,10 +722,16 @@ input:focus, select:focus {
 
 @media (max-width: 640px) {
   .form-grid { grid-template-columns: 1fr; }
-  .card-details-grid { grid-template-columns: 1fr 1fr; }
+  .detail-card-grid { grid-template-columns: 1fr; }
+  .detail-item-box.full-width { grid-column: span 1; }
   body { padding: 10px; }
   .header-block { padding: 16px; }
   .card { padding: 18px; }
   .modal { padding: 0; }
-  .modal-content { height: 100vh; max-height: 100vh; border-radius: 0; }
+  .modal-content, .modal-content.modal-fullscreen { 
+    width: 100vw; 
+    height: 100vh; 
+    max-height: 100vh; 
+    border-radius: 0; 
+  }
 }
