@@ -23,6 +23,10 @@
       </div>
     </div>
     <div class="icon-actions">
+      <!-- අලුතින් එකතු කරන ලද Today Uploaded Icon එක -->
+      <button class="btn-icon-header ripple" onclick="openTodayUploadedModal()" title="Today Uploaded Live Details" type="button">
+        <i class="fa-solid fa-cloud-arrow-up" style="color: #34d399;"></i>
+      </button>
       <button class="btn-icon-header ripple" onclick="openRecordsModal()" title="Inventory Summary Checklist" type="button">
         <i class="fa-solid fa-list-check" style="color: #f59e0b;"></i>
       </button>
@@ -74,13 +78,9 @@
       </div>
     </div>
 
-    <!-- Stock Check icon added into main action row -->
     <div class="btn-row" style="margin-top: 22px;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
-      </button>
-      <button class="btn-icon-check ripple" onclick="openRecordsModal()" title="Stock Check / Checklist" id="btnStockCheck" type="button">
-        <i class="fa-solid fa-list-check"></i>
       </button>
       <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
         <i class="fa-solid fa-file-excel"></i>
@@ -97,6 +97,20 @@
 </div>
 
 <div id="toastContainer"></div>
+
+<!-- Today Uploaded Live Modal -->
+<div id="todayUploadedModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-cloud-arrow-up" style="color:var(--success);"></i> Today Uploaded / Updated Live</h3>
+      <button class="close-btn ripple" onclick="closeTodayUploadedModal()" type="button">&times;</button>
+    </div>
+    <div style="margin-bottom: 14px; flex-shrink: 0;">
+      <input type="text" id="todayModalSearchInput" placeholder="Filter today items by name or code..." autocomplete="off" style="width: 100%;">
+    </div>
+    <div class="checklist-container" id="todayCardsContainer"></div>
+  </div>
+</div>
 
 <!-- Export Format & Options Selector Modal -->
 <div id="exportModal" class="modal">
