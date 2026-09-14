@@ -614,8 +614,8 @@ function generateWorkbookWithFormulas() {
       "Return": Number(item.h_return) || 0, 
       "Received to SSL": Number(item.i_ssl_received) || 0, 
       "Sent to SSL": Number(item.j_ssl_sent) || 0, 
-      "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-L${rowNum}`, v: Number(item.closing) || 0 }, 
-      "Rejection": Number(item.l_rejection) || 0 
+      "Rejection": Number(item.l_rejection) || 0,
+      "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-K${rowNum}`, v: Number(item.closing) || 0 }
     }; 
   }); 
 
@@ -667,7 +667,7 @@ function triggerDirectDownload(blob, filename) {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 async function processExportAction() {
@@ -688,10 +688,10 @@ async function processExportAction() {
   }
 
   const fileData = getFormattedFileData(format, customFileName);
-
   closeExportModal();
 
   if (currentExportMode === 'excel') {
+    // 1. Desktop Google Chrome/Edge Supported FilePicker Dialogue
     if ('showSaveFilePicker' in window) {
       try {
         const pickerOptions = {
@@ -727,12 +727,15 @@ async function processExportAction() {
           showToast('File Saved Successfully!', 'success');
         }
       } catch (err) {
-        if (err.name !== 'AbortError') {
-          triggerDirectDownload(fileData.blob, customFileName);
-          if (shouldShift) resetStockAndComplete(t);
+        // User Canceled directory picker dialog
+        if (err.name === 'AbortError') {
+          return;
         }
+        triggerDirectDownload(fileData.blob, customFileName);
+        if (shouldShift) resetStockAndComplete(t);
       }
     } else {
+      // 2. Mobile / Safari Browser Direct Download Prompt Handling
       triggerDirectDownload(fileData.blob, customFileName);
       if (shouldShift) {
         resetStockAndComplete(t);
