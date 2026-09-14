@@ -515,7 +515,7 @@ function toggleTodayFilter() {
   filterChecklist();
 }
 
-/* Stock Check List සාදන ශ්‍රිතය - Material Name එකට පහලින් Closing stock එක පෙන්වයි */
+/* STOCK CHECK LIST RENDER - WITH TOP ITEM NAME & BOTTOM CLOSING STOCK */
 function renderChecklist() { 
   const container = document.getElementById('summaryCardsContainer'); 
   if (!container) return;
@@ -537,18 +537,13 @@ function renderChecklist() {
     itemDiv.className = 'checklist-item'; 
 
     itemDiv.innerHTML = ` 
-      <div class="checklist-left">
-        <div class="checklist-info">
-          <div class="checklist-name" title="${item.name}">${item.name}</div>
-          <div style="font-size: 0.78rem; font-weight: 700; color: var(--primary); margin-top: 2px;">
-            Closing Stock: ${Number(item.closing).toLocaleString()} ${item.uom}
-          </div>
-          <div class="checklist-code" style="margin-top: 2px;"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
-        </div>
+      <div class="checklist-header-row">
+        <div class="checklist-name">${item.name}</div>
+        <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
       </div>
-      <div class="checklist-right">
-        <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
-        <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Closing</div>
+      <div class="checklist-stock-row">
+        <span class="checklist-stock-label">Closing Stock:</span>
+        <span class="checklist-stock-value">${Number(item.closing).toLocaleString()} ${item.uom}</span>
       </div>
     `; 
 
