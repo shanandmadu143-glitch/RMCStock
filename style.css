@@ -230,7 +230,7 @@ label i {
   color: var(--danger);
 }
 
-input[type="text"], input[type="number"], select {
+input[type="text"], input[type="number"], select, input[type="file"] {
   width: 100%;
   padding: 14px 18px;
   border: 1.5px solid var(--border-color);
@@ -248,45 +248,22 @@ input:focus, select:focus {
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
 }
 
-/* Custom File Choose Styling */
-.custom-file-picker {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 6px;
-  background: var(--input-bg);
-  padding: 6px 12px 6px 6px;
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--radius-md);
-}
-
-.btn-choose-file {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
+/* File Input Custom UI Styling */
+input[type="file"]::file-selector-button {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 6px 14px;
+  border-radius: 8px;
   font-weight: 600;
-  font-size: 0.88rem;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  margin-right: 12px;
   transition: var(--transition-smooth);
-  flex-shrink: 0;
 }
 
-.btn-choose-file:hover {
-  background: var(--primary-hover);
-}
-
-.file-name-display {
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
+input[type="file"]::file-selector-button:hover {
+  background: var(--primary);
+  color: #ffffff;
 }
 
 .search-results {
