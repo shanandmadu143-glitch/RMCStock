@@ -13,8 +13,6 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share Data File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
-    placeholderModalSearch: 'චෙක්ලිස්ට් එක සෙවීමට Code හෝ Name ලියන්න...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:',
@@ -54,8 +52,6 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
-    placeholderModalSearch: 'Quick filter checklist...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language:',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:',
@@ -95,8 +91,6 @@ const i18n = {
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
-    txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு',
-    placeholderModalSearch: 'குறியீடு அல்லது பெயர் மூலம் தேடுக...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> தீம் தேர்ந்தெடுக்கவும்:',
@@ -126,11 +120,9 @@ const i18n = {
 
 let currentLang = localStorage.getItem('rmc_app_lang') || 'si';
 let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
-let isTodayOnlyFilter = false;
 let inventory = []; 
 let selectedIndex = -1;
 let searchDebounceTimeout = null;
-let modalSearchTimeout = null;
 let todayModalSearchTimeout = null;
 let currentExportMode = 'excel'; 
 
@@ -194,10 +186,6 @@ function applyLanguage(lang) {
   
   const btnExcel = document.getElementById('btnExcel'); if(btnExcel) btnExcel.title = t.titleExcel;
   const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
-  
-  setHtml('txtSummaryTitle', t.txtSummaryTitle);
-  const modalSearchInput = document.getElementById('modalSearchInput');
-  if(modalSearchInput) modalSearchInput.placeholder = t.placeholderModalSearch;
   
   setHtml('txtSettingsTitle', t.txtSettingsTitle);
   setHtml('lblLanguage', t.lblLanguage);
@@ -420,21 +408,6 @@ function hideModal(modalId) {
   }, 200);
 }
 
-function openRecordsModal() { 
-  isTodayOnlyFilter = false;
-  const btnToday = document.getElementById('btnTodayFilter');
-  if (btnToday) btnToday.classList.remove('active');
-  const modalSearchInput = document.getElementById('modalSearchInput');
-  if (modalSearchInput) modalSearchInput.value = '';
-  
-  renderChecklist(); 
-  showModal('recordsModal');
-} 
-
-function closeRecordsModal() { 
-  hideModal('recordsModal');
-} 
-
 /* Today Uploaded Modal Functions */
 function openTodayUploadedModal() {
   const todaySearchInput = document.getElementById('todayModalSearchInput');
@@ -567,187 +540,6 @@ function switchHelpTopic(topic) {
       <p>• <b>Multi-language & Theme:</b> සිංහල, ඉංග්‍රීසි සහ දෙමළ භාෂා මෙන්ම විවිධ Themes මාරු කරමින් භාවිත කිරීම.</p>
     `;
   }
-}
-
-function toggleTodayFilter() {
-  isTodayOnlyFilter = !isTodayOnlyFilter;
-  const btnToday = document.getElementById('btnTodayFilter');
-  if (btnToday) {
-    if (isTodayOnlyFilter) {
-      btnToday.classList.add('active');
-    } else {
-      btnToday.classList.remove('active');
-    }
-  }
-  filterChecklist();
-}
-
-function renderChecklist() { 
-  const container = document.getElementById('summaryCardsContainer'); 
-  if (!container) return;
-  container.innerHTML = ''; 
-  const fragment = document.createDocumentFragment();
-
-  inventory.forEach((item, idx) => { 
-    item.closing = calculateClosingStock(item);
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'checklist-item-wrapper';
-    wrapper.dataset.index = idx;
-
-    const bgDiv = document.createElement('div');
-    bgDiv.className = 'checklist-item-bg';
-    bgDiv.innerHTML = `<i class="fa-solid fa-trash-can"></i> Clear & Reset`;
-
-    const itemDiv = document.createElement('div'); 
-    itemDiv.className = 'checklist-item'; 
-
-    itemDiv.innerHTML = ` 
-      <div class="checklist-left">
-        <div class="checklist-info">
-          <div class="checklist-name" title="${item.name}">${item.name}</div>
-          <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
-        </div>
-      </div>
-      <div class="checklist-right">
-        <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
-        <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Closing</div>
-      </div>
-    `; 
-
-    let startX = 0;
-    let startY = 0;
-    let currentX = 0;
-    let isSwiping = false;
-
-    const handleTouchStart = (e) => {
-      startX = e.touches ? e.touches[0].clientX : e.clientX;
-      startY = e.touches ? e.touches[0].clientY : e.clientY;
-      isSwiping = false;
-      itemDiv.classList.add('swiping');
-    };
-
-    const handleTouchMove = (e) => {
-      const x = e.touches ? e.touches[0].clientX : e.clientX;
-      const y = e.touches ? e.touches[0].clientY : e.clientY;
-      const diffX = x - startX;
-      const diffY = y - startY;
-
-      if (Math.abs(diffX) > Math.abs(diffY) && diffX < 0) {
-        if (e.cancelable) e.preventDefault();
-        isSwiping = true;
-        currentX = Math.max(diffX, -150);
-        itemDiv.style.transform = `translateX(${currentX}px)`;
-      }
-    };
-
-    const handleTouchEnd = () => {
-      itemDiv.classList.remove('swiping');
-      if (isSwiping && currentX < -80) {
-        itemDiv.style.transform = `translateX(-100%)`;
-        setTimeout(() => {
-          clearItemData(idx, wrapper);
-        }, 150);
-      } else {
-        itemDiv.style.transform = `translateX(0px)`;
-      }
-      currentX = 0;
-    };
-
-    itemDiv.addEventListener('touchstart', handleTouchStart, { passive: true });
-    itemDiv.addEventListener('touchmove', handleTouchMove, { passive: false });
-    itemDiv.addEventListener('touchend', handleTouchEnd);
-
-    itemDiv.addEventListener('mousedown', handleTouchStart);
-    
-    const mouseMoveHandler = (e) => {
-      if (startX !== 0 && e.buttons === 1) handleTouchMove(e);
-    };
-    const mouseUpHandler = () => {
-      if (startX !== 0) {
-        handleTouchEnd();
-        startX = 0;
-      }
-      window.removeEventListener('mousemove', mouseMoveHandler);
-      window.removeEventListener('mouseup', mouseUpHandler);
-    };
-
-    itemDiv.addEventListener('mousedown', () => {
-      window.addEventListener('mousemove', mouseMoveHandler);
-      window.addEventListener('mouseup', mouseUpHandler);
-    });
-
-    itemDiv.addEventListener('click', (e) => {
-      if (!isSwiping && Math.abs(currentX) < 10) {
-        openItemDetails(idx);
-      }
-    });
-
-    wrapper.appendChild(bgDiv);
-    wrapper.appendChild(itemDiv);
-    fragment.appendChild(wrapper); 
-  }); 
-
-  container.appendChild(fragment);
-  filterChecklist();
-} 
-
-function clearItemData(index, wrapperEl) {
-  const item = inventory[index];
-  if (!item) return;
-
-  item.f_receipt = 0;
-  item.g_issues = 0;
-  item.h_return = 0;
-  item.i_ssl_received = 0;
-  item.j_ssl_sent = 0;
-  item.l_rejection = 0;
-  item.closing = Number(item.op_stock) || 0;
-  item.last_updated = "";
-
-  saveInventoryData();
-
-  if (selectedIndex === index) {
-    const dispClosing = document.getElementById('dispClosing');
-    if (dispClosing) {
-      dispClosing.innerText = Number(item.closing).toLocaleString() + ' ' + item.uom;
-    }
-  }
-
-  if (wrapperEl) {
-    wrapperEl.classList.add('deleted');
-    setTimeout(() => {
-      renderChecklist();
-    }, 300);
-  }
-
-  const t = i18n[currentLang] || i18n['si'];
-  showToast(t.msgItemCleared, 'success');
-}
-
-function filterChecklist() {
-  const modalInput = document.getElementById('modalSearchInput');
-  const q = (modalInput ? modalInput.value : '').toLowerCase().trim();
-  const todayStr = getTodayStr();
-  const wrappers = document.querySelectorAll('#summaryCardsContainer .checklist-item-wrapper');
-
-  wrappers.forEach((wrapper) => {
-    const idx = parseInt(wrapper.dataset.index, 10);
-    const item = inventory[idx];
-    if (!item) return;
-
-    const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(q);
-    const hasTodayActivity = (item.last_updated === todayStr) || 
-                             (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0);
-                             
-    const matchesToday = !isTodayOnlyFilter || hasTodayActivity;
-
-    if (matchesSearch && matchesToday) {
-      wrapper.style.display = 'block';
-    } else {
-      wrapper.style.display = 'none';
-    }
-  });
 }
 
 function openItemDetails(index) {
@@ -1146,16 +938,6 @@ document.addEventListener('DOMContentLoaded', () => {
       searchResults.style.display = 'none';
     }
   });
-
-  const modalSearch = document.getElementById('modalSearchInput');
-  if (modalSearch) {
-    modalSearch.addEventListener('input', function() { 
-      clearTimeout(modalSearchTimeout);
-      modalSearchTimeout = setTimeout(() => {
-        filterChecklist();
-      }, 100);
-    }); 
-  }
 
   const todayModalSearch = document.getElementById('todayModalSearchInput');
   if (todayModalSearch) {
