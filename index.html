@@ -93,7 +93,7 @@
 
 <div id="toastContainer"></div>
 
-<!-- Export Format & Options Selector Modal -->
+<!-- Export Format & Location Selector Modal -->
 <div id="exportModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
@@ -129,7 +129,7 @@
 
       <div class="btn-row" style="margin-top: 24px;">
         <button type="button" class="btn btn-primary ripple" id="btnConfirmExport" onclick="processExportAction()">
-          <i class="fa-solid fa-download"></i> Choose Location & Save
+          <i class="fa-solid fa-folder-open"></i> Choose Location & Download
         </button>
       </div>
     </div>
@@ -244,8 +244,17 @@
           </button>
         </div>
         <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p>
-        <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 12px;">
-        <button class="btn ripple" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button">
+        
+        <!-- Custom File Chooser -->
+        <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="display: none;" onchange="updateFileNameDisplay(this)">
+        <div class="custom-file-picker">
+          <button type="button" class="btn-choose-file ripple" onclick="document.getElementById('xlsxFileInput').click();">
+            <i class="fa-solid fa-file-circle-plus"></i> File Choose
+          </button>
+          <span id="selectedFileNameDisplay" class="file-name-display">ගොනුවක් තෝරා නොමැත</span>
+        </div>
+
+        <button class="btn ripple" style="width:100%; margin-top: 12px; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button">
           <i class="fa-solid fa-upload"></i> Restore Excel Data
         </button>
       </div>
