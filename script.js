@@ -10,7 +10,7 @@ const i18n = {
     optSslJ: 'Sent to SSL (SSL යැවීම්)',
     optRejectionL: 'Rejection (ප්‍රතික්ෂේප කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
-    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save & Next (Enter)',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share Data File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
@@ -27,7 +27,7 @@ const i18n = {
     btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
     lblFooter: 'Created By <span>Yomal Lakshan</span>',
     msgSelectMaterial: 'කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!',
-    msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න!',
+    msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි අංකයක් පමණක් ඇතුළත් කරන්න! (ඍණ අංක හෝ අකුරු පිළිගනු නොලැබේ)',
     msgAdded: 'සාර්ථකව එකතු විය!',
     msgExcelShift: 'ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
     msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
@@ -36,7 +36,8 @@ const i18n = {
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'ගොනුව Share කිරීමට සූදානම්!',
     shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි. Direct Download සක්‍රිය විය.',
-    msgItemCleared: 'දත්ත ඉවත් කර Closing Stock එක මුල් තත්වයට පත් කරන ලදී!'
+    msgItemCleared: 'දත්ත ඉවත් කර Closing Stock එක මුල් තත්වයට පත් කරන ලදී!',
+    batchSuccess: 'Batch දත්ත සාර්ථකව යාවත්කාලීන විය!'
   },
   en: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
@@ -49,7 +50,7 @@ const i18n = {
     optSslJ: 'Sent to SSL',
     optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
-    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save & Next (Enter)',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
@@ -66,7 +67,7 @@ const i18n = {
     btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
     lblFooter: 'Created By <span>Yomal Lakshan</span>',
     msgSelectMaterial: 'Please select a Material Code or Name!',
-    msgValidAmount: 'Please enter a valid amount greater than 0!',
+    msgValidAmount: 'Please enter a valid number greater than 0! (Negative values or letters are not allowed)',
     msgAdded: 'successfully added!',
     msgExcelShift: 'File downloaded and Stock shifted successfully!',
     msgRestoreSelect: 'Please select an Excel file!',
@@ -75,7 +76,8 @@ const i18n = {
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'File ready to share!',
     shareNotSupported: 'Your browser does not support file sharing. Direct download initiated.',
-    msgItemCleared: 'Item data cleared and Closing Stock reset to original!'
+    msgItemCleared: 'Item data cleared and Closing Stock reset to original!',
+    batchSuccess: 'Batch update applied successfully!'
   },
   ta: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீடு மூலம் தேடுக:',
@@ -88,7 +90,7 @@ const i18n = {
     optSslJ: 'Sent to SSL',
     optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
-    btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
+    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save & Next (Enter)',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
@@ -105,7 +107,7 @@ const i18n = {
     btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
     lblFooter: 'Created By <span>Yomal Lakshan</span>',
     msgSelectMaterial: 'தயவுசெய்து ஒரு பொருளைத் தேர்ந்தெடுக்கவும்!',
-    msgValidAmount: 'தயவுசெய்து 0 ஐ விட அதிகமான அளவை உள்ளிடவும்!',
+    msgValidAmount: 'தயவுசெய்து 0 ஐ விட அதிகமான சரியான எண்ணை உள்ளிடவும்!',
     msgAdded: 'வெற்றிகரமாக சேர்க்கப்பட்டது!',
     msgExcelShift: 'பதிவிறக்கம் செய்யப்பட்டது, இருப்பு புதுப்பிக்கப்பட்டது!',
     msgRestoreSelect: 'தயவுசெய்து எக்செல் கோப்பைத் தேர்ந்தெடுக்கவும்!',
@@ -114,7 +116,8 @@ const i18n = {
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'பகிர கோப்பு தயாராக உள்ளது!',
     shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.',
-    msgItemCleared: 'தரவு அழிக்கப்பட்டு தொடக்க நிலைக்கு மாற்றப்பட்டது!'
+    msgItemCleared: 'தரவு அழிக்கப்பட்டு தொடக்க நிலைக்கு மாற்றப்பட்டது!',
+    batchSuccess: 'தொகுப்பு வெற்றிகரமாக புதுப்பிக்கப்பட்டது!'
   }
 };
 
@@ -150,6 +153,18 @@ const defaultItems = [
   {type: "RM", code: "11002211", name: "SPICE CLOVE POWDER", uom: "KG", op_stock: 10}, 
   {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2} 
 ]; 
+
+function showLoading(text = "Processing...") {
+  const el = document.getElementById('loadingText');
+  if (el) el.innerText = text;
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) overlay.style.display = 'flex';
+}
+
+function hideLoading() {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
 
 function applyTheme(theme) {
   currentTheme = theme;
@@ -344,6 +359,9 @@ function selectItem(index) {
   if(selectedBadge) selectedBadge.style.display = 'block'; 
   updateVisibilityState(true);
   updateClearBtnVisibility();
+
+  const inputAmount = document.getElementById('inputAmount');
+  if (inputAmount) inputAmount.focus();
 } 
 
 function addSingleSectionData() { 
@@ -359,10 +377,13 @@ function addSingleSectionData() {
   if (!sectionSelect || !inputAmount) return;
 
   const targetSection = sectionSelect.value; 
-  const amount = parseFloat(inputAmount.value) || 0; 
+  const rawVal = inputAmount.value.trim();
+  const amount = parseFloat(rawVal) || 0; 
   
-  if (amount <= 0 || isNaN(amount)) { 
+  // Strict Validation: prevent negative, non-numeric, e, +, -
+  if (rawVal === "" || isNaN(amount) || amount <= 0 || rawVal.includes('-') || rawVal.includes('+') || rawVal.toLowerCase().includes('e')) { 
     showToast(t.msgValidAmount, 'error'); 
+    inputAmount.focus();
     return; 
   } 
   
@@ -386,6 +407,9 @@ function addSingleSectionData() {
   saveInventoryData(); 
   inputAmount.value = ''; 
   showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
+  
+  // Quick Entry Keyboard Shortcut: reset search & focus back to search input
+  clearSearchInput();
 } 
 
 function showModal(modalId) {
@@ -472,6 +496,100 @@ function renderTodayUploadedList() {
   } else {
     container.appendChild(fragment);
   }
+}
+
+/* Batch Operations / Multi-select Functions */
+function openBatchModal() {
+  const batchInput = document.getElementById('batchInputAmount');
+  if (batchInput) batchInput.value = '';
+  renderBatchItemsList();
+  showModal('batchModal');
+}
+
+function closeBatchModal() {
+  hideModal('batchModal');
+}
+
+function renderBatchItemsList() {
+  const container = document.getElementById('batchItemsContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  const fragment = document.createDocumentFragment();
+
+  inventory.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.style.display = 'flex';
+    div.style.alignItems = 'center';
+    div.style.justifyContent = 'space-between';
+    div.style.padding = '8px 10px';
+    div.style.background = 'var(--card-bg)';
+    div.style.borderRadius = '8px';
+    div.style.border = '1px solid var(--border-color)';
+    div.style.marginBottom = '6px';
+
+    div.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
+        <input type="checkbox" class="batch-item-checkbox" data-index="${idx}" style="width: 18px; height: 18px; cursor: pointer;">
+        <span style="font-size: 0.88rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">[${item.code}] ${item.name}</span>
+      </div>
+      <span style="font-size: 0.8rem; color: var(--text-muted); flex-shrink: 0;">${item.uom}</span>
+    `;
+    fragment.appendChild(div);
+  });
+  container.appendChild(fragment);
+}
+
+function toggleSelectAllBatch(select) {
+  const checkboxes = document.querySelectorAll('.batch-item-checkbox');
+  checkboxes.forEach(chk => chk.checked = select);
+}
+
+function applyBatchOperation() {
+  const t = i18n[currentLang] || i18n['si'];
+  const sectionSel = document.getElementById('batchSectionSelect');
+  const amountInput = document.getElementById('batchInputAmount');
+  if (!sectionSel || !amountInput) return;
+
+  const section = sectionSel.value;
+  const rawVal = amountInput.value.trim();
+  const amount = parseFloat(rawVal) || 0;
+
+  if (rawVal === "" || isNaN(amount) || amount <= 0 || rawVal.includes('-') || rawVal.includes('+') || rawVal.toLowerCase().includes('e')) {
+    showToast(t.msgValidAmount, 'error');
+    amountInput.focus();
+    return;
+  }
+
+  const checkboxes = document.querySelectorAll('.batch-item-checkbox:checked');
+  if (checkboxes.length === 0) {
+    showToast('කරුණාකර අයිතම අවම වශයෙන් එකක්වත් තෝරන්න!', 'warning');
+    return;
+  }
+
+  showLoading("Applying batch updates...");
+
+  setTimeout(() => {
+    checkboxes.forEach(chk => {
+      const idx = parseInt(chk.getAttribute('data-index'));
+      const item = inventory[idx];
+      if (item) {
+        if (section === 'F') item.f_receipt = roundNum(item.f_receipt + amount);
+        else if (section === 'G') item.g_issues = roundNum(item.g_issues + amount);
+        else if (section === 'H') item.h_return = roundNum(item.h_return + amount);
+        else if (section === 'I') item.i_ssl_received = roundNum(item.i_ssl_received + amount);
+        else if (section === 'J') item.j_ssl_sent = roundNum(item.j_ssl_sent + amount);
+        else if (section === 'L') item.l_rejection = roundNum(item.l_rejection + amount);
+
+        item.closing = calculateClosingStock(item);
+        item.last_updated = getTodayStr();
+      }
+    });
+
+    saveInventoryData();
+    hideLoading();
+    closeBatchModal();
+    showToast(t.batchSuccess, 'success');
+  }, 300);
 }
 
 function openSettings() { 
@@ -677,48 +795,57 @@ async function processExportAction() {
     customFileName += `.${format}`;
   }
 
-  const fileData = getFormattedFileData(format, customFileName);
-  closeExportModal();
+  showLoading("Generating file & exporting...");
 
-  if (currentExportMode === 'excel') {
-    triggerDirectDownload(fileData.blob, customFileName);
-    if (shouldShift) {
-      resetStockAndComplete(t);
-    } else {
-      showToast('File Downloaded Successfully!', 'success');
-    }
-  } else if (currentExportMode === 'share') {
-    const file = new File([fileData.blob], customFileName, { type: fileData.mimeType });
+  setTimeout(async () => {
+    const fileData = getFormattedFileData(format, customFileName);
+    closeExportModal();
 
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({
-          title: t.shareTitle,
-          text: `Stock Counting Report - ${getTodayStr()}`,
-          files: [file]
-        });
-        showToast(t.shareSuccess, 'success');
-        if (shouldShift) resetStockAndComplete(t);
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          triggerDirectDownload(fileData.blob, customFileName);
-          showToast('Share failed. Downloaded directly.', 'warning');
-          if (shouldShift) resetStockAndComplete(t);
-        }
-      }
-    } else {
+    if (currentExportMode === 'excel') {
       triggerDirectDownload(fileData.blob, customFileName);
-      showToast(t.shareNotSupported, 'warning');
-      if (shouldShift) resetStockAndComplete(t);
+      if (shouldShift) {
+        resetStockAndComplete(t);
+      } else {
+        showToast('File Downloaded Successfully!', 'success');
+      }
+    } else if (currentExportMode === 'share') {
+      const file = new File([fileData.blob], customFileName, { type: fileData.mimeType });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: t.shareTitle,
+            text: `Stock Counting Report - ${getTodayStr()}`,
+            files: [file]
+          });
+          showToast(t.shareSuccess, 'success');
+          if (shouldShift) resetStockAndComplete(t);
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            triggerDirectDownload(fileData.blob, customFileName);
+            showToast('Share failed. Downloaded directly.', 'warning');
+            if (shouldShift) resetStockAndComplete(t);
+          }
+        }
+      } else {
+        triggerDirectDownload(fileData.blob, customFileName);
+        showToast(t.shareNotSupported, 'warning');
+        if (shouldShift) resetStockAndComplete(t);
+      }
     }
-  }
+    hideLoading();
+  }, 300);
 }
 
 async function downloadXLSXBackup() { 
-  const defaultName = `Stock_Counting_Backup_${getTodayStr()}.xlsx`;
-  const fileData = getFormattedFileData('xlsx', defaultName);
-  triggerDirectDownload(fileData.blob, defaultName);
-  showToast('Backup File Downloaded Successfully!', 'success');
+  showLoading("Preparing backup file...");
+  setTimeout(() => {
+    const defaultName = `Stock_Counting_Backup_${getTodayStr()}.xlsx`;
+    const fileData = getFormattedFileData('xlsx', defaultName);
+    triggerDirectDownload(fileData.blob, defaultName);
+    hideLoading();
+    showToast('Backup File Downloaded Successfully!', 'success');
+  }, 300);
 }
 
 function resetStockAndComplete(t) {
@@ -747,6 +874,8 @@ function restoreFromXLSX() {
   } 
   
   const file = fileInput.files[0];
+  showLoading("Restoring Excel data...");
+
   const reader = new FileReader(); 
   reader.onload = function(e) { 
     try { 
@@ -757,7 +886,8 @@ function restoreFromXLSX() {
       const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); 
       
       if (!matrix || matrix.length === 0) { 
-        showToast('Excel file is empty!', 'error'); 
+        hideLoading();
+        showToast('Error: Excel file is empty or corrupted!', 'error'); 
         return; 
       } 
       
@@ -786,7 +916,14 @@ function restoreFromXLSX() {
         } 
       } 
 
-      const startIndex = headerIndex !== -1 ? headerIndex + 1 : 1; 
+      // Error Handling for incorrect columns/format
+      if (headerIndex === -1 || colMap.code === -1 || colMap.name === -1) {
+        hideLoading();
+        showToast('Error: Invalid Excel format or missing mandatory columns (Material Code / Name)!', 'error');
+        return;
+      }
+
+      const startIndex = headerIndex + 1; 
       let restored = []; 
 
       for (let r = startIndex; r < matrix.length; r++) { 
@@ -795,11 +932,6 @@ function restoreFromXLSX() {
         
         let code = colMap.code !== -1 && row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : ""; 
         let name = colMap.name !== -1 && row[colMap.name] !== undefined ? String(row[colMap.name]).trim() : ""; 
-        
-        if (!code && !name && row.length > 2) {
-          code = String(row[1] || "").trim();
-          name = String(row[2] || "").trim();
-        }
 
         if (code || name) { 
           let type = colMap.type !== -1 && row[colMap.type] !== undefined && row[colMap.type] !== "" ? String(row[colMap.type]).trim() : "RM"; 
@@ -823,6 +955,7 @@ function restoreFromXLSX() {
         } 
       } 
 
+      hideLoading();
       if (restored.length > 0) { 
         inventory = restored; 
         saveInventoryData(); 
@@ -830,10 +963,11 @@ function restoreFromXLSX() {
         closeSettings(); 
         showToast(t.msgRestoreSuccess, 'success'); 
       } else { 
-        showToast('No valid data found in Excel file!', 'error'); 
+        showToast('Error: No valid data rows found in Excel file!', 'error'); 
       } 
     } catch (err) { 
-      showToast('Error reading Excel file!', 'error'); 
+      hideLoading();
+      showToast('Error reading Excel file! Please check the file structure.', 'error'); 
     } 
   }; 
   reader.readAsArrayBuffer(file); 
@@ -885,8 +1019,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('searchInput');
   const searchResults = document.getElementById('searchResults');
   const clearSearchBtn = document.getElementById('clearSearchBtn');
+  const inputAmount = document.getElementById('inputAmount');
 
+  // Keyboard Navigation: Enter key handling for Quick Entry
   if (searchInput) {
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (searchResults && searchResults.style.display === 'block') {
+          const firstItem = searchResults.querySelector('.search-item');
+          if (firstItem) {
+            firstItem.click();
+          }
+        }
+      }
+    });
+
     searchInput.addEventListener('input', function() { 
       clearTimeout(searchDebounceTimeout);
       const query = this.value.toLowerCase().trim(); 
@@ -931,6 +1079,28 @@ document.addEventListener('DOMContentLoaded', () => {
         } 
       }, 100);
     }); 
+  }
+
+  // Prevent minus, plus, e in number input fields
+  if (inputAmount) {
+    inputAmount.addEventListener('keydown', function(e) {
+      if (['-', '+', 'e', 'E'].includes(e.key)) {
+        e.preventDefault();
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addSingleSectionData();
+      }
+    });
+  }
+
+  const batchAmountInput = document.getElementById('batchInputAmount');
+  if (batchAmountInput) {
+    batchAmountInput.addEventListener('keydown', function(e) {
+      if (['-', '+', 'e', 'E'].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
   }
 
   document.addEventListener('click', function(e) {
