@@ -23,9 +23,7 @@
       </div>
     </div>
     <div class="icon-actions">
-      <button class="btn-icon-header ripple" onclick="openRecordsModal()" title="Inventory Summary Checklist" type="button">
-        <i class="fa-solid fa-list-check" style="color: #f59e0b;"></i>
-      </button>
+      <!-- Stock Check Button/Icon Removed as requested -->
       <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
         <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
       </button>
@@ -43,6 +41,16 @@
       </div>
       <div id="searchResults" class="search-results" style="display:none;"></div>
     </div>
+
+    <!-- Quick Filter / Today Filter Section placed below main search bar -->
+    <div style="margin-bottom: 14px; display: flex; gap: 8px; align-items: center;">
+      <button type="button" id="btnTodayFilter" class="btn-icon-today ripple" onclick="toggleTodayFilter()" title="Show Today's Updated Only" style="width: auto; padding: 0 16px;">
+        <i class="fa-solid fa-calendar-day" style="margin-right: 6px;"></i> Today Updated
+      </button>
+    </div>
+
+    <!-- Stock Check List Items Container -->
+    <div class="checklist-container" id="summaryCardsContainer" style="margin-bottom: 20px; max-height: 250px;"></div>
 
     <div id="selectedBadge" class="selected-badge">
       <div style="font-weight:700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
@@ -137,20 +145,59 @@
   </div>
 </div>
 
-<!-- Stock Check Modal -->
-<div id="recordsModal" class="modal">
+<!-- Material Detail Modal -->
+<div id="itemDetailModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check</h3>
-      <button class="close-btn ripple" onclick="closeRecordsModal()" type="button">&times;</button>
+      <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3>
+      <button class="close-btn ripple" onclick="closeItemDetailModal()" type="button">&times;</button>
     </div>
-    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; gap: 8px; align-items: center;">
-      <input type="text" id="modalSearchInput" placeholder="Quick filter checklist..." autocomplete="off" style="flex: 1;">
-      <button type="button" id="btnTodayFilter" class="btn-icon-today ripple" onclick="toggleTodayFilter()" title="Show Today's Updated Only">
-        <i class="fa-solid fa-calendar-day"></i>
-      </button>
+    <div class="detail-card-grid" style="overflow-y: auto;">
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div>
+        <div class="detail-value" id="detCode">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-tag"></i> Unit of Measure (UOM)</div>
+        <div class="detail-value" id="detUom">-</div>
+      </div>
+      <div class="detail-item-box full-width">
+        <div class="detail-label"><i class="fa-solid fa-box"></i> Material Name</div>
+        <div class="detail-value" id="detName" style="color:var(--primary);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock</div>
+        <div class="detail-value" id="detOp">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-arrow-down" style="color:var(--success);"></i> Receipt (F)</div>
+        <div class="detail-value" id="detReceipt" style="color:var(--success);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-arrow-up" style="color:var(--danger);"></i> Issues (G)</div>
+        <div class="detail-value" id="detIssues" style="color:var(--danger);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-rotate-left" style="color:var(--warning);"></i> Return (H)</div>
+        <div class="detail-value" id="detReturn" style="color:var(--warning);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--success);"></i> Received to SSL</div>
+        <div class="detail-value" id="detSslI" style="color:var(--success);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--danger);"></i> Sent to SSL</div>
+        <div class="detail-value" id="detSslJ" style="color:var(--danger);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection</div>
+        <div class="detail-value" id="detRejectionL" style="color:var(--danger);">-</div>
+      </div>
+      <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);">
+        <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock</div>
+        <div class="detail-value" id="detClosing" style="font-size: 1.3rem; color:var(--primary);">-</div>
+      </div>
     </div>
-    <div class="checklist-container" id="summaryCardsContainer"></div>
   </div>
 </div>
 
