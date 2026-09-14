@@ -261,6 +261,7 @@ input:focus, select:focus {
   z-index: 100;
   box-shadow: var(--shadow-modal);
   margin-top: 6px;
+  display: none;
 }
 
 .search-item {
@@ -358,10 +359,6 @@ input:focus, select:focus {
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
 }
 
-.btn-icon-excel:hover, .btn-icon-share:hover {
-  transform: translateY(-2px);
-}
-
 .btn-icon-today {
   width: 48px;
   height: 48px;
@@ -436,10 +433,13 @@ input:focus, select:focus {
   justify-content: center;
   align-items: center;
   padding: 16px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .modal.show {
   display: flex;
+  opacity: 1;
 }
 
 .modal-content {
@@ -455,10 +455,6 @@ input:focus, select:focus {
   flex-direction: column;
   border: 1px solid var(--border-color);
   overflow: hidden;
-}
-
-.modal-content.modal-small {
-  max-width: 480px;
 }
 
 .modal-header {
@@ -500,12 +496,6 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
-.modal-body-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
 .checklist-container {
   display: flex;
   flex-direction: column;
@@ -517,7 +507,7 @@ input:focus, select:focus {
   width: 100%;
 }
 
-/* SWIPE TO DELETE STYLES */
+/* SWIPE TO DELETE / CLEAR FIXES */
 .checklist-item-wrapper {
   position: relative;
   width: 100%;
@@ -526,6 +516,7 @@ input:focus, select:focus {
   background: var(--danger);
   touch-action: pan-y;
   user-select: none;
+  transition: all 0.3s ease;
 }
 
 .checklist-item-bg {
@@ -549,7 +540,7 @@ input:focus, select:focus {
 .checklist-item {
   position: relative;
   z-index: 2;
-  background: var(--bg-main);
+  background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 16px 20px;
@@ -575,7 +566,7 @@ input:focus, select:focus {
   padding-top: 0;
   padding-bottom: 0;
   border: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scaleY(0);
 }
 
 .checklist-item:hover {
