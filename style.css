@@ -359,29 +359,6 @@ input:focus, select:focus {
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
 }
 
-.btn-icon-today {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-md);
-  background: var(--bg-main);
-  color: var(--text-muted);
-  border: 1.5px solid var(--border-color);
-  font-size: 1.2rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition-smooth);
-  flex-shrink: 0;
-}
-
-.btn-icon-today:hover, .btn-icon-today.active {
-  background: var(--primary-light) !important;
-  color: var(--primary) !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-}
-
 .ripple {
   position: relative;
   overflow: hidden;
@@ -507,38 +484,8 @@ input:focus, select:focus {
   width: 100%;
 }
 
-.checklist-item-wrapper {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: var(--radius-md);
-  background: var(--danger);
-  touch-action: pan-y;
-  user-select: none;
-  transition: all 0.3s ease;
-}
-
-.checklist-item-bg {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 100%;
-  background: var(--danger);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 24px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  gap: 8px;
-  border-radius: var(--radius-md);
-}
-
 .checklist-item {
   position: relative;
-  z-index: 2;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -548,24 +495,8 @@ input:focus, select:focus {
   justify-content: space-between;
   gap: 12px;
   cursor: pointer;
-  transition: transform 0.2s ease-out, border-color 0.2s ease, background 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease;
   width: 100%;
-  will-change: transform;
-}
-
-.checklist-item.swiping {
-  transition: none !important;
-}
-
-.checklist-item-wrapper.deleted {
-  max-height: 0;
-  opacity: 0;
-  margin-top: 0;
-  margin-bottom: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  border: none;
-  transform: scaleY(0);
 }
 
 .checklist-item:hover {
