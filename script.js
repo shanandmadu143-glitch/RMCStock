@@ -322,25 +322,6 @@ function clearSearchInput() {
   if (searchInput) searchInput.focus();
 }
 
-function clearSelectedItem() {
-  const t = i18n[currentLang] || i18n['si'];
-  if (selectedIndex === -1 || !inventory[selectedIndex]) return;
-
-  let item = inventory[selectedIndex];
-  item.f_receipt = 0;
-  item.g_issues = 0;
-  item.h_return = 0;
-  item.i_ssl_received = 0;
-  item.j_ssl_sent = 0;
-  item.l_rejection = 0;
-  item.closing = calculateClosingStock(item);
-  item.last_updated = "";
-
-  saveInventoryData();
-  selectItem(selectedIndex);
-  showToast(t.msgItemCleared, 'success');
-}
-
 function selectItem(index) { 
   selectedIndex = index; 
   const item = inventory[index]; 
@@ -478,7 +459,6 @@ function renderTodayUploadedList() {
         `;
 
         itemDiv.onclick = () => {
-          closeTodayUploadedModal();
           openItemDetails(idx);
         };
 
