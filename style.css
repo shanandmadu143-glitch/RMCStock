@@ -511,12 +511,44 @@ input:focus, select:focus {
   flex-direction: column;
   gap: 12px;
   overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
   padding-right: 4px;
   width: 100%;
 }
 
+/* SWIPE TO DELETE STYLES */
+.checklist-item-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--danger);
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.checklist-item-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  background: var(--danger);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 24px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  gap: 8px;
+  border-radius: var(--radius-md);
+}
+
 .checklist-item {
+  position: relative;
+  z-index: 2;
   background: var(--bg-main);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -526,8 +558,24 @@ input:focus, select:focus {
   justify-content: space-between;
   gap: 12px;
   cursor: pointer;
-  transition: var(--transition-smooth);
+  transition: transform 0.2s ease-out, border-color 0.2s ease, background 0.2s ease;
   width: 100%;
+  will-change: transform;
+}
+
+.checklist-item.swiping {
+  transition: none !important;
+}
+
+.checklist-item-wrapper.deleted {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .checklist-item:hover {
