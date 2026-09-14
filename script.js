@@ -23,7 +23,7 @@ const i18n = {
     btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup එකක් ගන්න:',
     descBackup: 'වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.',
-    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
+    btnBackup: '<i class="fa-solid fa-folder-open"></i> Choose Location & Backup',
     lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> මුල් තත්වයට Reset කරන්න:',
     descReset: 'මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.',
     btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
@@ -63,7 +63,7 @@ const i18n = {
     btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:',
     descBackup: 'Get a safe backup copy of current inventory data.',
-    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
+    btnBackup: '<i class="fa-solid fa-folder-open"></i> Choose Location & Backup',
     lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:',
     descReset: 'Reset all records back to default starting items.',
     btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
@@ -103,7 +103,7 @@ const i18n = {
     btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> காப்புப் பிரதி பெற:',
     descBackup: 'தற்போதைய தரவின் பாதுகாப்பான காப்புப் பிரதியைப் பெறவும்.',
-    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
+    btnBackup: '<i class="fa-solid fa-folder-open"></i> Choose Location & Backup',
     lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> இயல்புநிலைக்கு மீட்டமைக்க:',
     descReset: 'அனைத்து தரவையும் ஆரம்ப நிலைக்கு மீட்டமைக்கவும்.',
     btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
@@ -229,19 +229,6 @@ function showToast(message, type = 'success') {
     setTimeout(() => toast.remove(), 250);
   }, 2500); 
 } 
-
-function updateFileNameDisplay(input) {
-  const display = document.getElementById('selectedFileNameDisplay');
-  if (display) {
-    if (input.files && input.files.length > 0) {
-      display.innerText = input.files[0].name;
-      display.style.color = 'var(--text-dark)';
-    } else {
-      display.innerText = 'ගොනුවක් තෝරා නොමැත';
-      display.style.color = 'var(--text-muted)';
-    }
-  }
-}
 
 function getTodayStr() {
   const d = new Date();
@@ -490,20 +477,24 @@ function switchHelpTopic(topic) {
       <h4 style="color: var(--primary); margin-bottom: 8px;"><i class="fa-solid fa-file-excel"></i> Upload කළ යුත්තේ මොන වගේ File එකක්ද?</h4>
       <p>• මෙම App එක මඟින් මීට පෙර Download කරගත් හෝ Backup එකක් ලෙස ලබාගත් <b>Excel (.xlsx හෝ .xls)</b> ගොනුවක් පමණක් upload කළ යුතුය.</p>
       <p>• එම Excel ගොනුව තුළ අනිවාර්යයෙන්ම <b>Material Code, Material Name, Op.Stock-Warehouse, Receipt, Issues, Return, Closing Stock</b> වැනි නිවැරදි ශීර්ෂ (Headers) අඩංගු විය යුතුය.</p>
+      <p>• වෙනත් වෙනත් අක්‍රමවත් Excel පත්‍ර උඩුගත කිරීමෙන් දත්ත දෝෂ සහගත විය හැක.</p>
     `;
   } else if (topic === 'howToDo') {
     box.innerHTML = `
       <h4 style="color: var(--success); margin-bottom: 8px;"><i class="fa-solid fa-upload"></i> Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</h4>
-      <p>1. Settings වෙත ගොස් <b>'Restore Excel (.xlsx) File'</b> යටතේ ඇති <b>'File Choose'</b> බොත්තම ඔබන්න.</p>
+      <p>1. Settings වෙත ගොස් <b>'Restore Excel (.xlsx) File'</b> යටතේ ඇති <b>'Choose File'</b> බොත්තම ඔබන්න.</p>
       <p>2. ඔබගේ පරිගණකයෙන් හෝ දුරකථනයෙන් අදාළ Excel ගොනුව තෝරාගන්න.</p>
-      <p>3. කොළ පාටින් ඇති <b>'Restore Excel Data'</b> බොත්තම ක්ලික් කරන්න.</p>
+      <p>3. ඉන්පසු කොළ පාටින් ඇති <b>'Restore Excel Data'</b> බොත්තම ක්ලික් කරන්න.</p>
+      <p>4. සාර්ථක පණිවිඩයක් සමඟින් ඔබගේ පැරණි දත්ත යාවත්කාලීන වනු ඇත.</p>
     `;
   } else if (topic === 'appFeatures') {
     box.innerHTML = `
       <h4 style="color: var(--warning); margin-bottom: 8px;"><i class="fa-solid fa-boxes-stacked"></i> Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</h4>
-      <p>• <b>Stock Tracking:</b> ද්‍රව්‍යවල (Materials) Code හෝ Name මඟින් සෙවීම සහ Sections යටතේ දත්ත ඇතුළත් කිරීම.</p>
+      <p>• <b>Stock Tracking:</b> ද්‍රව්‍යවල (Materials) Code හෝ Name මඟින් සෙවීම සහ Receipt, Issues, Return, SSL Received/Sent, Rejection ආදී විවිධ Sections යටතේ දත්ත ඇතුළත් කිරීම.</p>
       <p>• <b>Real-time Closing Stock:</b> දත්ත ඇතුළත් කළ පසු ස්වයංක්‍රීයව Closing Stock එක ගණනය වීම.</p>
-      <p>• <b>Location Choice:</b> ගොනුව Download කර ගැනීමේදී Location එක නිවැරදිව තෝරා ගැනීමට පහසුකම සැලසීම.</p>
+      <p>• <b>Excel Export & Shift:</b> දිනපතා තොග වාර්තා Excel ගොනුවක් ලෙස ඩවුන්ලෝඩ් කර ගැනීම සහ Stock එක ඉදිරියට මාරු කිරීම (Shift Stock).</p>
+      <p>• <b>Share Report:</b> සකස් කළ වාර්තා WhatsApp හෝ වෙනත් යෙදුම් හරහා පහසුවෙන් Share කිරීම.</p>
+      <p>• <b>Multi-language & Theme:</b> සිංහල, ඉංග්‍රීසි සහ දෙමළ භාෂා මෙන්ම විවිධ Themes මාරු කරමින් භාවිත කිරීම.</p>
     `;
   }
 }
@@ -679,7 +670,50 @@ function triggerDirectDownload(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-// Fixed Location Picker & Saving
+// Download Location Picker System
+async function saveFileWithPicker(blob, suggestedName, format) {
+  if ('showSaveFilePicker' in window) {
+    try {
+      const pickerOptions = {
+        suggestedName: suggestedName,
+        types: []
+      };
+
+      if (format === 'xlsx') {
+        pickerOptions.types.push({
+          description: 'Excel File',
+          accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
+        });
+      } else if (format === 'csv') {
+        pickerOptions.types.push({
+          description: 'CSV File',
+          accept: { 'text/csv': ['.csv'] }
+        });
+      } else if (format === 'txt') {
+        pickerOptions.types.push({
+          description: 'Text File',
+          accept: { 'text/plain': ['.txt'] }
+        });
+      }
+
+      const handle = await window.showSaveFilePicker(pickerOptions);
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return true;
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        return false; // User cancelled the save prompt
+      }
+      triggerDirectDownload(blob, suggestedName);
+      return true;
+    }
+  } else {
+    triggerDirectDownload(blob, suggestedName);
+    return true;
+  }
+}
+
 async function processExportAction() {
   const t = i18n[currentLang] || i18n['si'];
   const formatSelect = document.getElementById('exportFormatSelect');
@@ -701,55 +735,12 @@ async function processExportAction() {
   closeExportModal();
 
   if (currentExportMode === 'excel') {
-    // Check Native File System Access API Support for Location Selection
-    if ('showSaveFilePicker' in window) {
-      try {
-        const pickerOptions = {
-          suggestedName: customFileName,
-          types: []
-        };
-
-        if (format === 'xlsx') {
-          pickerOptions.types.push({
-            description: 'Excel File',
-            accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
-          });
-        } else if (format === 'csv') {
-          pickerOptions.types.push({
-            description: 'CSV File',
-            accept: { 'text/csv': ['.csv'] }
-          });
-        } else if (format === 'txt') {
-          pickerOptions.types.push({
-            description: 'Text File',
-            accept: { 'text/plain': ['.txt'] }
-          });
-        }
-
-        const handle = await window.showSaveFilePicker(pickerOptions);
-        const writable = await handle.createWritable();
-        await writable.write(fileData.blob);
-        await writable.close();
-
-        if (shouldShift) {
-          resetStockAndComplete(t);
-        } else {
-          showToast('File Saved Successfully!', 'success');
-        }
-      } catch (err) {
-        if (err.name === 'AbortError') {
-          return; // User canceled location selection
-        }
-        triggerDirectDownload(fileData.blob, customFileName);
-        if (shouldShift) resetStockAndComplete(t);
-      }
-    } else {
-      // Direct prompt fallback for devices without location picker window API
-      triggerDirectDownload(fileData.blob, customFileName);
+    const isSaved = await saveFileWithPicker(fileData.blob, customFileName, format);
+    if (isSaved) {
       if (shouldShift) {
         resetStockAndComplete(t);
       } else {
-        showToast('File Downloaded Successfully!', 'success');
+        showToast('File Saved Successfully!', 'success');
       }
     }
   } else if (currentExportMode === 'share') {
@@ -780,29 +771,9 @@ async function processExportAction() {
 async function downloadXLSXBackup() { 
   const defaultName = `Stock_Counting_Backup_${getTodayStr()}.xlsx`;
   const fileData = getFormattedFileData('xlsx', defaultName);
-
-  if ('showSaveFilePicker' in window) {
-    try {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: defaultName,
-        types: [{
-          description: 'Excel File',
-          accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
-        }]
-      });
-      const writable = await handle.createWritable();
-      await writable.write(fileData.blob);
-      await writable.close();
-      showToast('Backup File Saved Successfully!', 'success');
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        triggerDirectDownload(fileData.blob, defaultName);
-        showToast('Backup File Downloaded Successfully!', 'success');
-      }
-    }
-  } else {
-    triggerDirectDownload(fileData.blob, defaultName);
-    showToast('Backup File Downloaded Successfully!', 'success');
+  const isSaved = await saveFileWithPicker(fileData.blob, defaultName, 'xlsx');
+  if (isSaved) {
+    showToast('Backup File Saved Successfully!', 'success');
   }
 }
 
@@ -912,11 +883,6 @@ function restoreFromXLSX() {
         inventory = restored; 
         saveInventoryData(); 
         fileInput.value = ""; 
-        const display = document.getElementById('selectedFileNameDisplay');
-        if (display) {
-          display.innerText = 'ගොනුවක් තෝරා නොමැත';
-          display.style.color = 'var(--text-muted)';
-        }
         closeSettings(); 
         showToast(t.msgRestoreSuccess, 'success'); 
       } else { 
