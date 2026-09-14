@@ -515,7 +515,7 @@ function toggleTodayFilter() {
   filterChecklist();
 }
 
-/* STOCK CHECK LIST RENDER - WITH TOP ITEM NAME & BOTTOM CLOSING STOCK */
+/* Stock Check Card එක තුළ සියලුම විස්තර පෙන්වන පරිදි සකසන ලද renderChecklist function එක */
 function renderChecklist() { 
   const container = document.getElementById('summaryCardsContainer'); 
   if (!container) return;
@@ -537,13 +537,25 @@ function renderChecklist() {
     itemDiv.className = 'checklist-item'; 
 
     itemDiv.innerHTML = ` 
-      <div class="checklist-header-row">
-        <div class="checklist-name">${item.name}</div>
-        <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
+      <div class="card-main-header">
+        <div class="card-item-title">
+          <div class="checklist-name" title="${item.name}">${item.name}</div>
+          <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code} | UOM: <strong>${item.uom}</strong></div>
+        </div>
+        <div class="card-closing-box">
+          <span class="closing-val">${Number(item.closing).toLocaleString()}</span>
+          <span class="closing-lbl">Closing Stock</span>
+        </div>
       </div>
-      <div class="checklist-stock-row">
-        <span class="checklist-stock-label">Closing Stock:</span>
-        <span class="checklist-stock-value">${Number(item.closing).toLocaleString()} ${item.uom}</span>
+      
+      <div class="card-details-grid">
+        <div class="stat-pill"><span class="stat-lbl"><i class="fa-solid fa-warehouse"></i> Op Stock:</span> <span class="stat-val">${Number(item.op_stock).toLocaleString()}</span></div>
+        <div class="stat-pill text-success"><span class="stat-lbl"><i class="fa-solid fa-arrow-down"></i> Receipt:</span> <span class="stat-val">${Number(item.f_receipt).toLocaleString()}</span></div>
+        <div class="stat-pill text-danger"><span class="stat-lbl"><i class="fa-solid fa-arrow-up"></i> Issues:</span> <span class="stat-val">${Number(item.g_issues).toLocaleString()}</span></div>
+        <div class="stat-pill text-warning"><span class="stat-lbl"><i class="fa-solid fa-rotate-left"></i> Return:</span> <span class="stat-val">${Number(item.h_return).toLocaleString()}</span></div>
+        <div class="stat-pill text-success"><span class="stat-lbl"><i class="fa-solid fa-arrow-right-to-bracket"></i> SSL Rec:</span> <span class="stat-val">${Number(item.i_ssl_received || 0).toLocaleString()}</span></div>
+        <div class="stat-pill text-danger"><span class="stat-lbl"><i class="fa-solid fa-arrow-right-from-bracket"></i> SSL Sent:</span> <span class="stat-val">${Number(item.j_ssl_sent || 0).toLocaleString()}</span></div>
+        <div class="stat-pill text-danger"><span class="stat-lbl"><i class="fa-solid fa-ban"></i> Rejection:</span> <span class="stat-val">${Number(item.l_rejection || 0).toLocaleString()}</span></div>
       </div>
     `; 
 
@@ -607,12 +619,6 @@ function renderChecklist() {
     itemDiv.addEventListener('mousedown', () => {
       window.addEventListener('mousemove', mouseMoveHandler);
       window.addEventListener('mouseup', mouseUpHandler);
-    });
-
-    itemDiv.addEventListener('click', (e) => {
-      if (!isSwiping && Math.abs(currentX) < 10) {
-        openItemDetails(idx);
-      }
     });
 
     wrapper.appendChild(bgDiv);
@@ -680,32 +686,6 @@ function filterChecklist() {
       wrapper.style.display = 'none';
     }
   });
-}
-
-function openItemDetails(index) {
-  const item = inventory[index];
-  if (!item) return;
-  
-  item.closing = calculateClosingStock(item);
-  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
-  
-  setText('detCode', item.code);
-  setText('detName', item.name);
-  setText('detUom', item.uom);
-  setText('detOp', Number(item.op_stock).toLocaleString() + ' ' + item.uom);
-  setText('detReceipt', Number(item.f_receipt).toLocaleString() + ' ' + item.uom);
-  setText('detIssues', Number(item.g_issues).toLocaleString() + ' ' + item.uom);
-  setText('detReturn', Number(item.h_return).toLocaleString() + ' ' + item.uom);
-  setText('detSslI', Number(item.i_ssl_received || 0).toLocaleString() + ' ' + item.uom);
-  setText('detSslJ', Number(item.j_ssl_sent || 0).toLocaleString() + ' ' + item.uom);
-  setText('detRejectionL', Number(item.l_rejection || 0).toLocaleString() + ' ' + item.uom);
-  setText('detClosing', Number(item.closing).toLocaleString() + ' ' + item.uom);
-
-  showModal('itemDetailModal');
-}
-
-function closeItemDetailModal() {
-  hideModal('itemDetailModal');
 }
 
 function generateWorkbookWithFormulas() {
