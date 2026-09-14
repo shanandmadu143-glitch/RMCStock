@@ -11,8 +11,7 @@ const i18n = {
     optRejectionL: 'Rejection (ප්‍රතික්ෂේප කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    titleExcel: 'Download Excel & Shift Stock',
-    titleShare: 'Share Excel File',
+    titleExcel: 'Download / Export Options',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
     placeholderModalSearch: 'චෙක්ලිස්ට් එක සෙවීමට Code හෝ Name ලියන්න...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
@@ -31,12 +30,12 @@ const i18n = {
     msgSelectMaterial: 'කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!',
     msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි ප්‍රමාණයක් ඇතුළත් කරන්න!',
     msgAdded: 'සාර්ථකව එකතු විය!',
-    msgExcelShift: 'Excel ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
+    msgExcelShift: 'ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
     msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
     msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
     msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
     shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'Excel ගොනුව Share කිරීමට සූදානම්!',
+    shareSuccess: 'ගොනුව Share කිරීමට සූදානම්!',
     shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි.'
   },
   en: {
@@ -51,8 +50,7 @@ const i18n = {
     optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    titleExcel: 'Download Excel & Shift Stock',
-    titleShare: 'Share Excel File',
+    titleExcel: 'Download / Export Options',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
     placeholderModalSearch: 'Quick filter checklist...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
@@ -71,12 +69,12 @@ const i18n = {
     msgSelectMaterial: 'Please select a Material Code or Name!',
     msgValidAmount: 'Please enter a valid amount greater than 0!',
     msgAdded: 'successfully added!',
-    msgExcelShift: 'Excel downloaded and Stock shifted successfully!',
+    msgExcelShift: 'File downloaded and Stock shifted successfully!',
     msgRestoreSelect: 'Please select an Excel file!',
     msgRestoreSuccess: 'Excel Restore Successful!',
     msgResetConfirm: 'Are you sure you want to reset to default data?',
     shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'Excel file ready to share!',
+    shareSuccess: 'File ready to share!',
     shareNotSupported: 'Your browser does not support file sharing.'
   },
   ta: {
@@ -91,10 +89,8 @@ const i18n = {
     optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
-    titleExcel: 'Download Excel & Shift Stock',
-    titleShare: 'Share Excel File',
+    titleExcel: 'Download / Export Options',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு',
-    placeholderModalSearch: 'குறியீடு அல்லது பெயர் மூலம் தேடுக...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> தீம் தேர்ந்தெடுக்கவும்:',
@@ -111,12 +107,12 @@ const i18n = {
     msgSelectMaterial: 'தயவுசெய்து ஒரு பொருளைத் தேர்ந்தெடுக்கவும்!',
     msgValidAmount: 'தயவுசெய்து 0 ஐ விட அதிகமான அளவை உள்ளிடவும்!',
     msgAdded: 'வெற்றிகரமாக சேர்க்கப்பட்டது!',
-    msgExcelShift: 'எக்செல் பதிவிறக்கம் செய்யப்பட்டது, இருப்பு புதுப்பிக்கப்பட்டது!',
+    msgExcelShift: 'பதிவிறக்கம் செய்யப்பட்டது, இருப்பு புதுப்பிக்கப்பட்டது!',
     msgRestoreSelect: 'தயவுசெய்து எக்செல் கோப்பைத் தேர்ந்தெடுக்கவும்!',
     msgRestoreSuccess: 'எக்செல் மீட்டமைப்பு வெற்றிகரமாக முடிந்தது!',
     msgResetConfirm: 'ஆரம்ப தரவுக்கு மீட்டமைக்க நிச்சயமாக விரும்புகிறீர்களா?',
     shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'பகிர எக்செல் கோப்பு தயாராக உள்ளது!',
+    shareSuccess: 'பகிர கோப்பு தயாராக உள்ளது!',
     shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.'
   }
 };
@@ -188,7 +184,6 @@ function applyLanguage(lang) {
   setHtml('btnSave', t.btnSave);
   
   const btnExcel = document.getElementById('btnExcel'); if(btnExcel) btnExcel.title = t.titleExcel;
-  const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
   
   setHtml('txtSummaryTitle', t.txtSummaryTitle);
   const modalSearchInput = document.getElementById('modalSearchInput');
@@ -415,6 +410,14 @@ function hideModal(modalId) {
   }, 200);
 }
 
+function openDownloadModal() {
+  showModal('downloadModal');
+}
+
+function closeDownloadModal() {
+  hideModal('downloadModal');
+}
+
 function openRecordsModal() { 
   isTodayOnlyFilter = false;
   const btnToday = document.getElementById('btnTodayFilter');
@@ -471,7 +474,7 @@ function switchHelpTopic(topic) {
       <h4 style="color: var(--warning); margin-bottom: 8px;"><i class="fa-solid fa-boxes-stacked"></i> Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</h4>
       <p>• <b>Stock Tracking:</b> ද්‍රව්‍යවල (Materials) Code හෝ Name මඟින් සෙවීම සහ Receipt, Issues, Return, SSL Received/Sent, Rejection ආදී විවිධ Sections යටතේ දත්ත ඇතුළත් කිරීම.</p>
       <p>• <b>Real-time Closing Stock:</b> දත්ත ඇතුළත් කළ පසු ස්වයංක්‍රීයව Closing Stock එක ගණනය වීම.</p>
-      <p>• <b>Excel Export & Shift:</b> දිනපතා තොග වාර්තා Excel ගොනුවක් ලෙස ඩවුන්ලෝඩ් කර ගැනීම සහ Stock එක ඉදිරියට මාරු කිරීම (Shift Stock).</p>
+      <p>• <b>Export & Shift:</b> Excel, PDF, සහ Word (.doc) ගොනු ලෙස ඩවුන්ලෝඩ් කර ගැනීම සහ Stock එක ඉදිරියට මාරු කිරීම (Shift Stock).</p>
       <p>• <b>Share Report:</b> සකස් කළ වාර්තා WhatsApp හෝ වෙනත් යෙදුම් හරහා පහසුවෙන් Share කිරීම.</p>
       <p>• <b>Multi-language & Theme:</b> සිංහල, ඉංග්‍රීසි සහ දෙමළ භාෂා මෙන්ම විවිධ Themes මාරු කරමින් භාවිත කිරීම.</p>
     `;
@@ -604,21 +607,33 @@ function generateWorkbookWithFormulas() {
   return workbook;
 }
 
-// Download Window/Location Picker Helper Function
-async function saveWorkbookWithLocationPicker(workbook, defaultFileName) {
+// Download Directory/File Location Picker Helper Function
+async function saveFileWithLocationPicker(blobOrWorkbook, defaultFileName, fileType) {
   if (window.showSaveFilePicker) {
     try {
+      let acceptTypes = {};
+      if (fileType === 'xlsx') {
+        acceptTypes = { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] };
+      } else if (fileType === 'pdf') {
+        acceptTypes = { 'application/pdf': ['.pdf'] };
+      } else if (fileType === 'doc') {
+        acceptTypes = { 'application/msword': ['.doc'] };
+      }
+
       const handle = await window.showSaveFilePicker({
         suggestedName: defaultFileName,
-        types: [{
-          description: 'Excel Spreadsheet',
-          accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
-        }]
+        types: [{ description: `${fileType.toUpperCase()} Document`, accept: acceptTypes }]
       });
-      
-      const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+
       const writable = await handle.createWritable();
-      await writable.write(buffer);
+      
+      if (fileType === 'xlsx') {
+        const buffer = XLSX.write(blobOrWorkbook, { bookType: 'xlsx', type: 'array' });
+        await writable.write(buffer);
+      } else {
+        await writable.write(blobOrWorkbook);
+      }
+      
       await writable.close();
       return true;
     } catch (err) {
@@ -631,23 +646,116 @@ async function saveWorkbookWithLocationPicker(workbook, defaultFileName) {
   if (userFileName === null) return false;
 
   const finalFileName = userFileName.trim() ? 
-    (userFileName.endsWith('.xlsx') ? userFileName : userFileName + '.xlsx') : 
+    (userFileName.endsWith(`.${fileType}`) ? userFileName : `${userFileName}.${fileType}`) : 
     defaultFileName;
 
-  XLSX.writeFile(workbook, finalFileName);
+  if (fileType === 'xlsx') {
+    XLSX.writeFile(blobOrWorkbook, finalFileName);
+  } else {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blobOrWorkbook);
+    link.download = finalFileName;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
   return true;
 }
 
-async function downloadExcelAndReset() { 
+async function processExport(format) {
   const t = i18n[currentLang] || i18n['si'];
-  const workbook = generateWorkbookWithFormulas();
-  const today = getTodayStr(); 
-  const defaultFileName = `Stock_Counting_${today}.xlsx`;
+  const today = getTodayStr();
+  const defaultFileName = `Stock_Counting_${today}.${format}`;
+  let success = false;
 
-  const isSaved = await saveWorkbookWithLocationPicker(workbook, defaultFileName);
-  if (isSaved) {
-    resetStockAndComplete(t);
+  if (format === 'xlsx') {
+    const workbook = generateWorkbookWithFormulas();
+    success = await saveFileWithLocationPicker(workbook, defaultFileName, 'xlsx');
+  } else if (format === 'pdf') {
+    const blob = generatePDFBlob();
+    success = await saveFileWithLocationPicker(blob, defaultFileName, 'pdf');
+  } else if (format === 'doc') {
+    const blob = generateDOCBlob();
+    success = await saveFileWithLocationPicker(blob, defaultFileName, 'doc');
   }
+
+  if (success) {
+    const chkShift = document.getElementById('chkShiftStock');
+    if (chkShift && chkShift.checked) {
+      resetStockAndComplete(t);
+    } else {
+      showToast('File Exported Successfully!', 'success');
+    }
+    closeDownloadModal();
+  }
+}
+
+function generatePDFBlob() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('landscape');
+  
+  doc.setFontSize(16);
+  doc.text(`RMC Daily Stock Summary - ${getTodayStr()}`, 14, 15);
+  
+  const headers = [["Code", "Material Name", "UOM", "Op.Stock", "Receipt", "Issues", "Return", "Closing"]];
+  const data = inventory.map(item => [
+    item.code,
+    item.name,
+    item.uom,
+    item.op_stock,
+    item.f_receipt,
+    item.g_issues,
+    item.h_return,
+    calculateClosingStock(item)
+  ]);
+
+  doc.autoTable({
+    head: headers,
+    body: data,
+    startY: 22,
+    theme: 'grid',
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [37, 99, 235] }
+  });
+
+  return doc.output('blob');
+}
+
+function generateDOCBlob() {
+  let html = `
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><title>Stock Summary</title><style>
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #000; padding: 6px; font-size: 11pt; font-family: Arial; }
+      th { background-color: #2563eb; color: #ffffff; }
+    </style></head>
+    <body>
+      <h2>RMC Daily Stock Summary - ${getTodayStr()}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th><th>Material Name</th><th>UOM</th><th>Op.Stock</th><th>Receipt</th><th>Issues</th><th>Return</th><th>Closing</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  inventory.forEach(item => {
+    html += `
+      <tr>
+        <td>${item.code}</td>
+        <td>${item.name}</td>
+        <td>${item.uom}</td>
+        <td>${item.op_stock}</td>
+        <td>${item.f_receipt}</td>
+        <td>${item.g_issues}</td>
+        <td>${item.h_return}</td>
+        <td><b>${calculateClosingStock(item)}</b></td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table></body></html>`;
+  return new Blob(['\ufeff', html], { type: 'application/msword' });
 }
 
 async function downloadXLSXBackup() { 
@@ -655,7 +763,7 @@ async function downloadXLSXBackup() {
   const today = getTodayStr(); 
   const defaultFileName = `Stock_Counting_Backup_${today}.xlsx`;
 
-  const isSaved = await saveWorkbookWithLocationPicker(workbook, defaultFileName);
+  const isSaved = await saveFileWithLocationPicker(workbook, defaultFileName, 'xlsx');
   if (isSaved) {
     showToast('Backup File Downloaded Successfully!', 'success');
   }
