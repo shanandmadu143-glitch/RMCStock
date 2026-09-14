@@ -360,19 +360,17 @@ input:focus, select:focus {
 }
 
 .btn-icon-today {
-  width: 48px;
-  height: 48px;
+  height: 42px;
   border-radius: var(--radius-md);
   background: var(--bg-main);
-  color: var(--text-muted);
+  color: var(--text-dark);
   border: 1.5px solid var(--border-color);
-  font-size: 1.2rem;
+  font-weight: 600;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: var(--transition-smooth);
-  flex-shrink: 0;
 }
 
 .btn-icon-today:hover, .btn-icon-today.active {
@@ -550,6 +548,7 @@ input:focus, select:focus {
   transition: transform 0.2s ease-out, border-color 0.2s ease, background 0.2s ease;
   width: 100%;
   will-change: transform;
+  cursor: pointer;
 }
 
 .checklist-item.swiping {
@@ -645,6 +644,21 @@ input:focus, select:focus {
 
 .stat-val {
   font-weight: 700;
+}
+
+.detail-item-box {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
 .text-success { color: var(--success); }
