@@ -600,26 +600,44 @@ function closeItemDetailModal() {
   hideModal('itemDetailModal');
 }
 
+// Fixed Excel Export Generation (Formula and Compatibility Fix)
 function generateWorkbookWithFormulas() {
-  const exportData = inventory.map((item, index) => {
-    const rowNum = index + 2; 
-    return { 
-      "Type": item.type || "RM", 
-      "Material Code": item.code, 
-      "Material Name": item.name, 
-      "UOM": item.uom, 
-      "Op.Stock-Warehouse": Number(item.op_stock) || 0, 
-      "Receipt": Number(item.f_receipt) || 0, 
-      "Issues": Number(item.g_issues) || 0, 
-      "Return": Number(item.h_return) || 0, 
-      "Received to SSL": Number(item.i_ssl_received) || 0, 
-      "Sent to SSL": Number(item.j_ssl_sent) || 0, 
-      "Rejection": Number(item.l_rejection) || 0,
-      "Closing Stock": { f: `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-K${rowNum}`, v: Number(item.closing) || 0 }
-    }; 
-  }); 
+  const headers = [
+    "Type", "Material Code", "Material Name", "UOM", 
+    "Op.Stock-Warehouse", "Receipt", "Issues", "Return", 
+    "Received to SSL", "Sent to SSL", "Rejection", "Closing Stock"
+  ];
+  
+  const sheetData = [headers];
 
-  const worksheet = XLSX.utils.json_to_sheet(exportData, { cellFormula: true }); 
+  inventory.forEach((item, index) => {
+    sheetData.push([
+      item.type || "RM",
+      item.code,
+      item.name,
+      item.uom,
+      Number(item.op_stock) || 0,
+      Number(item.f_receipt) || 0,
+      Number(item.g_issues) || 0,
+      Number(item.h_return) || 0,
+      Number(item.i_ssl_received) || 0,
+      Number(item.j_ssl_sent) || 0,
+      Number(item.l_rejection) || 0,
+      Number(item.closing) || 0
+    ]);
+  });
+
+  const worksheet = XLSX.utils.aoa_to_sheet(sheetData); 
+
+  // Adding Formulas dynamically to row cells to prevent XLSX JSON parsing crash
+  inventory.forEach((_, index) => {
+    const rowNum = index + 2; 
+    const cellRef = `L${rowNum}`;
+    if (worksheet[cellRef]) {
+      worksheet[cellRef].f = `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-K${rowNum}`;
+    }
+  });
+
   const workbook = XLSX.utils.book_new(); 
   XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Data");
   return workbook;
@@ -631,7 +649,7 @@ function getFormattedFileData(format, customName) {
   const fileName = customName || `Stock_Counting_${today}.${format}`;
 
   if (format === 'xlsx') {
-    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', cellFormula: true });
+    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     return {
       blob: new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
       filename: fileName
@@ -659,16 +677,19 @@ function getFormattedFileData(format, customName) {
   }
 }
 
-// ස්වයංක්‍රීයව direct download වන ශ්‍රිතය
+// Reliable direct download trigger for Mobile and Desktop
 function triggerDirectDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
+  a.style.display = 'none';
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 2000);
 }
 
 async function processExportAction() {
@@ -692,7 +713,6 @@ async function processExportAction() {
   closeExportModal();
 
   if (currentExportMode === 'excel') {
-    // ස්ථානය ඇසීමකින් තොරව ඍජුවම direct download කිරීම
     triggerDirectDownload(fileData.blob, customFileName);
     if (shouldShift) {
       resetStockAndComplete(t);
