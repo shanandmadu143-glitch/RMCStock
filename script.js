@@ -37,7 +37,8 @@ const i18n = {
     msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'ගොනුව Share කිරීමට සූදානම්!',
-    shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි. Direct Download සක්‍රිය විය.'
+    shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි. Direct Download සක්‍රිය විය.',
+    msgItemCleared: 'දත්ත ඉවත් කර Closing Stock එක මුල් තත්වයට පත් කරන ලදී!'
   },
   en: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
@@ -77,7 +78,8 @@ const i18n = {
     msgResetConfirm: 'Are you sure you want to reset to default data?',
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'File ready to share!',
-    shareNotSupported: 'Your browser does not support file sharing. Direct download initiated.'
+    shareNotSupported: 'Your browser does not support file sharing. Direct download initiated.',
+    msgItemCleared: 'Item data cleared and Closing Stock reset to original!'
   },
   ta: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீடு மூலம் தேடுக:',
@@ -117,7 +119,8 @@ const i18n = {
     msgResetConfirm: 'ஆரம்ப தரவுக்கு மீட்டமைக்க நிச்சயமாக விரும்புகிறீர்களா?',
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'பகிர கோப்பு தயாராக உள்ளது!',
-    shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.'
+    shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.',
+    msgItemCleared: 'தரவு அழிக்கப்பட்டு தொடக்க நிலைக்கு மாற்றப்பட்டது!'
   }
 };
 
@@ -521,9 +524,16 @@ function renderChecklist() {
   inventory.forEach((item, idx) => { 
     item.closing = calculateClosingStock(item);
 
+    const wrapper = document.createElement('div');
+    wrapper.className = 'checklist-item-wrapper';
+    wrapper.dataset.index = idx;
+
+    const bgDiv = document.createElement('div');
+    bgDiv.className = 'checklist-item-bg';
+    bgDiv.innerHTML = `<i class="fa-solid fa-trash-can"></i> Clear & Reset`;
+
     const itemDiv = document.createElement('div'); 
     itemDiv.className = 'checklist-item'; 
-    itemDiv.dataset.index = idx;
 
     itemDiv.innerHTML = ` 
       <div class="checklist-left">
@@ -538,25 +548,116 @@ function renderChecklist() {
       </div>
     `; 
 
-    itemDiv.addEventListener('click', () => {
-      openItemDetails(idx);
+    let startX = 0;
+    let startY = 0;
+    let currentX = 0;
+    let isSwiping = false;
+
+    const handleTouchStart = (e) => {
+      startX = e.touches ? e.touches[0].clientX : e.clientX;
+      startY = e.touches ? e.touches[0].clientY : e.clientY;
+      isSwiping = false;
+      itemDiv.classList.add('swiping');
+    };
+
+    const handleTouchMove = (e) => {
+      const x = e.touches ? e.touches[0].clientX : e.clientX;
+      const y = e.touches ? e.touches[0].clientY : e.clientY;
+      const diffX = x - startX;
+      const diffY = y - startY;
+
+      if (Math.abs(diffX) > Math.abs(diffY) && diffX < 0) {
+        if (e.cancelable) e.preventDefault();
+        isSwiping = true;
+        currentX = Math.max(diffX, -150);
+        itemDiv.style.transform = `translateX(${currentX}px)`;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      itemDiv.classList.remove('swiping');
+      if (isSwiping && currentX < -80) {
+        itemDiv.style.transform = `translateX(-100%)`;
+        setTimeout(() => {
+          clearItemData(idx, wrapper);
+        }, 150);
+      } else {
+        itemDiv.style.transform = `translateX(0px)`;
+      }
+      currentX = 0;
+    };
+
+    itemDiv.addEventListener('touchstart', handleTouchStart, { passive: true });
+    itemDiv.addEventListener('touchmove', handleTouchMove, { passive: false });
+    itemDiv.addEventListener('touchend', handleTouchEnd);
+
+    itemDiv.addEventListener('mousedown', handleTouchStart);
+    window.addEventListener('mousemove', (e) => {
+      if (startX !== 0 && e.buttons === 1) handleTouchMove(e);
+    });
+    window.addEventListener('mouseup', () => {
+      if (startX !== 0) {
+        handleTouchEnd();
+        startX = 0;
+      }
     });
 
-    fragment.appendChild(itemDiv); 
+    itemDiv.addEventListener('click', (e) => {
+      if (!isSwiping) {
+        openItemDetails(idx);
+      }
+    });
+
+    wrapper.appendChild(bgDiv);
+    wrapper.appendChild(itemDiv);
+    fragment.appendChild(wrapper); 
   }); 
 
   container.appendChild(fragment);
   filterChecklist();
 } 
 
+function clearItemData(index, wrapperEl) {
+  const item = inventory[index];
+  if (!item) return;
+
+  item.f_receipt = 0;
+  item.g_issues = 0;
+  item.h_return = 0;
+  item.i_ssl_received = 0;
+  item.j_ssl_sent = 0;
+  item.l_rejection = 0;
+  item.closing = Number(item.op_stock) || 0;
+  item.last_updated = "";
+
+  saveInventoryData();
+
+  if (selectedIndex === index) {
+    const dispClosing = document.getElementById('dispClosing');
+    if (dispClosing) {
+      dispClosing.innerText = Number(item.closing).toLocaleString() + ' ' + item.uom;
+    }
+  }
+
+  if (wrapperEl) {
+    wrapperEl.classList.add('deleted');
+    setTimeout(() => {
+      wrapperEl.style.display = 'none';
+    }, 300);
+  }
+
+  const t = i18n[currentLang] || i18n['si'];
+  showToast(t.msgItemCleared, 'success');
+}
+
 function filterChecklist() {
   const modalInput = document.getElementById('modalSearchInput');
   const q = (modalInput ? modalInput.value : '').toLowerCase().trim();
   const todayStr = getTodayStr();
-  const items = document.querySelectorAll('#summaryCardsContainer .checklist-item');
+  const wrappers = document.querySelectorAll('#summaryCardsContainer .checklist-item-wrapper');
 
-  items.forEach((itemDiv) => {
-    const idx = parseInt(itemDiv.dataset.index, 10);
+  wrappers.forEach((wrapper) => {
+    const idx = parseInt(wrapper.dataset.index, 10);
     const item = inventory[idx];
     if (!item) return;
 
@@ -567,9 +668,9 @@ function filterChecklist() {
     const matchesToday = !isTodayOnlyFilter || hasTodayActivity;
 
     if (matchesSearch && matchesToday) {
-      itemDiv.style.display = 'flex';
+      wrapper.style.display = 'block';
     } else {
-      itemDiv.style.display = 'none';
+      wrapper.style.display = 'none';
     }
   });
 }
@@ -692,7 +793,6 @@ function triggerDirectDownload(blob, filename) {
   }, 1000);
 }
 
-// Fixed Share Action Execution
 async function processExportAction() {
   const t = i18n[currentLang] || i18n['si'];
   const formatSelect = document.getElementById('exportFormatSelect');
