@@ -23,7 +23,7 @@ const i18n = {
     btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup එකක් ගන්න:',
     descBackup: 'වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.',
-    btnBackup: '<i class="fa-solid fa-folder-open"></i> Choose Location & Backup',
+    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
     lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> මුල් තත්වයට Reset කරන්න:',
     descReset: 'මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.',
     btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
@@ -63,7 +63,7 @@ const i18n = {
     btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:',
     descBackup: 'Get a safe backup copy of current inventory data.',
-    btnBackup: '<i class="fa-solid fa-folder-open"></i> Choose Location & Backup',
+    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
     lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:',
     descReset: 'Reset all records back to default starting items.',
     btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
@@ -103,7 +103,7 @@ const i18n = {
     btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> காப்புப் பிரதி பெற:',
     descBackup: 'தற்போதைய தரவின் பாதுகாப்பான காப்புப் பிரதியைப் பெறவும்.',
-    btnBackup: '<i class="fa-solid fa-folder-open"></i> Choose Location & Backup',
+    btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
     lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> இயல்புநிலைக்கு மீட்டமைக்க:',
     descReset: 'அனைத்து தரவையும் ஆரம்ப நிலைக்கு மீட்டமைக்கவும்.',
     btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
@@ -659,6 +659,7 @@ function getFormattedFileData(format, customName) {
   }
 }
 
+// ස්වයංක්‍රීයව direct download වන ශ්‍රිතය
 function triggerDirectDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -668,50 +669,6 @@ function triggerDirectDownload(blob, filename) {
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-// Download Location Picker System
-async function saveFileWithPicker(blob, suggestedName, format) {
-  if ('showSaveFilePicker' in window) {
-    try {
-      const pickerOptions = {
-        suggestedName: suggestedName,
-        types: []
-      };
-
-      if (format === 'xlsx') {
-        pickerOptions.types.push({
-          description: 'Excel File',
-          accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
-        });
-      } else if (format === 'csv') {
-        pickerOptions.types.push({
-          description: 'CSV File',
-          accept: { 'text/csv': ['.csv'] }
-        });
-      } else if (format === 'txt') {
-        pickerOptions.types.push({
-          description: 'Text File',
-          accept: { 'text/plain': ['.txt'] }
-        });
-      }
-
-      const handle = await window.showSaveFilePicker(pickerOptions);
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-      return true;
-    } catch (err) {
-      if (err.name === 'AbortError') {
-        return false; // User cancelled the save prompt
-      }
-      triggerDirectDownload(blob, suggestedName);
-      return true;
-    }
-  } else {
-    triggerDirectDownload(blob, suggestedName);
-    return true;
-  }
 }
 
 async function processExportAction() {
@@ -735,13 +692,12 @@ async function processExportAction() {
   closeExportModal();
 
   if (currentExportMode === 'excel') {
-    const isSaved = await saveFileWithPicker(fileData.blob, customFileName, format);
-    if (isSaved) {
-      if (shouldShift) {
-        resetStockAndComplete(t);
-      } else {
-        showToast('File Saved Successfully!', 'success');
-      }
+    // ස්ථානය ඇසීමකින් තොරව ඍජුවම direct download කිරීම
+    triggerDirectDownload(fileData.blob, customFileName);
+    if (shouldShift) {
+      resetStockAndComplete(t);
+    } else {
+      showToast('File Downloaded Successfully!', 'success');
     }
   } else if (currentExportMode === 'share') {
     const file = new File([fileData.blob], customFileName, { type: fileData.blob.type });
@@ -771,10 +727,8 @@ async function processExportAction() {
 async function downloadXLSXBackup() { 
   const defaultName = `Stock_Counting_Backup_${getTodayStr()}.xlsx`;
   const fileData = getFormattedFileData('xlsx', defaultName);
-  const isSaved = await saveFileWithPicker(fileData.blob, defaultName, 'xlsx');
-  if (isSaved) {
-    showToast('Backup File Saved Successfully!', 'success');
-  }
+  triggerDirectDownload(fileData.blob, defaultName);
+  showToast('Backup File Downloaded Successfully!', 'success');
 }
 
 function resetStockAndComplete(t) {
