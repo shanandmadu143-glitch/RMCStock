@@ -334,7 +334,7 @@ input:focus, select:focus {
   transform: translateY(-2px);
 }
 
-.btn-icon-excel, .btn-icon-share {
+.btn-icon-excel, .btn-icon-share, .btn-icon-check {
   width: 52px;
   height: 52px;
   color: white;
@@ -349,14 +349,31 @@ input:focus, select:focus {
   flex-shrink: 0;
 }
 
+.btn-icon-check {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+}
+
+.btn-icon-check:hover {
+  transform: translateY(-2px);
+}
+
 .btn-icon-excel {
   background: linear-gradient(135deg, var(--success) 0%, var(--success-hover) 100%);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
 }
 
+.btn-icon-excel:hover {
+  transform: translateY(-2px);
+}
+
 .btn-icon-share {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+.btn-icon-share:hover {
+  transform: translateY(-2px);
 }
 
 .btn-icon-today {
@@ -419,7 +436,7 @@ input:focus, select:focus {
   font-weight: 800;
 }
 
-/* MODAL STYLING & FULL SCREEN FIT ENHANCEMENT */
+/* MODAL STYLING */
 .modal {
   display: none;
   position: fixed;
@@ -455,15 +472,6 @@ input:focus, select:focus {
   flex-direction: column;
   border: 1px solid var(--border-color);
   overflow: hidden;
-}
-
-/* Modal Fullscreen Utility Class */
-.modal-content.modal-fullscreen {
-  width: 96vw;
-  height: 94vh;
-  max-width: 1200px;
-  max-height: 96vh;
-  border-radius: var(--radius-lg);
 }
 
 .modal-header {
@@ -629,12 +637,11 @@ input:focus, select:focus {
 
 .detail-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 14px;
   margin-top: 10px;
   flex: 1;
   overflow-y: auto;
-  align-content: start;
 }
 
 .detail-item-box {
@@ -645,7 +652,7 @@ input:focus, select:focus {
 }
 
 .detail-item-box.full-width {
-  grid-column: 1 / -1;
+  grid-column: span 2;
 }
 
 .detail-label {
@@ -728,10 +735,5 @@ input:focus, select:focus {
   .header-block { padding: 16px; }
   .card { padding: 18px; }
   .modal { padding: 0; }
-  .modal-content, .modal-content.modal-fullscreen { 
-    width: 100vw; 
-    height: 100vh; 
-    max-height: 100vh; 
-    border-radius: 0; 
-  }
+  .modal-content { height: 100vh; max-height: 100vh; border-radius: 0; }
 }
