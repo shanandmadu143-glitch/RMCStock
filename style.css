@@ -296,6 +296,26 @@ input:focus, select:focus {
   line-height: 1.6;
 }
 
+.btn-item-clear {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: var(--transition-smooth);
+}
+
+.btn-item-clear:hover {
+  background: var(--danger);
+  color: white;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -651,4 +671,3 @@ input:focus, select:focus {
   .modal { padding: 0; }
   .modal-content { height: 100vh; max-height: 100vh; border-radius: 0; }
 }
-
