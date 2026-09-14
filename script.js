@@ -11,7 +11,6 @@ const i18n = {
     optRejectionL: 'Rejection (ප්‍රතික්ෂේප කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    titleCheck: 'Stock Check / Checklist',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share Data File',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
@@ -53,7 +52,6 @@ const i18n = {
     optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    titleCheck: 'Stock Check',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
@@ -95,7 +93,6 @@ const i18n = {
     optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
-    titleCheck: 'இருப்பு சரிபார்ப்பு',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு',
@@ -134,6 +131,7 @@ let inventory = [];
 let selectedIndex = -1;
 let searchDebounceTimeout = null;
 let modalSearchTimeout = null;
+let todayModalSearchTimeout = null;
 let currentExportMode = 'excel'; 
 
 const defaultItems = [ 
@@ -194,7 +192,6 @@ function applyLanguage(lang) {
   setHtml('lblAmount', t.lblAmount);
   setHtml('btnSave', t.btnSave);
   
-  const btnStockCheck = document.getElementById('btnStockCheck'); if(btnStockCheck) btnStockCheck.title = t.titleCheck;
   const btnExcel = document.getElementById('btnExcel'); if(btnExcel) btnExcel.title = t.titleExcel;
   const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
   
@@ -437,6 +434,72 @@ function openRecordsModal() {
 function closeRecordsModal() { 
   hideModal('recordsModal');
 } 
+
+/* Today Uploaded Modal Functions */
+function openTodayUploadedModal() {
+  const todaySearchInput = document.getElementById('todayModalSearchInput');
+  if (todaySearchInput) todaySearchInput.value = '';
+  renderTodayUploadedList();
+  showModal('todayUploadedModal');
+}
+
+function closeTodayUploadedModal() {
+  hideModal('todayUploadedModal');
+}
+
+function renderTodayUploadedList() {
+  const container = document.getElementById('todayCardsContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const todayStr = getTodayStr();
+  const searchInputVal = document.getElementById('todayModalSearchInput');
+  const q = searchInputVal ? searchInputVal.value.toLowerCase().trim() : '';
+  const fragment = document.createDocumentFragment();
+
+  let count = 0;
+
+  inventory.forEach((item, idx) => {
+    item.closing = calculateClosingStock(item);
+    const hasActivity = (item.last_updated === todayStr) || 
+                        (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0);
+
+    if (hasActivity) {
+      const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(q);
+      if (matchesSearch) {
+        count++;
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'checklist-item';
+        itemDiv.style.marginBottom = '8px';
+
+        itemDiv.innerHTML = ` 
+          <div class="checklist-left">
+            <div class="checklist-info">
+              <div class="checklist-name" title="${item.name}">${item.name}</div>
+              <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
+            </div>
+          </div>
+          <div class="checklist-right">
+            <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
+            <div style="font-size: 0.68rem; color: var(--success); font-weight: 700; text-transform: uppercase;">Today Live</div>
+          </div>
+        `;
+
+        itemDiv.onclick = () => {
+          openItemDetails(idx);
+        };
+
+        fragment.appendChild(itemDiv);
+      }
+    }
+  });
+
+  if (count === 0) {
+    container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight:600;">අද දින දත්ත කිසිවක් ඇතුළත් කර නැත. (No updates today)</div>`;
+  } else {
+    container.appendChild(fragment);
+  }
+}
 
 function openSettings() { 
   showModal('settingsModal');
@@ -1092,5 +1155,15 @@ document.addEventListener('DOMContentLoaded', () => {
         filterChecklist();
       }, 100);
     }); 
+  }
+
+  const todayModalSearch = document.getElementById('todayModalSearchInput');
+  if (todayModalSearch) {
+    todayModalSearch.addEventListener('input', function() {
+      clearTimeout(todayModalSearchTimeout);
+      todayModalSearchTimeout = setTimeout(() => {
+        renderTodayUploadedList();
+      }, 100);
+    });
   }
 });
