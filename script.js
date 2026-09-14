@@ -592,18 +592,26 @@ function renderChecklist() {
     itemDiv.addEventListener('touchend', handleTouchEnd);
 
     itemDiv.addEventListener('mousedown', handleTouchStart);
-    window.addEventListener('mousemove', (e) => {
+    
+    const mouseMoveHandler = (e) => {
       if (startX !== 0 && e.buttons === 1) handleTouchMove(e);
-    });
-    window.addEventListener('mouseup', () => {
+    };
+    const mouseUpHandler = () => {
       if (startX !== 0) {
         handleTouchEnd();
         startX = 0;
       }
+      window.removeEventListener('mousemove', mouseMoveHandler);
+      window.removeEventListener('mouseup', mouseUpHandler);
+    };
+
+    itemDiv.addEventListener('mousedown', () => {
+      window.addEventListener('mousemove', mouseMoveHandler);
+      window.addEventListener('mouseup', mouseUpHandler);
     });
 
     itemDiv.addEventListener('click', (e) => {
-      if (!isSwiping) {
+      if (!isSwiping && Math.abs(currentX) < 10) {
         openItemDetails(idx);
       }
     });
@@ -642,7 +650,7 @@ function clearItemData(index, wrapperEl) {
   if (wrapperEl) {
     wrapperEl.classList.add('deleted');
     setTimeout(() => {
-      wrapperEl.style.display = 'none';
+      renderChecklist();
     }, 300);
   }
 
