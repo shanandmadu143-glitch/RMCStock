@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Stock Counting | High Performance Dashboard</title>
   
-  <!-- XLSX Library & FontAwesome -->
+  <!-- XLSX Library -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -23,8 +23,7 @@
       </div>
     </div>
     <div class="icon-actions">
-      <!-- Stock Check Icon added to Main Header Row -->
-      <button class="btn-icon-header ripple" onclick="openRecordsModal()" title="Stock Check" type="button">
+      <button class="btn-icon-header ripple" onclick="openRecordsModal()" title="Inventory Summary Checklist" type="button">
         <i class="fa-solid fa-list-check" style="color: #f59e0b;"></i>
       </button>
       <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
@@ -75,9 +74,13 @@
       </div>
     </div>
 
+    <!-- Stock Check icon added into main action row -->
     <div class="btn-row" style="margin-top: 22px;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
+      </button>
+      <button class="btn-icon-check ripple" onclick="openRecordsModal()" title="Stock Check / Checklist" id="btnStockCheck" type="button">
+        <i class="fa-solid fa-list-check"></i>
       </button>
       <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
         <i class="fa-solid fa-file-excel"></i>
@@ -95,7 +98,7 @@
 
 <div id="toastContainer"></div>
 
-<!-- Export Format Selector Modal -->
+<!-- Export Format & Options Selector Modal -->
 <div id="exportModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
@@ -138,9 +141,9 @@
   </div>
 </div>
 
-<!-- Full Screen Fit Stock Check Modal -->
+<!-- Stock Check Modal -->
 <div id="recordsModal" class="modal">
-  <div class="modal-content modal-fullscreen">
+  <div class="modal-content">
     <div class="modal-header">
       <h3 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check</h3>
       <button class="close-btn ripple" onclick="closeRecordsModal()" type="button">&times;</button>
@@ -155,14 +158,14 @@
   </div>
 </div>
 
-<!-- Full Screen Fit Material Detail Modal -->
+<!-- Material Detail Modal -->
 <div id="itemDetailModal" class="modal">
-  <div class="modal-content modal-fullscreen">
+  <div class="modal-content">
     <div class="modal-header">
       <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3>
       <button class="close-btn ripple" onclick="closeItemDetailModal()" type="button">&times;</button>
     </div>
-    <div class="detail-card-grid">
+    <div class="detail-card-grid" style="overflow-y: auto;">
       <div class="detail-item-box">
         <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div>
         <div class="detail-value" id="detCode">-</div>
