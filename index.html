@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Stock Counting | High Performance Dashboard</title>
   
+  <!-- Libraries for XLSX, PDF Generation and Icons -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   
@@ -77,11 +80,8 @@
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
-      <button class="btn-icon-excel ripple" onclick="downloadExcelAndReset()" title="Download Excel & Shift Stock" id="btnExcel" type="button">
-        <i class="fa-solid fa-file-excel"></i>
-      </button>
-      <button class="btn-icon-share ripple" onclick="shareStockSummary()" title="Share Excel File" id="btnShare" type="button">
-        <i class="fa-solid fa-share-nodes"></i>
+      <button class="btn-icon-excel ripple" onclick="openDownloadModal()" title="Export / Download Options" id="btnExcel" type="button">
+        <i class="fa-solid fa-download"></i>
       </button>
     </div>
   </div>
@@ -92,6 +92,57 @@
 </div>
 
 <div id="toastContainer"></div>
+
+<!-- Export / Download Options Popup Modal -->
+<div id="downloadModal" class="modal">
+  <div class="modal-content download-modal-content">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Download Options</h3>
+      <button class="close-btn ripple" onclick="closeDownloadModal()" type="button">&times;</button>
+    </div>
+    
+    <div class="modal-body-scroll">
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
+        ඔබට අවශ්‍ය File Format එක සහ Export ක්‍රමය තෝරන්න:
+      </p>
+
+      <div class="export-options-grid">
+        <div class="export-card" onclick="processExport('xlsx')">
+          <i class="fa-solid fa-file-excel excel-icon"></i>
+          <div class="export-title">Excel (.xlsx)</div>
+          <div class="export-desc">Excel Sheet with Formulas</div>
+        </div>
+
+        <div class="export-card" onclick="processExport('pdf')">
+          <i class="fa-solid fa-file-pdf pdf-icon"></i>
+          <div class="export-title">PDF Document (.pdf)</div>
+          <div class="export-desc">Formatted Printable PDF</div>
+        </div>
+
+        <div class="export-card" onclick="processExport('doc')">
+          <i class="fa-solid fa-file-word doc-icon"></i>
+          <div class="export-title">Word Document (.doc)</div>
+          <div class="export-desc">Editable Word File</div>
+        </div>
+      </div>
+
+      <div class="share-box-section">
+        <div class="share-box-title"><i class="fa-solid fa-share-nodes"></i> Direct Sharing</div>
+        <button class="btn btn-share ripple" onclick="shareStockSummary()" type="button">
+          <i class="fa-solid fa-share-nodes"></i> Share File (WhatsApp / Apps)
+        </button>
+      </div>
+
+      <div class="shift-stock-toggle">
+        <label class="checkbox-container">
+          <input type="checkbox" id="chkShiftStock" checked>
+          <span class="checkmark"></span>
+          <span>Shift Closing Stock to Opening Stock after Download</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Stock Check Modal -->
 <div id="recordsModal" class="modal">
