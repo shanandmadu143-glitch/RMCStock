@@ -23,12 +23,9 @@
       </div>
     </div>
     <div class="icon-actions">
-      <!-- අලුතින් එකතු කරන ලද Today Uploaded Icon එක -->
+      <!-- Stock Check icon එක ඉවත් කර ඇත -->
       <button class="btn-icon-header ripple" onclick="openTodayUploadedModal()" title="Today Uploaded Live Details" type="button">
         <i class="fa-solid fa-cloud-arrow-up" style="color: #34d399;"></i>
-      </button>
-      <button class="btn-icon-header ripple" onclick="openRecordsModal()" title="Inventory Summary Checklist" type="button">
-        <i class="fa-solid fa-list-check" style="color: #f59e0b;"></i>
       </button>
       <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
         <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
@@ -152,23 +149,6 @@
         </button>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- Stock Check Modal -->
-<div id="recordsModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="txtSummaryTitle"><i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check</h3>
-      <button class="close-btn ripple" onclick="closeRecordsModal()" type="button">&times;</button>
-    </div>
-    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; gap: 8px; align-items: center;">
-      <input type="text" id="modalSearchInput" placeholder="Quick filter checklist..." autocomplete="off" style="flex: 1;">
-      <button type="button" id="btnTodayFilter" class="btn-icon-today ripple" onclick="toggleTodayFilter()" title="Show Today's Updated Only">
-        <i class="fa-solid fa-calendar-day"></i>
-      </button>
-    </div>
-    <div class="checklist-container" id="summaryCardsContainer"></div>
   </div>
 </div>
 
