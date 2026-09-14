@@ -11,7 +11,8 @@ const i18n = {
     optRejectionL: 'Rejection (ප්‍රතික්ෂේප කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    titleExcel: 'Download / Export Options',
+    titleExcel: 'Download File & Shift Stock',
+    titleShare: 'Share Data File',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
     placeholderModalSearch: 'චෙක්ලිස්ට් එක සෙවීමට Code හෝ Name ලියන්න...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
@@ -50,7 +51,8 @@ const i18n = {
     optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    titleExcel: 'Download / Export Options',
+    titleExcel: 'Download File & Shift Stock',
+    titleShare: 'Share File',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
     placeholderModalSearch: 'Quick filter checklist...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
@@ -89,8 +91,10 @@ const i18n = {
     optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
-    titleExcel: 'Download / Export Options',
+    titleExcel: 'Download File & Shift Stock',
+    titleShare: 'Share File',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு',
+    placeholderModalSearch: 'குறியீடு அல்லது பெயர் மூலம் தேடுக...',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> தீம் தேர்ந்தெடுக்கவும்:',
@@ -124,6 +128,7 @@ let inventory = [];
 let selectedIndex = -1;
 let searchDebounceTimeout = null;
 let modalSearchTimeout = null;
+let currentExportMode = 'excel'; // 'excel' or 'share'
 
 const defaultItems = [ 
   {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000}, 
@@ -184,6 +189,7 @@ function applyLanguage(lang) {
   setHtml('btnSave', t.btnSave);
   
   const btnExcel = document.getElementById('btnExcel'); if(btnExcel) btnExcel.title = t.titleExcel;
+  const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
   
   setHtml('txtSummaryTitle', t.txtSummaryTitle);
   const modalSearchInput = document.getElementById('modalSearchInput');
@@ -410,14 +416,6 @@ function hideModal(modalId) {
   }, 200);
 }
 
-function openDownloadModal() {
-  showModal('downloadModal');
-}
-
-function closeDownloadModal() {
-  hideModal('downloadModal');
-}
-
 function openRecordsModal() { 
   isTodayOnlyFilter = false;
   const btnToday = document.getElementById('btnTodayFilter');
@@ -450,6 +448,15 @@ function closeRestoreHelpModal() {
   hideModal('restoreHelpModal');
 }
 
+function openExportModal(mode) {
+  currentExportMode = mode;
+  showModal('exportModal');
+}
+
+function closeExportModal() {
+  hideModal('exportModal');
+}
+
 function switchHelpTopic(topic) {
   const box = document.getElementById('helpContentBox');
   if (!box) return;
@@ -474,7 +481,7 @@ function switchHelpTopic(topic) {
       <h4 style="color: var(--warning); margin-bottom: 8px;"><i class="fa-solid fa-boxes-stacked"></i> Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</h4>
       <p>• <b>Stock Tracking:</b> ද්‍රව්‍යවල (Materials) Code හෝ Name මඟින් සෙවීම සහ Receipt, Issues, Return, SSL Received/Sent, Rejection ආදී විවිධ Sections යටතේ දත්ත ඇතුළත් කිරීම.</p>
       <p>• <b>Real-time Closing Stock:</b> දත්ත ඇතුළත් කළ පසු ස්වයංක්‍රීයව Closing Stock එක ගණනය වීම.</p>
-      <p>• <b>Export & Shift:</b> Excel, PDF, සහ Word (.doc) ගොනු ලෙස ඩවුන්ලෝඩ් කර ගැනීම සහ Stock එක ඉදිරියට මාරු කිරීම (Shift Stock).</p>
+      <p>• <b>Excel Export & Shift:</b> දිනපතා තොග වාර්තා Excel ගොනුවක් ලෙස ඩවුන්ලෝඩ් කර ගැනීම සහ Stock එක ඉදිරියට මාරු කිරීම (Shift Stock).</p>
       <p>• <b>Share Report:</b> සකස් කළ වාර්තා WhatsApp හෝ වෙනත් යෙදුම් හරහා පහසුවෙන් Share කිරීම.</p>
       <p>• <b>Multi-language & Theme:</b> සිංහල, ඉංග්‍රීසි සහ දෙමළ භාෂා මෙන්ම විවිධ Themes මාරු කරමින් භාවිත කිරීම.</p>
     `;
@@ -607,166 +614,103 @@ function generateWorkbookWithFormulas() {
   return workbook;
 }
 
-// Download Directory/File Location Picker Helper Function
-async function saveFileWithLocationPicker(blobOrWorkbook, defaultFileName, fileType) {
-  if (window.showSaveFilePicker) {
-    try {
-      let acceptTypes = {};
-      if (fileType === 'xlsx') {
-        acceptTypes = { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] };
-      } else if (fileType === 'pdf') {
-        acceptTypes = { 'application/pdf': ['.pdf'] };
-      } else if (fileType === 'doc') {
-        acceptTypes = { 'application/msword': ['.doc'] };
-      }
-
-      const handle = await window.showSaveFilePicker({
-        suggestedName: defaultFileName,
-        types: [{ description: `${fileType.toUpperCase()} Document`, accept: acceptTypes }]
-      });
-
-      const writable = await handle.createWritable();
-      
-      if (fileType === 'xlsx') {
-        const buffer = XLSX.write(blobOrWorkbook, { bookType: 'xlsx', type: 'array' });
-        await writable.write(buffer);
-      } else {
-        await writable.write(blobOrWorkbook);
-      }
-      
-      await writable.close();
-      return true;
-    } catch (err) {
-      if (err.name === 'AbortError') return false; // User cancelled
-    }
-  }
-
-  // Fallback for browsers that do not support showSaveFilePicker API
-  const userFileName = prompt("කරුණාකර File එක Save කළ යුතු Name එක ඇතුළත් කරන්න:", defaultFileName);
-  if (userFileName === null) return false;
-
-  const finalFileName = userFileName.trim() ? 
-    (userFileName.endsWith(`.${fileType}`) ? userFileName : `${userFileName}.${fileType}`) : 
-    defaultFileName;
-
-  if (fileType === 'xlsx') {
-    XLSX.writeFile(blobOrWorkbook, finalFileName);
-  } else {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blobOrWorkbook);
-    link.download = finalFileName;
-    link.click();
-    URL.revokeObjectURL(link.href);
-  }
-  return true;
-}
-
-async function processExport(format) {
-  const t = i18n[currentLang] || i18n['si'];
+// Generate data string or buffer for CSV / TXT / XLSX
+function getFormattedFileData(format) {
   const today = getTodayStr();
-  const defaultFileName = `Stock_Counting_${today}.${format}`;
-  let success = false;
+  const workbook = generateWorkbookWithFormulas();
 
   if (format === 'xlsx') {
-    const workbook = generateWorkbookWithFormulas();
-    success = await saveFileWithLocationPicker(workbook, defaultFileName, 'xlsx');
-  } else if (format === 'pdf') {
-    const blob = generatePDFBlob();
-    success = await saveFileWithLocationPicker(blob, defaultFileName, 'pdf');
-  } else if (format === 'doc') {
-    const blob = generateDOCBlob();
-    success = await saveFileWithLocationPicker(blob, defaultFileName, 'doc');
+    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', cellFormula: true });
+    return {
+      blob: new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+      filename: `Stock_Counting_${today}.xlsx`
+    };
+  } else if (format === 'csv') {
+    const worksheet = workbook.Sheets["Stock_Data"];
+    const csvContent = XLSX.utils.sheet_to_csv(worksheet);
+    return {
+      blob: new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }),
+      filename: `Stock_Counting_${today}.csv`
+    };
+  } else if (format === 'txt') {
+    let txtContent = `STOCK COUNTING REPORT - ${today}\n\n`;
+    inventory.forEach((item, idx) => {
+      txtContent += `${idx + 1}. [${item.code}] ${item.name}\n`;
+      txtContent += `   Op Stock: ${item.op_stock} | Receipts: ${item.f_receipt} | Issues: ${item.g_issues} | Returns: ${item.h_return}\n`;
+      txtContent += `   SSL Rec: ${item.i_ssl_received} | SSL Sent: ${item.j_ssl_sent} | Rejections: ${item.l_rejection}\n`;
+      txtContent += `   Closing Stock: ${item.closing} ${item.uom}\n`;
+      txtContent += `--------------------------------------------------\n`;
+    });
+    return {
+      blob: new Blob([txtContent], { type: 'text/plain;charset=utf-8;' }),
+      filename: `Stock_Counting_${today}.txt`
+    };
   }
+}
 
-  if (success) {
-    const chkShift = document.getElementById('chkShiftStock');
-    if (chkShift && chkShift.checked) {
+// Direct Download Helper
+function triggerDirectDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Process Action for Download or Share based on modal option
+async function processExportAction() {
+  const t = i18n[currentLang] || i18n['si'];
+  const formatSelect = document.getElementById('exportFormatSelect');
+  const chkShiftStock = document.getElementById('chkShiftStock');
+  
+  const format = formatSelect ? formatSelect.value : 'xlsx';
+  const shouldShift = chkShiftStock ? chkShiftStock.checked : false;
+
+  const fileData = getFormattedFileData(format);
+
+  closeExportModal();
+
+  if (currentExportMode === 'excel') {
+    // Direct Download
+    triggerDirectDownload(fileData.blob, fileData.filename);
+    if (shouldShift) {
       resetStockAndComplete(t);
     } else {
-      showToast('File Exported Successfully!', 'success');
+      showToast('File Downloaded Successfully!', 'success');
     }
-    closeDownloadModal();
+  } else if (currentExportMode === 'share') {
+    // Native Share / Fallback Download
+    const file = new File([fileData.blob], fileData.filename, { type: fileData.blob.type });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          title: t.shareTitle,
+          text: `Stock Counting Report - ${getTodayStr()}`,
+          files: [file]
+        });
+        showToast(t.shareSuccess, 'success');
+        if (shouldShift) resetStockAndComplete(t);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          showToast('Sharing failed!', 'warning');
+        }
+      }
+    } else {
+      triggerDirectDownload(fileData.blob, fileData.filename);
+      showToast(t.shareNotSupported + ' Downloaded directly instead.', 'warning');
+      if (shouldShift) resetStockAndComplete(t);
+    }
   }
-}
-
-function generatePDFBlob() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF('landscape');
-  
-  doc.setFontSize(16);
-  doc.text(`RMC Daily Stock Summary - ${getTodayStr()}`, 14, 15);
-  
-  const headers = [["Code", "Material Name", "UOM", "Op.Stock", "Receipt", "Issues", "Return", "Closing"]];
-  const data = inventory.map(item => [
-    item.code,
-    item.name,
-    item.uom,
-    item.op_stock,
-    item.f_receipt,
-    item.g_issues,
-    item.h_return,
-    calculateClosingStock(item)
-  ]);
-
-  doc.autoTable({
-    head: headers,
-    body: data,
-    startY: 22,
-    theme: 'grid',
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [37, 99, 235] }
-  });
-
-  return doc.output('blob');
-}
-
-function generateDOCBlob() {
-  let html = `
-    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-    <head><title>Stock Summary</title><style>
-      table { border-collapse: collapse; width: 100%; }
-      th, td { border: 1px solid #000; padding: 6px; font-size: 11pt; font-family: Arial; }
-      th { background-color: #2563eb; color: #ffffff; }
-    </style></head>
-    <body>
-      <h2>RMC Daily Stock Summary - ${getTodayStr()}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Code</th><th>Material Name</th><th>UOM</th><th>Op.Stock</th><th>Receipt</th><th>Issues</th><th>Return</th><th>Closing</th>
-          </tr>
-        </thead>
-        <tbody>
-  `;
-
-  inventory.forEach(item => {
-    html += `
-      <tr>
-        <td>${item.code}</td>
-        <td>${item.name}</td>
-        <td>${item.uom}</td>
-        <td>${item.op_stock}</td>
-        <td>${item.f_receipt}</td>
-        <td>${item.g_issues}</td>
-        <td>${item.h_return}</td>
-        <td><b>${calculateClosingStock(item)}</b></td>
-      </tr>
-    `;
-  });
-
-  html += `</tbody></table></body></html>`;
-  return new Blob(['\ufeff', html], { type: 'application/msword' });
 }
 
 async function downloadXLSXBackup() { 
-  const workbook = generateWorkbookWithFormulas();
-  const today = getTodayStr(); 
-  const defaultFileName = `Stock_Counting_Backup_${today}.xlsx`;
-
-  const isSaved = await saveFileWithLocationPicker(workbook, defaultFileName, 'xlsx');
-  if (isSaved) {
-    showToast('Backup File Downloaded Successfully!', 'success');
-  }
+  const fileData = getFormattedFileData('xlsx');
+  triggerDirectDownload(fileData.blob, `Stock_Counting_Backup_${getTodayStr()}.xlsx`);
+  showToast('Backup File Downloaded Successfully!', 'success');
 }
 
 function resetStockAndComplete(t) {
@@ -784,34 +728,6 @@ function resetStockAndComplete(t) {
   saveInventoryData(); 
   clearSearchInput();
   showToast(t.msgExcelShift, 'success'); 
-}
-
-async function shareStockSummary() {
-  const t = i18n[currentLang] || i18n['si'];
-  const today = getTodayStr();
-  const workbook = generateWorkbookWithFormulas();
-  
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', cellFormula: true });
-  const fileName = `Stock_Counting_${today}.xlsx`;
-  const file = new File([excelBuffer], fileName, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        title: t.shareTitle,
-        text: `Stock Counting Report - ${today}`,
-        files: [file]
-      });
-      showToast(t.shareSuccess, 'success');
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        showToast('Sharing cancelled or failed.', 'warning');
-      }
-    }
-  } else {
-    XLSX.writeFile(workbook, fileName);
-    showToast(t.shareNotSupported, 'warning');
-  }
 }
 
 function restoreFromXLSX() { 
