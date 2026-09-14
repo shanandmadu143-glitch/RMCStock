@@ -129,7 +129,7 @@
 
       <div class="btn-row" style="margin-top: 24px;">
         <button type="button" class="btn btn-primary ripple" id="btnConfirmExport" onclick="processExportAction()">
-          <i class="fa-solid fa-download"></i> Save / Download
+          <i class="fa-solid fa-download"></i> Choose Location & Save
         </button>
       </div>
     </div>
@@ -271,7 +271,7 @@
 
 <!-- Restore Help & Web App Guide Modal -->
 <div id="restoreHelpModal" class="modal">
-  <div class="modal-content">
+  <div class="modal-content modal-small">
     <div class="modal-header">
       <h3 id="helpModalTitle"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore & Web App Help</h3>
       <button class="close-btn ripple" onclick="closeRestoreHelpModal()" type="button">&times;</button>
@@ -279,7 +279,7 @@
 
     <div class="modal-body-scroll">
       <div class="form-group" style="margin-bottom: 16px;">
-        <label id="helpSelectLabel"><i class="fa-solid fa-list"></i> ඔබට දැනගැනීමට අවශ්‍ය මාතෘකාව තෝරන්න:</label>
+        <label id="helpSelectLabel"><i class="fa-solid fa-list"></i> මාතෘකාව තෝරන්න:</label>
         <select id="helpTopicSelect" onchange="switchHelpTopic(this.value)">
           <option value="fileType">1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</option>
           <option value="howToDo">2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</option>
