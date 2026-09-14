@@ -37,7 +37,7 @@ const i18n = {
     msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'ගොනුව Share කිරීමට සූදානම්!',
-    shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි.'
+    shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි. Direct Download සක්‍රිය විය.'
   },
   en: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
@@ -77,7 +77,7 @@ const i18n = {
     msgResetConfirm: 'Are you sure you want to reset to default data?',
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'File ready to share!',
-    shareNotSupported: 'Your browser does not support file sharing.'
+    shareNotSupported: 'Your browser does not support file sharing. Direct download initiated.'
   },
   ta: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீடு மூலம் தேடுக:',
@@ -600,7 +600,6 @@ function closeItemDetailModal() {
   hideModal('itemDetailModal');
 }
 
-// Fixed Excel Export Generation (Formula and Compatibility Fix)
 function generateWorkbookWithFormulas() {
   const headers = [
     "Type", "Material Code", "Material Name", "UOM", 
@@ -610,7 +609,7 @@ function generateWorkbookWithFormulas() {
   
   const sheetData = [headers];
 
-  inventory.forEach((item, index) => {
+  inventory.forEach((item) => {
     sheetData.push([
       item.type || "RM",
       item.code,
@@ -629,7 +628,6 @@ function generateWorkbookWithFormulas() {
 
   const worksheet = XLSX.utils.aoa_to_sheet(sheetData); 
 
-  // Adding Formulas dynamically to row cells to prevent XLSX JSON parsing crash
   inventory.forEach((_, index) => {
     const rowNum = index + 2; 
     const cellRef = `L${rowNum}`;
@@ -652,14 +650,16 @@ function getFormattedFileData(format, customName) {
     const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     return {
       blob: new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
-      filename: fileName
+      filename: fileName,
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     };
   } else if (format === 'csv') {
     const worksheet = workbook.Sheets["Stock_Data"];
     const csvContent = XLSX.utils.sheet_to_csv(worksheet);
     return {
       blob: new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }),
-      filename: fileName
+      filename: fileName,
+      mimeType: 'text/csv'
     };
   } else if (format === 'txt') {
     let txtContent = `STOCK COUNTING REPORT - ${today}\n\n`;
@@ -672,12 +672,12 @@ function getFormattedFileData(format, customName) {
     });
     return {
       blob: new Blob([txtContent], { type: 'text/plain;charset=utf-8;' }),
-      filename: fileName
+      filename: fileName,
+      mimeType: 'text/plain'
     };
   }
 }
 
-// Reliable direct download trigger for Mobile and Desktop
 function triggerDirectDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -687,11 +687,12 @@ function triggerDirectDownload(blob, filename) {
   document.body.appendChild(a);
   a.click();
   setTimeout(() => {
-    document.body.removeChild(a);
+    if (document.body.contains(a)) document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, 2000);
+  }, 1000);
 }
 
+// Fixed Share Action Execution
 async function processExportAction() {
   const t = i18n[currentLang] || i18n['si'];
   const formatSelect = document.getElementById('exportFormatSelect');
@@ -720,7 +721,7 @@ async function processExportAction() {
       showToast('File Downloaded Successfully!', 'success');
     }
   } else if (currentExportMode === 'share') {
-    const file = new File([fileData.blob], customFileName, { type: fileData.blob.type });
+    const file = new File([fileData.blob], customFileName, { type: fileData.mimeType });
 
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
@@ -733,12 +734,14 @@ async function processExportAction() {
         if (shouldShift) resetStockAndComplete(t);
       } catch (err) {
         if (err.name !== 'AbortError') {
-          showToast('Sharing failed!', 'warning');
+          triggerDirectDownload(fileData.blob, customFileName);
+          showToast('Share failed. Downloaded directly.', 'warning');
+          if (shouldShift) resetStockAndComplete(t);
         }
       }
     } else {
       triggerDirectDownload(fileData.blob, customFileName);
-      showToast(t.shareNotSupported + ' Downloaded directly instead.', 'warning');
+      showToast(t.shareNotSupported, 'warning');
       if (shouldShift) resetStockAndComplete(t);
     }
   }
