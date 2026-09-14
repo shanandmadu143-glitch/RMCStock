@@ -11,6 +11,7 @@ const i18n = {
     optRejectionL: 'Rejection (ප්‍රතික්ෂේප කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    titleCheck: 'Stock Check / Checklist',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share Data File',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
@@ -52,6 +53,7 @@ const i18n = {
     optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    titleCheck: 'Stock Check',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> Stock Check',
@@ -93,6 +95,7 @@ const i18n = {
     optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமிக்க (Save)',
+    titleCheck: 'இருப்பு சரிபார்ப்பு',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
     txtSummaryTitle: '<i class="fa-solid fa-list-check" style="color:var(--warning);"></i> இருப்பு சரிபார்ப்பு',
@@ -191,6 +194,7 @@ function applyLanguage(lang) {
   setHtml('lblAmount', t.lblAmount);
   setHtml('btnSave', t.btnSave);
   
+  const btnStockCheck = document.getElementById('btnStockCheck'); if(btnStockCheck) btnStockCheck.title = t.titleCheck;
   const btnExcel = document.getElementById('btnExcel'); if(btnExcel) btnExcel.title = t.titleExcel;
   const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
   
