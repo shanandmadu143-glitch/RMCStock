@@ -515,6 +515,7 @@ function toggleTodayFilter() {
   filterChecklist();
 }
 
+/* Stock Check List සාදන ශ්‍රිතය - Material Name එකට පහලින් Closing stock එක පෙන්වයි */
 function renderChecklist() { 
   const container = document.getElementById('summaryCardsContainer'); 
   if (!container) return;
@@ -539,7 +540,10 @@ function renderChecklist() {
       <div class="checklist-left">
         <div class="checklist-info">
           <div class="checklist-name" title="${item.name}">${item.name}</div>
-          <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
+          <div style="font-size: 0.78rem; font-weight: 700; color: var(--primary); margin-top: 2px;">
+            Closing Stock: ${Number(item.closing).toLocaleString()} ${item.uom}
+          </div>
+          <div class="checklist-code" style="margin-top: 2px;"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
         </div>
       </div>
       <div class="checklist-right">
