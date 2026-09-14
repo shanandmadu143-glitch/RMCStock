@@ -496,16 +496,10 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
-.modal-body-scroll {
-  overflow-y: auto;
-  flex: 1;
-  padding-right: 4px;
-}
-
 .checklist-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
@@ -513,7 +507,7 @@ input:focus, select:focus {
   width: 100%;
 }
 
-/* SWIPE TO DELETE / CLEAR FIXES & NEW VERTICAL ITEM LAYOUT */
+/* STOCK CHECK EXPANDED CARD DESIGN */
 .checklist-item-wrapper {
   position: relative;
   width: 100%;
@@ -549,11 +543,10 @@ input:focus, select:focus {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 16px 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  cursor: pointer;
+  gap: 12px;
   transition: transform 0.2s ease-out, border-color 0.2s ease, background 0.2s ease;
   width: 100%;
   will-change: transform;
@@ -574,97 +567,89 @@ input:focus, select:focus {
   transform: scaleY(0);
 }
 
-.checklist-item:hover {
-  border-color: var(--primary);
-  background: var(--primary-light);
-}
-
-.checklist-header-row {
+.card-main-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  width: 100%;
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 10px;
+}
+
+.card-item-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
 }
 
 .checklist-name {
-  font-size: 1.02rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-dark);
-  line-height: 1.35;
-  word-break: break-word;
 }
 
 .checklist-code {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-muted);
-  white-space: nowrap;
-  background: var(--bg-main);
-  padding: 3px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  flex-shrink: 0;
 }
 
-.checklist-stock-row {
+.card-closing-box {
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+  padding: 6px 14px;
+  border-radius: 10px;
+  text-align: right;
   display: flex;
-  align-items: baseline;
-  justify-content: flex-between;
-  gap: 8px;
-  border-top: 1px dashed var(--border-color);
-  padding-top: 8px;
-  margin-top: 2px;
+  flex-direction: column;
 }
 
-.checklist-stock-label {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.checklist-stock-value {
-  font-size: 1.15rem;
+.closing-val {
+  font-size: 1.1rem;
   font-weight: 800;
   color: var(--primary);
-  margin-left: auto;
 }
 
-.detail-card-grid {
+.closing-lbl {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.card-details-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 10px;
-  flex: 1;
-  overflow-y: auto;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
 }
 
-.detail-item-box {
+.stat-pill {
   background: var(--bg-main);
   border: 1px solid var(--border-color);
-  padding: 18px;
-  border-radius: var(--radius-md);
-}
-
-.detail-item-box.full-width {
-  grid-column: span 2;
-}
-
-.detail-label {
+  padding: 6px 10px;
+  border-radius: 8px;
   font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.detail-value {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-dark);
+.stat-lbl {
+  color: var(--text-muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
+
+.stat-val {
+  font-weight: 700;
+}
+
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-warning { color: var(--warning); }
 
 .setting-option {
   margin-bottom: 18px;
@@ -726,8 +711,7 @@ input:focus, select:focus {
 
 @media (max-width: 640px) {
   .form-grid { grid-template-columns: 1fr; }
-  .detail-card-grid { grid-template-columns: 1fr; }
-  .detail-item-box.full-width { grid-column: span 1; }
+  .card-details-grid { grid-template-columns: 1fr 1fr; }
   body { padding: 10px; }
   .header-block { padding: 16px; }
   .card { padding: 18px; }
