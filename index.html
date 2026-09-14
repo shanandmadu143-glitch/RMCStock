@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Link to External Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -51,12 +50,12 @@
 
     <!-- Quick Filters -->
     <div class="filter-row" style="margin-bottom: 16px; display: flex; gap: 8px; align-items: center;">
-      <button type="button" id="btnTodayFilter" class="btn-icon-today ripple" onclick="toggleTodayFilter()" title="Show Today's Updated Only" style="padding: 6px 16px; border-radius: 6px;">
+      <button type="button" id="btnTodayFilter" class="btn-icon-today ripple" onclick="openTodayModal()" title="Show Today's Updated Items in Popup" style="padding: 8px 16px; border-radius: 6px; cursor: pointer;">
         <i class="fa-solid fa-calendar-day" style="margin-right: 6px;"></i> Today Updated
       </button>
     </div>
 
-    <!-- Live Stock Check List -->
+    <!-- Live Stock Check List Container -->
     <div class="checklist-container" id="summaryCardsContainer" style="margin-bottom: 24px; max-height: 280px; overflow-y: auto;"></div>
 
     <!-- Selected Item Badge -->
@@ -106,20 +105,33 @@
     
   </main>
 
-  <!-- Footer -->
   <footer class="footer-note" id="lblFooter">
     Created By <span>Yomal Lakshan</span>
   </footer>
 </div>
 
-<!-- Global Toast Notifications Container -->
 <div id="toastContainer" aria-live="polite"></div>
 
 <!-- ========================================= -->
 <!--                 MODALS                    -->
 <!-- ========================================= -->
 
-<!-- 1. Export Format & Options Selector Modal -->
+<!-- TODAY UPDATED POPUP MODAL -->
+<div id="todayModal" class="modal" aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-calendar-check" style="color:var(--primary);"></i> Today's Updated Items</h3>
+      <button class="close-btn ripple" onclick="closeTodayModal()" aria-label="Close Modal" type="button">&times;</button>
+    </div>
+    <div class="modal-body-scroll" style="max-height: 400px; overflow-y: auto; padding: 10px 0;">
+      <div id="todayItemsContainer">
+        <!-- Today's items will load here dynamically -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
 <div id="exportModal" class="modal" aria-hidden="true">
   <div class="modal-content modal-small">
     <div class="modal-header">
@@ -131,7 +143,7 @@
       
       <div class="form-group">
         <label for="exportFormatSelect"><i class="fa-solid fa-file-code"></i> Format:</label>
-        <select id="exportFormatSelect" onchange="updateDefaultFileName()">
+        <select id="exportFormatSelect">
           <option value="xlsx">Excel Workbook (.xlsx)</option>
           <option value="csv">CSV File (.csv)</option>
           <option value="txt">Text File (.txt)</option>
@@ -139,7 +151,7 @@
       </div>
 
       <div class="form-group" style="margin-top: 14px;">
-        <label for="exportFileNameInput"><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
+        <label for="exportFileNameInput"><i class="fa-solid fa-pen-to-square"></i> File Name:</label>
         <div class="input-glow-wrapper">
           <input type="text" id="exportFileNameInput" placeholder="Stock_Counting_YYYY-MM-DD">
         </div>
@@ -162,7 +174,7 @@
   </div>
 </div>
 
-<!-- 2. Material Detail Modal -->
+<!-- ITEM DETAIL MODAL -->
 <div id="itemDetailModal" class="modal" aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
@@ -218,7 +230,7 @@
   </div>
 </div>
 
-<!-- 3. Settings Modal -->
+<!-- SETTINGS MODAL -->
 <div id="settingsModal" class="modal" aria-hidden="true">
   <div class="modal-content">
     <div class="modal-header">
@@ -245,28 +257,6 @@
         </select>
       </div>
 
-      <div class="setting-option">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <label id="lblRestore" for="xlsxFileInput" style="margin-bottom: 0;"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx):</label>
-          <button class="btn ripple" onclick="openRestoreHelpModal()" type="button" style="padding: 5px 10px; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
-            <i class="fa-solid fa-circle-question"></i> Help
-          </button>
-        </div>
-        <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p>
-        <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 12px;">
-        <button class="btn ripple" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button">
-          <i class="fa-solid fa-upload"></i> Restore Excel Data
-        </button>
-      </div>
-
-      <div class="setting-option">
-        <label id="lblBackup"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label>
-        <p id="descBackup">වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p>
-        <button class="btn btn-secondary ripple" style="width:100%; padding: 12px; background:#475569; color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;" onclick="downloadXLSXBackup()" id="btnBackup" type="button">
-          <i class="fa-solid fa-download"></i> Download Backup File
-        </button>
-      </div>
-
       <div class="setting-option" style="border-bottom: none;">
         <label id="lblReset"><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label>
         <p id="descReset">මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p>
@@ -278,31 +268,6 @@
   </div>
 </div>
 
-<!-- 4. Restore Help Modal -->
-<div id="restoreHelpModal" class="modal" aria-hidden="true">
-  <div class="modal-content modal-small">
-    <div class="modal-header">
-      <h3 id="helpModalTitle"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore Help</h3>
-      <button class="close-btn ripple" onclick="closeRestoreHelpModal()" aria-label="Close Modal" type="button">&times;</button>
-    </div>
-
-    <div class="modal-body-scroll">
-      <div class="form-group" style="margin-bottom: 16px;">
-        <label id="helpSelectLabel" for="helpTopicSelect"><i class="fa-solid fa-list"></i> මාතෘකාව තෝරන්න:</label>
-        <select id="helpTopicSelect" onchange="switchHelpTopic(this.value)">
-          <option value="fileType">1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</option>
-          <option value="howToDo">2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</option>
-          <option value="appFeatures">3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</option>
-        </select>
-      </div>
-
-      <div id="helpContentBox" style="background: var(--bg-main); padding: 18px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.92rem; line-height: 1.6; color: var(--text-dark);">
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Link to External Script File -->
 <script src="script.js"></script>
 
 </body>
