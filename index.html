@@ -129,7 +129,7 @@
 
       <div class="btn-row" style="margin-top: 24px;">
         <button type="button" class="btn btn-primary ripple" id="btnConfirmExport" onclick="processExportAction()">
-          <i class="fa-solid fa-folder-open"></i> Choose Location & Save
+          <i class="fa-solid fa-download"></i> Direct Download
         </button>
       </div>
     </div>
@@ -244,10 +244,8 @@
           </button>
         </div>
         <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p>
-        <div class="custom-file-upload">
-          <input type="file" id="xlsxFileInput" accept=".xlsx, .xls">
-        </div>
-        <button class="btn ripple" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer; margin-top:10px;" onclick="restoreFromXLSX()" id="btnRestore" type="button">
+        <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 12px;">
+        <button class="btn ripple" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button">
           <i class="fa-solid fa-upload"></i> Restore Excel Data
         </button>
       </div>
@@ -256,7 +254,7 @@
         <label id="lblBackup"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label>
         <p id="descBackup">වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p>
         <button class="btn btn-secondary ripple" style="width:100%; padding: 12px; background:#475569; color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="downloadXLSXBackup()" id="btnBackup" type="button">
-          <i class="fa-solid fa-folder-open"></i> Choose Location & Backup
+          <i class="fa-solid fa-download"></i> Download Backup File
         </button>
       </div>
 
