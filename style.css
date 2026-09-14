@@ -496,6 +496,12 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
+.modal-body-scroll {
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+}
+
 .checklist-container {
   display: flex;
   flex-direction: column;
@@ -507,7 +513,7 @@ input:focus, select:focus {
   width: 100%;
 }
 
-/* SWIPE TO DELETE / CLEAR FIXES */
+/* SWIPE TO DELETE / CLEAR FIXES & NEW VERTICAL ITEM LAYOUT */
 .checklist-item-wrapper {
   position: relative;
   width: 100%;
@@ -545,9 +551,8 @@ input:focus, select:focus {
   border-radius: var(--radius-md);
   padding: 16px 20px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
   cursor: pointer;
   transition: transform 0.2s ease-out, border-color 0.2s ease, background 0.2s ease;
   width: 100%;
@@ -574,49 +579,57 @@ input:focus, select:focus {
   background: var(--primary-light);
 }
 
-.checklist-left {
+.checklist-header-row {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  overflow: hidden;
-  flex: 1;
-}
-
-.checklist-info {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
 }
 
 .checklist-name {
-  font-size: 0.98rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: var(--text-dark);
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.35;
+  word-break: break-word;
 }
 
 .checklist-code {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-muted);
-}
-
-.checklist-right {
-  text-align: right;
+  white-space: nowrap;
+  background: var(--bg-main);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
   flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
 }
 
-.checklist-stock {
-  font-size: 1.05rem;
+.checklist-stock-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-between;
+  gap: 8px;
+  border-top: 1px dashed var(--border-color);
+  padding-top: 8px;
+  margin-top: 2px;
+}
+
+.checklist-stock-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.checklist-stock-value {
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--primary);
+  margin-left: auto;
 }
 
 .detail-card-grid {
