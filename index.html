@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Stock Counting | High Performance Dashboard</title>
   
-  <!-- Libraries for XLSX, PDF Generation and Icons -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   
@@ -80,8 +77,11 @@
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
-      <button class="btn-icon-excel ripple" onclick="openDownloadModal()" title="Export / Download Options" id="btnExcel" type="button">
-        <i class="fa-solid fa-download"></i>
+      <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
+        <i class="fa-solid fa-file-excel"></i>
+      </button>
+      <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button">
+        <i class="fa-solid fa-share-nodes"></i>
       </button>
     </div>
   </div>
@@ -93,52 +93,37 @@
 
 <div id="toastContainer"></div>
 
-<!-- Export / Download Options Popup Modal -->
-<div id="downloadModal" class="modal">
-  <div class="modal-content download-modal-content">
+<!-- Export Format Selector Modal -->
+<div id="exportModal" class="modal">
+  <div class="modal-content modal-small">
     <div class="modal-header">
-      <h3><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Download Options</h3>
-      <button class="close-btn ripple" onclick="closeDownloadModal()" type="button">&times;</button>
+      <h3 id="txtExportTitle"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Select Format</h3>
+      <button class="close-btn ripple" onclick="closeExportModal()" type="button">&times;</button>
     </div>
-    
     <div class="modal-body-scroll">
-      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
-        ඔබට අවශ්‍ය File Format එක සහ Export ක්‍රමය තෝරන්න:
-      </p>
+      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">ඔබට අවශ්‍ය Format එක තෝරන්න:</p>
+      
+      <div class="form-group">
+        <label><i class="fa-solid fa-file-code"></i> Format:</label>
+        <select id="exportFormatSelect">
+          <option value="xlsx">Excel Workbook (.xlsx)</option>
+          <option value="csv">CSV File (.csv)</option>
+          <option value="txt">Text File (.txt)</option>
+        </select>
+      </div>
 
-      <div class="export-options-grid">
-        <div class="export-card" onclick="processExport('xlsx')">
-          <i class="fa-solid fa-file-excel excel-icon"></i>
-          <div class="export-title">Excel (.xlsx)</div>
-          <div class="export-desc">Excel Sheet with Formulas</div>
-        </div>
-
-        <div class="export-card" onclick="processExport('pdf')">
-          <i class="fa-solid fa-file-pdf pdf-icon"></i>
-          <div class="export-title">PDF Document (.pdf)</div>
-          <div class="export-desc">Formatted Printable PDF</div>
-        </div>
-
-        <div class="export-card" onclick="processExport('doc')">
-          <i class="fa-solid fa-file-word doc-icon"></i>
-          <div class="export-title">Word Document (.doc)</div>
-          <div class="export-desc">Editable Word File</div>
+      <div class="form-group" style="margin-top: 15px;">
+        <label><i class="fa-solid fa-toggle-on"></i> Actions Options:</label>
+        <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
+          <input type="checkbox" id="chkShiftStock" checked style="width:18px; height:18px; cursor:pointer;">
+          <label for="chkShiftStock" style="text-transform:none; margin:0; cursor:pointer; font-size:0.88rem;">Shift Stock to Opening (Reset Daily Data)</label>
         </div>
       </div>
 
-      <div class="share-box-section">
-        <div class="share-box-title"><i class="fa-solid fa-share-nodes"></i> Direct Sharing</div>
-        <button class="btn btn-share ripple" onclick="shareStockSummary()" type="button">
-          <i class="fa-solid fa-share-nodes"></i> Share File (WhatsApp / Apps)
+      <div class="btn-row" style="margin-top: 24px;">
+        <button type="button" class="btn btn-primary ripple" id="btnConfirmExport" onclick="processExportAction()">
+          <i class="fa-solid fa-check"></i> Continue
         </button>
-      </div>
-
-      <div class="shift-stock-toggle">
-        <label class="checkbox-container">
-          <input type="checkbox" id="chkShiftStock" checked>
-          <span class="checkmark"></span>
-          <span>Shift Closing Stock to Opening Stock after Download</span>
-        </label>
       </div>
     </div>
   </div>
