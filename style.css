@@ -396,7 +396,6 @@ input:focus, select:focus {
   font-weight: 800;
 }
 
-/* LOADING OVERLAY */
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -436,7 +435,6 @@ input:focus, select:focus {
   to { transform: rotate(360deg); }
 }
 
-/* MODAL STYLING */
 .modal {
   display: none;
   position: fixed;
@@ -466,7 +464,7 @@ input:focus, select:focus {
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 650px;
-  max-height: 85vh; /* දෝෂය නිවැරදි කරමින් Screen එකෙන් පිටතට නොයන ලෙස සීමා කරන ලදී */
+  max-height: 85vh;
   box-shadow: var(--shadow-modal);
   display: flex;
   flex-direction: column;
@@ -474,7 +472,6 @@ input:focus, select:focus {
   overflow: hidden;
 }
 
-/* Scrollable Body inside Modals (විශේෂයෙන් Settings සඳහා scroll කර බැලීමට හැඩගස්වන ලදී) */
 .modal-body-scroll {
   overflow-y: auto;
   overflow-x: hidden;
