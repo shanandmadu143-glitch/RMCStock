@@ -64,6 +64,7 @@
           <option value="I" id="optSslI">Received to SSL</option>
           <option value="J" id="optSslJ">Sent to SSL</option>
           <option value="L" id="optRejectionL">Rejection</option>
+          <option value="COUNTING" id="optCounting" selected>Counting</option>
         </select>
       </div>
       <div class="form-group" style="margin-bottom:0;">
@@ -83,6 +84,9 @@
       </button>
       <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button">
         <i class="fa-solid fa-share-nodes"></i>
+      </button>
+      <button class="btn-icon-counting ripple" onclick="downloadCountingSheet()" title="Download Counting Sheet" id="btnCountingDownload" type="button">
+        <i class="fa-solid fa-file-arrow-down"></i>
       </button>
     </div>
   </div>
@@ -206,6 +210,10 @@
       <div class="detail-item-box">
         <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection</div>
         <div class="detail-value" id="detRejectionL" style="color:var(--danger);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-list-check" style="color:var(--primary);"></i> Counting</div>
+        <div class="detail-value" id="detCounting" style="color:var(--primary);">-</div>
       </div>
       <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);">
         <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock</div>
