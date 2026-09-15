@@ -14,7 +14,12 @@
 </head>
 <body>
 <div class="container">
+  <!-- Header Block: Left Settings Icon | Center Title | Right Today Uploaded Icon -->
   <div class="header-block">
+    <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
+      <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
+    </button>
+
     <div class="brand-title">
       <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
       <div class="brand-name-wrapper">
@@ -22,14 +27,10 @@
         <span class="sub-badge-counting">Counting</span>
       </div>
     </div>
-    <div class="icon-actions">
-      <button class="btn-icon-header ripple" onclick="openTodayUploadedModal()" title="Today Uploaded Live Details" type="button">
-        <i class="fa-solid fa-cloud-arrow-up" style="color: #34d399;"></i>
-      </button>
-      <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
-        <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
-      </button>
-    </div>
+
+    <button class="btn-icon-header ripple" onclick="openTodayUploadedModal()" title="Today Uploaded Live Details" type="button">
+      <i class="fa-solid fa-cloud-arrow-up" style="color: #34d399;"></i>
+    </button>
   </div>
 
   <div class="card">
@@ -75,10 +76,15 @@
       </div>
     </div>
 
-    <div class="btn-row" style="margin-top: 22px;">
+    <!-- Save Button top centered -->
+    <div class="save-btn-container" style="margin-top: 22px;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
+    </div>
+
+    <!-- Icons centered below Save Button -->
+    <div class="icon-row-container" style="margin-top: 14px;">
       <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
         <i class="fa-solid fa-file-excel"></i>
       </button>
@@ -310,4 +316,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
