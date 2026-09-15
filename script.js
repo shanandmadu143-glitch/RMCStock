@@ -641,6 +641,7 @@ function generateWorkbookWithFormulas() {
   return workbook;
 }
 
+// Download Counting Sheet with today's date in filename
 function downloadCountingSheet() {
   if (typeof XLSX === 'undefined') {
     showToast('XLSX Library is not loaded! Check internet connection.', 'error');
@@ -676,7 +677,8 @@ function downloadCountingSheet() {
 
       const today = getTodayStr();
       const defaultName = `Counting_Sheet_${today}.xlsx`;
-      
+
+      // Export file using XLSX.writeFile
       XLSX.writeFile(workbook, defaultName);
 
       hideLoading();
