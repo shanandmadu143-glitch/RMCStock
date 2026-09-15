@@ -444,6 +444,35 @@ function closeTodayUploadedModal() {
   hideModal('todayUploadedModal');
 }
 
+/* Clear item daily update data */
+function deleteTodayUploadedItem(idx) {
+  const t = i18n[currentLang] || i18n['si'];
+  const item = inventory[idx];
+  if (!item) return;
+
+  if (confirm(`ඔබට ${item.name} හි අද දින දත්ත ඉවත් කිරීමට අවශ්‍යද?`)) {
+    item.f_receipt = 0;
+    item.g_issues = 0;
+    item.h_return = 0;
+    item.i_ssl_received = 0;
+    item.j_ssl_sent = 0;
+    item.l_rejection = 0;
+    item.counting = 0;
+    item.closing = calculateClosingStock(item);
+    item.last_updated = "";
+
+    saveInventoryData();
+    renderTodayUploadedList();
+    showToast(t.msgItemCleared, 'success');
+  }
+}
+
+/* Edit Today item by selecting it in the main form */
+function editTodayUploadedItem(idx) {
+  closeTodayUploadedModal();
+  selectItem(idx);
+}
+
 function renderTodayUploadedList() {
   const container = document.getElementById('todayCardsContainer');
   if (!container) return;
@@ -465,28 +494,95 @@ function renderTodayUploadedList() {
       const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(q);
       if (matchesSearch) {
         count++;
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'checklist-item';
-        itemDiv.style.marginBottom = '8px';
 
-        itemDiv.innerHTML = ` 
-          <div class="checklist-left">
-            <div class="checklist-info">
-              <div class="checklist-name" title="${item.name}">${item.name}</div>
-              <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
-            </div>
+        const wrapper = document.createElement('div');
+        wrapper.className = 'swipe-item-wrapper';
+
+        wrapper.innerHTML = `
+          <div class="swipe-background">
+            <div class="swipe-action-left"><i class="fa-solid fa-trash"></i> Delete</div>
+            <div class="swipe-action-right">Edit <i class="fa-solid fa-pen-to-square"></i></div>
           </div>
-          <div class="checklist-right">
-            <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
-            <div style="font-size: 0.68rem; color: var(--success); font-weight: 700; text-transform: uppercase;">Today Live</div>
+          <div class="checklist-item">
+            <div class="checklist-left">
+              <div class="checklist-info">
+                <div class="checklist-name" title="${item.name}">${item.name}</div>
+                <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
+              </div>
+            </div>
+            <div class="checklist-right">
+              <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
+              <div style="font-size: 0.68rem; color: var(--success); font-weight: 700; text-transform: uppercase;">Today Live</div>
+            </div>
           </div>
         `;
 
-        itemDiv.onclick = () => {
-          openItemDetails(idx);
+        const card = wrapper.querySelector('.checklist-item');
+
+        // Swipe Gestures Logic
+        let startX = 0;
+        let currentX = 0;
+        let isSwiping = false;
+
+        const onTouchStart = (e) => {
+          startX = e.touches ? e.touches[0].clientX : e.clientX;
+          isSwiping = true;
+          card.style.transition = 'none';
         };
 
-        fragment.appendChild(itemDiv);
+        const onTouchMove = (e) => {
+          if (!isSwiping) return;
+          currentX = e.touches ? e.touches[0].clientX : e.clientX;
+          const diffX = currentX - startX;
+
+          if (Math.abs(diffX) > 10) {
+            card.style.transform = `translateX(${diffX}px)`;
+          }
+        };
+
+        const onTouchEnd = () => {
+          if (!isSwiping) return;
+          isSwiping = false;
+          card.style.transition = 'transform 0.2s ease-out';
+          const diffX = currentX - startX;
+
+          if (diffX > 100) {
+            // Swipe Right -> Delete Action
+            card.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+              deleteTodayUploadedItem(idx);
+            }, 150);
+          } else if (diffX < -100) {
+            // Swipe Left -> Edit Action
+            card.style.transform = 'translateX(-100%)';
+            setTimeout(() => {
+              editTodayUploadedItem(idx);
+            }, 150);
+          } else {
+            // Reset position
+            card.style.transform = 'translateX(0)';
+          }
+          startX = 0;
+          currentX = 0;
+        };
+
+        // Add touch and mouse event listeners for swipe
+        card.addEventListener('touchstart', onTouchStart, { passive: true });
+        card.addEventListener('touchmove', onTouchMove, { passive: true });
+        card.addEventListener('touchend', onTouchEnd);
+
+        card.addEventListener('mousedown', onTouchStart);
+        window.addEventListener('mousemove', onTouchMove);
+        window.addEventListener('mouseup', onTouchEnd);
+
+        // Click event fallback (opens item details)
+        card.onclick = (e) => {
+          if (Math.abs(currentX - startX) < 5) {
+            openItemDetails(idx);
+          }
+        };
+
+        fragment.appendChild(wrapper);
       }
     }
   });
