@@ -334,7 +334,7 @@ input:focus, select:focus {
   transform: translateY(-2px);
 }
 
-.btn-icon-excel, .btn-icon-share {
+.btn-icon-excel, .btn-icon-share, .btn-icon-counting {
   width: 52px;
   height: 52px;
   color: white;
@@ -357,6 +357,11 @@ input:focus, select:focus {
 .btn-icon-share {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+.btn-icon-counting {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
 }
 
 .ripple {
