@@ -594,7 +594,7 @@ function closeItemDetailModal() {
 }
 
 // -----------------------------------------------------------------
-// PROFESSIONAL EXCEL WORKBOOK GENERATOR WITH COLORS & STYLING
+// EXCEL WORKBOOK GENERATOR
 // -----------------------------------------------------------------
 function generateWorkbookWithFormulas() {
   const headers = [
@@ -624,85 +624,7 @@ function generateWorkbookWithFormulas() {
 
   const worksheet = XLSX.utils.aoa_to_sheet(sheetData); 
 
-  // Professional Styling Configuration (Borders, Fills, Fonts, Alignments)
-  const borderThin = {
-    top: { style: "thin", color: { rgb: "CBD5E1" } },
-    bottom: { style: "thin", color: { rgb: "CBD5E1" } },
-    left: { style: "thin", color: { rgb: "CBD5E1" } },
-    right: { style: "thin", color: { rgb: "CBD5E1" } }
-  };
-
-  const headerStyle = {
-    font: { name: "Inter", sz: 11, bold: true, color: { rgb: "FFFFFF" } },
-    fill: { fgColor: { rgb: "0F172A" } }, // Dark Slate Navy Header
-    alignment: { horizontal: "center", vertical: "center", wrapText: true },
-    border: borderThin
-  };
-
-  const cellStyleEven = {
-    font: { name: "Inter", sz: 10, color: { rgb: "0F172A" } },
-    fill: { fgColor: { rgb: "FFFFFF" } },
-    alignment: { vertical: "center" },
-    border: borderThin
-  };
-
-  const cellStyleOdd = {
-    font: { name: "Inter", sz: 10, color: { rgb: "0F172A" } },
-    fill: { fgColor: { rgb: "F8FAFC" } }, // Zebra striping (Soft Light Grey/Blue)
-    alignment: { vertical: "center" },
-    border: borderThin
-  };
-
-  const closingStyle = {
-    font: { name: "Inter", sz: 10, bold: true, color: { rgb: "1D4ED8" } },
-    fill: { fgColor: { rgb: "EFF6FF" } }, // Soft Blue Highlight for Closing Stock
-    alignment: { vertical: "center", horizontal: "right" },
-    border: borderThin,
-    numFmt: "#,##0.00"
-  };
-
-  // Apply styles to all cells in sheet
-  const range = XLSX.utils.decode_range(worksheet['!ref']);
-  for (let R = range.s.r; R <= range.e.r; ++R) {
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-      if (!worksheet[cellAddress]) continue;
-
-      if (R === 0) {
-        worksheet[cellAddress].s = headerStyle;
-      } else {
-        const isEven = (R % 2 === 0);
-        let base = isEven ? cellStyleEven : cellStyleOdd;
-        let cellSt = JSON.parse(JSON.stringify(base));
-
-        // Alignments & Formats per Column
-        if (C === 0 || C === 1 || C === 3) {
-          cellSt.alignment.horizontal = "center";
-        } else if (C >= 4) {
-          cellSt.alignment.horizontal = "right";
-          cellSt.numFmt = "#,##0.00";
-        }
-
-        // Highlight Closing Stock Column (Col 11 / L)
-        if (C === 11) {
-          cellSt = JSON.parse(JSON.stringify(closingStyle));
-        }
-
-        worksheet[cellAddress].s = cellSt;
-      }
-    }
-  }
-
-  // Inject Excel formulas for Closing Stock
-  inventory.forEach((_, index) => {
-    const rowNum = index + 2; 
-    const cellRef = `L${rowNum}`;
-    if (worksheet[cellRef]) {
-      worksheet[cellRef].f = `E${rowNum}+F${rowNum}-G${rowNum}+H${rowNum}+I${rowNum}-J${rowNum}-K${rowNum}`;
-    }
-  });
-
-  // Adjust Column Widths for Professional Readability
+  // Column Widths
   worksheet['!cols'] = [
     { wch: 8 },  // Type
     { wch: 15 }, // Code
@@ -718,54 +640,61 @@ function generateWorkbookWithFormulas() {
     { wch: 18 }  // Closing
   ];
 
-  // Set Row Heights
-  worksheet['!rows'] = [{ hpt: 30 }]; // Header row height
-  for (let i = 1; i <= inventory.length; i++) {
-    if (!worksheet['!rows']) worksheet['!rows'] = [];
-    worksheet['!rows'][i] = { hpt: 24 }; // Data rows height
-  }
-
   const workbook = XLSX.utils.book_new(); 
   XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Summary");
   return workbook;
 }
 
+// -----------------------------------------------------------------
+// FIXED DOWNLOAD COUNTING SHEET FUNCTION
+// -----------------------------------------------------------------
 function downloadCountingSheet() {
+  if (typeof XLSX === 'undefined') {
+    showToast('XLSX Library is not loaded! Check internet connection.', 'error');
+    return;
+  }
+
   showLoading("Generating Counting Sheet...");
   setTimeout(() => {
-    const headers = ["Material Code", "Material Name", "RM/PM", "Counting"];
-    const sheetData = [headers];
+    try {
+      const headers = ["Material Code", "Material Name", "RM/PM", "Counting"];
+      const sheetData = [headers];
 
-    inventory.forEach((item) => {
-      sheetData.push([
-        item.code,
-        item.name,
-        item.type || "RM",
-        Number(item.counting) || 0
-      ]);
-    });
+      inventory.forEach((item) => {
+        sheetData.push([
+          item.code || "",
+          item.name || "",
+          item.type || "RM",
+          Number(item.counting) || 0
+        ]);
+      });
 
-    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
 
-    // Apply column widths
-    worksheet['!cols'] = [
-      { wch: 18 }, // Material Code
-      { wch: 40 }, // Material Name
-      { wch: 10 }, // RM/PM
-      { wch: 15 }  // Counting
-    ];
+      // Adjust Column Widths
+      worksheet['!cols'] = [
+        { wch: 18 }, // Material Code
+        { wch: 40 }, // Material Name
+        { wch: 10 }, // RM/PM
+        { wch: 15 }  // Counting
+      ];
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Counting");
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Counting");
 
-    const today = getTodayStr();
-    const defaultName = `Counting_Sheet_${today}.xlsx`;
-    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const today = getTodayStr();
+      const defaultName = `Counting_Sheet_${today}.xlsx`;
+      
+      // Write workbook and download
+      XLSX.writeFile(workbook, defaultName);
 
-    triggerDirectDownload(blob, defaultName);
-    hideLoading();
-    showToast('Counting Sheet Downloaded Successfully!', 'success');
+      hideLoading();
+      showToast('Counting Sheet Downloaded Successfully!', 'success');
+    } catch (err) {
+      hideLoading();
+      console.error(err);
+      showToast('Error downloading counting sheet!', 'error');
+    }
   }, 300);
 }
 
@@ -775,8 +704,7 @@ function getFormattedFileData(format, customName) {
   const fileName = customName || `Stock_Counting_${today}.${format}`;
 
   if (format === 'xlsx') {
-    // cellStyles: true enables exporting professional cell formatting
-    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', cellStyles: true });
+    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     return {
       blob: new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
       filename: fileName,
