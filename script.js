@@ -9,6 +9,7 @@ const i18n = {
     optSslI: 'Received to SSL (SSL ලැබීම්)',
     optSslJ: 'Sent to SSL (SSL යැවීම්)',
     optRejectionL: 'Rejection (ප්‍රතික්ෂේප කිරීම්)',
+    optCounting: 'Counting (ගණනය කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download File & Shift Stock',
@@ -48,6 +49,7 @@ const i18n = {
     optSslI: 'Received to SSL',
     optSslJ: 'Sent to SSL',
     optRejectionL: 'Rejection',
+    optCounting: 'Counting',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download File & Shift Stock',
@@ -87,6 +89,7 @@ const i18n = {
     optSslI: 'Received to SSL',
     optSslJ: 'Sent to SSL',
     optRejectionL: 'Rejection',
+    optCounting: 'Counting',
     lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download File & Shift Stock',
@@ -193,6 +196,7 @@ function applyLanguage(lang) {
   setText('optSslI', t.optSslI);
   setText('optSslJ', t.optSslJ);
   setText('optRejectionL', t.optRejectionL);
+  setText('optCounting', t.optCounting);
   setHtml('lblAmount', t.lblAmount);
   setHtml('btnSave', t.btnSave);
   
@@ -271,6 +275,7 @@ function loadInventoryData() {
         item.i_ssl_received = Number(item.i_ssl_received) || 0;
         item.j_ssl_sent = Number(item.j_ssl_sent) || 0;
         item.l_rejection = Number(item.l_rejection) || 0;
+        item.counting = Number(item.counting) || 0;
         item.closing = calculateClosingStock(item);
         item.last_updated = item.last_updated || "";
       });
@@ -292,6 +297,7 @@ function initDefaultInventory() {
     i_ssl_received: 0, 
     j_ssl_sent: 0, 
     l_rejection: 0, 
+    counting: 0,
     closing: Number(item.op_stock) || 0,
     last_updated: ""
   })); 
@@ -391,6 +397,7 @@ function addSingleSectionData() {
   else if (targetSection === 'I') item.i_ssl_received = roundNum(item.i_ssl_received + amount); 
   else if (targetSection === 'J') item.j_ssl_sent = roundNum(item.j_ssl_sent + amount); 
   else if (targetSection === 'L') item.l_rejection = roundNum(item.l_rejection + amount); 
+  else if (targetSection === 'COUNTING') item.counting = roundNum(amount); 
 
   item.closing = calculateClosingStock(item); 
   item.last_updated = getTodayStr();
@@ -452,7 +459,7 @@ function renderTodayUploadedList() {
   inventory.forEach((item, idx) => {
     item.closing = calculateClosingStock(item);
     const hasActivity = (item.last_updated === todayStr) || 
-                        (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0);
+                        (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0 || item.counting > 0);
 
     if (hasActivity) {
       const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(q);
@@ -550,7 +557,7 @@ function switchHelpTopic(topic) {
   } else if (topic === 'appFeatures') {
     box.innerHTML = `
       <h4 style="color: var(--warning); margin-bottom: 8px;"><i class="fa-solid fa-boxes-stacked"></i> Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</h4>
-      <p>• <b>Stock Tracking:</b> ද්‍රව්‍යවල (Materials) Code හෝ Name මඟින් සෙවීම සහ Receipt, Issues, Return, SSL Received/Sent, Rejection ආදී විවිධ Sections යටතේ දත්ත ඇතුළත් කිරීම.</p>
+      <p>• <b>Stock Tracking:</b> ද්‍රව්‍යවල (Materials) Code හෝ Name මඟින් සෙවීම සහ Receipt, Issues, Return, SSL Received/Sent, Rejection, Counting ආදී විවිධ Sections යටතේ දත්ත ඇතුළත් කිරීම.</p>
       <p>• <b>Real-time Closing Stock:</b> දත්ත ඇතුළත් කළ පසු ස්වයංක්‍රීයව Closing Stock එක ගණනය වීම.</p>
       <p>• <b>Excel Export & Shift:</b> දිනපතා තොග වාර්තා Excel ගොනුවක් ලෙස ඩවුන්ලෝඩ් කර ගැනීම සහ Stock එක ඉදිරියට මාරු කිරීම (Shift Stock).</p>
       <p>• <b>Share Report:</b> සකස් කළ වාර්තා WhatsApp හෝ වෙනත් යෙදුම් හරහා පහසුවෙන් Share කිරීම.</p>
@@ -576,6 +583,7 @@ function openItemDetails(index) {
   setText('detSslI', Number(item.i_ssl_received || 0).toLocaleString() + ' ' + item.uom);
   setText('detSslJ', Number(item.j_ssl_sent || 0).toLocaleString() + ' ' + item.uom);
   setText('detRejectionL', Number(item.l_rejection || 0).toLocaleString() + ' ' + item.uom);
+  setText('detCounting', Number(item.counting || 0).toLocaleString() + ' ' + item.uom);
   setText('detClosing', Number(item.closing).toLocaleString() + ' ' + item.uom);
 
   showModal('itemDetailModal');
@@ -722,6 +730,45 @@ function generateWorkbookWithFormulas() {
   return workbook;
 }
 
+function downloadCountingSheet() {
+  showLoading("Generating Counting Sheet...");
+  setTimeout(() => {
+    const headers = ["Material Code", "Material Name", "RM/PM", "Counting"];
+    const sheetData = [headers];
+
+    inventory.forEach((item) => {
+      sheetData.push([
+        item.code,
+        item.name,
+        item.type || "RM",
+        Number(item.counting) || 0
+      ]);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+    // Apply column widths
+    worksheet['!cols'] = [
+      { wch: 18 }, // Material Code
+      { wch: 40 }, // Material Name
+      { wch: 10 }, // RM/PM
+      { wch: 15 }  // Counting
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Counting");
+
+    const today = getTodayStr();
+    const defaultName = `Counting_Sheet_${today}.xlsx`;
+    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+    triggerDirectDownload(blob, defaultName);
+    hideLoading();
+    showToast('Counting Sheet Downloaded Successfully!', 'success');
+  }, 300);
+}
+
 function getFormattedFileData(format, customName) {
   const today = getTodayStr();
   const workbook = generateWorkbookWithFormulas();
@@ -748,7 +795,7 @@ function getFormattedFileData(format, customName) {
     inventory.forEach((item, idx) => {
       txtContent += `${idx + 1}. [${item.code}] ${item.name}\n`;
       txtContent += `   Op Stock: ${item.op_stock} | Receipts: ${item.f_receipt} | Issues: ${item.g_issues} | Returns: ${item.h_return}\n`;
-      txtContent += `   SSL Rec: ${item.i_ssl_received} | SSL Sent: ${item.j_ssl_sent} | Rejections: ${item.l_rejection}\n`;
+      txtContent += `   SSL Rec: ${item.i_ssl_received} | SSL Sent: ${item.j_ssl_sent} | Rejections: ${item.l_rejection} | Counting: ${item.counting || 0}\n`;
       txtContent += `   Closing Stock: ${item.closing} ${item.uom}\n`;
       txtContent += `--------------------------------------------------\n`;
     });
@@ -853,6 +900,7 @@ function resetStockAndComplete(t) {
     item.i_ssl_received = 0; 
     item.j_ssl_sent = 0; 
     item.l_rejection = 0; 
+    item.counting = 0;
     item.closing = item.op_stock; 
     item.last_updated = "";
   }); 
@@ -888,7 +936,7 @@ function restoreFromXLSX() {
       } 
       
       let headerIndex = -1; 
-      let colMap = { type: -1, code: -1, name: -1, uom: -1, op_stock: -1, f_receipt: -1, g_issues: -1, h_return: -1, i_ssl_received: -1, j_ssl_sent: -1, l_rejection: -1, closing: -1 }; 
+      let colMap = { type: -1, code: -1, name: -1, uom: -1, op_stock: -1, f_receipt: -1, g_issues: -1, h_return: -1, i_ssl_received: -1, j_ssl_sent: -1, l_rejection: -1, counting: -1, closing: -1 }; 
       
       for (let r = 0; r < Math.min(matrix.length, 10); r++) { 
         const rowStr = matrix[r].map(c => String(c).toLowerCase().trim()); 
@@ -906,6 +954,7 @@ function restoreFromXLSX() {
             else if (cellVal.includes("received to ssl") || cellVal.includes("ssl i") || cellVal === "i") colMap.i_ssl_received = colIdx; 
             else if (cellVal.includes("sent to ssl") || cellVal.includes("ssl j") || cellVal === "j") colMap.j_ssl_sent = colIdx; 
             else if (cellVal.includes("rejection") || cellVal === "l") colMap.l_rejection = colIdx; 
+            else if (cellVal.includes("counting")) colMap.counting = colIdx; 
             else if (cellVal.includes("closing")) colMap.closing = colIdx; 
           }); 
           break; 
@@ -939,13 +988,14 @@ function restoreFromXLSX() {
           let i_ssl_received = colMap.i_ssl_received !== -1 ? parseFloat(row[colMap.i_ssl_received]) || 0 : 0; 
           let j_ssl_sent = colMap.j_ssl_sent !== -1 ? parseFloat(row[colMap.j_ssl_sent]) || 0 : 0; 
           let l_rejection = colMap.l_rejection !== -1 ? parseFloat(row[colMap.l_rejection]) || 0 : 0; 
+          let counting = colMap.counting !== -1 ? parseFloat(row[colMap.counting]) || 0 : 0; 
           
           let tempItem = { op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection };
           let closing = calculateClosingStock(tempItem); 
-          let last_updated = (f_receipt || g_issues || h_return || i_ssl_received || j_ssl_sent || l_rejection) ? getTodayStr() : "";
+          let last_updated = (f_receipt || g_issues || h_return || i_ssl_received || j_ssl_sent || l_rejection || counting) ? getTodayStr() : "";
             
           restored.push({ 
-            type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, closing, last_updated
+            type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, counting, closing, last_updated
           }); 
         } 
       } 
