@@ -76,6 +76,7 @@ body {
   margin: 0 auto;
 }
 
+/* Header layout updated: Left Setting, Center Title, Right Upload */
 .header-block {
   background: var(--header-bg);
   color: #ffffff;
@@ -104,6 +105,7 @@ body {
   display: flex;
   flex-direction: column;
   line-height: 1.1;
+  align-items: center;
 }
 
 .main-brand-text {
@@ -140,11 +142,6 @@ body {
   justify-content: center;
   color: #60a5fa;
   font-size: 1.35rem;
-}
-
-.icon-actions {
-  display: flex;
-  gap: 10px;
 }
 
 .btn-icon-header {
@@ -301,6 +298,27 @@ input:focus, select:focus {
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-bottom: 20px;
+}
+
+/* Save button center container */
+.save-btn-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.save-btn-container .btn-primary {
+  max-width: 320px;
+  width: 100%;
+}
+
+/* Icons bottom row container */
+.icon-row-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
 }
 
 .btn-row {
@@ -703,4 +721,3 @@ input:focus, select:focus {
   .modal { padding: 0; }
   .modal-content { height: 100vh; max-height: 100vh; border-radius: 0; }
 }
-
