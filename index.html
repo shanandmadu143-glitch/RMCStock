@@ -26,7 +26,6 @@
       <button class="btn-icon-header ripple" onclick="openTodayUploadedModal()" title="Today Uploaded Live Details" type="button">
         <i class="fa-solid fa-cloud-arrow-up" style="color: #34d399;"></i>
       </button>
-      <!-- Batch Operations icon එක මෙහිදී ඉවත් කරන ලදී -->
       <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
         <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
       </button>
@@ -76,7 +75,6 @@
     </div>
 
     <div class="btn-row" style="margin-top: 22px;">
-      <!-- බටන් නම 'Save' ලෙස වෙනස් කරන ලදී -->
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
@@ -96,7 +94,7 @@
 
 <div id="toastContainer"></div>
 
-<!-- Loading Overlay with Spinner / Progress Bar -->
+<!-- Loading Overlay -->
 <div id="loadingOverlay" class="loading-overlay" style="display:none;">
   <div class="loading-box">
     <div class="spinner"></div>
@@ -115,53 +113,6 @@
       <input type="text" id="todayModalSearchInput" placeholder="Filter today items by name or code..." autocomplete="off" style="width: 100%;">
     </div>
     <div class="checklist-container" id="todayCardsContainer"></div>
-  </div>
-</div>
-
-<!-- Batch Operations / Multi-select Modal -->
-<div id="batchModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-layer-group" style="color:var(--warning);"></i> Batch Operations / Multi-select</h3>
-      <button class="close-btn ripple" onclick="closeBatchModal()" type="button">&times;</button>
-    </div>
-    <div class="modal-body-scroll">
-      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">අයිතම කිහිපයක් එකවර තෝරා එකම Section එකට එකම ප්‍රමාණයක් ඇතුළත් කරන්න:</p>
-      
-      <div class="form-grid" style="margin-bottom: 14px;">
-        <div class="form-group" style="margin-bottom:0;">
-          <label><i class="fa-solid fa-layer-group"></i> Batch Section:</label>
-          <select id="batchSectionSelect">
-            <option value="F">Receipt</option>
-            <option value="G">Issues</option>
-            <option value="H">Return</option>
-            <option value="I">Received to SSL</option>
-            <option value="J">Sent to SSL</option>
-            <option value="L">Rejection</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-bottom:0;">
-          <label><i class="fa-solid fa-calculator"></i> Batch Amount:</label>
-          <input type="number" id="batchInputAmount" min="0" step="any" placeholder="0.00">
-        </div>
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Select Items:</span>
-        <div>
-          <button type="button" class="btn ripple" style="padding: 4px 10px; font-size: 0.75rem; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px;" onclick="toggleSelectAllBatch(true)">Select All</button>
-          <button type="button" class="btn ripple" style="padding: 4px 10px; font-size: 0.75rem; background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); border-radius: 6px;" onclick="toggleSelectAllBatch(false)">Deselect All</button>
-        </div>
-      </div>
-
-      <div class="checklist-container" id="batchItemsContainer" style="max-height: 220px; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px; background: var(--bg-main);"></div>
-
-      <div class="btn-row" style="margin-top: 20px;">
-        <button type="button" class="btn btn-primary ripple" onclick="applyBatchOperation()">
-          <i class="fa-solid fa-floppy-disk"></i> Apply Batch to Selected Items
-        </button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -208,63 +159,7 @@
   </div>
 </div>
 
-<!-- Material Detail Modal -->
-<div id="itemDetailModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3>
-      <button class="close-btn ripple" onclick="closeItemDetailModal()" type="button">&times;</button>
-    </div>
-    <div class="detail-card-grid" style="overflow-y: auto;">
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div>
-        <div class="detail-value" id="detCode">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-tag"></i> Unit of Measure (UOM)</div>
-        <div class="detail-value" id="detUom">-</div>
-      </div>
-      <div class="detail-item-box full-width">
-        <div class="detail-label"><i class="fa-solid fa-box"></i> Material Name</div>
-        <div class="detail-value" id="detName" style="color:var(--primary);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock</div>
-        <div class="detail-value" id="detOp">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-down" style="color:var(--success);"></i> Receipt (F)</div>
-        <div class="detail-value" id="detReceipt" style="color:var(--success);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-up" style="color:var(--danger);"></i> Issues (G)</div>
-        <div class="detail-value" id="detIssues" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-rotate-left" style="color:var(--warning);"></i> Return (H)</div>
-        <div class="detail-value" id="detReturn" style="color:var(--warning);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--success);"></i> Received to SSL</div>
-        <div class="detail-value" id="detSslI" style="color:var(--success);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--danger);"></i> Sent to SSL</div>
-        <div class="detail-value" id="detSslJ" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection</div>
-        <div class="detail-value" id="detRejectionL" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);">
-        <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock</div>
-        <div class="detail-value" id="detClosing" style="font-size: 1.3rem; color:var(--primary);">-</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Settings Modal -->
+<!-- Settings Modal (FIXED WITH FULL SCROLL SUPPORT) -->
 <div id="settingsModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -272,6 +167,7 @@
       <button class="close-btn ripple" onclick="closeSettings()" type="button">&times;</button>
     </div>
 
+    <!-- Scrollable content container inside settings modal -->
     <div class="modal-body-scroll">
       <div class="setting-option">
         <label id="lblLanguage"><i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language / භාෂාව / மொழி:</label>
@@ -313,7 +209,7 @@
         </button>
       </div>
 
-      <div class="setting-option">
+      <div class="setting-option" style="margin-bottom: 0;">
         <label id="lblReset"><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label>
         <p id="descReset">මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p>
         <button class="btn ripple" style="width:100%; padding: 12px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()" id="btnReset" type="button">
