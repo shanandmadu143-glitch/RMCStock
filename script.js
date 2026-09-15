@@ -413,6 +413,24 @@ function addSingleSectionData() {
   clearSearchInput();
 } 
 
+function deleteItemData(index) {
+  const t = i18n[currentLang] || i18n['si'];
+  if (inventory[index]) {
+    inventory[index].f_receipt = 0;
+    inventory[index].g_issues = 0;
+    inventory[index].h_return = 0;
+    inventory[index].i_ssl_received = 0;
+    inventory[index].j_ssl_sent = 0;
+    inventory[index].l_rejection = 0;
+    inventory[index].counting = 0;
+    inventory[index].closing = calculateClosingStock(inventory[index]);
+    inventory[index].last_updated = "";
+    saveInventoryData();
+    renderTodayUploadedList();
+    showToast(t.msgItemCleared, 'warning');
+  }
+}
+
 function showModal(modalId) {
   const modal = document.getElementById(modalId);
   if (!modal) return;
@@ -444,35 +462,7 @@ function closeTodayUploadedModal() {
   hideModal('todayUploadedModal');
 }
 
-/* Clear item daily update data */
-function deleteTodayUploadedItem(idx) {
-  const t = i18n[currentLang] || i18n['si'];
-  const item = inventory[idx];
-  if (!item) return;
-
-  if (confirm(`ඔබට ${item.name} හි අද දින දත්ත ඉවත් කිරීමට අවශ්‍යද?`)) {
-    item.f_receipt = 0;
-    item.g_issues = 0;
-    item.h_return = 0;
-    item.i_ssl_received = 0;
-    item.j_ssl_sent = 0;
-    item.l_rejection = 0;
-    item.counting = 0;
-    item.closing = calculateClosingStock(item);
-    item.last_updated = "";
-
-    saveInventoryData();
-    renderTodayUploadedList();
-    showToast(t.msgItemCleared, 'success');
-  }
-}
-
-/* Edit Today item by selecting it in the main form */
-function editTodayUploadedItem(idx) {
-  closeTodayUploadedModal();
-  selectItem(idx);
-}
-
+// Swipe support for Updated Live items
 function renderTodayUploadedList() {
   const container = document.getElementById('todayCardsContainer');
   if (!container) return;
@@ -499,9 +489,9 @@ function renderTodayUploadedList() {
         wrapper.className = 'swipe-item-wrapper';
 
         wrapper.innerHTML = `
-          <div class="swipe-background">
-            <div class="swipe-action-left"><i class="fa-solid fa-trash"></i> Delete</div>
-            <div class="swipe-action-right">Edit <i class="fa-solid fa-pen-to-square"></i></div>
+          <div class="swipe-bg-actions">
+            <div class="swipe-action edit"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
+            <div class="swipe-action delete">Delete <i class="fa-solid fa-trash-can"></i></div>
           </div>
           <div class="checklist-item">
             <div class="checklist-left">
@@ -512,75 +502,58 @@ function renderTodayUploadedList() {
             </div>
             <div class="checklist-right">
               <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
-              <div style="font-size: 0.68rem; color: var(--success); font-weight: 700; text-transform: uppercase;">Today Live</div>
+              <div style="font-size: 0.68rem; color: var(--success); font-weight: 700; text-transform: uppercase;">Updated Live</div>
             </div>
           </div>
         `;
 
         const card = wrapper.querySelector('.checklist-item');
-
-        // Swipe Gestures Logic
         let startX = 0;
         let currentX = 0;
         let isSwiping = false;
 
-        const onTouchStart = (e) => {
-          startX = e.touches ? e.touches[0].clientX : e.clientX;
+        const handleStart = (x) => {
+          startX = x;
           isSwiping = true;
           card.style.transition = 'none';
         };
 
-        const onTouchMove = (e) => {
+        const handleMove = (x) => {
           if (!isSwiping) return;
-          currentX = e.touches ? e.touches[0].clientX : e.clientX;
-          const diffX = currentX - startX;
-
-          if (Math.abs(diffX) > 10) {
-            card.style.transform = `translateX(${diffX}px)`;
-          }
+          currentX = x - startX;
+          card.style.transform = `translateX(${currentX}px)`;
         };
 
-        const onTouchEnd = () => {
+        const handleEnd = () => {
           if (!isSwiping) return;
           isSwiping = false;
           card.style.transition = 'transform 0.2s ease-out';
-          const diffX = currentX - startX;
 
-          if (diffX > 100) {
-            // Swipe Right -> Delete Action
-            card.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-              deleteTodayUploadedItem(idx);
-            }, 150);
-          } else if (diffX < -100) {
-            // Swipe Left -> Edit Action
-            card.style.transform = 'translateX(-100%)';
-            setTimeout(() => {
-              editTodayUploadedItem(idx);
-            }, 150);
+          if (currentX > 80) { // Swiped Right (Edit)
+            card.style.transform = `translateX(0px)`;
+            closeTodayUploadedModal();
+            selectItem(idx);
+          } else if (currentX < -80) { // Swiped Left (Delete)
+            card.style.transform = `translateX(0px)`;
+            deleteItemData(idx);
           } else {
-            // Reset position
-            card.style.transform = 'translateX(0)';
+            card.style.transform = `translateX(0px)`;
+            if (Math.abs(currentX) < 10) { // Normal Click
+              openItemDetails(idx);
+            }
           }
-          startX = 0;
           currentX = 0;
         };
 
-        // Add touch and mouse event listeners for swipe
-        card.addEventListener('touchstart', onTouchStart, { passive: true });
-        card.addEventListener('touchmove', onTouchMove, { passive: true });
-        card.addEventListener('touchend', onTouchEnd);
+        // Touch events
+        card.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX));
+        card.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX));
+        card.addEventListener('touchend', handleEnd);
 
-        card.addEventListener('mousedown', onTouchStart);
-        window.addEventListener('mousemove', onTouchMove);
-        window.addEventListener('mouseup', onTouchEnd);
-
-        // Click event fallback (opens item details)
-        card.onclick = (e) => {
-          if (Math.abs(currentX - startX) < 5) {
-            openItemDetails(idx);
-          }
-        };
+        // Mouse events
+        card.addEventListener('mousedown', (e) => handleStart(e.clientX));
+        window.addEventListener('mousemove', (e) => { if(isSwiping) handleMove(e.clientX); });
+        window.addEventListener('mouseup', () => { if(isSwiping) handleEnd(); });
 
         fragment.appendChild(wrapper);
       }
@@ -588,7 +561,7 @@ function renderTodayUploadedList() {
   });
 
   if (count === 0) {
-    container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight:600;">අද දින දත්ත කිසිවක් ඇතුළත් කර නැත. (No updates today)</div>`;
+    container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight:600;">අද දින දත්ත කිසිවක් ඇතුළත් කර නැත. (No updates live)</div>`;
   } else {
     container.appendChild(fragment);
   }
@@ -774,7 +747,6 @@ function downloadCountingSheet() {
       const today = getTodayStr();
       const defaultName = `Counting_Sheet_${today}.xlsx`;
 
-      // Export file using XLSX.writeFile
       XLSX.writeFile(workbook, defaultName);
 
       hideLoading();
