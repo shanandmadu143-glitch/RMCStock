@@ -593,9 +593,6 @@ function closeItemDetailModal() {
   hideModal('itemDetailModal');
 }
 
-// -----------------------------------------------------------------
-// EXCEL WORKBOOK GENERATOR
-// -----------------------------------------------------------------
 function generateWorkbookWithFormulas() {
   const headers = [
     "Type", "Material Code", "Material Name", "UOM", 
@@ -624,20 +621,19 @@ function generateWorkbookWithFormulas() {
 
   const worksheet = XLSX.utils.aoa_to_sheet(sheetData); 
 
-  // Column Widths
   worksheet['!cols'] = [
-    { wch: 8 },  // Type
-    { wch: 15 }, // Code
-    { wch: 38 }, // Name
-    { wch: 8 },  // UOM
-    { wch: 20 }, // Op.Stock
-    { wch: 12 }, // Receipt
-    { wch: 12 }, // Issues
-    { wch: 12 }, // Return
-    { wch: 16 }, // SSL Rec
-    { wch: 16 }, // SSL Sent
-    { wch: 14 }, // Rejection
-    { wch: 18 }  // Closing
+    { wch: 8 },
+    { wch: 15 },
+    { wch: 38 },
+    { wch: 8 },
+    { wch: 20 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 16 },
+    { wch: 16 },
+    { wch: 14 },
+    { wch: 18 }
   ];
 
   const workbook = XLSX.utils.book_new(); 
@@ -645,9 +641,6 @@ function generateWorkbookWithFormulas() {
   return workbook;
 }
 
-// -----------------------------------------------------------------
-// FIXED DOWNLOAD COUNTING SHEET FUNCTION
-// -----------------------------------------------------------------
 function downloadCountingSheet() {
   if (typeof XLSX === 'undefined') {
     showToast('XLSX Library is not loaded! Check internet connection.', 'error');
@@ -671,12 +664,11 @@ function downloadCountingSheet() {
 
       const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
 
-      // Adjust Column Widths
       worksheet['!cols'] = [
-        { wch: 18 }, // Material Code
-        { wch: 40 }, // Material Name
-        { wch: 10 }, // RM/PM
-        { wch: 15 }  // Counting
+        { wch: 18 },
+        { wch: 40 },
+        { wch: 10 },
+        { wch: 15 }
       ];
 
       const workbook = XLSX.utils.book_new();
@@ -685,7 +677,6 @@ function downloadCountingSheet() {
       const today = getTodayStr();
       const defaultName = `Counting_Sheet_${today}.xlsx`;
       
-      // Write workbook and download
       XLSX.writeFile(workbook, defaultName);
 
       hideLoading();
