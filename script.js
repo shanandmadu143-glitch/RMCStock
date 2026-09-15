@@ -36,8 +36,7 @@ const i18n = {
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'ගොනුව Share කිරීමට සූදානම්!',
     shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි. Direct Download සක්‍රිය විය.',
-    msgItemCleared: 'දත්ත ඉවත් කර Closing Stock එක මුල් තත්වයට පත් කරන ලදී!',
-    batchSuccess: 'Batch දත්ත සාර්ථකව යාවත්කාලීන විය!'
+    msgItemCleared: 'දත්ත ඉවත් කර Closing Stock එක මුල් තත්වයට පත් කරන ලදී!'
   },
   en: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
@@ -76,8 +75,7 @@ const i18n = {
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'File ready to share!',
     shareNotSupported: 'Your browser does not support file sharing. Direct download initiated.',
-    msgItemCleared: 'Item data cleared and Closing Stock reset to original!',
-    batchSuccess: 'Batch update applied successfully!'
+    msgItemCleared: 'Item data cleared and Closing Stock reset to original!'
   },
   ta: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீடு மூலம் தேடுக:',
@@ -116,8 +114,7 @@ const i18n = {
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'பகிர கோப்பு தயாராக உள்ளது!',
     shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.',
-    msgItemCleared: 'தரவு அழிக்கப்பட்டு தொடக்க நிலைக்கு மாற்றப்பட்டது!',
-    batchSuccess: 'தொகுப்பு வெற்றிகரமாக புதுப்பிக்கப்பட்டது!'
+    msgItemCleared: 'தரவு அழிக்கப்பட்டு தொடக்க நிலைக்கு மாற்றப்பட்டது!'
   }
 };
 
@@ -380,7 +377,6 @@ function addSingleSectionData() {
   const rawVal = inputAmount.value.trim();
   const amount = parseFloat(rawVal) || 0; 
   
-  // Strict Validation: prevent negative, non-numeric, e, +, -
   if (rawVal === "" || isNaN(amount) || amount <= 0 || rawVal.includes('-') || rawVal.includes('+') || rawVal.toLowerCase().includes('e')) { 
     showToast(t.msgValidAmount, 'error'); 
     inputAmount.focus();
@@ -407,8 +403,6 @@ function addSingleSectionData() {
   saveInventoryData(); 
   inputAmount.value = ''; 
   showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
-  
-  // Quick Entry Keyboard Shortcut: reset search & focus back to search input
   clearSearchInput();
 } 
 
@@ -432,7 +426,6 @@ function hideModal(modalId) {
   }, 200);
 }
 
-/* Today Uploaded Modal Functions */
 function openTodayUploadedModal() {
   const todaySearchInput = document.getElementById('todayModalSearchInput');
   if (todaySearchInput) todaySearchInput.value = '';
@@ -496,100 +489,6 @@ function renderTodayUploadedList() {
   } else {
     container.appendChild(fragment);
   }
-}
-
-/* Batch Operations / Multi-select Functions */
-function openBatchModal() {
-  const batchInput = document.getElementById('batchInputAmount');
-  if (batchInput) batchInput.value = '';
-  renderBatchItemsList();
-  showModal('batchModal');
-}
-
-function closeBatchModal() {
-  hideModal('batchModal');
-}
-
-function renderBatchItemsList() {
-  const container = document.getElementById('batchItemsContainer');
-  if (!container) return;
-  container.innerHTML = '';
-  const fragment = document.createDocumentFragment();
-
-  inventory.forEach((item, idx) => {
-    const div = document.createElement('div');
-    div.style.display = 'flex';
-    div.style.alignItems = 'center';
-    div.style.justifyContent = 'space-between';
-    div.style.padding = '8px 10px';
-    div.style.background = 'var(--card-bg)';
-    div.style.borderRadius = '8px';
-    div.style.border = '1px solid var(--border-color)';
-    div.style.marginBottom = '6px';
-
-    div.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
-        <input type="checkbox" class="batch-item-checkbox" data-index="${idx}" style="width: 18px; height: 18px; cursor: pointer;">
-        <span style="font-size: 0.88rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">[${item.code}] ${item.name}</span>
-      </div>
-      <span style="font-size: 0.8rem; color: var(--text-muted); flex-shrink: 0;">${item.uom}</span>
-    `;
-    fragment.appendChild(div);
-  });
-  container.appendChild(fragment);
-}
-
-function toggleSelectAllBatch(select) {
-  const checkboxes = document.querySelectorAll('.batch-item-checkbox');
-  checkboxes.forEach(chk => chk.checked = select);
-}
-
-function applyBatchOperation() {
-  const t = i18n[currentLang] || i18n['si'];
-  const sectionSel = document.getElementById('batchSectionSelect');
-  const amountInput = document.getElementById('batchInputAmount');
-  if (!sectionSel || !amountInput) return;
-
-  const section = sectionSel.value;
-  const rawVal = amountInput.value.trim();
-  const amount = parseFloat(rawVal) || 0;
-
-  if (rawVal === "" || isNaN(amount) || amount <= 0 || rawVal.includes('-') || rawVal.includes('+') || rawVal.toLowerCase().includes('e')) {
-    showToast(t.msgValidAmount, 'error');
-    amountInput.focus();
-    return;
-  }
-
-  const checkboxes = document.querySelectorAll('.batch-item-checkbox:checked');
-  if (checkboxes.length === 0) {
-    showToast('කරුණාකර අයිතම අවම වශයෙන් එකක්වත් තෝරන්න!', 'warning');
-    return;
-  }
-
-  showLoading("Applying batch updates...");
-
-  setTimeout(() => {
-    checkboxes.forEach(chk => {
-      const idx = parseInt(chk.getAttribute('data-index'));
-      const item = inventory[idx];
-      if (item) {
-        if (section === 'F') item.f_receipt = roundNum(item.f_receipt + amount);
-        else if (section === 'G') item.g_issues = roundNum(item.g_issues + amount);
-        else if (section === 'H') item.h_return = roundNum(item.h_return + amount);
-        else if (section === 'I') item.i_ssl_received = roundNum(item.i_ssl_received + amount);
-        else if (section === 'J') item.j_ssl_sent = roundNum(item.j_ssl_sent + amount);
-        else if (section === 'L') item.l_rejection = roundNum(item.l_rejection + amount);
-
-        item.closing = calculateClosingStock(item);
-        item.last_updated = getTodayStr();
-      }
-    });
-
-    saveInventoryData();
-    hideLoading();
-    closeBatchModal();
-    showToast(t.batchSuccess, 'success');
-  }, 300);
 }
 
 function openSettings() { 
@@ -916,7 +815,6 @@ function restoreFromXLSX() {
         } 
       } 
 
-      // Error Handling for incorrect columns/format
       if (headerIndex === -1 || colMap.code === -1 || colMap.name === -1) {
         hideLoading();
         showToast('Error: Invalid Excel format or missing mandatory columns (Material Code / Name)!', 'error');
@@ -1021,7 +919,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const clearSearchBtn = document.getElementById('clearSearchBtn');
   const inputAmount = document.getElementById('inputAmount');
 
-  // Keyboard Navigation: Enter key handling for Quick Entry
   if (searchInput) {
     searchInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
@@ -1081,7 +978,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }); 
   }
 
-  // Prevent minus, plus, e in number input fields
   if (inputAmount) {
     inputAmount.addEventListener('keydown', function(e) {
       if (['-', '+', 'e', 'E'].includes(e.key)) {
@@ -1090,15 +986,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter') {
         e.preventDefault();
         addSingleSectionData();
-      }
-    });
-  }
-
-  const batchAmountInput = document.getElementById('batchInputAmount');
-  if (batchAmountInput) {
-    batchAmountInput.addEventListener('keydown', function(e) {
-      if (['-', '+', 'e', 'E'].includes(e.key)) {
-        e.preventDefault();
       }
     });
   }
