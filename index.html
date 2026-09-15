@@ -14,7 +14,7 @@
 </head>
 <body>
 <div class="container">
-  <!-- Header Block: Left Settings Icon | Center Title | Right Today Uploaded Icon -->
+  <!-- Header Block: Left Settings Icon | Center Title | Right Updated Live Icon -->
   <div class="header-block">
     <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
       <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
@@ -111,7 +111,7 @@
   </div>
 </div>
 
-<!-- Today Uploaded Live Modal -->
+<!-- Updated Live Modal -->
 <div id="todayUploadedModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -119,7 +119,7 @@
       <button class="close-btn ripple" onclick="closeTodayUploadedModal()" type="button">&times;</button>
     </div>
     <div style="margin-bottom: 14px; flex-shrink: 0;">
-      <input type="text" id="todayModalSearchInput" placeholder="Filter today items by name or code..." autocomplete="off" style="width: 100%;">
+      <input type="text" id="todayModalSearchInput" placeholder="Filter updated items by name or code..." autocomplete="off" style="width: 100%;">
     </div>
     <div class="checklist-container" id="todayCardsContainer"></div>
   </div>
