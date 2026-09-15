@@ -466,7 +466,7 @@ input:focus, select:focus {
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 650px;
-  max-height: 90vh;
+  max-height: 85vh; /* දෝෂය නිවැරදි කරමින් Screen එකෙන් පිටතට නොයන ලෙස සීමා කරන ලදී */
   box-shadow: var(--shadow-modal);
   display: flex;
   flex-direction: column;
@@ -474,12 +474,23 @@ input:focus, select:focus {
   overflow: hidden;
 }
 
+/* Scrollable Body inside Modals (විශේෂයෙන් Settings සඳහා scroll කර බැලීමට හැඩගස්වන ලදී) */
+.modal-body-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
@@ -624,9 +635,8 @@ input:focus, select:focus {
 }
 
 .setting-option {
-  margin-bottom: 18px;
   background: var(--bg-main);
-  padding: 20px;
+  padding: 16px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
 }
@@ -634,7 +644,7 @@ input:focus, select:focus {
 .setting-option p {
   font-size: 0.88rem;
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   line-height: 1.5;
 }
 
@@ -691,4 +701,3 @@ input:focus, select:focus {
   .modal { padding: 0; }
   .modal-content { height: 100vh; max-height: 100vh; border-radius: 0; }
 }
-
