@@ -26,9 +26,7 @@
       <button class="btn-icon-header ripple" onclick="openTodayUploadedModal()" title="Today Uploaded Live Details" type="button">
         <i class="fa-solid fa-cloud-arrow-up" style="color: #34d399;"></i>
       </button>
-      <button class="btn-icon-header ripple" onclick="openBatchModal()" title="Batch Operations / Multi-select" type="button">
-        <i class="fa-solid fa-layer-group" style="color: #fbbf24;"></i>
-      </button>
+      <!-- Batch Operations icon එක මෙහිදී ඉවත් කරන ලදී -->
       <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
         <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
       </button>
@@ -78,8 +76,9 @@
     </div>
 
     <div class="btn-row" style="margin-top: 22px;">
+      <!-- බටන් නම 'Save' ලෙස වෙනස් කරන ලදී -->
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
-        <i class="fa-solid fa-floppy-disk"></i> Save & Next (Enter)
+        <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
       <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
         <i class="fa-solid fa-file-excel"></i>
