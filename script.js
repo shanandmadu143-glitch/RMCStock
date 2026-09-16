@@ -125,7 +125,7 @@ let currentLang = localStorage.getItem('rmc_app_lang') || 'si';
 let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
 let inventory = []; 
 let selectedIndex = -1;
-let editingCountingIndex = -1;
+let editingItemIndex = -1;
 let searchDebounceTimeout = null;
 let todayModalSearchTimeout = null;
 let currentExportMode = 'excel'; 
@@ -445,7 +445,6 @@ function closeTodayUploadedModal() {
   hideModal('todayUploadedModal');
 }
 
-/* Render Updated Live List with Counting Filter Switch & Swipe Gestures */
 function renderTodayUploadedList() {
   const container = document.getElementById('todayCardsContainer');
   if (!container) return;
@@ -453,187 +452,178 @@ function renderTodayUploadedList() {
 
   const todayStr = getTodayStr();
   const searchInputVal = document.getElementById('todayModalSearchInput');
-  const chkCountingOnly = document.getElementById('chkCountingOnly');
-  const isCountingOnly = chkCountingOnly ? chkCountingOnly.checked : false;
-
+  const toggleCounting = document.getElementById('countingOnlyToggle');
+  
   const q = searchInputVal ? searchInputVal.value.toLowerCase().trim() : '';
-  const fragment = document.createDocumentFragment();
+  const isCountingOnly = toggleCounting ? toggleCounting.checked : false;
 
+  const fragment = document.createDocumentFragment();
   let count = 0;
 
   inventory.forEach((item, idx) => {
     item.closing = calculateClosingStock(item);
-
-    let matchesFilter = false;
+    
+    let isMatchFilter = false;
     if (isCountingOnly) {
-      matchesFilter = (item.counting > 0);
+      isMatchFilter = (item.counting > 0);
     } else {
-      matchesFilter = (item.last_updated === todayStr) || 
+      isMatchFilter = (item.last_updated === todayStr) || 
                       (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0 || item.counting > 0);
     }
 
-    if (matchesFilter) {
+    if (isMatchFilter) {
       const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(q);
       if (matchesSearch) {
         count++;
-
+        
         const wrapperDiv = document.createElement('div');
-        wrapperDiv.className = 'swipe-wrapper';
+        wrapperDiv.className = 'swipe-item-wrapper';
 
-        const isCountingItem = item.counting > 0;
-
-        // Add background swipe indicators for Counting items
-        if (isCountingItem) {
-          wrapperDiv.innerHTML = `
-            <div class="swipe-background">
-              <div class="swipe-action-left"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
-              <div class="swipe-action-right"><i class="fa-solid fa-trash-can"></i> Delete</div>
-            </div>
-          `;
-        }
-
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'checklist-item';
-
-        const stockLabel = isCountingOnly 
-          ? `<div class="checklist-stock" style="color:var(--primary);">${Number(item.counting).toLocaleString()} ${item.uom}</div><div style="font-size: 0.68rem; color: var(--primary); font-weight: 700;">Counting Amount</div>`
-          : `<div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div><div style="font-size: 0.68rem; color: var(--success); font-weight: 700; text-transform: uppercase;">Today Live</div>`;
-
-        itemDiv.innerHTML = ` 
-          <div class="checklist-left">
-            <div class="checklist-info">
-              <div class="checklist-name" title="${item.name}">${item.name}</div>
-              <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code} ${item.counting > 0 ? `| <span style="color:var(--primary); font-weight:700;">Count: ${item.counting}</span>` : ''}</div>
-            </div>
+        wrapperDiv.innerHTML = `
+          <div class="swipe-action-bg">
+            <div class="swipe-action-left"><i class="fa-solid fa-pen"></i> Edit</div>
+            <div class="swipe-action-right">Delete <i class="fa-solid fa-trash"></i></div>
           </div>
-          <div class="checklist-right">
-            ${stockLabel}
+          <div class="checklist-item" id="swipe-item-${idx}">
+            <div class="checklist-left">
+              <div class="checklist-info">
+                <div class="checklist-name" title="${item.name}">${item.name}</div>
+                <div class="checklist-code"><i class="fa-solid fa-barcode"></i> Code: ${item.code}</div>
+              </div>
+            </div>
+            <div class="checklist-right">
+              ${isCountingOnly || item.counting > 0 ? 
+                `<div class="checklist-stock" style="color: #8b5cf6;">Count: ${Number(item.counting).toLocaleString()} ${item.uom}</div>
+                 <div class="counting-pill-badge"><i class="fa-solid fa-calculator"></i> Counting</div>` :
+                `<div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
+                 <div style="font-size: 0.68rem; color: var(--success); font-weight: 700; text-transform: uppercase;">Today Live</div>`
+              }
+            </div>
           </div>
         `;
 
-        if (isCountingItem) {
-          setupSwipeGesture(itemDiv, idx);
-        } else {
-          itemDiv.onclick = () => openItemDetails(idx);
-        }
+        const cardEl = wrapperDiv.querySelector('.checklist-item');
+        attachSwipeListeners(cardEl, idx, isCountingOnly || item.counting > 0);
 
-        wrapperDiv.appendChild(itemDiv);
         fragment.appendChild(wrapperDiv);
       }
     }
   });
 
   if (count === 0) {
-    container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight:600;">දත්ත කිසිවක් හමු නොවීය. (No items found)</div>`;
+    container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight:600;">${isCountingOnly ? 'Counting දත්ත කිසිවක් හමු නොවුණි.' : 'අද දින දත්ත කිසිවක් ඇතුළත් කර නැත.'}</div>`;
   } else {
     container.appendChild(fragment);
   }
 }
 
-/* Touch & Mouse Swipe Handlers for Counting Items */
-function setupSwipeGesture(itemEl, idx) {
+function attachSwipeListeners(element, index, isCounting) {
   let startX = 0;
   let currentX = 0;
-  let isDragging = false;
+  let isSwiping = false;
 
-  const onStart = (e) => {
-    isDragging = true;
-    startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    itemEl.style.transition = 'none';
-  };
+  element.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    isSwiping = true;
+    element.style.transition = 'none';
+  }, { passive: true });
 
-  const onMove = (e) => {
-    if (!isDragging) return;
-    const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    const diffX = x - startX;
-
-    if (Math.abs(diffX) < 120) {
-      currentX = diffX;
-      itemEl.style.transform = `translateX(${currentX}px)`;
+  element.addEventListener('touchmove', (e) => {
+    if (!isSwiping) return;
+    currentX = e.touches[0].clientX - startX;
+    
+    if (Math.abs(currentX) < 120) {
+      element.style.transform = `translateX(${currentX}px)`;
     }
-  };
+  }, { passive: true });
 
-  const onEnd = () => {
-    if (!isDragging) return;
-    isDragging = false;
-    itemEl.style.transition = 'transform 0.2s ease-out';
+  element.addEventListener('touchend', () => {
+    if (!isSwiping) return;
+    isSwiping = false;
+    element.style.transition = 'transform 0.2s ease-out';
 
-    if (currentX > 60) {
-      // Swiped Right -> Delete Counting
-      deleteCountingItem(idx);
-      itemEl.style.transform = 'translateX(0px)';
-    } else if (currentX < -60) {
-      // Swiped Left -> Edit Counting
-      openEditCountingModal(idx);
-      itemEl.style.transform = 'translateX(0px)';
+    if (currentX < -70) {
+      // Swipe Left -> Edit
+      element.style.transform = 'translateX(0px)';
+      if (isCounting) {
+        openEditCountingModal(index);
+      } else {
+        openItemDetails(index);
+      }
+    } else if (currentX > 70) {
+      // Swipe Right -> Delete
+      element.style.transform = 'translateX(0px)';
+      if (isCounting) {
+        deleteCountingRecord(index);
+      } else {
+        showToast('Counting නොවන දත්ත වෙනස් කිරීමට Material Details භාවිතා කරන්න.', 'warning');
+      }
     } else {
-      itemEl.style.transform = 'translateX(0px)';
-      openItemDetails(idx);
+      element.style.transform = 'translateX(0px)';
     }
     currentX = 0;
+  });
+
+  element.onclick = () => {
+    openItemDetails(index);
   };
-
-  itemEl.addEventListener('touchstart', onStart, { passive: true });
-  itemEl.addEventListener('touchmove', onMove, { passive: true });
-  itemEl.addEventListener('touchend', onEnd);
-
-  itemEl.addEventListener('mousedown', onStart);
-  window.addEventListener('mousemove', onMove);
-  window.addEventListener('mouseup', onEnd);
 }
 
-function openEditCountingModal(idx) {
-  editingCountingIndex = idx;
-  const item = inventory[idx];
+function openEditCountingModal(index) {
+  editingItemIndex = index;
+  const item = inventory[index];
   if (!item) return;
 
-  const editItemTitle = document.getElementById('editItemTitle');
-  const editAmountInput = document.getElementById('editCountingAmountInput');
+  const codeEl = document.getElementById('editItemCode');
+  const nameEl = document.getElementById('editItemName');
+  const inputEl = document.getElementById('editCountingInput');
 
-  if (editItemTitle) editItemTitle.innerText = `[${item.code}] ${item.name}`;
-  if (editAmountInput) editAmountInput.value = item.counting || '';
+  if (codeEl) codeEl.innerText = `Code: ${item.code}`;
+  if (nameEl) nameEl.innerText = item.name;
+  if (inputEl) inputEl.value = item.counting || '';
 
   showModal('editCountingModal');
-  if (editAmountInput) editAmountInput.focus();
+  if (inputEl) setTimeout(() => inputEl.focus(), 150);
 }
 
 function closeEditCountingModal() {
   hideModal('editCountingModal');
-  editingCountingIndex = -1;
+  editingItemIndex = -1;
 }
 
 function saveEditedCounting() {
-  if (editingCountingIndex === -1 || !inventory[editingCountingIndex]) return;
+  if (editingItemIndex === -1 || !inventory[editingItemIndex]) return;
 
-  const input = document.getElementById('editCountingAmountInput');
-  if (!input) return;
+  const inputEl = document.getElementById('editCountingInput');
+  const rawVal = inputEl ? inputEl.value.trim() : '';
+  const newAmount = parseFloat(rawVal);
 
-  const val = parseFloat(input.value.trim());
-  if (isNaN(val) || val < 0) {
+  if (rawVal === '' || isNaN(newAmount) || newAmount < 0) {
     showToast('කරුණාකර වලංගු අගයක් ඇතුළත් කරන්න!', 'error');
     return;
   }
 
-  const item = inventory[editingCountingIndex];
-  item.counting = roundNum(val);
+  const item = inventory[editingItemIndex];
+  item.counting = roundNum(newAmount);
   item.closing = calculateClosingStock(item);
-  saveInventoryData();
+  item.last_updated = getTodayStr();
 
+  saveInventoryData();
   closeEditCountingModal();
   renderTodayUploadedList();
   showToast(`${item.name} Counting අගය යාවත්කාලීන විය!`, 'success');
 }
 
-function deleteCountingItem(idx) {
-  const item = inventory[idx];
+function deleteCountingRecord(index) {
+  const item = inventory[index];
   if (!item) return;
 
-  if (confirm(`ඔබට ${item.name} හි Counting අගය (${item.counting}) ඉවත් කිරීමට අවශ්‍යද?`)) {
+  if (confirm(`${item.name} හි Counting අගය (${item.counting}) ඉවත් කිරීමට අවශ්‍යද?`)) {
     item.counting = 0;
     item.closing = calculateClosingStock(item);
     saveInventoryData();
     renderTodayUploadedList();
-    showToast(`${item.name} හි Counting අගය ඉවත් කරන ලදී!`, 'warning');
+    showToast(`${item.name} Counting අගය ඉවත් කරන ලදී!`, 'success');
   }
 }
 
@@ -815,7 +805,7 @@ function downloadCountingSheet() {
 
       const today = getTodayStr();
       const defaultName = `Counting_Sheet_${today}.xlsx`;
-
+      
       XLSX.writeFile(workbook, defaultName);
 
       hideLoading();
