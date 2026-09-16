@@ -7,10 +7,10 @@
   
   <!-- XLSX Library -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <!-- jsPDF & AutoTable for PDF Generation -->
+  <!-- jsPDF & AutoTable Libraries for PDF export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   
@@ -25,7 +25,6 @@
     </button>
 
     <div class="brand-title">
-      <!-- Icon Logo Removed -->
       <div class="brand-name-wrapper">
         <span class="main-brand-text">Stock</span>
         <span class="sub-badge-counting">Counting</span>
@@ -104,14 +103,13 @@
 
     <!-- Icons centered below Save Button -->
     <div class="icon-row-container" style="margin-top: 14px;">
-      <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button" style="display:none;">
+      <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
         <i class="fa-solid fa-file-excel"></i>
       </button>
-      <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button" style="display:none;">
+      <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button">
         <i class="fa-solid fa-share-nodes"></i>
       </button>
-      <!-- Updated Counting Download Action -->
-      <button class="btn-icon-counting ripple" onclick="openCountingExportModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button">
+      <button class="btn-icon-counting ripple" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button">
         <i class="fa-solid fa-file-arrow-down"></i>
       </button>
     </div>
@@ -132,9 +130,46 @@
   </div>
 </div>
 
+<!-- Download / Share Counting Sheet Modal -->
+<div id="countingDownloadModal" class="modal">
+  <div class="modal-content modal-small">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-file-arrow-down" style="color:var(--primary);"></i> Download Counting Sheet</h3>
+      <button class="close-btn ripple" onclick="closeCountingDownloadModal()" type="button">&times;</button>
+    </div>
+    <div class="modal-body-scroll">
+      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">ඔබට අවශ්‍ය Format සහ ගොනුවේ නම සකසා Download හෝ Share කරන්න:</p>
+      
+      <div class="form-group">
+        <label><i class="fa-solid fa-file-code"></i> Format:</label>
+        <select id="countingFormatSelect" onchange="updateCountingFileName()">
+          <option value="xlsx">Excel Workbook (.xlsx)</option>
+          <option value="pdf">PDF Document (.pdf)</option>
+          <option value="doc">Word Document (.doc)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top: 14px;">
+        <label><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
+        <div class="input-glow-wrapper">
+          <input type="text" id="countingFileNameInput" placeholder="Counting_Sheet_YYYY-MM-DD">
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top: 24px; gap: 10px;">
+        <button type="button" class="btn btn-primary ripple" onclick="processCountingDownload()">
+          <i class="fa-solid fa-download"></i> Download
+        </button>
+        <button type="button" class="btn ripple" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; flex: 1;" onclick="processCountingShare()">
+          <i class="fa-solid fa-share-nodes"></i> Share
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Updated Live Modal -->
 <div id="todayUploadedModal" class="modal">
-  <!-- Content removed for brevity in this block, keeping standard layout -->
   <div class="modal-content">
     <div class="modal-header">
       <h3 id="txtUpdatedLiveTitle"><i class="fa-solid fa-cloud-arrow-up" style="color:var(--success);"></i> Updated Live</h3>
@@ -190,7 +225,7 @@
   </div>
 </div>
 
-<!-- Export Format & Options Selector Modal (For General Stocks) -->
+<!-- Export Format & Options Selector Modal -->
 <div id="exportModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
@@ -233,37 +268,6 @@
   </div>
 </div>
 
-<!-- NEW Modal for Counting Sheet specific Export (PDF, DOC, XLSX) -->
-<div id="countingExportModal" class="modal">
-  <div class="modal-content modal-small">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-file-arrow-down" style="color:var(--primary);"></i> Export Counting Sheet</h3>
-      <button class="close-btn ripple" onclick="closeCountingExportModal()" type="button">&times;</button>
-    </div>
-    <div class="modal-body-scroll">
-      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">ගොනුව Download හෝ Share කිරීමට අදාළ Format එක තෝරන්න:</p>
-      
-      <div class="form-group">
-        <label><i class="fa-solid fa-file-code"></i> Select Format:</label>
-        <select id="countingExportFormatSelect">
-          <option value="xlsx">Excel Document (.xlsx)</option>
-          <option value="pdf">PDF Document (.pdf)</option>
-          <option value="doc">Word Document (.doc)</option>
-        </select>
-      </div>
-
-      <div class="btn-row" style="margin-top: 24px;">
-        <button type="button" class="btn btn-primary ripple" onclick="processCountingSheet('download')">
-          <i class="fa-solid fa-download"></i> Download
-        </button>
-        <button type="button" class="btn ripple" style="background:var(--success); color:white; border:none; flex:1;" onclick="processCountingSheet('share')">
-          <i class="fa-solid fa-share-nodes"></i> Share
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Material Detail Modal -->
 <div id="itemDetailModal" class="modal">
   <div class="modal-content">
@@ -272,7 +276,6 @@
       <button class="close-btn ripple" onclick="closeItemDetailModal()" type="button">&times;</button>
     </div>
     <div class="detail-card-grid" style="overflow-y: auto;">
-      <!-- Detail Cards (Left Unchanged) -->
       <div class="detail-item-box">
         <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div>
         <div class="detail-value" id="detCode">-</div>
@@ -329,7 +332,7 @@
   </div>
 </div>
 
-<!-- Settings & Restore Modal Left Unchanged -->
+<!-- Settings Modal -->
 <div id="settingsModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -389,13 +392,14 @@
   </div>
 </div>
 
+<!-- Restore Help Modal -->
 <div id="restoreHelpModal" class="modal">
-  <!-- Content Left Unchanged -->
   <div class="modal-content modal-small">
     <div class="modal-header">
       <h3 id="helpModalTitle"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore & Web App Help</h3>
       <button class="close-btn ripple" onclick="closeRestoreHelpModal()" type="button">&times;</button>
     </div>
+
     <div class="modal-body-scroll">
       <div class="form-group" style="margin-bottom: 16px;">
         <label id="helpSelectLabel"><i class="fa-solid fa-list"></i> මාතෘකාව තෝරන්න:</label>
@@ -405,6 +409,7 @@
           <option value="appFeatures">3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</option>
         </select>
       </div>
+
       <div id="helpContentBox" style="background: var(--bg-main); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-size: 0.92rem; line-height: 1.6; color: var(--text-dark);">
       </div>
     </div>
