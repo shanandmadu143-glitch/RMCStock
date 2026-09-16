@@ -171,7 +171,6 @@ function updateCountingModeBadge() {
     badge.className = 'counting-mode-badge badge-normal';
     if (packCalcContainer) packCalcContainer.style.display = 'flex';
     
-    // Counting section එකේදී Excel & Share icons සැඟවීම
     if (btnExcel) btnExcel.style.display = 'none';
     if (btnShare) btnShare.style.display = 'none';
     if (btnCountingDownload) btnCountingDownload.style.display = 'flex';
@@ -180,7 +179,6 @@ function updateCountingModeBadge() {
     badge.className = 'counting-mode-badge badge-daily';
     if (packCalcContainer) packCalcContainer.style.display = 'none';
 
-    // අනිත් ඒවායේදී Counting Download icon සැඟවීම
     if (btnExcel) btnExcel.style.display = 'flex';
     if (btnShare) btnShare.style.display = 'flex';
     if (btnCountingDownload) btnCountingDownload.style.display = 'none';
@@ -691,20 +689,40 @@ function openExportModal(mode) {
 }
 function closeExportModal() { hideModal('exportModal'); }
 
-// ================= NEW: Counting Export Specific Functions =================
-function openCountingExportModal() {
-  showModal('countingExportModal');
+
+// ================= NEW/UPDATED: Counting Download Specific Functions =================
+function openCountingDownloadModal() {
+  updateCountingFileName();
+  showModal('countingDownloadModal');
 }
 
-function closeCountingExportModal() {
-  hideModal('countingExportModal');
+function closeCountingDownloadModal() {
+  hideModal('countingDownloadModal');
+}
+
+function updateCountingFileName() {
+  const format = document.getElementById('countingFormatSelect').value;
+  const input = document.getElementById('countingFileNameInput');
+  if (input) input.value = `Counting_Sheet_${getTodayStr()}.${format}`;
+}
+
+function processCountingDownload() {
+  processCountingSheet('download');
+}
+
+function processCountingShare() {
+  processCountingSheet('share');
 }
 
 async function processCountingSheet(action) {
-  const format = document.getElementById('countingExportFormatSelect').value;
+  const format = document.getElementById('countingFormatSelect').value;
   const today = getTodayStr();
-  const filename = `Counting_Sheet_${today}.${format}`;
   
+  let fileNameInput = document.getElementById('countingFileNameInput').value.trim();
+  if (!fileNameInput) fileNameInput = `Counting_Sheet_${today}.${format}`;
+  if (!fileNameInput.endsWith(`.${format}`)) fileNameInput += `.${format}`;
+  
+  const filename = fileNameInput;
   let fileBlob = null;
   let mimeType = '';
 
@@ -760,7 +778,7 @@ async function processCountingSheet(action) {
         fileBlob = new Blob(['\ufeff', header + html + footer], { type: mimeType });
       }
 
-      closeCountingExportModal();
+      closeCountingDownloadModal();
 
       if (action === 'download') {
         triggerDirectDownload(fileBlob, filename);
@@ -819,7 +837,7 @@ function switchHelpTopic(topic) {
     box.innerHTML = `
       <h4 style="color: var(--success); margin-bottom: 8px;"><i class="fa-solid fa-upload"></i> Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</h4>
       <p>1. Settings වෙත ගොස් <b>'Restore Excel (.xlsx) File'</b> යටතේ ඇති <b>'Choose File'</b> බොත්තම ඔබන්න.</p>
-      <p>2. කොළ පාටින් ඇති <b>'Restore Excel Data'</b> බොත්තම ක්ලික් කරන්න.</p>
+      <p>2. කොළ පාටින් ඇති <b>'Restore Excel Data'</b> බොත්තම ක්ලික්মেন කරන්න.</p>
     `;
   } else if (topic === 'appFeatures') {
     box.innerHTML = `
@@ -1117,7 +1135,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateVisibilityState(false);
   updateClearBtnVisibility();
   
-  // මෙය මගින් initially UI එක නිවැරදිව (hide/show) set වෙයි.
   updateCountingModeBadge(); 
 
   const searchInput = document.getElementById('searchInput');
