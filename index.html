@@ -7,6 +7,10 @@
   
   <!-- XLSX Library -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- jsPDF & AutoTable for PDF Download/Share -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   
@@ -21,7 +25,6 @@
     </button>
 
     <div class="brand-title">
-      <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
       <div class="brand-name-wrapper">
         <span class="main-brand-text">Stock</span>
         <span class="sub-badge-counting">Counting</span>
@@ -81,11 +84,11 @@
       </div>
     </div>
 
-    <!-- Optional Pack Details (Visible only when Counting section is selected) -->
+    <!-- Pack Details (Visible only when Counting section is selected) -->
     <div id="packCalcContainer" class="pack-calc-container" style="display: flex;">
       <div class="form-grid" style="width: 100%; margin-bottom: 0;">
         <div class="form-group" style="margin-bottom:0;">
-          <label><i class="fa-solid fa-box-open"></i> Pack Size (කොටසක ප්‍රමාණය):</label>
+          <label><i class="fa-solid fa-box-open"></i> Pack Size:</label>
           <div class="input-glow-wrapper">
             <input type="number" id="inputPackSize" min="0" step="any" placeholder="e.g. 25" inputmode="decimal" oninput="calculatePackTotal()">
           </div>
@@ -106,7 +109,7 @@
       </button>
     </div>
 
-    <!-- Icons centered below Save Button -->
+    <!-- Dynamic Icon Row Container -->
     <div class="icon-row-container" style="margin-top: 14px;">
       <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
         <i class="fa-solid fa-file-excel"></i>
@@ -114,7 +117,7 @@
       <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button">
         <i class="fa-solid fa-share-nodes"></i>
       </button>
-      <button class="btn-icon-counting ripple" onclick="downloadCountingSheet()" title="Download Counting Sheet" id="btnCountingDownload" type="button">
+      <button class="btn-icon-counting ripple" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button">
         <i class="fa-solid fa-file-arrow-down"></i>
       </button>
     </div>
@@ -143,7 +146,6 @@
       <button class="close-btn ripple" onclick="closeTodayUploadedModal()" type="button">&times;</button>
     </div>
 
-    <!-- Switch and Search Box Row -->
     <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;">
       <div class="switch-container">
         <label class="switch-label" for="toggleCountingOnly">
@@ -199,7 +201,47 @@
   </div>
 </div>
 
-<!-- Export Format & Options Selector Modal -->
+<!-- Counting Sheet Download & Share Modal (POPUP) -->
+<div id="countingDownloadModal" class="modal">
+  <div class="modal-content modal-small">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-file-arrow-down" style="color:var(--primary);"></i> Counting Sheet Options</h3>
+      <button class="close-btn ripple" onclick="closeCountingDownloadModal()" type="button">&times;</button>
+    </div>
+    <div class="modal-body-scroll">
+      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">Counting Sheet එක සඳහා Format එක සහ Action එක තෝරන්න:</p>
+      
+      <div class="form-group">
+        <label><i class="fa-solid fa-file-code"></i> Format තෝරන්න:</label>
+        <select id="countingFormatSelect" onchange="updateCountingFileName()">
+          <option value="xlsx">Excel Workbook (.xlsx)</option>
+          <option value="pdf">PDF Document (.pdf)</option>
+          <option value="doc">Word Document (.doc)</option>
+          <option value="csv">CSV File (.csv)</option>
+          <option value="txt">Text File (.txt)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top: 14px;">
+        <label><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
+        <div class="input-glow-wrapper">
+          <input type="text" id="countingFileNameInput" placeholder="Counting_Sheet_YYYY-MM-DD">
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top: 20px; display:flex; gap:10px;">
+        <button type="button" class="btn btn-primary ripple" style="flex:1;" onclick="processCountingDownload('download')">
+          <i class="fa-solid fa-download"></i> Download
+        </button>
+        <button type="button" class="btn ripple" style="flex:1; background: #3b82f6; color:white;" onclick="processCountingDownload('share')">
+          <i class="fa-solid fa-share-nodes"></i> Share
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Export Format & Options Selector Modal (For General Export) -->
 <div id="exportModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
