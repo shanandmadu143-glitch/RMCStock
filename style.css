@@ -130,19 +130,6 @@ body {
   border: 1px solid rgba(147, 197, 253, 0.4);
 }
 
-.brand-icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(37, 99, 235, 0.25);
-  border: 1px solid rgba(96, 165, 250, 0.4);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #60a5fa;
-  font-size: 1.35rem;
-}
-
 .btn-icon-header {
   width: 46px;
   height: 46px;
@@ -172,7 +159,6 @@ body {
   position: relative;
 }
 
-/* Counting Mode Indicator Badge Styling */
 .mode-badge-wrapper {
   display: flex;
   justify-content: center;
@@ -582,7 +568,6 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
-/* Toggle Switch Styles */
 .switch-container {
   display: flex;
   justify-content: space-between;
@@ -645,7 +630,6 @@ input:checked + .slider:before {
   transform: translateX(22px);
 }
 
-/* Checklist and Swipeable Card Styling */
 .checklist-container {
   display: flex;
   flex-direction: column;
@@ -860,4 +844,3 @@ input:checked + .slider:before {
   .modal { padding: 0; }
   .modal-content { height: 100vh; max-height: 100vh; border-radius: 0; }
 }
-
