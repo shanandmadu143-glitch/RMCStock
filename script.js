@@ -168,7 +168,7 @@ function updateCountingModeBadge() {
     badge.className = 'counting-mode-badge badge-normal';
     if (packCalcContainer) packCalcContainer.style.display = 'flex';
   } else {
-    badge.innerText = 'Daily Counting';
+    badge.innerText = 'Daily Stocks';
     badge.className = 'counting-mode-badge badge-daily';
     if (packCalcContainer) packCalcContainer.style.display = 'none';
   }
