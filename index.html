@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
+<div class="container animate-fade-in">
   <!-- Header Block -->
   <div class="header-block">
     <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
@@ -40,19 +40,16 @@
     
     <!-- Top Dynamic Counting Mode Indicator Badge & Action Icons -->
     <div class="mode-badge-wrapper">
-      <!-- Excel Icon (Left for Daily Stocks) -->
       <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button" style="display:none;">
         <i class="fa-solid fa-file-excel"></i>
       </button>
 
       <span id="countingModeBadge" class="counting-mode-badge badge-normal">Normal Counting</span>
 
-      <!-- Share Icon (Right for Daily Stocks) -->
       <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button" style="display:none;">
         <i class="fa-solid fa-share-nodes"></i>
       </button>
 
-      <!-- Counting Download Icon (Right for Normal Counting) -->
       <button class="btn-icon-counting ripple" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button" style="display:flex;">
         <i class="fa-solid fa-file-arrow-down"></i>
       </button>
@@ -69,7 +66,7 @@
       <div id="searchResults" class="search-results" style="display:none;"></div>
     </div>
 
-    <div id="selectedBadge" class="selected-badge">
+    <div id="selectedBadge" class="selected-badge animate-slide-down">
       <div style="font-weight:700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-circle-check" style="color: var(--primary); font-size: 1.1rem;"></i>
         <span><span id="dispCode"></span> - <span id="dispName"></span></span>
@@ -103,15 +100,14 @@
     <!-- Packs Count Field (Smaller & Centered) -->
     <div id="packCalcContainer" class="pack-calc-container" style="display: flex;">
       <div class="form-group" style="margin-bottom:0; width: 100%;">
-        <label style="justify-content: center;"><i class="fa-solid fa-cubes"></i> Packs Count (කොටස්):</label>
+        <label style="justify-content: center; font-size: 0.75rem;"><i class="fa-solid fa-cubes"></i> Packs Count (කොටස්):</label>
         <div class="input-glow-wrapper">
-          <input type="number" id="inputPacksCount" min="0" step="any" placeholder="0" inputmode="decimal" style="text-align: center;">
+          <input type="number" id="inputPacksCount" class="input-small" min="0" step="any" placeholder="0" inputmode="decimal">
         </div>
       </div>
     </div>
 
-    <!-- Save Button top centered -->
-    <div class="save-btn-container" style="margin-top: 22px;">
+    <div class="save-btn-container" style="margin-top: 24px;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
@@ -229,7 +225,7 @@
   </div>
 </div>
 
-<!-- Export Format & Options Selector Modal -->
+<!-- Export Format & Options Modal -->
 <div id="exportModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
@@ -258,7 +254,7 @@
       <div class="form-group" style="margin-top: 15px;">
         <label><i class="fa-solid fa-toggle-on"></i> Options:</label>
         <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
-          <input type="checkbox" id="chkShiftStock" checked style="width:18px; height:18px; cursor:pointer;">
+          <input type="checkbox" id="chkShiftStock" class="custom-checkbox" checked>
           <label for="chkShiftStock" style="text-transform:none; margin:0; cursor:pointer; font-size:0.88rem;">Shift Stock to Opening (Reset Daily Data)</label>
         </div>
       </div>
@@ -400,7 +396,7 @@
 <div id="restoreHelpModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
-      <h3 id="helpModalTitle"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore & Web App Help</h3>
+      <h3 id="helpModalTitle"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore Help</h3>
       <button class="close-btn ripple" onclick="closeRestoreHelpModal()" type="button">&times;</button>
     </div>
 
