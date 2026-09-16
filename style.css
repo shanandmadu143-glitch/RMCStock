@@ -303,6 +303,7 @@ input:focus, select:focus {
   align-items: center;
   gap: 16px;
   width: 100%;
+  min-height: 52px;
 }
 
 .btn-row {
@@ -364,6 +365,25 @@ input:focus, select:focus {
 .btn-icon-counting {
   background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
   box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+}
+
+/* Popup animation for Counting Download button */
+.popup-btn {
+  animation: popupAnim 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popupAnim {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .ripple {
@@ -483,16 +503,6 @@ input:focus, select:focus {
   max-width: 450px;
 }
 
-/* Popup Animation for Counting Sheet Modal */
-.modal.show .modal-content.popup-animated {
-  animation: modalPopUp 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-@keyframes modalPopUp {
-  0% { transform: scale(0.7) translateY(30px); opacity: 0; }
-  100% { transform: scale(1) translateY(0); opacity: 1; }
-}
-
 .modal-body-scroll {
   overflow-y: auto;
   overflow-x: hidden;
@@ -542,6 +552,7 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
+/* Toggle Switch Styles */
 .switch-container {
   display: flex;
   justify-content: space-between;
@@ -604,6 +615,7 @@ input:checked + .slider:before {
   transform: translateX(22px);
 }
 
+/* Checklist and Swipeable Card Styling */
 .checklist-container {
   display: flex;
   flex-direction: column;
@@ -625,6 +637,7 @@ input:checked + .slider:before {
   background-color: var(--border-color);
 }
 
+/* Swipe Actions Backgrounds */
 .swipe-action {
   position: absolute;
   top: 0;
