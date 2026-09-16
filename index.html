@@ -7,6 +7,10 @@
   
   <!-- XLSX Library -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- jsPDF & AutoTable Libraries for PDF Download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   
@@ -14,7 +18,7 @@
 </head>
 <body>
 <div class="container">
-  <!-- Header Block: Left Settings Icon | Center Title | Right Live Uploads Icon -->
+  <!-- Header Block: Left Settings Icon | Center Title | Right Updated Live Icon -->
   <div class="header-block">
     <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
       <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
@@ -75,14 +79,14 @@
       </div>
     </div>
 
-    <!-- Save Button -->
+    <!-- Save Button top centered -->
     <div class="save-btn-container" style="margin-top: 22px;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
     </div>
 
-    <!-- Dynamic Action Icons Row -->
+    <!-- Icons centered below Save Button -->
     <div class="icon-row-container" style="margin-top: 14px;">
       <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
         <i class="fa-solid fa-file-excel"></i>
@@ -90,7 +94,7 @@
       <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button">
         <i class="fa-solid fa-share-nodes"></i>
       </button>
-      <button class="btn-icon-counting ripple" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button">
+      <button class="btn-icon-counting ripple popup-btn" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button">
         <i class="fa-solid fa-file-arrow-down"></i>
       </button>
     </div>
@@ -111,6 +115,42 @@
   </div>
 </div>
 
+<!-- Download Counting Sheet Format & Share Modal -->
+<div id="countingDownloadModal" class="modal">
+  <div class="modal-content modal-small">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-file-arrow-down" style="color:var(--primary);"></i> Download / Share Counting Sheet</h3>
+      <button class="close-btn ripple" onclick="closeCountingDownloadModal()" type="button">&times;</button>
+    </div>
+    <div class="modal-body-scroll">
+      <div class="form-group">
+        <label><i class="fa-solid fa-file-code"></i> Select Format / ආකෘතිය තෝරන්න:</label>
+        <select id="countingFormatSelect">
+          <option value="xlsx">Excel Workbook (.xlsx)</option>
+          <option value="pdf">PDF Document (.pdf)</option>
+          <option value="doc">Word Document (.doc)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top: 14px;">
+        <label><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
+        <div class="input-glow-wrapper">
+          <input type="text" id="countingFileNameInput" placeholder="Counting_Sheet_YYYY-MM-DD">
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top: 20px; flex-direction: column; gap: 10px;">
+        <button type="button" class="btn btn-primary ripple" style="width:100%;" onclick="processCountingDownload()">
+          <i class="fa-solid fa-download"></i> Download Counting Sheet
+        </button>
+        <button type="button" class="btn ripple" style="width:100%; background: #2563eb; color:white; border:none;" onclick="processCountingShare()">
+          <i class="fa-solid fa-share-nodes"></i> Share Counting Sheet
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Updated Live Modal -->
 <div id="todayUploadedModal" class="modal">
   <div class="modal-content">
@@ -119,6 +159,7 @@
       <button class="close-btn ripple" onclick="closeTodayUploadedModal()" type="button">&times;</button>
     </div>
 
+    <!-- Switch and Search Box Row -->
     <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;">
       <div class="switch-container">
         <label class="switch-label" for="toggleCountingOnly">
@@ -158,44 +199,6 @@
       <div class="btn-row" style="margin-top: 18px;">
         <button type="button" class="btn btn-primary ripple" onclick="saveEditedCountingAmount()">
           <i class="fa-solid fa-check"></i> Update Amount
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Download / Share Counting Sheet Modal -->
-<div id="countingDownloadModal" class="modal">
-  <div class="modal-content modal-small popup-animated">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-file-arrow-down" style="color:var(--primary);"></i> Download / Share Counting Sheet</h3>
-      <button class="close-btn ripple" onclick="closeCountingDownloadModal()" type="button">&times;</button>
-    </div>
-    <div class="modal-body-scroll">
-      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">තෝරාගත් Format එකෙන් Counting Sheet එක බාගත කරන්න හෝ Share කරන්න:</p>
-      
-      <div class="form-group">
-        <label><i class="fa-solid fa-file-code"></i> Format තෝරන්න:</label>
-        <select id="countingFormatSelect" onchange="updateCountingFileName()">
-          <option value="xlsx">Excel Workbook (.xlsx)</option>
-          <option value="pdf">PDF Document (.pdf)</option>
-          <option value="doc">Word Document (.doc)</option>
-        </select>
-      </div>
-
-      <div class="form-group" style="margin-top: 14px;">
-        <label><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
-        <div class="input-glow-wrapper">
-          <input type="text" id="countingFileNameInput" placeholder="Counting_Sheet_YYYY-MM-DD">
-        </div>
-      </div>
-
-      <div class="btn-row" style="margin-top: 24px; display: flex; gap: 10px;">
-        <button type="button" class="btn btn-primary ripple" style="flex:1;" onclick="processCountingDownload()">
-          <i class="fa-solid fa-download"></i> Download
-        </button>
-        <button type="button" class="btn ripple" style="flex:1; background: #3b82f6; color:white;" onclick="processCountingShare()">
-          <i class="fa-solid fa-share-nodes"></i> Share
         </button>
       </div>
     </div>
