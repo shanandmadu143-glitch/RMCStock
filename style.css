@@ -130,6 +130,19 @@ body {
   border: 1px solid rgba(147, 197, 253, 0.4);
 }
 
+.brand-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(37, 99, 235, 0.25);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #60a5fa;
+  font-size: 1.35rem;
+}
+
 .btn-icon-header {
   width: 46px;
   height: 46px;
@@ -157,6 +170,43 @@ body {
   padding: 30px;
   box-shadow: var(--shadow-subtle);
   position: relative;
+}
+
+/* Counting Mode Indicator Badge Styling */
+.mode-badge-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.counting-mode-badge {
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding: 6px 18px;
+  border-radius: 30px;
+  transition: var(--transition-smooth);
+}
+
+.badge-normal {
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.badge-daily {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.pack-calc-container {
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--bg-main);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-color);
 }
 
 .form-group {
@@ -303,7 +353,6 @@ input:focus, select:focus {
   align-items: center;
   gap: 16px;
   width: 100%;
-  min-height: 52px;
 }
 
 .btn-row {
@@ -365,25 +414,6 @@ input:focus, select:focus {
 .btn-icon-counting {
   background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
   box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
-}
-
-/* Popup animation for Counting Download button */
-.popup-btn {
-  animation: popupAnim 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-@keyframes popupAnim {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  80% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
 }
 
 .ripple {
@@ -637,7 +667,6 @@ input:checked + .slider:before {
   background-color: var(--border-color);
 }
 
-/* Swipe Actions Backgrounds */
 .swipe-action {
   position: absolute;
   top: 0;
