@@ -155,11 +155,15 @@ const defaultItems = [
   {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2} 
 ]; 
 
-// Update Badge Title based on Section Select State
+// Update Badge Title & Control Icon Visibilities based on Section Select State
 function updateCountingModeBadge() {
   const sectionSelect = document.getElementById('sectionSelect');
   const badge = document.getElementById('countingModeBadge');
   const packCalcContainer = document.getElementById('packCalcContainer');
+  
+  const btnCountingDownload = document.getElementById('btnCountingDownload');
+  const btnExcel = document.getElementById('btnExcel');
+  const btnShare = document.getElementById('btnShare');
   
   if (!sectionSelect || !badge) return;
   
@@ -167,10 +171,20 @@ function updateCountingModeBadge() {
     badge.innerText = 'Normal Counting';
     badge.className = 'counting-mode-badge badge-normal';
     if (packCalcContainer) packCalcContainer.style.display = 'flex';
+    
+    // Show only Download Counting Sheet Icon
+    if (btnCountingDownload) btnCountingDownload.style.display = 'flex';
+    if (btnExcel) btnExcel.style.display = 'none';
+    if (btnShare) btnShare.style.display = 'none';
   } else {
     badge.innerText = 'Daily Stocks';
     badge.className = 'counting-mode-badge badge-daily';
     if (packCalcContainer) packCalcContainer.style.display = 'none';
+    
+    // Hide Download Counting Sheet Icon, Show Excel and Share Icons
+    if (btnCountingDownload) btnCountingDownload.style.display = 'none';
+    if (btnExcel) btnExcel.style.display = 'flex';
+    if (btnShare) btnShare.style.display = 'flex';
   }
 }
 
@@ -692,6 +706,158 @@ function closeRestoreHelpModal() {
   hideModal('restoreHelpModal');
 }
 
+/* Counting Sheet Download Modal Controls */
+function openCountingDownloadModal() {
+  updateCountingFileName();
+  showModal('countingDownloadModal');
+}
+
+function closeCountingDownloadModal() {
+  hideModal('countingDownloadModal');
+}
+
+function updateCountingFileName() {
+  const formatSelect = document.getElementById('countingFormatSelect');
+  const fileNameInput = document.getElementById('countingFileNameInput');
+  if (!formatSelect || !fileNameInput) return;
+
+  const ext = formatSelect.value;
+  const today = getTodayStr();
+  fileNameInput.value = `Counting_Sheet_${today}.${ext}`;
+}
+
+async function processCountingDownload(actionType) {
+  const formatSelect = document.getElementById('countingFormatSelect');
+  const fileNameInput = document.getElementById('countingFileNameInput');
+  
+  const format = formatSelect ? formatSelect.value : 'xlsx';
+  let customFileName = fileNameInput && fileNameInput.value.trim() !== '' 
+    ? fileNameInput.value.trim() 
+    : `Counting_Sheet_${getTodayStr()}.${format}`;
+
+  if (!customFileName.endsWith(`.${format}`)) {
+    customFileName += `.${format}`;
+  }
+
+  showLoading("Preparing Counting Sheet...");
+
+  setTimeout(async () => {
+    try {
+      const fileData = generateCountingFileData(format, customFileName);
+      closeCountingDownloadModal();
+
+      if (actionType === 'download') {
+        triggerDirectDownload(fileData.blob, customFileName);
+        showToast('Counting Sheet Downloaded!', 'success');
+      } else if (actionType === 'share') {
+        const file = new File([fileData.blob], customFileName, { type: fileData.mimeType });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: "Stock Counting Sheet",
+              text: `Counting Sheet - ${getTodayStr()}`,
+              files: [file]
+            });
+            showToast('Shared successfully!', 'success');
+          } catch (err) {
+            if (err.name !== 'AbortError') {
+              triggerDirectDownload(fileData.blob, customFileName);
+              showToast('Share failed. Downloaded directly.', 'warning');
+            }
+          }
+        } else {
+          triggerDirectDownload(fileData.blob, customFileName);
+          showToast('Sharing not supported. Direct download initiated.', 'warning');
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Error generating file!', 'error');
+    } finally {
+      hideLoading();
+    }
+  }, 300);
+}
+
+function generateCountingFileData(format, fileName) {
+  const today = getTodayStr();
+  const headers = ["Material Code", "Material Name", "RM/PM", "Counting Amount", "Packs Count"];
+  
+  if (format === 'xlsx') {
+    const sheetData = [headers];
+    inventory.forEach((item) => {
+      sheetData.push([
+        item.code || "",
+        item.name || "",
+        item.type || "RM",
+        Number(item.counting) || 0,
+        Number(item.packs_count) || 0
+      ]);
+    });
+    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+    worksheet['!cols'] = [{ wch: 18 }, { wch: 40 }, { wch: 10 }, { wch: 18 }, { wch: 14 }];
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Counting");
+    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    return {
+      blob: new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+      filename: fileName,
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    };
+  } else if (format === 'pdf') {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(`Stock Counting Sheet - ${today}`, 14, 15);
+    
+    const body = inventory.map(item => [
+      item.code || "",
+      item.name || "",
+      item.type || "RM",
+      Number(item.counting) || 0,
+      Number(item.packs_count) || 0
+    ]);
+
+    doc.autoTable({
+      head: [headers],
+      body: body,
+      startY: 22,
+      theme: 'grid'
+    });
+
+    return {
+      blob: doc.output('blob'),
+      filename: fileName,
+      mimeType: 'application/pdf'
+    };
+  } else if (format === 'doc' || format === 'txt') {
+    let content = `STOCK COUNTING SHEET - ${today}\n\n`;
+    content += `Material Code\tMaterial Name\tType\tCounting Amount\tPacks Count\n`;
+    content += `--------------------------------------------------------------------------------\n`;
+    inventory.forEach((item) => {
+      content += `${item.code}\t${item.name}\t${item.type || "RM"}\t${item.counting || 0}\t${item.packs_count || 0}\n`;
+    });
+    
+    const mime = format === 'doc' ? 'application/msword' : 'text/plain;charset=utf-8;';
+    return {
+      blob: new Blob([content], { type: mime }),
+      filename: fileName,
+      mimeType: mime
+    };
+  } else if (format === 'csv') {
+    let csv = `${headers.join(",")}\n`;
+    inventory.forEach((item) => {
+      csv += `"${item.code}","${item.name}","${item.type || "RM"}",${item.counting || 0},${item.packs_count || 0}\n`;
+    });
+    return {
+      blob: new Blob([csv], { type: 'text/csv;charset=utf-8;' }),
+      filename: fileName,
+      mimeType: 'text/csv'
+    };
+  }
+}
+
 function openExportModal(mode) {
   currentExportMode = mode;
   updateDefaultFileName();
@@ -808,57 +974,6 @@ function generateWorkbookWithFormulas() {
   return workbook;
 }
 
-// Download Counting Sheet with Packs Count
-function downloadCountingSheet() {
-  if (typeof XLSX === 'undefined') {
-    showToast('XLSX Library is not loaded! Check internet connection.', 'error');
-    return;
-  }
-
-  showLoading("Generating Counting Sheet...");
-  setTimeout(() => {
-    try {
-      const headers = ["Material Code", "Material Name", "RM/PM", "Counting Amount", "Packs Count"];
-      const sheetData = [headers];
-
-      inventory.forEach((item) => {
-        sheetData.push([
-          item.code || "",
-          item.name || "",
-          item.type || "RM",
-          Number(item.counting) || 0,
-          Number(item.packs_count) || 0
-        ]);
-      });
-
-      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-
-      worksheet['!cols'] = [
-        { wch: 18 },
-        { wch: 40 },
-        { wch: 10 },
-        { wch: 18 },
-        { wch: 14 }
-      ];
-
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Counting");
-
-      const today = getTodayStr();
-      const defaultName = `Counting_Sheet_${today}.xlsx`;
-      
-      XLSX.writeFile(workbook, defaultName);
-
-      hideLoading();
-      showToast('Counting Sheet Downloaded Successfully!', 'success');
-    } catch (err) {
-      hideLoading();
-      console.error(err);
-      showToast('Error downloading counting sheet!', 'error');
-    }
-  }, 300);
-}
-
 function getFormattedFileData(format, customName) {
   const today = getTodayStr();
   const workbook = generateWorkbookWithFormulas();
@@ -870,6 +985,31 @@ function getFormattedFileData(format, customName) {
       blob: new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
       filename: fileName,
       mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    };
+  } else if (format === 'pdf') {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('landscape');
+    doc.setFontSize(14);
+    doc.text(`Stock Counting Report - ${today}`, 14, 15);
+    
+    const headers = [
+      "Type", "Code", "Name", "UOM", "Op.Stock", "Receipt", "Issues", 
+      "Return", "Rec SSL", "Sent SSL", "Reject", "Counting", "Packs", "Closing"
+    ];
+    
+    const body = inventory.map(item => [
+      item.type || "RM", item.code, item.name, item.uom,
+      item.op_stock || 0, item.f_receipt || 0, item.g_issues || 0, item.h_return || 0,
+      item.i_ssl_received || 0, item.j_ssl_sent || 0, item.l_rejection || 0,
+      item.counting || 0, item.packs_count || 0, item.closing || 0
+    ]);
+
+    doc.autoTable({ head: [headers], body: body, startY: 22, theme: 'grid', styles: { fontSize: 7 } });
+
+    return {
+      blob: doc.output('blob'),
+      filename: fileName,
+      mimeType: 'application/pdf'
     };
   } else if (format === 'csv') {
     const worksheet = workbook.Sheets["Stock_Summary"];
