@@ -1,6 +1,6 @@
 const i18n = {
   si: {
-    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Code හෝ Name මගින් සොයන්න:',
+    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
     placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...',
     lblSection: '<i class="fa-solid fa-layer-group"></i> Select Section:',
     optReceipt: 'Receipt (ලැබීම්)',
@@ -155,20 +155,32 @@ const defaultItems = [
   {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2} 
 ]; 
 
-function handleSectionChange() {
-  const sectionVal = document.getElementById('sectionSelect').value;
-  const btnCounting = document.getElementById('btnCountingDownload');
-  const btnExcel = document.getElementById('btnExcel');
-  const btnShare = document.getElementById('btnShare');
-
-  if (sectionVal === 'COUNTING') {
-    if (btnCounting) btnCounting.style.display = 'inline-flex';
-    if (btnExcel) btnExcel.style.display = 'none';
-    if (btnShare) btnShare.style.display = 'none';
+// Update Badge Title based on Section Select State
+function updateCountingModeBadge() {
+  const sectionSelect = document.getElementById('sectionSelect');
+  const badge = document.getElementById('countingModeBadge');
+  const packCalcContainer = document.getElementById('packCalcContainer');
+  
+  if (!sectionSelect || !badge) return;
+  
+  if (sectionSelect.value === 'COUNTING') {
+    badge.innerText = 'Normal Counting';
+    badge.className = 'counting-mode-badge badge-normal';
+    if (packCalcContainer) packCalcContainer.style.display = 'flex';
   } else {
-    if (btnCounting) btnCounting.style.display = 'none';
-    if (btnExcel) btnExcel.style.display = 'inline-flex';
-    if (btnShare) btnShare.style.display = 'inline-flex';
+    badge.innerText = 'Daily Counting';
+    badge.className = 'counting-mode-badge badge-daily';
+    if (packCalcContainer) packCalcContainer.style.display = 'none';
+  }
+}
+
+// Calculate Total Amount from Pack Size and Pack Count
+function calculatePackTotal() {
+  const packSize = parseFloat(document.getElementById('inputPackSize').value) || 0;
+  const packsCount = parseFloat(document.getElementById('inputPacksCount').value) || 0;
+  
+  if (packSize > 0 && packsCount > 0) {
+    document.getElementById('inputAmount').value = roundNum(packSize * packsCount);
   }
 }
 
@@ -294,6 +306,8 @@ function loadInventoryData() {
         item.j_ssl_sent = Number(item.j_ssl_sent) || 0;
         item.l_rejection = Number(item.l_rejection) || 0;
         item.counting = Number(item.counting) || 0;
+        item.pack_size = Number(item.pack_size) || 0;
+        item.packs_count = Number(item.packs_count) || 0;
         item.closing = calculateClosingStock(item);
         item.last_updated = item.last_updated || "";
       });
@@ -316,6 +330,8 @@ function initDefaultInventory() {
     j_ssl_sent: 0, 
     l_rejection: 0, 
     counting: 0,
+    pack_size: 0,
+    packs_count: 0,
     closing: Number(item.op_stock) || 0,
     last_updated: ""
   })); 
@@ -353,6 +369,12 @@ function clearSearchInput() {
   selectedIndex = -1;
   if (selectedBadge) selectedBadge.style.display = 'none';
   if (searchResults) searchResults.style.display = 'none';
+  
+  const packSize = document.getElementById('inputPackSize');
+  const packsCount = document.getElementById('inputPacksCount');
+  if (packSize) packSize.value = '';
+  if (packsCount) packsCount.value = '';
+
   updateVisibilityState(false);
   updateClearBtnVisibility();
   if (searchInput) searchInput.focus();
@@ -394,6 +416,8 @@ function addSingleSectionData() {
   
   const sectionSelect = document.getElementById('sectionSelect');
   const inputAmount = document.getElementById('inputAmount');
+  const packSizeInput = document.getElementById('inputPackSize');
+  const packsCountInput = document.getElementById('inputPacksCount');
   
   if (!sectionSelect || !inputAmount) return;
 
@@ -415,7 +439,13 @@ function addSingleSectionData() {
   else if (targetSection === 'I') item.i_ssl_received = roundNum(item.i_ssl_received + amount); 
   else if (targetSection === 'J') item.j_ssl_sent = roundNum(item.j_ssl_sent + amount); 
   else if (targetSection === 'L') item.l_rejection = roundNum(item.l_rejection + amount); 
-  else if (targetSection === 'COUNTING') item.counting = roundNum(amount); 
+  else if (targetSection === 'COUNTING') {
+    item.counting = roundNum(amount); 
+    if (packSizeInput && packsCountInput) {
+      item.pack_size = parseFloat(packSizeInput.value) || 0;
+      item.packs_count = parseFloat(packsCountInput.value) || 0;
+    }
+  }
 
   item.closing = calculateClosingStock(item); 
   item.last_updated = getTodayStr();
@@ -427,6 +457,9 @@ function addSingleSectionData() {
 
   saveInventoryData(); 
   inputAmount.value = ''; 
+  if (packSizeInput) packSizeInput.value = '';
+  if (packsCountInput) packsCountInput.value = '';
+
   showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
   clearSearchInput();
 } 
@@ -495,6 +528,8 @@ function renderTodayUploadedList() {
           const swipeWrapper = document.createElement('div');
           swipeWrapper.className = 'swipe-wrapper';
 
+          const packDetailText = (item.packs_count > 0 && item.pack_size > 0) ? `(${item.pack_size} x ${item.packs_count} packs)` : '';
+
           swipeWrapper.innerHTML = `
             <div class="swipe-action edit-action"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
             <div class="swipe-action delete-action"><i class="fa-solid fa-trash-can"></i> Delete</div>
@@ -502,7 +537,7 @@ function renderTodayUploadedList() {
               <div class="checklist-left">
                 <div class="checklist-info">
                   <div class="checklist-name" title="${item.name}">${item.name}</div>
-                  <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
+                  <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code} ${packDetailText}</div>
                 </div>
               </div>
               <div class="checklist-right">
@@ -607,6 +642,8 @@ function openEditCountingModal(index) {
   document.getElementById('editModalItemName').innerText = item.name;
   document.getElementById('editModalItemCode').innerText = `Code: ${item.code} | UOM: ${item.uom}`;
   document.getElementById('editCountingAmountInput').value = item.counting || '';
+  document.getElementById('editPackSizeInput').value = item.pack_size || '';
+  document.getElementById('editPacksCountInput').value = item.packs_count || '';
 
   showModal('editCountingModal');
   setTimeout(() => {
@@ -632,6 +669,8 @@ function saveEditedCountingAmount() {
 
   const item = inventory[currentlyEditingIndex];
   item.counting = roundNum(amount);
+  item.pack_size = parseFloat(document.getElementById('editPackSizeInput').value) || 0;
+  item.packs_count = parseFloat(document.getElementById('editPacksCountInput').value) || 0;
   item.closing = calculateClosingStock(item);
   item.last_updated = getTodayStr();
 
@@ -647,6 +686,8 @@ function deleteCountingAmount(index) {
 
   if (confirm(`${item.name} හි Counting Amount එක ඉවත් (Delete) කිරීමට අවශ්‍යද?`)) {
     item.counting = 0;
+    item.pack_size = 0;
+    item.packs_count = 0;
     item.closing = calculateClosingStock(item);
     saveInventoryData();
     renderTodayUploadedList();
@@ -691,179 +732,6 @@ function updateDefaultFileName() {
   fileNameInput.value = `Stock_Counting_${today}.${ext}`;
 }
 
-function openCountingDownloadModal() {
-  const formatSelect = document.getElementById('countingFormatSelect');
-  const nameInput = document.getElementById('countingFileNameInput');
-  if (nameInput) {
-    nameInput.value = `Counting_Sheet_${getTodayStr()}.${formatSelect ? formatSelect.value : 'xlsx'}`;
-  }
-  showModal('countingDownloadModal');
-}
-
-function closeCountingDownloadModal() {
-  hideModal('countingDownloadModal');
-}
-
-function getCountingFileData(format, customName) {
-  const today = getTodayStr();
-  const fileName = customName || `Counting_Sheet_${today}.${format}`;
-
-  if (format === 'xlsx') {
-    const headers = ["Material Code", "Material Name", "RM/PM", "Counting"];
-    const sheetData = [headers];
-
-    inventory.forEach((item) => {
-      sheetData.push([
-        item.code || "",
-        item.name || "",
-        item.type || "RM",
-        Number(item.counting) || 0
-      ]);
-    });
-
-    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-    worksheet['!cols'] = [{ wch: 18 }, { wch: 40 }, { wch: 10 }, { wch: 15 }];
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Counting");
-
-    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    return {
-      blob: new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
-      filename: fileName,
-      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    };
-  } else if (format === 'pdf') {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    doc.setFontSize(16);
-    doc.text(`Counting Sheet - ${today}`, 14, 15);
-
-    const tableData = inventory.map(item => [
-      item.code || "",
-      item.name || "",
-      item.type || "RM",
-      (Number(item.counting) || 0).toString()
-    ]);
-
-    doc.autoTable({
-      head: [["Material Code", "Material Name", "RM/PM", "Counting"]],
-      body: tableData,
-      startY: 22,
-      theme: 'grid',
-      headStyles: { fillColor: [37, 99, 235] }
-    });
-
-    const pdfBlob = doc.output('blob');
-    return {
-      blob: pdfBlob,
-      filename: fileName,
-      mimeType: 'application/pdf'
-    };
-  } else if (format === 'doc') {
-    let docContent = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-    <head><title>Counting Sheet</title></head>
-    <body style="font-family: Arial, sans-serif;">
-      <h2>Stock Counting Sheet - ${today}</h2>
-      <table border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; width: 100%;">
-        <thead>
-          <tr style="background-color: #2563eb; color: white;">
-            <th>Material Code</th>
-            <th>Material Name</th>
-            <th>RM/PM</th>
-            <th>Counting Amount</th>
-          </tr>
-        </thead>
-        <tbody>`;
-
-    inventory.forEach(item => {
-      docContent += `
-        <tr>
-          <td>${item.code || ""}</td>
-          <td>${item.name || ""}</td>
-          <td>${item.type || "RM"}</td>
-          <td>${Number(item.counting) || 0}</td>
-        </tr>`;
-    });
-
-    docContent += `
-        </tbody>
-      </table>
-    </body>
-    </html>`;
-
-    return {
-      blob: new Blob(['\ufeff' + docContent], { type: 'application/msword' }),
-      filename: fileName,
-      mimeType: 'application/msword'
-    };
-  }
-}
-
-function processCountingDownload() {
-  const formatSelect = document.getElementById('countingFormatSelect');
-  const nameInput = document.getElementById('countingFileNameInput');
-  const format = formatSelect ? formatSelect.value : 'xlsx';
-  
-  let fileName = nameInput && nameInput.value.trim() !== '' ? nameInput.value.trim() : `Counting_Sheet_${getTodayStr()}.${format}`;
-  if (!fileName.endsWith(`.${format}`)) {
-    fileName += `.${format}`;
-  }
-
-  showLoading("Generating Counting File...");
-  setTimeout(() => {
-    try {
-      const fileData = getCountingFileData(format, fileName);
-      triggerDirectDownload(fileData.blob, fileData.filename);
-      closeCountingDownloadModal();
-      hideLoading();
-      showToast('Counting Sheet Downloaded Successfully!', 'success');
-    } catch (err) {
-      console.error(err);
-      hideLoading();
-      showToast('Error generating Counting File!', 'error');
-    }
-  }, 300);
-}
-
-async function processCountingShare() {
-  const formatSelect = document.getElementById('countingFormatSelect');
-  const nameInput = document.getElementById('countingFileNameInput');
-  const format = formatSelect ? formatSelect.value : 'xlsx';
-  
-  let fileName = nameInput && nameInput.value.trim() !== '' ? nameInput.value.trim() : `Counting_Sheet_${getTodayStr()}.${format}`;
-  if (!fileName.endsWith(`.${format}`)) {
-    fileName += `.${format}`;
-  }
-
-  showLoading("Preparing File to Share...");
-  setTimeout(async () => {
-    try {
-      const fileData = getCountingFileData(format, fileName);
-      const file = new File([fileData.blob], fileData.filename, { type: fileData.mimeType });
-      closeCountingDownloadModal();
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: 'Stock Counting Sheet',
-          text: `Stock Counting Sheet - ${getTodayStr()}`,
-          files: [file]
-        });
-        showToast('Shared successfully!', 'success');
-      } else {
-        triggerDirectDownload(fileData.blob, fileData.filename);
-        showToast('Sharing not supported on this browser. File downloaded instead.', 'warning');
-      }
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error(err);
-        showToast('Error sharing file!', 'error');
-      }
-    }
-    hideLoading();
-  }, 300);
-}
-
 function switchHelpTopic(topic) {
   const box = document.getElementById('helpContentBox');
   if (!box) return;
@@ -873,7 +741,6 @@ function switchHelpTopic(topic) {
       <h4 style="color: var(--primary); margin-bottom: 8px;"><i class="fa-solid fa-file-excel"></i> Upload කළ යුත්තේ මොන වගේ File එකක්ද?</h4>
       <p>• මෙම App එක මඟින් මීට පෙර Download කරගත් හෝ Backup එකක් ලෙස ලබාගත් <b>Excel (.xlsx හෝ .xls)</b> ගොනුවක් පමණක් upload කළ යුතුය.</p>
       <p>• එම Excel ගොනුව තුළ අනිවාර්යයෙන්ම <b>Material Code, Material Name, Op.Stock-Warehouse, Receipt, Issues, Return, Closing Stock</b> වැනි නිවැරදි ශීර්ෂ (Headers) අඩංගු විය යුතුය.</p>
-      <p>• වෙනත් වෙනත් අක්‍රමවත් Excel පත්‍ර උඩුගත කිරීමෙන් දත්ත දෝෂ සහගත විය හැක.</p>
     `;
   } else if (topic === 'howToDo') {
     box.innerHTML = `
@@ -881,16 +748,12 @@ function switchHelpTopic(topic) {
       <p>1. Settings වෙත ගොස් <b>'Restore Excel (.xlsx) File'</b> යටතේ ඇති <b>'Choose File'</b> බොත්තම ඔබන්න.</p>
       <p>2. ඔබගේ පරිගණකයෙන් හෝ දුරකථනයෙන් අදාළ Excel ගොනුව තෝරාගන්න.</p>
       <p>3. ඉන්පසු කොළ පාටින් ඇති <b>'Restore Excel Data'</b> බොත්තම ක්ලික් කරන්න.</p>
-      <p>4. සාර්ථක පණිවිඩයක් සමඟින් ඔබගේ පැරණි දත්ත යාවත්කාලීන වනු ඇත.</p>
     `;
   } else if (topic === 'appFeatures') {
     box.innerHTML = `
       <h4 style="color: var(--warning); margin-bottom: 8px;"><i class="fa-solid fa-boxes-stacked"></i> Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</h4>
-      <p>• <b>Stock Tracking:</b> ද්‍රව්‍යවල (Materials) Code හෝ Name මඟින් සෙවීම සහ Receipt, Issues, Return, SSL Received/Sent, Rejection, Counting ආදී විවිධ Sections යටතේ දත්ත ඇතුළත් කිරීම.</p>
-      <p>• <b>Real-time Closing Stock:</b> දත්ත ඇතුළත් කළ පසු ස්වයංක්‍රීයව Closing Stock එක ගණනය වීම.</p>
-      <p>• <b>Excel Export & Shift:</b> දිනපතා තොග වාර්තා Excel ගොනුවක් ලෙස ඩවුන්ලෝඩ් කර ගැනීම සහ Stock එක ඉදිරියට මාරු කිරීම (Shift Stock).</p>
-      <p>• <b>Share Report:</b> සකස් කළ වාර්තා WhatsApp හෝ වෙනත් යෙදුම් හරහා පහසුවෙන් Share කිරීම.</p>
-      <p>• <b>Multi-language & Theme:</b> සිංහල, ඉංග්‍රීසි සහ දෙමළ භාෂා මෙන්ම විවිධ Themes මාරු කරමින් භාවිත කිරීම.</p>
+      <p>• <b>Stock Tracking & Counting:</b> Normal Counting සහ Daily Counting මඟින් තොග ප්‍රමාණ ගණනය කිරීම.</p>
+      <p>• <b>Pack Calculation:</b> කොටස් ප්‍රමාණ සහ කොටස් ගණන අනුව වෙන වෙනම ගණනය කර තොග සටහන් කරගැනීම.</p>
     `;
   }
 }
@@ -926,7 +789,7 @@ function generateWorkbookWithFormulas() {
   const headers = [
     "Type", "Material Code", "Material Name", "UOM", 
     "Op.Stock-Warehouse", "Receipt", "Issues", "Return", 
-    "Received to SSL", "Sent to SSL", "Rejection", "Closing Stock"
+    "Received to SSL", "Sent to SSL", "Rejection", "Counting", "Packs Count", "Pack Size", "Closing Stock"
   ];
   
   const sheetData = [headers];
@@ -944,6 +807,9 @@ function generateWorkbookWithFormulas() {
       Number(item.i_ssl_received) || 0,
       Number(item.j_ssl_sent) || 0,
       Number(item.l_rejection) || 0,
+      Number(item.counting) || 0,
+      Number(item.packs_count) || 0,
+      Number(item.pack_size) || 0,
       Number(item.closing) || 0
     ]);
   });
@@ -951,23 +817,69 @@ function generateWorkbookWithFormulas() {
   const worksheet = XLSX.utils.aoa_to_sheet(sheetData); 
 
   worksheet['!cols'] = [
-    { wch: 8 },
-    { wch: 15 },
-    { wch: 38 },
-    { wch: 8 },
-    { wch: 20 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 16 },
-    { wch: 16 },
-    { wch: 14 },
-    { wch: 18 }
+    { wch: 8 }, { wch: 15 }, { wch: 38 }, { wch: 8 },
+    { wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+    { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 14 },
+    { wch: 14 }, { wch: 14 }, { wch: 18 }
   ];
 
   const workbook = XLSX.utils.book_new(); 
   XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Summary");
   return workbook;
+}
+
+// Download Counting Sheet with Packs Count to the right of Amount
+function downloadCountingSheet() {
+  if (typeof XLSX === 'undefined') {
+    showToast('XLSX Library is not loaded! Check internet connection.', 'error');
+    return;
+  }
+
+  showLoading("Generating Counting Sheet...");
+  setTimeout(() => {
+    try {
+      const headers = ["Material Code", "Material Name", "RM/PM", "Counting Amount", "Packs Count", "Pack Details"];
+      const sheetData = [headers];
+
+      inventory.forEach((item) => {
+        const packDetails = (item.pack_size > 0 && item.packs_count > 0) ? `${item.pack_size} x ${item.packs_count}` : "-";
+        sheetData.push([
+          item.code || "",
+          item.name || "",
+          item.type || "RM",
+          Number(item.counting) || 0,
+          Number(item.packs_count) || 0,
+          packDetails
+        ]);
+      });
+
+      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+      worksheet['!cols'] = [
+        { wch: 18 },
+        { wch: 40 },
+        { wch: 10 },
+        { wch: 18 },
+        { wch: 14 },
+        { wch: 18 }
+      ];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Counting");
+
+      const today = getTodayStr();
+      const defaultName = `Counting_Sheet_${today}.xlsx`;
+      
+      XLSX.writeFile(workbook, defaultName);
+
+      hideLoading();
+      showToast('Counting Sheet Downloaded Successfully!', 'success');
+    } catch (err) {
+      hideLoading();
+      console.error(err);
+      showToast('Error downloading counting sheet!', 'error');
+    }
+  }, 300);
 }
 
 function getFormattedFileData(format, customName) {
@@ -995,7 +907,8 @@ function getFormattedFileData(format, customName) {
     inventory.forEach((item, idx) => {
       txtContent += `${idx + 1}. [${item.code}] ${item.name}\n`;
       txtContent += `   Op Stock: ${item.op_stock} | Receipts: ${item.f_receipt} | Issues: ${item.g_issues} | Returns: ${item.h_return}\n`;
-      txtContent += `   SSL Rec: ${item.i_ssl_received} | SSL Sent: ${item.j_ssl_sent} | Rejections: ${item.l_rejection} | Counting: ${item.counting || 0}\n`;
+      txtContent += `   SSL Rec: ${item.i_ssl_received} | SSL Sent: ${item.j_ssl_sent} | Rejections: ${item.l_rejection}\n`;
+      txtContent += `   Counting: ${item.counting || 0} | Packs: ${item.packs_count || 0} (Size: ${item.pack_size || 0})\n`;
       txtContent += `   Closing Stock: ${item.closing} ${item.uom}\n`;
       txtContent += `--------------------------------------------------\n`;
     });
@@ -1101,6 +1014,8 @@ function resetStockAndComplete(t) {
     item.j_ssl_sent = 0; 
     item.l_rejection = 0; 
     item.counting = 0;
+    item.pack_size = 0;
+    item.packs_count = 0;
     item.closing = item.op_stock; 
     item.last_updated = "";
   }); 
@@ -1136,7 +1051,7 @@ function restoreFromXLSX() {
       } 
       
       let headerIndex = -1; 
-      let colMap = { type: -1, code: -1, name: -1, uom: -1, op_stock: -1, f_receipt: -1, g_issues: -1, h_return: -1, i_ssl_received: -1, j_ssl_sent: -1, l_rejection: -1, counting: -1, closing: -1 }; 
+      let colMap = { type: -1, code: -1, name: -1, uom: -1, op_stock: -1, f_receipt: -1, g_issues: -1, h_return: -1, i_ssl_received: -1, j_ssl_sent: -1, l_rejection: -1, counting: -1, pack_size: -1, packs_count: -1, closing: -1 }; 
       
       for (let r = 0; r < Math.min(matrix.length, 10); r++) { 
         const rowStr = matrix[r].map(c => String(c).toLowerCase().trim()); 
@@ -1155,6 +1070,8 @@ function restoreFromXLSX() {
             else if (cellVal.includes("sent to ssl") || cellVal.includes("ssl j") || cellVal === "j") colMap.j_ssl_sent = colIdx; 
             else if (cellVal.includes("rejection") || cellVal === "l") colMap.l_rejection = colIdx; 
             else if (cellVal.includes("counting")) colMap.counting = colIdx; 
+            else if (cellVal.includes("pack size")) colMap.pack_size = colIdx; 
+            else if (cellVal.includes("packs count")) colMap.packs_count = colIdx; 
             else if (cellVal.includes("closing")) colMap.closing = colIdx; 
           }); 
           break; 
@@ -1189,13 +1106,15 @@ function restoreFromXLSX() {
           let j_ssl_sent = colMap.j_ssl_sent !== -1 ? parseFloat(row[colMap.j_ssl_sent]) || 0 : 0; 
           let l_rejection = colMap.l_rejection !== -1 ? parseFloat(row[colMap.l_rejection]) || 0 : 0; 
           let counting = colMap.counting !== -1 ? parseFloat(row[colMap.counting]) || 0 : 0; 
+          let pack_size = colMap.pack_size !== -1 ? parseFloat(row[colMap.pack_size]) || 0 : 0; 
+          let packs_count = colMap.packs_count !== -1 ? parseFloat(row[colMap.packs_count]) || 0 : 0; 
           
           let tempItem = { op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection };
           let closing = calculateClosingStock(tempItem); 
           let last_updated = (f_receipt || g_issues || h_return || i_ssl_received || j_ssl_sent || l_rejection || counting) ? getTodayStr() : "";
             
           restored.push({ 
-            type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, counting, closing, last_updated
+            type, code, name, uom, op_stock, f_receipt, g_issues, h_return, i_ssl_received, j_ssl_sent, l_rejection, counting, pack_size, packs_count, closing, last_updated
           }); 
         } 
       } 
@@ -1260,17 +1179,7 @@ document.addEventListener('DOMContentLoaded', () => {
   applyLanguage(currentLang);
   updateVisibilityState(false);
   updateClearBtnVisibility();
-  handleSectionChange();
-
-  const countingFormatSelect = document.getElementById('countingFormatSelect');
-  if (countingFormatSelect) {
-    countingFormatSelect.addEventListener('change', () => {
-      const nameInput = document.getElementById('countingFileNameInput');
-      if (nameInput) {
-        nameInput.value = `Counting_Sheet_${getTodayStr()}.${countingFormatSelect.value}`;
-      }
-    });
-  }
+  updateCountingModeBadge();
 
   const searchInput = document.getElementById('searchInput');
   const searchResults = document.getElementById('searchResults');
