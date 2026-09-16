@@ -21,6 +21,7 @@
     </button>
 
     <div class="brand-title">
+      <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
       <div class="brand-name-wrapper">
         <span class="main-brand-text">Stock</span>
         <span class="sub-badge-counting">Counting</span>
@@ -119,38 +120,40 @@
       <button class="close-btn ripple" onclick="closeTodayUploadedModal()" type="button">&times;</button>
     </div>
     
-    <!-- Counting Filter Switch & Search Controls -->
-    <div style="margin-bottom: 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;">
-      <div class="switch-filter-container">
-        <span class="switch-label"><i class="fa-solid fa-calculator" style="color:var(--primary);"></i> Counting පමණක් පෙන්වන්න</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="chkCountingOnly" onchange="renderTodayUploadedList()">
-          <span class="toggle-slider"></span>
+    <div class="modal-filter-bar">
+      <input type="text" id="todayModalSearchInput" placeholder="Filter items by name or code..." autocomplete="off">
+      <div class="toggle-switch-wrapper">
+        <span class="toggle-label"><i class="fa-solid fa-calculator"></i> Counting Only</span>
+        <label class="switch">
+          <input type="checkbox" id="countingOnlyToggle" onchange="renderTodayUploadedList()">
+          <span class="slider round"></span>
         </label>
       </div>
-      <input type="text" id="todayModalSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
     </div>
 
     <div class="checklist-container" id="todayCardsContainer"></div>
   </div>
 </div>
 
-<!-- Edit Counting Popup Modal -->
+<!-- Edit Counting Modal -->
 <div id="editCountingModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
       <h3><i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i> Edit Counting Amount</h3>
       <button class="close-btn ripple" onclick="closeEditCountingModal()" type="button">&times;</button>
     </div>
-    <div class="modal-body-scroll">
-      <div style="font-weight: 700; margin-bottom: 8px;" id="editItemTitle">-</div>
+    <div class="modal-body-scroll" style="padding-top: 10px;">
+      <div style="margin-bottom: 12px; font-weight: 600;">
+        <div id="editItemCode" style="font-size: 0.85rem; color: var(--text-muted);"></div>
+        <div id="editItemName" style="font-size: 1.05rem; color: var(--primary);"></div>
+      </div>
       <div class="form-group">
         <label><i class="fa-solid fa-calculator"></i> New Counting Amount:</label>
         <div class="input-glow-wrapper">
-          <input type="number" id="editCountingAmountInput" min="0" step="any" placeholder="0.00" inputmode="decimal">
+          <input type="number" id="editCountingInput" min="0" step="any" placeholder="0.00" inputmode="decimal">
         </div>
       </div>
-      <div class="btn-row" style="margin-top: 16px;">
+      <div class="btn-row" style="margin-top: 18px;">
         <button type="button" class="btn btn-primary ripple" onclick="saveEditedCounting()">
           <i class="fa-solid fa-check"></i> Update Amount
         </button>
@@ -159,7 +162,7 @@
   </div>
 </div>
 
-<!-- Export Format Selector Modal -->
+<!-- Export Format & Options Selector Modal -->
 <div id="exportModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
