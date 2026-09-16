@@ -1,114 +1,391 @@
 <!DOCTYPE html>
 <html lang="si">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Packs Count Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
-        }
-        .container {
-            max-width: 500px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="number"] {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .result-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e9ecef;
-            border-radius: 4px;
-        }
-        .result-item {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
-        .error-message {
-            color: red;
-            font-size: 14px;
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Stock Counting | High Performance Dashboard</title>
+  
+  <!-- XLSX Library -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div class="container">
-    <h2>තොග ගණන Calculator</h2>
-    
-    <div class="form-group">
-        <label for="unitPrice">ඒකකයක මිල (Unit Price):</label>
-        <input type="number" id="unitPrice" placeholder="0.00" step="0.01" min="0">
+  <!-- Header Block: Left Settings Icon | Center Title | Right Updated Live Icon -->
+  <div class="header-block">
+    <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
+      <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
+    </button>
+
+    <div class="brand-title">
+      <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+      <div class="brand-name-wrapper">
+        <span class="main-brand-text">Stock</span>
+        <span class="sub-badge-counting">Counting</span>
+      </div>
+    </div>
+
+    <button class="btn-icon-header ripple" onclick="openTodayUploadedModal()" title="Updated Live Details" type="button">
+      <i class="fa-solid fa-cloud-arrow-up" style="color: #34d399;"></i>
+    </button>
+  </div>
+
+  <div class="card">
+    <!-- Top Dynamic Counting Mode Indicator Badge -->
+    <div class="mode-badge-wrapper">
+      <span id="countingModeBadge" class="counting-mode-badge badge-normal">Normal Counting</span>
     </div>
 
     <div class="form-group">
-        <label for="packsCount">කොටස් ගණන (Packs Count):</label>
-        <input type="number" id="packsCount" placeholder="0" min="0" step="1">
+      <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:</label>
+      <div class="input-glow-wrapper search-input-container">
+        <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off">
+        <button type="button" id="clearSearchBtn" class="clear-search-btn" title="Clear Search" onclick="clearSearchInput()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="searchResults" class="search-results" style="display:none;"></div>
     </div>
 
-    <div id="errorMessage" class="error-message">කරුණාකර නිවැරදි ධනාත්මක සංඛ්‍යා ඇතුළත් කරන්න.</div>
-
-    <div class="result-box">
-        <div class="result-item">මුළු එකතුව (Total Amount): <span id="totalAmount">0.00</span></div>
+    <div id="selectedBadge" class="selected-badge">
+      <div style="font-weight:700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-circle-check" style="color: var(--primary); font-size: 1.1rem;"></i>
+        <span><span id="dispCode"></span> - <span id="dispName"></span></span>
+      </div>
+      <div style="font-size: 0.85rem; opacity: 0.9; padding-left: 24px;">
+        UOM: <strong id="dispUom"></strong> &nbsp;|&nbsp; Closing Stock: <strong id="dispClosing"></strong>
+      </div>
     </div>
+
+    <div class="form-grid">
+      <div class="form-group" style="margin-bottom:0;">
+        <label id="lblSection"><i class="fa-solid fa-layer-group"></i> Select Section:</label>
+        <select id="sectionSelect" onchange="updateCountingModeBadge()">
+          <option value="F" id="optReceipt">Receipt</option>
+          <option value="G" id="optIssues">Issues</option>
+          <option value="H" id="optReturn">Return</option>
+          <option value="I" id="optSslI">Received to SSL</option>
+          <option value="J" id="optSslJ">Sent to SSL</option>
+          <option value="L" id="optRejectionL">Rejection</option>
+          <option value="COUNTING" id="optCounting" selected>Counting</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label id="lblAmount"><i class="fa-solid fa-calculator"></i> Enter Amount:</label>
+        <div class="input-glow-wrapper">
+          <input type="number" id="inputAmount" min="0" step="any" placeholder="0.00" inputmode="decimal">
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional Pack Details (Visible only when Counting section is selected) -->
+    <div id="packCalcContainer" class="pack-calc-container" style="display: flex;">
+      <div class="form-grid" style="width: 100%; margin-bottom: 0;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label><i class="fa-solid fa-box-open"></i> Pack Size (කොටසක ප්‍රමාණය):</label>
+          <div class="input-glow-wrapper">
+            <input type="number" id="inputPackSize" min="0" step="any" placeholder="e.g. 25" inputmode="decimal" oninput="calculatePackTotal()">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label><i class="fa-solid fa-cubes"></i> Packs Count (කොටස් ගණන):</label>
+          <div class="input-glow-wrapper">
+            <input type="number" id="inputPacksCount" min="0" step="any" placeholder="e.g. 10" inputmode="decimal" oninput="calculatePackTotal()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Button top centered -->
+    <div class="save-btn-container" style="margin-top: 22px;">
+      <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
+        <i class="fa-solid fa-floppy-disk"></i> Save
+      </button>
+    </div>
+
+    <!-- Icons centered below Save Button -->
+    <div class="icon-row-container" style="margin-top: 14px;">
+      <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
+        <i class="fa-solid fa-file-excel"></i>
+      </button>
+      <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button">
+        <i class="fa-solid fa-share-nodes"></i>
+      </button>
+      <button class="btn-icon-counting ripple" onclick="downloadCountingSheet()" title="Download Counting Sheet" id="btnCountingDownload" type="button">
+        <i class="fa-solid fa-file-arrow-down"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="footer-note" id="lblFooter">
+    Created By <span>Yomal Lakshan</span>
+  </div>
 </div>
 
-<script>
-    // DOM Elements ලබා ගැනීම
-    const unitPriceInput = document.getElementById('unitPrice');
-    const packsCountInput = document.getElementById('packsCount');
-    const totalAmountDisplay = document.getElementById('totalAmount');
-    const errorMessage = document.getElementById('errorMessage');
+<div id="toastContainer"></div>
 
-    // ගණනය කිරීමේ ශ්‍රිතය (Calculate Function)
-    function calculateTotal() {
-        const unitPrice = parseFloat(unitPriceInput.value);
-        const packsCount = parseInt(packsCountInput.value, 10);
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay" style="display:none;">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div id="loadingText" style="font-weight: 600; font-size: 0.95rem; color: var(--text-dark);">Processing...</div>
+  </div>
+</div>
 
-        // Validation - ඍණ අගයන් හෝ නොමැති අගයන් පරීක්ෂාව
-        if ((unitPriceInput.value !== "" && (isNaN(unitPrice) || unitPrice < 0)) || 
-            (packsCountInput.value !== "" && (isNaN(packsCount) || packsCount < 0))) {
-            errorMessage.style.display = 'block';
-            totalAmountDisplay.textContent = '0.00';
-            return;
-        } else {
-            errorMessage.style.display = 'none';
-        }
+<!-- Updated Live Modal -->
+<div id="todayUploadedModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="txtUpdatedLiveTitle"><i class="fa-solid fa-cloud-arrow-up" style="color:var(--success);"></i> Updated Live</h3>
+      <button class="close-btn ripple" onclick="closeTodayUploadedModal()" type="button">&times;</button>
+    </div>
 
-        // අගයන් ඇතුළත් කර නොමැති විට 0 ලෙස ගැනීම
-        const validUnitPrice = !isNaN(unitPrice) ? unitPrice : 0;
-        const validPacksCount = !isNaN(packsCount) ? packsCount : 0;
+    <!-- Switch and Search Box Row -->
+    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;">
+      <div class="switch-container">
+        <label class="switch-label" for="toggleCountingOnly">
+          <i class="fa-solid fa-list-check" style="color: var(--primary);"></i> Show Counting Details Only
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="toggleCountingOnly" onchange="renderTodayUploadedList()">
+          <span class="slider"></span>
+        </label>
+      </div>
 
-        // මුළු එකතුව ගණනය කිරීම (Total = Unit Price * Packs Count)
-        const total = validUnitPrice * validPacksCount;
+      <input type="text" id="todayModalSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
+    </div>
 
-        // අගය නිවැරදිව දශම ස්ථාන 2කට පෙන්වීම
-        totalAmountDisplay.textContent = total.toFixed(2);
-    }
+    <div class="checklist-container" id="todayCardsContainer"></div>
+  </div>
+</div>
 
-    // Event Listeners යෙදීම (Input වෙනස්වන විටම Update වීම සඳහා)
-    unitPriceInput.addEventListener('input', calculateTotal);
-    packsCountInput.addEventListener('input', calculateTotal);
-</script>
+<!-- Edit Counting Amount Modal -->
+<div id="editCountingModal" class="modal">
+  <div class="modal-content modal-small">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i> Edit Counting Amount</h3>
+      <button class="close-btn ripple" onclick="closeEditCountingModal()" type="button">&times;</button>
+    </div>
+    <div class="modal-body-scroll">
+      <div style="background: var(--primary-light); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--primary); margin-bottom: 12px;">
+        <div id="editModalItemName" style="font-weight: 700; color: var(--text-dark);">Item Name</div>
+        <div id="editModalItemCode" style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Code: -</div>
+      </div>
+      <div class="form-group">
+        <label><i class="fa-solid fa-calculator"></i> New Counting Amount:</label>
+        <div class="input-glow-wrapper">
+          <input type="number" id="editCountingAmountInput" min="0" step="any" placeholder="0.00" inputmode="decimal">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Pack Size:</label>
+          <input type="number" id="editPackSizeInput" min="0" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Packs Count:</label>
+          <input type="number" id="editPacksCountInput" min="0" placeholder="0">
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top: 18px;">
+        <button type="button" class="btn btn-primary ripple" onclick="saveEditedCountingAmount()">
+          <i class="fa-solid fa-check"></i> Update Amount
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
+<!-- Export Format & Options Selector Modal -->
+<div id="exportModal" class="modal">
+  <div class="modal-content modal-small">
+    <div class="modal-header">
+      <h3 id="txtExportTitle"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Download & Export</h3>
+      <button class="close-btn ripple" onclick="closeExportModal()" type="button">&times;</button>
+    </div>
+    <div class="modal-body-scroll">
+      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">ඔබට අවශ්‍ය Format සහ ගොනුවේ තොරතුරු සකසන්න:</p>
+      
+      <div class="form-group">
+        <label><i class="fa-solid fa-file-code"></i> Format:</label>
+        <select id="exportFormatSelect" onchange="updateDefaultFileName()">
+          <option value="xlsx">Excel Workbook (.xlsx)</option>
+          <option value="csv">CSV File (.csv)</option>
+          <option value="txt">Text File (.txt)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top: 14px;">
+        <label><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
+        <div class="input-glow-wrapper">
+          <input type="text" id="exportFileNameInput" placeholder="Stock_Counting_YYYY-MM-DD">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 15px;">
+        <label><i class="fa-solid fa-toggle-on"></i> Options:</label>
+        <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
+          <input type="checkbox" id="chkShiftStock" checked style="width:18px; height:18px; cursor:pointer;">
+          <label for="chkShiftStock" style="text-transform:none; margin:0; cursor:pointer; font-size:0.88rem;">Shift Stock to Opening (Reset Daily Data)</label>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top: 24px;">
+        <button type="button" class="btn btn-primary ripple" id="btnConfirmExport" onclick="processExportAction()">
+          <i class="fa-solid fa-paper-plane"></i> Continue / Process Action
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Material Detail Modal -->
+<div id="itemDetailModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3>
+      <button class="close-btn ripple" onclick="closeItemDetailModal()" type="button">&times;</button>
+    </div>
+    <div class="detail-card-grid" style="overflow-y: auto;">
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div>
+        <div class="detail-value" id="detCode">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-tag"></i> Unit of Measure (UOM)</div>
+        <div class="detail-value" id="detUom">-</div>
+      </div>
+      <div class="detail-item-box full-width">
+        <div class="detail-label"><i class="fa-solid fa-box"></i> Material Name</div>
+        <div class="detail-value" id="detName" style="color:var(--primary);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock</div>
+        <div class="detail-value" id="detOp">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-arrow-down" style="color:var(--success);"></i> Receipt (F)</div>
+        <div class="detail-value" id="detReceipt" style="color:var(--success);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-arrow-up" style="color:var(--danger);"></i> Issues (G)</div>
+        <div class="detail-value" id="detIssues" style="color:var(--danger);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-rotate-left" style="color:var(--warning);"></i> Return (H)</div>
+        <div class="detail-value" id="detReturn" style="color:var(--warning);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--success);"></i> Received to SSL</div>
+        <div class="detail-value" id="detSslI" style="color:var(--success);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--danger);"></i> Sent to SSL</div>
+        <div class="detail-value" id="detSslJ" style="color:var(--danger);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection</div>
+        <div class="detail-value" id="detRejectionL" style="color:var(--danger);">-</div>
+      </div>
+      <div class="detail-item-box">
+        <div class="detail-label"><i class="fa-solid fa-list-check" style="color:var(--primary);"></i> Counting</div>
+        <div class="detail-value" id="detCounting" style="color:var(--primary);">-</div>
+      </div>
+      <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);">
+        <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock</div>
+        <div class="detail-value" id="detClosing" style="font-size: 1.3rem; color:var(--primary);">-</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="txtSettingsTitle"><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences</h3>
+      <button class="close-btn ripple" onclick="closeSettings()" type="button">&times;</button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="setting-option">
+        <label id="lblLanguage"><i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language / භාෂාව / மொழி:</label>
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+          <option value="si">සිංහල (Sinhala)</option>
+          <option value="en">English</option>
+          <option value="ta">தமிழ் (Tamil)</option>
+        </select>
+      </div>
+
+      <div class="setting-option">
+        <label id="lblTheme"><i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:</label>
+        <select id="themeSelect" onchange="changeTheme(this.value)">
+          <option value="light">Light Theme (Default)</option>
+          <option value="dark">Dark Theme</option>
+          <option value="blue">Slate Blue Theme</option>
+        </select>
+      </div>
+
+      <div class="setting-option">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <label id="lblRestore" style="margin-bottom: 0;"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label>
+          <button class="btn ripple" onclick="openRestoreHelpModal()" type="button" style="padding: 5px 10px; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+            <i class="fa-solid fa-circle-question"></i> Help / උදව්
+          </button>
+        </div>
+        <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p>
+        <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 12px;">
+        <button class="btn ripple" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button">
+          <i class="fa-solid fa-upload"></i> Restore Excel Data
+        </button>
+      </div>
+
+      <div class="setting-option">
+        <label id="lblBackup"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label>
+        <p id="descBackup">වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p>
+        <button class="btn btn-secondary ripple" style="width:100%; padding: 12px; background:#475569; color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="downloadXLSXBackup()" id="btnBackup" type="button">
+          <i class="fa-solid fa-download"></i> Download Backup File
+        </button>
+      </div>
+
+      <div class="setting-option" style="margin-bottom: 10px;">
+        <label id="lblReset"><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label>
+        <p id="descReset">මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p>
+        <button class="btn ripple" style="width:100%; padding: 12px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()" id="btnReset" type="button">
+          <i class="fa-solid fa-trash-can"></i> Reset All Data
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Restore Help Modal -->
+<div id="restoreHelpModal" class="modal">
+  <div class="modal-content modal-small">
+    <div class="modal-header">
+      <h3 id="helpModalTitle"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore & Web App Help</h3>
+      <button class="close-btn ripple" onclick="closeRestoreHelpModal()" type="button">&times;</button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label id="helpSelectLabel"><i class="fa-solid fa-list"></i> මාතෘකාව තෝරන්න:</label>
+        <select id="helpTopicSelect" onchange="switchHelpTopic(this.value)">
+          <option value="fileType">1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</option>
+          <option value="howToDo">2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</option>
+          <option value="appFeatures">3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</option>
+        </select>
+      </div>
+
+      <div id="helpContentBox" style="background: var(--bg-main); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-size: 0.92rem; line-height: 1.6; color: var(--text-dark);">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
