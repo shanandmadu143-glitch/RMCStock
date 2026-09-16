@@ -860,3 +860,4 @@ input:checked + .slider:before {
   .modal { padding: 0; }
   .modal-content { height: 100vh; max-height: 100vh; border-radius: 0; }
 }
+
