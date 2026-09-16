@@ -2,7 +2,7 @@ const i18n = {
   si: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Code හෝ Name මගින් සොයන්න:',
     placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...',
-    lblSection: '<i class="fa-solid fa-layer-group"></i> Section එක තෝරන්න:',
+    lblSection: '<i class="fa-solid fa-layer-group"></i> Select Section:',
     optReceipt: 'Receipt (ලැබීම්)',
     optIssues: 'Issues (නිකුත් කිරීම්)',
     optReturn: 'Return (නැවත භාරදීම්)',
@@ -28,7 +28,7 @@ const i18n = {
     btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
     lblFooter: 'Created By <span>Yomal Lakshan</span>',
     msgSelectMaterial: 'කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!',
-    msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි අංකයක් පමණක් ඇතුළත් කරන්න! (ඍණ අංක හෝ අකුරු පිළිගනු නොලැබේ)',
+    msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි අංකයක් පමණක් ඇතුළත් කරන්න!',
     msgAdded: 'සාර්ථකව එකතු විය!',
     msgExcelShift: 'ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
     msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
@@ -68,7 +68,7 @@ const i18n = {
     btnReset: '<i class="fa-solid fa-trash-can"></i> Reset All Data',
     lblFooter: 'Created By <span>Yomal Lakshan</span>',
     msgSelectMaterial: 'Please select a Material Code or Name!',
-    msgValidAmount: 'Please enter a valid number greater than 0! (Negative values or letters are not allowed)',
+    msgValidAmount: 'Please enter a valid number greater than 0!',
     msgAdded: 'successfully added!',
     msgExcelShift: 'File downloaded and Stock shifted successfully!',
     msgRestoreSelect: 'Please select an Excel file!',
@@ -125,10 +125,10 @@ let currentLang = localStorage.getItem('rmc_app_lang') || 'si';
 let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
 let inventory = []; 
 let selectedIndex = -1;
-let editingItemIndex = -1;
 let searchDebounceTimeout = null;
 let todayModalSearchTimeout = null;
 let currentExportMode = 'excel'; 
+let currentlyEditingIndex = -1;
 
 const defaultItems = [ 
   {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000}, 
@@ -445,6 +445,7 @@ function closeTodayUploadedModal() {
   hideModal('todayUploadedModal');
 }
 
+/* Updated Live Rendering with Counting Switch and Swipe Functionality */
 function renderTodayUploadedList() {
   const container = document.getElementById('todayCardsContainer');
   if (!container) return;
@@ -452,178 +453,197 @@ function renderTodayUploadedList() {
 
   const todayStr = getTodayStr();
   const searchInputVal = document.getElementById('todayModalSearchInput');
-  const toggleCounting = document.getElementById('countingOnlyToggle');
-  
+  const showCountingOnly = document.getElementById('toggleCountingOnly')?.checked || false;
   const q = searchInputVal ? searchInputVal.value.toLowerCase().trim() : '';
-  const isCountingOnly = toggleCounting ? toggleCounting.checked : false;
-
   const fragment = document.createDocumentFragment();
+
   let count = 0;
 
   inventory.forEach((item, idx) => {
     item.closing = calculateClosingStock(item);
     
-    let isMatchFilter = false;
-    if (isCountingOnly) {
-      isMatchFilter = (item.counting > 0);
+    // Condition depending on switch
+    let matchesCondition = false;
+    if (showCountingOnly) {
+      matchesCondition = (item.counting > 0);
     } else {
-      isMatchFilter = (item.last_updated === todayStr) || 
-                      (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0 || item.counting > 0);
+      matchesCondition = (item.last_updated === todayStr) || 
+                         (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0 || item.counting > 0);
     }
 
-    if (isMatchFilter) {
+    if (matchesCondition) {
       const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(q);
       if (matchesSearch) {
         count++;
-        
-        const wrapperDiv = document.createElement('div');
-        wrapperDiv.className = 'swipe-item-wrapper';
 
-        wrapperDiv.innerHTML = `
-          <div class="swipe-action-bg">
-            <div class="swipe-action-left"><i class="fa-solid fa-pen"></i> Edit</div>
-            <div class="swipe-action-right">Delete <i class="fa-solid fa-trash"></i></div>
-          </div>
-          <div class="checklist-item" id="swipe-item-${idx}">
+        if (showCountingOnly) {
+          // Counting-only mode with Swipe (Edit/Delete) capabilities
+          const swipeWrapper = document.createElement('div');
+          swipeWrapper.className = 'swipe-wrapper';
+
+          swipeWrapper.innerHTML = `
+            <div class="swipe-action edit-action"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
+            <div class="swipe-action delete-action"><i class="fa-solid fa-trash-can"></i> Delete</div>
+            <div class="checklist-item" id="swipe-item-${idx}">
+              <div class="checklist-left">
+                <div class="checklist-info">
+                  <div class="checklist-name" title="${item.name}">${item.name}</div>
+                  <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
+                </div>
+              </div>
+              <div class="checklist-right">
+                <div class="checklist-stock" style="color:var(--primary);">${Number(item.counting).toLocaleString()} ${item.uom}</div>
+                <div style="font-size: 0.68rem; color: var(--primary); font-weight: 700; text-transform: uppercase;">Counting Amount</div>
+              </div>
+            </div>
+          `;
+
+          const cardItem = swipeWrapper.querySelector('.checklist-item');
+          setupSwipeEvents(swipeWrapper, cardItem, idx);
+          fragment.appendChild(swipeWrapper);
+
+        } else {
+          // Normal Updated Live item
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'checklist-item';
+
+          itemDiv.innerHTML = ` 
             <div class="checklist-left">
               <div class="checklist-info">
                 <div class="checklist-name" title="${item.name}">${item.name}</div>
-                <div class="checklist-code"><i class="fa-solid fa-barcode"></i> Code: ${item.code}</div>
+                <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
               </div>
             </div>
             <div class="checklist-right">
-              ${isCountingOnly || item.counting > 0 ? 
-                `<div class="checklist-stock" style="color: #8b5cf6;">Count: ${Number(item.counting).toLocaleString()} ${item.uom}</div>
-                 <div class="counting-pill-badge"><i class="fa-solid fa-calculator"></i> Counting</div>` :
-                `<div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
-                 <div style="font-size: 0.68rem; color: var(--success); font-weight: 700; text-transform: uppercase;">Today Live</div>`
-              }
+              <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
+              <div style="font-size: 0.68rem; color: var(--success); font-weight: 700; text-transform: uppercase;">Today Live</div>
             </div>
-          </div>
-        `;
+          `;
 
-        const cardEl = wrapperDiv.querySelector('.checklist-item');
-        attachSwipeListeners(cardEl, idx, isCountingOnly || item.counting > 0);
+          itemDiv.onclick = () => {
+            openItemDetails(idx);
+          };
 
-        fragment.appendChild(wrapperDiv);
+          fragment.appendChild(itemDiv);
+        }
       }
     }
   });
 
   if (count === 0) {
-    container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight:600;">${isCountingOnly ? 'Counting දත්ත කිසිවක් හමු නොවුණි.' : 'අද දින දත්ත කිසිවක් ඇතුළත් කර නැත.'}</div>`;
+    const noDataText = showCountingOnly ? "Counting දත්ත කිසිවක් ඇතුළත් කර නැත. (No counting updates)" : "දත්ත කිසිවක් ඇතුළත් කර නැත. (No updates today)";
+    container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight:600;">${noDataText}</div>`;
   } else {
     container.appendChild(fragment);
   }
 }
 
-function attachSwipeListeners(element, index, isCounting) {
+/* Swipe Logic Implementation (Left Swipe = Edit, Right Swipe = Delete) */
+function setupSwipeEvents(wrapper, itemEl, index) {
   let startX = 0;
   let currentX = 0;
-  let isSwiping = false;
+  let isDragging = false;
 
-  element.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-    isSwiping = true;
-    element.style.transition = 'none';
-  }, { passive: true });
+  const onStart = (e) => {
+    startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+    isDragging = true;
+    itemEl.style.transition = 'none';
+  };
 
-  element.addEventListener('touchmove', (e) => {
-    if (!isSwiping) return;
-    currentX = e.touches[0].clientX - startX;
+  const onMove = (e) => {
+    if (!isDragging) return;
+    const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+    const diff = x - startX;
     
-    if (Math.abs(currentX) < 120) {
-      element.style.transform = `translateX(${currentX}px)`;
+    // Limit swipe range
+    if (Math.abs(diff) < 120) {
+      currentX = diff;
+      itemEl.style.transform = `translateX(${currentX}px)`;
     }
-  }, { passive: true });
+  };
 
-  element.addEventListener('touchend', () => {
-    if (!isSwiping) return;
-    isSwiping = false;
-    element.style.transition = 'transform 0.2s ease-out';
+  const onEnd = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    itemEl.style.transition = 'transform 0.2s ease-out';
 
-    if (currentX < -70) {
-      // Swipe Left -> Edit
-      element.style.transform = 'translateX(0px)';
-      if (isCounting) {
-        openEditCountingModal(index);
-      } else {
-        openItemDetails(index);
-      }
-    } else if (currentX > 70) {
-      // Swipe Right -> Delete
-      element.style.transform = 'translateX(0px)';
-      if (isCounting) {
-        deleteCountingRecord(index);
-      } else {
-        showToast('Counting නොවන දත්ත වෙනස් කිරීමට Material Details භාවිතා කරන්න.', 'warning');
-      }
+    if (currentX < -60) {
+      // Left Swipe -> Edit Action
+      itemEl.style.transform = 'translateX(0px)';
+      openEditCountingModal(index);
+    } else if (currentX > 60) {
+      // Right Swipe -> Delete Action
+      itemEl.style.transform = 'translateX(0px)';
+      deleteCountingAmount(index);
     } else {
-      element.style.transform = 'translateX(0px)';
+      itemEl.style.transform = 'translateX(0px)';
     }
     currentX = 0;
-  });
-
-  element.onclick = () => {
-    openItemDetails(index);
   };
+
+  itemEl.addEventListener('touchstart', onStart, { passive: true });
+  itemEl.addEventListener('touchmove', onMove, { passive: true });
+  itemEl.addEventListener('touchend', onEnd);
+
+  itemEl.addEventListener('mousedown', onStart);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onEnd);
 }
 
+/* Edit Counting Modal Handling */
 function openEditCountingModal(index) {
-  editingItemIndex = index;
+  currentlyEditingIndex = index;
   const item = inventory[index];
   if (!item) return;
 
-  const codeEl = document.getElementById('editItemCode');
-  const nameEl = document.getElementById('editItemName');
-  const inputEl = document.getElementById('editCountingInput');
-
-  if (codeEl) codeEl.innerText = `Code: ${item.code}`;
-  if (nameEl) nameEl.innerText = item.name;
-  if (inputEl) inputEl.value = item.counting || '';
+  document.getElementById('editModalItemName').innerText = item.name;
+  document.getElementById('editModalItemCode').innerText = `Code: ${item.code} | UOM: ${item.uom}`;
+  document.getElementById('editCountingAmountInput').value = item.counting || '';
 
   showModal('editCountingModal');
-  if (inputEl) setTimeout(() => inputEl.focus(), 150);
+  setTimeout(() => {
+    document.getElementById('editCountingAmountInput').focus();
+  }, 250);
 }
 
 function closeEditCountingModal() {
   hideModal('editCountingModal');
-  editingItemIndex = -1;
+  currentlyEditingIndex = -1;
 }
 
-function saveEditedCounting() {
-  if (editingItemIndex === -1 || !inventory[editingItemIndex]) return;
+function saveEditedCountingAmount() {
+  if (currentlyEditingIndex === -1 || !inventory[currentlyEditingIndex]) return;
 
-  const inputEl = document.getElementById('editCountingInput');
-  const rawVal = inputEl ? inputEl.value.trim() : '';
-  const newAmount = parseFloat(rawVal);
+  const rawVal = document.getElementById('editCountingAmountInput').value.trim();
+  const amount = parseFloat(rawVal) || 0;
 
-  if (rawVal === '' || isNaN(newAmount) || newAmount < 0) {
-    showToast('කරුණාකර වලංගු අගයක් ඇතුළත් කරන්න!', 'error');
+  if (rawVal === "" || isNaN(amount) || amount < 0) {
+    showToast("කරුණාකර වලංගු අගයක් ඇතුළත් කරන්න!", "error");
     return;
   }
 
-  const item = inventory[editingItemIndex];
-  item.counting = roundNum(newAmount);
+  const item = inventory[currentlyEditingIndex];
+  item.counting = roundNum(amount);
   item.closing = calculateClosingStock(item);
   item.last_updated = getTodayStr();
 
   saveInventoryData();
   closeEditCountingModal();
   renderTodayUploadedList();
-  showToast(`${item.name} Counting අගය යාවත්කාලීන විය!`, 'success');
+  showToast(`${item.name} - Counting Amount updated to ${amount}`, 'success');
 }
 
-function deleteCountingRecord(index) {
+/* Delete Counting Action */
+function deleteCountingAmount(index) {
   const item = inventory[index];
   if (!item) return;
 
-  if (confirm(`${item.name} හි Counting අගය (${item.counting}) ඉවත් කිරීමට අවශ්‍යද?`)) {
+  if (confirm(`${item.name} හි Counting Amount එක ඉවත් (Delete) කිරීමට අවශ්‍යද?`)) {
     item.counting = 0;
     item.closing = calculateClosingStock(item);
     saveInventoryData();
     renderTodayUploadedList();
-    showToast(`${item.name} Counting අගය ඉවත් කරන ලදී!`, 'success');
+    showToast(`${item.name} Counting Amount deleted!`, 'warning');
   }
 }
 
