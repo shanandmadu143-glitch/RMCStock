@@ -479,6 +479,10 @@ input:focus, select:focus {
   overflow: hidden;
 }
 
+.modal-content.modal-small {
+  max-width: 450px;
+}
+
 .modal-body-scroll {
   overflow-y: auto;
   overflow-x: hidden;
@@ -528,10 +532,74 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
+/* Switch styling for Counting Filter */
+.switch-filter-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-main);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.switch-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--border-color);
+  transition: .3s;
+  border-radius: 26px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--primary);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+}
+
+/* Checklist Items & Swipe Wrapper */
 .checklist-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
@@ -539,51 +607,50 @@ input:focus, select:focus {
   width: 100%;
 }
 
-/* Swipe Container & Items Styles */
-.swipe-item-wrapper {
+.swipe-wrapper {
   position: relative;
   width: 100%;
-  border-radius: var(--radius-md);
   overflow: hidden;
-  margin-bottom: 8px;
-  background: var(--bg-main);
+  border-radius: var(--radius-md);
   touch-action: pan-y;
 }
 
-.swipe-action-bg {
+.swipe-background {
   position: absolute;
   top: 0;
-  bottom: 0;
   left: 0;
   right: 0;
+  bottom: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
-  font-weight: 700;
-  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+}
+
+.swipe-action-left {
+  background: #3b82f6;
   color: white;
-}
-
-.swipe-action-bg .swipe-edit-hint {
-  background: var(--primary);
   height: 100%;
-  width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 20px;
-  gap: 8px;
-}
-
-.swipe-action-bg .swipe-delete-hint {
-  background: var(--danger);
-  height: 100%;
-  width: 50%;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   padding-left: 20px;
+  font-weight: 700;
+  gap: 8px;
+}
+
+.swipe-action-right {
+  background: var(--danger);
+  color: white;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 20px;
+  font-weight: 700;
   gap: 8px;
 }
 
@@ -601,7 +668,6 @@ input:focus, select:focus {
   transition: transform 0.15s ease-out, border-color 0.2s ease;
   width: 100%;
   z-index: 2;
-  user-select: none;
 }
 
 .checklist-item:hover {
@@ -754,4 +820,3 @@ input:focus, select:focus {
   .modal { padding: 0; }
   .modal-content { height: 100vh; max-height: 100vh; border-radius: 0; }
 }
-
