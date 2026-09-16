@@ -155,6 +155,23 @@ const defaultItems = [
   {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2} 
 ]; 
 
+function handleSectionChange() {
+  const sectionVal = document.getElementById('sectionSelect').value;
+  const btnCounting = document.getElementById('btnCountingDownload');
+  const btnExcel = document.getElementById('btnExcel');
+  const btnShare = document.getElementById('btnShare');
+
+  if (sectionVal === 'COUNTING') {
+    if (btnCounting) btnCounting.style.display = 'inline-flex';
+    if (btnExcel) btnExcel.style.display = 'none';
+    if (btnShare) btnShare.style.display = 'none';
+  } else {
+    if (btnCounting) btnCounting.style.display = 'none';
+    if (btnExcel) btnExcel.style.display = 'inline-flex';
+    if (btnShare) btnShare.style.display = 'inline-flex';
+  }
+}
+
 function showLoading(text = "Processing...") {
   const el = document.getElementById('loadingText');
   if (el) el.innerText = text;
@@ -367,28 +384,6 @@ function selectItem(index) {
   const inputAmount = document.getElementById('inputAmount');
   if (inputAmount) inputAmount.focus();
 } 
-
-/* Dynamic Icon Visibility Handler based on Section Selection */
-function handleSectionChange() {
-  const sectionSelect = document.getElementById('sectionSelect');
-  const btnExcel = document.getElementById('btnExcel');
-  const btnShare = document.getElementById('btnShare');
-  const btnCountingDownload = document.getElementById('btnCountingDownload');
-
-  if (!sectionSelect || !btnExcel || !btnShare || !btnCountingDownload) return;
-
-  const currentVal = sectionSelect.value;
-
-  if (currentVal === 'COUNTING') {
-    btnCountingDownload.style.display = 'flex';
-    btnExcel.style.display = 'none';
-    btnShare.style.display = 'none';
-  } else {
-    btnCountingDownload.style.display = 'none';
-    btnExcel.style.display = 'flex';
-    btnShare.style.display = 'flex';
-  }
-}
 
 function addSingleSectionData() { 
   const t = i18n[currentLang] || i18n['si'];
@@ -686,9 +681,22 @@ function closeExportModal() {
   hideModal('exportModal');
 }
 
-/* Counting Sheet Download Modal Handling */
+function updateDefaultFileName() {
+  const formatSelect = document.getElementById('exportFormatSelect');
+  const fileNameInput = document.getElementById('exportFileNameInput');
+  if (!formatSelect || !fileNameInput) return;
+
+  const ext = formatSelect.value;
+  const today = getTodayStr();
+  fileNameInput.value = `Stock_Counting_${today}.${ext}`;
+}
+
 function openCountingDownloadModal() {
-  updateCountingFileName();
+  const formatSelect = document.getElementById('countingFormatSelect');
+  const nameInput = document.getElementById('countingFileNameInput');
+  if (nameInput) {
+    nameInput.value = `Counting_Sheet_${getTodayStr()}.${formatSelect ? formatSelect.value : 'xlsx'}`;
+  }
   showModal('countingDownloadModal');
 }
 
@@ -696,17 +704,7 @@ function closeCountingDownloadModal() {
   hideModal('countingDownloadModal');
 }
 
-function updateCountingFileName() {
-  const formatSelect = document.getElementById('countingFormatSelect');
-  const fileNameInput = document.getElementById('countingFileNameInput');
-  if (!formatSelect || !fileNameInput) return;
-
-  const ext = formatSelect.value;
-  const today = getTodayStr();
-  fileNameInput.value = `Counting_Sheet_${today}.${ext}`;
-}
-
-function generateCountingSheetBlob(format, customName) {
+function getCountingFileData(format, customName) {
   const today = getTodayStr();
   const fileName = customName || `Counting_Sheet_${today}.${format}`;
 
@@ -734,105 +732,136 @@ function generateCountingSheetBlob(format, customName) {
       filename: fileName,
       mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     };
-  } else if (format === 'pdf' || format === 'doc') {
-    let content = `====================================================\n`;
-    content += `             STOCK COUNTING SHEET - ${today}\n`;
-    content += `====================================================\n\n`;
-    content += `No. | Code       | Material Name                          | Counting\n`;
-    content += `----------------------------------------------------\n`;
+  } else if (format === 'pdf') {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-    inventory.forEach((item, idx) => {
-      const idxStr = String(idx + 1).padEnd(3, ' ');
-      const codeStr = String(item.code || '').padEnd(10, ' ');
-      const nameStr = String(item.name || '').padEnd(38, ' ');
-      const countStr = String(item.counting || 0);
-      content += `${idxStr} | ${codeStr} | ${nameStr} | ${countStr}\n`;
+    doc.setFontSize(16);
+    doc.text(`Counting Sheet - ${today}`, 14, 15);
+
+    const tableData = inventory.map(item => [
+      item.code || "",
+      item.name || "",
+      item.type || "RM",
+      (Number(item.counting) || 0).toString()
+    ]);
+
+    doc.autoTable({
+      head: [["Material Code", "Material Name", "RM/PM", "Counting"]],
+      body: tableData,
+      startY: 22,
+      theme: 'grid',
+      headStyles: { fillColor: [37, 99, 235] }
     });
 
-    const mime = format === 'pdf' ? 'application/pdf' : 'application/msword';
+    const pdfBlob = doc.output('blob');
     return {
-      blob: new Blob([content], { type: `${mime};charset=utf-8;` }),
+      blob: pdfBlob,
       filename: fileName,
-      mimeType: mime
+      mimeType: 'application/pdf'
+    };
+  } else if (format === 'doc') {
+    let docContent = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><title>Counting Sheet</title></head>
+    <body style="font-family: Arial, sans-serif;">
+      <h2>Stock Counting Sheet - ${today}</h2>
+      <table border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; width: 100%;">
+        <thead>
+          <tr style="background-color: #2563eb; color: white;">
+            <th>Material Code</th>
+            <th>Material Name</th>
+            <th>RM/PM</th>
+            <th>Counting Amount</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+    inventory.forEach(item => {
+      docContent += `
+        <tr>
+          <td>${item.code || ""}</td>
+          <td>${item.name || ""}</td>
+          <td>${item.type || "RM"}</td>
+          <td>${Number(item.counting) || 0}</td>
+        </tr>`;
+    });
+
+    docContent += `
+        </tbody>
+      </table>
+    </body>
+    </html>`;
+
+    return {
+      blob: new Blob(['\ufeff' + docContent], { type: 'application/msword' }),
+      filename: fileName,
+      mimeType: 'application/msword'
     };
   }
 }
 
 function processCountingDownload() {
   const formatSelect = document.getElementById('countingFormatSelect');
-  const fileNameInput = document.getElementById('countingFileNameInput');
+  const nameInput = document.getElementById('countingFileNameInput');
   const format = formatSelect ? formatSelect.value : 'xlsx';
   
-  let customFileName = fileNameInput && fileNameInput.value.trim() !== '' 
-    ? fileNameInput.value.trim() 
-    : `Counting_Sheet_${getTodayStr()}.${format}`;
+  let fileName = nameInput && nameInput.value.trim() !== '' ? nameInput.value.trim() : `Counting_Sheet_${getTodayStr()}.${format}`;
+  if (!fileName.endsWith(`.${format}`)) {
+    fileName += `.${format}`;
+  }
 
-  if (!customFileName.endsWith(`.${format}`)) customFileName += `.${format}`;
-
-  showLoading("Generating Counting Sheet...");
+  showLoading("Generating Counting File...");
   setTimeout(() => {
     try {
-      const fileData = generateCountingSheetBlob(format, customFileName);
-      triggerDirectDownload(fileData.blob, customFileName);
+      const fileData = getCountingFileData(format, fileName);
+      triggerDirectDownload(fileData.blob, fileData.filename);
       closeCountingDownloadModal();
       hideLoading();
       showToast('Counting Sheet Downloaded Successfully!', 'success');
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       hideLoading();
-      showToast('Error downloading file!', 'error');
+      showToast('Error generating Counting File!', 'error');
     }
   }, 300);
 }
 
 async function processCountingShare() {
-  const t = i18n[currentLang] || i18n['si'];
   const formatSelect = document.getElementById('countingFormatSelect');
-  const fileNameInput = document.getElementById('countingFileNameInput');
+  const nameInput = document.getElementById('countingFileNameInput');
   const format = formatSelect ? formatSelect.value : 'xlsx';
+  
+  let fileName = nameInput && nameInput.value.trim() !== '' ? nameInput.value.trim() : `Counting_Sheet_${getTodayStr()}.${format}`;
+  if (!fileName.endsWith(`.${format}`)) {
+    fileName += `.${format}`;
+  }
 
-  let customFileName = fileNameInput && fileNameInput.value.trim() !== '' 
-    ? fileNameInput.value.trim() 
-    : `Counting_Sheet_${getTodayStr()}.${format}`;
-
-  if (!customFileName.endsWith(`.${format}`)) customFileName += `.${format}`;
-
-  showLoading("Preparing Counting Sheet to share...");
+  showLoading("Preparing File to Share...");
   setTimeout(async () => {
     try {
-      const fileData = generateCountingSheetBlob(format, customFileName);
-      const file = new File([fileData.blob], customFileName, { type: fileData.mimeType });
-
+      const fileData = getCountingFileData(format, fileName);
+      const file = new File([fileData.blob], fileData.filename, { type: fileData.mimeType });
       closeCountingDownloadModal();
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          title: 'Counting Sheet Report',
-          text: `Counting Sheet Report - ${getTodayStr()}`,
+          title: 'Stock Counting Sheet',
+          text: `Stock Counting Sheet - ${getTodayStr()}`,
           files: [file]
         });
-        showToast(t.shareSuccess, 'success');
+        showToast('Shared successfully!', 'success');
       } else {
-        triggerDirectDownload(fileData.blob, customFileName);
-        showToast(t.shareNotSupported, 'warning');
+        triggerDirectDownload(fileData.blob, fileData.filename);
+        showToast('Sharing not supported on this browser. File downloaded instead.', 'warning');
       }
-    } catch (e) {
-      if (e.name !== 'AbortError') {
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error(err);
         showToast('Error sharing file!', 'error');
       }
-    } finally {
-      hideLoading();
     }
+    hideLoading();
   }, 300);
-}
-
-function updateDefaultFileName() {
-  const formatSelect = document.getElementById('exportFormatSelect');
-  const fileNameInput = document.getElementById('exportFileNameInput');
-  if (!formatSelect || !fileNameInput) return;
-
-  const ext = formatSelect.value;
-  const today = getTodayStr();
-  fileNameInput.value = `Stock_Counting_${today}.${ext}`;
 }
 
 function switchHelpTopic(topic) {
@@ -922,9 +951,18 @@ function generateWorkbookWithFormulas() {
   const worksheet = XLSX.utils.aoa_to_sheet(sheetData); 
 
   worksheet['!cols'] = [
-    { wch: 8 }, { wch: 15 }, { wch: 38 }, { wch: 8 },
-    { wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
-    { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 18 }
+    { wch: 8 },
+    { wch: 15 },
+    { wch: 38 },
+    { wch: 8 },
+    { wch: 20 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 16 },
+    { wch: 16 },
+    { wch: 14 },
+    { wch: 18 }
   ];
 
   const workbook = XLSX.utils.book_new(); 
@@ -1222,7 +1260,17 @@ document.addEventListener('DOMContentLoaded', () => {
   applyLanguage(currentLang);
   updateVisibilityState(false);
   updateClearBtnVisibility();
-  handleSectionChange(); // Set initial button state based on selected dropdown section
+  handleSectionChange();
+
+  const countingFormatSelect = document.getElementById('countingFormatSelect');
+  if (countingFormatSelect) {
+    countingFormatSelect.addEventListener('change', () => {
+      const nameInput = document.getElementById('countingFileNameInput');
+      if (nameInput) {
+        nameInput.value = `Counting_Sheet_${getTodayStr()}.${countingFormatSelect.value}`;
+      }
+    });
+  }
 
   const searchInput = document.getElementById('searchInput');
   const searchResults = document.getElementById('searchResults');
