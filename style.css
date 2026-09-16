@@ -130,19 +130,6 @@ body {
   border: 1px solid rgba(147, 197, 253, 0.4);
 }
 
-.brand-icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(37, 99, 235, 0.25);
-  border: 1px solid rgba(96, 165, 250, 0.4);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #60a5fa;
-  font-size: 1.35rem;
-}
-
 .btn-icon-header {
   width: 46px;
   height: 46px;
@@ -496,6 +483,16 @@ input:focus, select:focus {
   max-width: 450px;
 }
 
+/* Popup Animation for Counting Sheet Modal */
+.modal.show .modal-content.popup-animated {
+  animation: modalPopUp 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes modalPopUp {
+  0% { transform: scale(0.7) translateY(30px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
 .modal-body-scroll {
   overflow-y: auto;
   overflow-x: hidden;
@@ -545,7 +542,6 @@ input:focus, select:focus {
   color: var(--danger);
 }
 
-/* Toggle Switch Styles */
 .switch-container {
   display: flex;
   justify-content: space-between;
@@ -608,7 +604,6 @@ input:checked + .slider:before {
   transform: translateX(22px);
 }
 
-/* Checklist and Swipeable Card Styling */
 .checklist-container {
   display: flex;
   flex-direction: column;
@@ -630,7 +625,6 @@ input:checked + .slider:before {
   background-color: var(--border-color);
 }
 
-/* Swipe Actions Backgrounds */
 .swipe-action {
   position: absolute;
   top: 0;
