@@ -7,10 +7,6 @@
   
   <!-- XLSX Library -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <!-- jsPDF & AutoTable Libraries for PDF Download -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   
@@ -25,6 +21,7 @@
     </button>
 
     <div class="brand-title">
+      <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
       <div class="brand-name-wrapper">
         <span class="main-brand-text">Stock</span>
         <span class="sub-badge-counting">Counting</span>
@@ -37,8 +34,13 @@
   </div>
 
   <div class="card">
+    <!-- Top Dynamic Counting Mode Indicator Badge -->
+    <div class="mode-badge-wrapper">
+      <span id="countingModeBadge" class="counting-mode-badge badge-normal">Normal Counting</span>
+    </div>
+
     <div class="form-group">
-      <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Name or Codes:</label>
+      <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:</label>
       <div class="input-glow-wrapper search-input-container">
         <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off">
         <button type="button" id="clearSearchBtn" class="clear-search-btn" title="Clear Search" onclick="clearSearchInput()">
@@ -61,7 +63,7 @@
     <div class="form-grid">
       <div class="form-group" style="margin-bottom:0;">
         <label id="lblSection"><i class="fa-solid fa-layer-group"></i> Select Section:</label>
-        <select id="sectionSelect" onchange="handleSectionChange()">
+        <select id="sectionSelect" onchange="updateCountingModeBadge()">
           <option value="F" id="optReceipt">Receipt</option>
           <option value="G" id="optIssues">Issues</option>
           <option value="H" id="optReturn">Return</option>
@@ -75,6 +77,24 @@
         <label id="lblAmount"><i class="fa-solid fa-calculator"></i> Enter Amount:</label>
         <div class="input-glow-wrapper">
           <input type="number" id="inputAmount" min="0" step="any" placeholder="0.00" inputmode="decimal">
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional Pack Details (Visible only when Counting section is selected) -->
+    <div id="packCalcContainer" class="pack-calc-container" style="display: flex;">
+      <div class="form-grid" style="width: 100%; margin-bottom: 0;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label><i class="fa-solid fa-box-open"></i> Pack Size (කොටසක ප්‍රමාණය):</label>
+          <div class="input-glow-wrapper">
+            <input type="number" id="inputPackSize" min="0" step="any" placeholder="e.g. 25" inputmode="decimal" oninput="calculatePackTotal()">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label><i class="fa-solid fa-cubes"></i> Packs Count (කොටස් ගණන):</label>
+          <div class="input-glow-wrapper">
+            <input type="number" id="inputPacksCount" min="0" step="any" placeholder="e.g. 10" inputmode="decimal" oninput="calculatePackTotal()">
+          </div>
         </div>
       </div>
     </div>
@@ -94,7 +114,7 @@
       <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button">
         <i class="fa-solid fa-share-nodes"></i>
       </button>
-      <button class="btn-icon-counting ripple popup-btn" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button">
+      <button class="btn-icon-counting ripple" onclick="downloadCountingSheet()" title="Download Counting Sheet" id="btnCountingDownload" type="button">
         <i class="fa-solid fa-file-arrow-down"></i>
       </button>
     </div>
@@ -112,42 +132,6 @@
   <div class="loading-box">
     <div class="spinner"></div>
     <div id="loadingText" style="font-weight: 600; font-size: 0.95rem; color: var(--text-dark);">Processing...</div>
-  </div>
-</div>
-
-<!-- Download Counting Sheet Format & Share Modal -->
-<div id="countingDownloadModal" class="modal">
-  <div class="modal-content modal-small">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-file-arrow-down" style="color:var(--primary);"></i> Download / Share Counting Sheet</h3>
-      <button class="close-btn ripple" onclick="closeCountingDownloadModal()" type="button">&times;</button>
-    </div>
-    <div class="modal-body-scroll">
-      <div class="form-group">
-        <label><i class="fa-solid fa-file-code"></i> Select Format / ආකෘතිය තෝරන්න:</label>
-        <select id="countingFormatSelect">
-          <option value="xlsx">Excel Workbook (.xlsx)</option>
-          <option value="pdf">PDF Document (.pdf)</option>
-          <option value="doc">Word Document (.doc)</option>
-        </select>
-      </div>
-
-      <div class="form-group" style="margin-top: 14px;">
-        <label><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
-        <div class="input-glow-wrapper">
-          <input type="text" id="countingFileNameInput" placeholder="Counting_Sheet_YYYY-MM-DD">
-        </div>
-      </div>
-
-      <div class="btn-row" style="margin-top: 20px; flex-direction: column; gap: 10px;">
-        <button type="button" class="btn btn-primary ripple" style="width:100%;" onclick="processCountingDownload()">
-          <i class="fa-solid fa-download"></i> Download Counting Sheet
-        </button>
-        <button type="button" class="btn ripple" style="width:100%; background: #2563eb; color:white; border:none;" onclick="processCountingShare()">
-          <i class="fa-solid fa-share-nodes"></i> Share Counting Sheet
-        </button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -194,6 +178,16 @@
         <label><i class="fa-solid fa-calculator"></i> New Counting Amount:</label>
         <div class="input-glow-wrapper">
           <input type="number" id="editCountingAmountInput" min="0" step="any" placeholder="0.00" inputmode="decimal">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Pack Size:</label>
+          <input type="number" id="editPackSizeInput" min="0" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Packs Count:</label>
+          <input type="number" id="editPacksCountInput" min="0" placeholder="0">
         </div>
       </div>
       <div class="btn-row" style="margin-top: 18px;">
