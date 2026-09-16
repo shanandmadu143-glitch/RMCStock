@@ -14,7 +14,7 @@
 </head>
 <body>
 <div class="container">
-  <!-- Header Block -->
+  <!-- Header Block: Left Settings Icon | Center Title | Right Updated Live Icon -->
   <div class="header-block">
     <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
       <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
@@ -75,14 +75,14 @@
       </div>
     </div>
 
-    <!-- Save Button -->
+    <!-- Save Button top centered -->
     <div class="save-btn-container" style="margin-top: 22px;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
     </div>
 
-    <!-- Action Icons -->
+    <!-- Icons centered below Save Button -->
     <div class="icon-row-container" style="margin-top: 14px;">
       <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
         <i class="fa-solid fa-file-excel"></i>
@@ -118,14 +118,48 @@
       <h3><i class="fa-solid fa-cloud-arrow-up" style="color:var(--success);"></i> Updated Live</h3>
       <button class="close-btn ripple" onclick="closeTodayUploadedModal()" type="button">&times;</button>
     </div>
-    <div style="margin-bottom: 14px; flex-shrink: 0;">
-      <input type="text" id="todayModalSearchInput" placeholder="Filter updated items by name or code..." autocomplete="off" style="width: 100%;">
+    
+    <!-- Counting Filter Switch & Search Controls -->
+    <div style="margin-bottom: 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;">
+      <div class="switch-filter-container">
+        <span class="switch-label"><i class="fa-solid fa-calculator" style="color:var(--primary);"></i> Counting පමණක් පෙන්වන්න</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="chkCountingOnly" onchange="renderTodayUploadedList()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <input type="text" id="todayModalSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
     </div>
+
     <div class="checklist-container" id="todayCardsContainer"></div>
   </div>
 </div>
 
-<!-- Export Modal -->
+<!-- Edit Counting Popup Modal -->
+<div id="editCountingModal" class="modal">
+  <div class="modal-content modal-small">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i> Edit Counting Amount</h3>
+      <button class="close-btn ripple" onclick="closeEditCountingModal()" type="button">&times;</button>
+    </div>
+    <div class="modal-body-scroll">
+      <div style="font-weight: 700; margin-bottom: 8px;" id="editItemTitle">-</div>
+      <div class="form-group">
+        <label><i class="fa-solid fa-calculator"></i> New Counting Amount:</label>
+        <div class="input-glow-wrapper">
+          <input type="number" id="editCountingAmountInput" min="0" step="any" placeholder="0.00" inputmode="decimal">
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top: 16px;">
+        <button type="button" class="btn btn-primary ripple" onclick="saveEditedCounting()">
+          <i class="fa-solid fa-check"></i> Update Amount
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Export Format Selector Modal -->
 <div id="exportModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
