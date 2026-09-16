@@ -37,22 +37,23 @@
   </div>
 
   <div class="card">
+    
     <!-- Top Dynamic Counting Mode Indicator Badge & Action Icons -->
-    <div class="mode-badge-wrapper" id="modeBadgeWrapper">
-      <!-- Excel Icon (Left side for Daily Stocks) -->
-      <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button" style="display: none;">
+    <div class="mode-badge-wrapper">
+      <!-- Excel Icon (Left for Daily Stocks) -->
+      <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button" style="display:none;">
         <i class="fa-solid fa-file-excel"></i>
       </button>
 
       <span id="countingModeBadge" class="counting-mode-badge badge-normal">Normal Counting</span>
 
-      <!-- Share Icon (Right side for Daily Stocks) -->
-      <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button" style="display: none;">
+      <!-- Share Icon (Right for Daily Stocks) -->
+      <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button" style="display:none;">
         <i class="fa-solid fa-share-nodes"></i>
       </button>
 
-      <!-- Download Counting Icon (Right side for Normal Counting) -->
-      <button class="btn-icon-counting ripple" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button">
+      <!-- Counting Download Icon (Right for Normal Counting) -->
+      <button class="btn-icon-counting ripple" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button" style="display:flex;">
         <i class="fa-solid fa-file-arrow-down"></i>
       </button>
     </div>
@@ -99,22 +100,23 @@
       </div>
     </div>
 
-    <!-- Packs Count Field (Centered and Smaller) -->
-    <div id="packCalcContainer" class="pack-calc-container" style="display: flex; justify-content: center; padding: 12px;">
-      <div class="form-group" style="margin-bottom:0; width: 60%; max-width: 250px; text-align: center;">
-        <label style="justify-content: center;"><i class="fa-solid fa-cubes"></i> Packs Count (කොටස් ගණන):</label>
+    <!-- Packs Count Field (Smaller & Centered) -->
+    <div id="packCalcContainer" class="pack-calc-container" style="display: flex;">
+      <div class="form-group" style="margin-bottom:0; width: 100%;">
+        <label style="justify-content: center;"><i class="fa-solid fa-cubes"></i> Packs Count (කොටස්):</label>
         <div class="input-glow-wrapper">
-          <input type="number" id="inputPacksCount" min="0" step="any" placeholder="e.g. 10" inputmode="decimal" style="text-align: center;">
+          <input type="number" id="inputPacksCount" min="0" step="any" placeholder="0" inputmode="decimal" style="text-align: center;">
         </div>
       </div>
     </div>
 
-    <!-- Save Button -->
+    <!-- Save Button top centered -->
     <div class="save-btn-container" style="margin-top: 22px;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
     </div>
+
   </div>
 
   <div class="footer-note" id="lblFooter">
@@ -159,10 +161,10 @@
       </div>
 
       <div class="btn-row" style="margin-top: 24px; gap: 10px;">
-        <button type="button" class="btn btn-primary ripple" onclick="processCountingSheet('download')">
+        <button type="button" class="btn btn-primary ripple" onclick="processCountingDownload()">
           <i class="fa-solid fa-download"></i> Download
         </button>
-        <button type="button" class="btn ripple" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; flex: 1;" onclick="processCountingSheet('share')">
+        <button type="button" class="btn ripple" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; flex: 1;" onclick="processCountingShare()">
           <i class="fa-solid fa-share-nodes"></i> Share
         </button>
       </div>
