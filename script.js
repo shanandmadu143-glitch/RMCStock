@@ -12,6 +12,7 @@ const i18n = {
     optCounting: 'Counting (ගණනය කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    btnBinCardView: '<i class="fa-solid fa-clipboard-list"></i> Bin Card Update View',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share Data File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
@@ -52,6 +53,7 @@ const i18n = {
     optCounting: 'Counting',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    btnBinCardView: '<i class="fa-solid fa-clipboard-list"></i> Bin Card Update View',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
@@ -88,6 +90,7 @@ let selectedIndex = -1;
 let searchDebounceTimeout = null;
 let currentExportMode = 'excel'; 
 let currentlyEditingIndex = -1;
+let binCardFilter = 'all';
 
 const defaultItems = [ 
   {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000}, 
@@ -121,6 +124,7 @@ function updateCountingModeBadge() {
   const btnExcel = document.getElementById('btnExcel');
   const btnShare = document.getElementById('btnShare');
   const btnCountingDownload = document.getElementById('btnCountingDownload');
+  const binCardBtnContainer = document.getElementById('binCardBtnContainer');
   
   if (!sectionSelect || !badge) return;
   
@@ -132,6 +136,7 @@ function updateCountingModeBadge() {
     if (btnExcel) btnExcel.style.display = 'none';
     if (btnShare) btnShare.style.display = 'none';
     if (btnCountingDownload) btnCountingDownload.style.display = 'flex';
+    if (binCardBtnContainer) binCardBtnContainer.style.display = 'none';
   } else {
     badge.innerText = 'Daily Stocks';
     badge.className = 'counting-mode-badge badge-daily';
@@ -140,6 +145,7 @@ function updateCountingModeBadge() {
     if (btnExcel) btnExcel.style.display = 'flex';
     if (btnShare) btnShare.style.display = 'flex';
     if (btnCountingDownload) btnCountingDownload.style.display = 'none';
+    if (binCardBtnContainer) binCardBtnContainer.style.display = 'flex';
   }
 }
 
@@ -187,6 +193,7 @@ function applyLanguage(lang) {
   setText('optCounting', t.optCounting);
   setHtml('lblAmount', t.lblAmount);
   setHtml('btnSave', t.btnSave);
+  setHtml('btnBinCardView', t.btnBinCardView || '<i class="fa-solid fa-clipboard-list"></i> Bin Card Update View');
   
   const btnExcel = document.getElementById('btnExcel'); if(btnExcel) btnExcel.title = t.titleExcel;
   const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
@@ -406,6 +413,112 @@ function hideModal(modalId) {
   setTimeout(() => { modal.style.display = 'none'; }, 250);
 }
 
+/* Bin Card Update View Modal Functions */
+function openBinCardModal() {
+  renderBinCardTable();
+  showModal('binCardModal');
+}
+
+function closeBinCardModal() {
+  hideModal('binCardModal');
+}
+
+function setBinCardFilter(filter) {
+  binCardFilter = filter;
+  const btnFilterAll = document.getElementById('btnFilterAll');
+  const btnFilterActive = document.getElementById('btnFilterActive');
+
+  if (btnFilterAll) btnFilterAll.classList.toggle('active', filter === 'all');
+  if (btnFilterActive) btnFilterActive.classList.toggle('active', filter === 'active');
+  
+  renderBinCardTable();
+}
+
+function renderBinCardTable() {
+  const tbody = document.getElementById('binCardTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const searchVal = document.getElementById('binCardSearchInput')?.value.toLowerCase().trim() || '';
+
+  const filtered = inventory.filter(item => {
+    const matchesSearch = String(item.code).toLowerCase().includes(searchVal) || String(item.name).toLowerCase().includes(searchVal);
+    if (!matchesSearch) return false;
+
+    if (binCardFilter === 'active') {
+      return (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0 || item.counting > 0);
+    }
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 25px; color: var(--text-muted); font-weight: 600;">දත්ත සොයාගත නොහැකි විය (No items found)</td></tr>`;
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  filtered.forEach(item => {
+    item.closing = calculateClosingStock(item);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight: 700; color: var(--text-muted);">${item.code}</td>
+      <td style="font-weight: 600; color: var(--text-dark); max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${item.name}">${item.name}</td>
+      <td><span style="font-weight: 700; font-size: 0.78rem; background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px;">${item.uom}</span></td>
+      <td style="font-weight: 600;">${Number(item.op_stock).toLocaleString()}</td>
+      <td class="td-receipt">${item.f_receipt ? Number(item.f_receipt).toLocaleString() : '-'}</td>
+      <td class="td-issues">${item.g_issues ? Number(item.g_issues).toLocaleString() : '-'}</td>
+      <td class="td-return">${item.h_return ? Number(item.h_return).toLocaleString() : '-'}</td>
+      <td class="td-ssli">${item.i_ssl_received ? Number(item.i_ssl_received).toLocaleString() : '-'}</td>
+      <td class="td-sslj">${item.j_ssl_sent ? Number(item.j_ssl_sent).toLocaleString() : '-'}</td>
+      <td class="td-reject">${item.l_rejection ? Number(item.l_rejection).toLocaleString() : '-'}</td>
+      <td class="td-closing">${Number(item.closing).toLocaleString()}</td>
+    `;
+    fragment.appendChild(tr);
+  });
+  tbody.appendChild(fragment);
+}
+
+function exportBinCardPDF() {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('landscape');
+    const today = getTodayStr();
+
+    doc.setFontSize(16);
+    doc.text("Bin Card Update Report", 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Date: ${today}`, 14, 22);
+
+    const tableData = inventory.map(item => [
+      item.code,
+      item.name,
+      item.uom,
+      item.op_stock || 0,
+      item.f_receipt || 0,
+      item.g_issues || 0,
+      item.h_return || 0,
+      item.i_ssl_received || 0,
+      item.j_ssl_sent || 0,
+      item.l_rejection || 0,
+      calculateClosingStock(item)
+    ]);
+
+    doc.autoTable({
+      startY: 28,
+      head: [['Code', 'Material Name', 'UOM', 'Op. Stock', 'Receipt', 'Issues', 'Return', 'SSL Rec', 'SSL Sent', 'Reject', 'Closing']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [13, 148, 136] },
+      styles: { fontSize: 8 }
+    });
+
+    doc.save(`Bin_Card_Update_${today}.pdf`);
+    showToast('Bin Card PDF Downloaded Successfully!', 'success');
+  } catch (e) {
+    showToast('PDF Export Error!', 'error');
+  }
+}
+
 function openTodayUploadedModal() {
   const todaySearchInput = document.getElementById('todayModalSearchInput');
   if (todaySearchInput) todaySearchInput.value = '';
@@ -504,7 +617,12 @@ function setupSwipeEvents(wrapper, itemEl, index) {
     startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
     isDragging = true;
     itemEl.style.transition = 'none';
+    if (!e.type.includes('touch')) {
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+    }
   };
+
   const onMove = (e) => {
     if (!isDragging) return;
     const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
@@ -514,10 +632,14 @@ function setupSwipeEvents(wrapper, itemEl, index) {
       itemEl.style.transform = `translateX(${currentX}px)`;
     }
   };
+
   const onEnd = () => {
     if (!isDragging) return;
     isDragging = false;
     itemEl.style.transition = 'transform 0.2s ease-out';
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup', onEnd);
+
     if (currentX < -60) {
       itemEl.style.transform = 'translateX(0px)';
       openEditCountingModal(index);
@@ -532,8 +654,6 @@ function setupSwipeEvents(wrapper, itemEl, index) {
   itemEl.addEventListener('touchmove', onMove, { passive: true });
   itemEl.addEventListener('touchend', onEnd);
   itemEl.addEventListener('mousedown', onStart);
-  window.addEventListener('mousemove', onMove);
-  window.addEventListener('mouseup', onEnd);
 }
 
 function openEditCountingModal(index) {
