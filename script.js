@@ -202,11 +202,11 @@ function setupEventListeners() {
     });
   });
 
-  // Close search results when clicking outside
+  // Close search results when clicking outside (Fixed selector bug)
   document.addEventListener('click', (e) => {
+    const searchContainer = document.querySelector('.search-input-container') || document.querySelector('.form-group');
     const resultsBox = document.getElementById('searchResults');
-    const searchInputEl = document.getElementById('searchInput');
-    if (resultsBox && searchInputEl && !resultsBox.contains(e.target) && !searchInputEl.contains(e.target)) {
+    if (resultsBox && !searchContainer.contains(e.target) && !document.getElementById('searchInput').contains(e.target)) {
       resultsBox.style.display = 'none';
     }
   });
@@ -308,7 +308,6 @@ function updateCountingModeBadge() {
   const btnExcel = document.getElementById('btnExcel');
   const btnShare = document.getElementById('btnShare');
   const btnCountingDownload = document.getElementById('btnCountingDownload');
-  const btnBinCardView = document.getElementById('btnBinCardView');
   
   if (!sectionSelect || !badge) return;
   
@@ -320,7 +319,6 @@ function updateCountingModeBadge() {
     if (btnExcel) btnExcel.style.display = 'none';
     if (btnShare) btnShare.style.display = 'none';
     if (btnCountingDownload) btnCountingDownload.style.display = 'flex';
-    if (btnBinCardView) btnBinCardView.style.display = 'none'; // Hide in Normal Counting
   } else {
     badge.innerText = 'Daily Stocks';
     badge.className = 'counting-mode-badge badge-daily';
@@ -329,7 +327,6 @@ function updateCountingModeBadge() {
     if (btnExcel) btnExcel.style.display = 'flex';
     if (btnShare) btnShare.style.display = 'flex';
     if (btnCountingDownload) btnCountingDownload.style.display = 'none';
-    if (btnBinCardView) btnBinCardView.style.display = 'flex'; // Show ONLY when Daily Stocks mode is active
   }
 }
 
@@ -455,7 +452,7 @@ function renderBinCardUpdateViewList() {
   container.innerHTML = html;
 }
 
-// ==================== RESTORE EXCEL DATA FIX (WITHOUT OMITTING ANY DATA) ====================
+// ==================== RESTORE EXCEL DATA FIX ====================
 function restoreFromXLSX() {
   const fileInput = document.getElementById('xlsxFileInput');
   if (!fileInput || fileInput.files.length === 0) {
@@ -486,15 +483,15 @@ function restoreFromXLSX() {
       let codeIdx = headers.findIndex(h => h.includes('code') || h.includes('material code'));
       let nameIdx = headers.findIndex(h => h.includes('name') || h.includes('material name') || h.includes('description'));
       let uomIdx = headers.findIndex(h => h.includes('uom') || h.includes('unit'));
-      let opIdx = headers.findIndex(h => h.includes('op') || h.includes('opening'));
+      let opIdx = headers.findIndex(h => h.includes('op') || h.includes('opening') || h.includes('stock'));
       
-      let receiptIdx = headers.findIndex(h => h.includes('receipt') || h.includes('f') || h.includes('ලැබීම්'));
-      let issuesIdx = headers.findIndex(h => h.includes('issues') || h.includes('g') || h.includes('නිකුත්'));
-      let returnIdx = headers.findIndex(h => h.includes('return') || h.includes('h') || h.includes('භාරදීම්'));
-      let sslIIdx = headers.findIndex(h => h.includes('ssl_i') || h.includes('received to ssl') || h.includes('ssl ලැබීම්') || h.includes('i'));
-      let sslJIdx = headers.findIndex(h => h.includes('ssl_j') || h.includes('sent to ssl') || h.includes('ssl යැවීම්') || h.includes('j'));
-      let rejectionIdx = headers.findIndex(h => h.includes('rejection') || h.includes('l') || h.includes('ප්‍රතික්ෂේප'));
-      let countingIdx = headers.findIndex(h => h.includes('counting') || h.includes('ගණනය'));
+      let receiptIdx = headers.findIndex(h => h.includes('receipt') || h.includes('f'));
+      let issuesIdx = headers.findIndex(h => h.includes('issues') || h.includes('g'));
+      let returnIdx = headers.findIndex(h => h.includes('return') || h.includes('h'));
+      let sslIIdx = headers.findIndex(h => h.includes('ssl_i') || h.includes('received to ssl') || h.includes('i'));
+      let sslJIdx = headers.findIndex(h => h.includes('ssl_j') || h.includes('sent to ssl') || h.includes('j'));
+      let rejectionIdx = headers.findIndex(h => h.includes('rejection') || h.includes('l'));
+      let countingIdx = headers.findIndex(h => h.includes('counting'));
       let packsIdx = headers.findIndex(h => h.includes('packs') || h.includes('කොටස්'));
 
       if (codeIdx === -1) codeIdx = 0;
@@ -508,32 +505,23 @@ function restoreFromXLSX() {
         if (!row || row.length === 0 || !row[codeIdx]) continue;
 
         const code = String(row[codeIdx]).trim();
-        const name = nameIdx !== -1 && row[nameIdx] !== undefined ? String(row[nameIdx]).trim() : 'Unknown Material';
-        const uom = uomIdx !== -1 && row[uomIdx] !== undefined ? String(row[uomIdx]).trim() : 'KG';
+        const name = nameIdx !== -1 && row[nameIdx] ? String(row[nameIdx]).trim() : 'Unknown Material';
+        const uom = uomIdx !== -1 && row[uomIdx] ? String(row[uomIdx]).trim() : 'KG';
         const opStock = opIdx !== -1 && !isNaN(row[opIdx]) ? Number(row[opIdx]) : 0;
-
-        const receipt = receiptIdx !== -1 && !isNaN(row[receiptIdx]) ? Number(row[receiptIdx]) : 0;
-        const issues = issuesIdx !== -1 && !isNaN(row[issuesIdx]) ? Number(row[issuesIdx]) : 0;
-        const ret = returnIdx !== -1 && !isNaN(row[returnIdx]) ? Number(row[returnIdx]) : 0;
-        const ssl_i = sslIIdx !== -1 && !isNaN(row[sslIIdx]) ? Number(row[sslIIdx]) : 0;
-        const ssl_j = sslJIdx !== -1 && !isNaN(row[sslJIdx]) ? Number(row[sslJIdx]) : 0;
-        const rejection_l = rejectionIdx !== -1 && !isNaN(row[rejectionIdx]) ? Number(row[rejectionIdx]) : 0;
-        const counting = countingIdx !== -1 && !isNaN(row[countingIdx]) ? Number(row[countingIdx]) : 0;
-        const packs_count = packsIdx !== -1 && !isNaN(row[packsIdx]) ? Number(row[packsIdx]) : 0;
 
         let existing = inventory.find(item => item.code === code);
         if (existing) {
           existing.name = name;
           existing.uom = uom;
           existing.op_stock = opStock;
-          existing.receipt = receipt;
-          existing.issues = issues;
-          existing.return = ret;
-          existing.ssl_i = ssl_i;
-          existing.ssl_j = ssl_j;
-          existing.rejection_l = rejection_l;
-          existing.counting = counting;
-          existing.packs_count = packs_count;
+          if (receiptIdx !== -1 && !isNaN(row[receiptIdx])) existing.receipt = Number(row[receiptIdx]);
+          if (issuesIdx !== -1 && !isNaN(row[issuesIdx])) existing.issues = Number(row[issuesIdx]);
+          if (returnIdx !== -1 && !isNaN(row[returnIdx])) existing.return = Number(row[returnIdx]);
+          if (sslIIdx !== -1 && !isNaN(row[sslIIdx])) existing.ssl_i = Number(row[sslIIdx]);
+          if (sslJIdx !== -1 && !isNaN(row[sslJIdx])) existing.ssl_j = Number(row[sslJIdx]);
+          if (rejectionIdx !== -1 && !isNaN(row[rejectionIdx])) existing.rejection_l = Number(row[rejectionIdx]);
+          if (countingIdx !== -1 && !isNaN(row[countingIdx])) existing.counting = Number(row[countingIdx]);
+          if (packsIdx !== -1 && !isNaN(row[packsIdx])) existing.packs_count = Number(row[packsIdx]);
         } else {
           inventory.push({
             type: "RM",
@@ -541,14 +529,14 @@ function restoreFromXLSX() {
             name: name,
             uom: uom,
             op_stock: opStock,
-            receipt: receipt,
-            issues: issues,
-            return: ret,
-            ssl_i: ssl_i,
-            ssl_j: ssl_j,
-            rejection_l: rejection_l,
-            counting: counting,
-            packs_count: packs_count
+            receipt: receiptIdx !== -1 && !isNaN(row[receiptIdx]) ? Number(row[receiptIdx]) : 0,
+            issues: issuesIdx !== -1 && !isNaN(row[issuesIdx]) ? Number(row[issuesIdx]) : 0,
+            return: returnIdx !== -1 && !isNaN(row[returnIdx]) ? Number(row[returnIdx]) : 0,
+            ssl_i: sslIIdx !== -1 && !isNaN(row[sslIIdx]) ? Number(row[sslIIdx]) : 0,
+            ssl_j: sslJIdx !== -1 && !isNaN(row[sslJIdx]) ? Number(row[sslJIdx]) : 0,
+            rejection_l: rejectionIdx !== -1 && !isNaN(row[rejectionIdx]) ? Number(row[rejectionIdx]) : 0,
+            counting: countingIdx !== -1 && !isNaN(row[countingIdx]) ? Number(row[countingIdx]) : 0,
+            packs_count: packsIdx !== -1 && !isNaN(row[packsIdx]) ? Number(row[packsIdx]) : 0
           });
         }
         restoredCount++;
