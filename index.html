@@ -1,4 +1,4 @@
-[source: 1]<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="si">
 <head>
   <meta charset="UTF-8">
@@ -107,16 +107,15 @@
       </div>
     </div>
 
-    <div class="save-btn-container" style="margin-top: 24px;">
+    <!-- Save & Bin Card Update View Buttons Container -->
+    <div class="save-btn-container" style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
-    </div>
-
-    <!-- Bin Card Update View Button (Displayed under Save button) -->
-    <div class="bin-card-btn-container" id="binCardBtnContainer" style="margin-top: 14px; display: none; justify-content: center;">
-      <button class="btn btn-bin-card ripple" onclick="openBinCardModal()" id="btnBinCardView" type="button">
-        <i class="fa-solid fa-boxes-packing"></i> Bin Card Update View
+      
+      <!-- Bin Card Update View Button -->
+      <button class="btn ripple btn-bincard-view" onclick="openBinCardUpdateView()" type="button" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; width: 100%; max-width: 320px;">
+        <i class="fa-solid fa-clipboard-list"></i> Bin Card Update View
       </button>
     </div>
 
@@ -134,6 +133,26 @@
   <div class="loading-box">
     <div class="spinner"></div>
     <div id="loadingText" style="font-weight: 600; font-size: 0.95rem; color: var(--text-dark);">Processing...</div>
+  </div>
+</div>
+
+<!-- Bin Card Update View Modal (Card Style for Easy Viewing) -->
+<div id="binCardUpdateModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-clipboard-list" style="color:var(--success);"></i> Bin Card Update View</h3>
+      <button class="close-btn ripple" onclick="closeBinCardUpdateView()" type="button">&times;</button>
+    </div>
+
+    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;">
+      <p style="font-size: 0.88rem; color: var(--text-muted);">Settings මඟින් Restore කරන ලද හෝ යාවත්කාලීන වූ දත්ත Bin Card එකට පිරවීම සඳහා පහසුවෙන් බලාගන්න:</p>
+      <input type="text" id="binCardSearchInput" placeholder="Search by Code, Material Name, Section or Amount..." autocomplete="off" style="width: 100%;">
+    </div>
+
+    <!-- Card Container for Bin Card Details -->
+    <div class="checklist-container" id="binCardCardsContainer">
+      <!-- Cards will be dynamically injected here -->
+    </div>
   </div>
 </div>
 
@@ -169,61 +188,6 @@
         </button>
         <button type="button" class="btn ripple" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; flex: 1;" onclick="processCountingShare()">
           <i class="fa-solid fa-share-nodes"></i> Share
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Bin Card Update View Modal -->
-<div id="binCardModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="txtBinCardTitle"><i class="fa-solid fa-boxes-packing" style="color:var(--primary);"></i> Bin Card Update View</h3>
-      <button class="close-btn ripple" onclick="closeBinCardModal()" type="button">&times;</button>
-    </div>
-
-    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; gap: 10px; align-items: center;">
-      <input type="text" id="binCardSearchInput" placeholder="Filter items by code, name or section..." autocomplete="off" style="flex: 1;">
-      <button type="button" class="btn btn-primary ripple" onclick="openBinCardDownloadModal()" style="padding: 12px 18px; white-space: nowrap; flex-shrink: 0;">
-        <i class="fa-solid fa-file-arrow-down"></i> Download Updates
-      </button>
-    </div>
-
-    <div class="bin-card-grid" id="binCardGridContainer"></div>
-  </div>
-</div>
-
-<!-- Download Bin Card Updates Modal -->
-<div id="binCardDownloadModal" class="modal">
-  <div class="modal-content modal-small">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-file-arrow-down" style="color:var(--primary);"></i> Download Bin Card Updates</h3>
-      <button class="close-btn ripple" onclick="closeBinCardDownloadModal()" type="button">&times;</button>
-    </div>
-    <div class="modal-body-scroll">
-      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">Bin Card Update කළ යුතු දත්ත පමණක් Download කරගන්න:</p>
-      
-      <div class="form-group">
-        <label><i class="fa-solid fa-file-code"></i> Format:</label>
-        <select id="binCardFormatSelect" onchange="updateBinCardFileName()">
-          <option value="xlsx">Excel Workbook (.xlsx)</option>
-          <option value="pdf">PDF Document (.pdf)</option>
-          <option value="csv">CSV File (.csv)</option>
-          <option value="txt">Text File (.txt)</option>
-        </select>
-      </div>
-
-      <div class="form-group" style="margin-top: 14px;">
-        <label><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
-        <div class="input-glow-wrapper">
-          <input type="text" id="binCardFileNameInput" placeholder="Bin_Card_Updates_YYYY-MM-DD">
-        </div>
-      </div>
-
-      <div class="btn-row" style="margin-top: 24px; gap: 10px;">
-        <button type="button" class="btn btn-primary ripple" onclick="processBinCardDownload()">
-          <i class="fa-solid fa-download"></i> Download
         </button>
       </div>
     </div>
@@ -481,4 +445,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
