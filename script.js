@@ -1,4 +1,4 @@
-const i18n = {
+[source: 3]const i18n = {
   si: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
     placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...',
@@ -12,8 +12,8 @@ const i18n = {
     optCounting: 'Counting (ගණනය කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    btnBinCardView: '<i class="fa-solid fa-table-list"></i> Bin Card Update View',
-    txtBinCardTitle: '<i class="fa-solid fa-table-list" style="color:var(--success);"></i> Bin Card Update View',
+    btnBinCardView: '<i class="fa-solid fa-boxes-packing"></i> Bin Card Update View',
+    txtBinCardTitle: '<i class="fa-solid fa-boxes-packing" style="color:var(--primary);"></i> Bin Card Update View',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share Data File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
@@ -34,7 +34,7 @@ const i18n = {
     msgAdded: 'සාර්ථකව එකතු විය!',
     msgExcelShift: 'ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
     msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
-    msgRestoreSuccess: 'Excel Restore සාර්ථකයි! Bin Card Update View හරහා දත්ත පරික්ෂා කරන්න.',
+    msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
     msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'ගොනුව Share කිරීමට සූදානම්!',
@@ -54,8 +54,8 @@ const i18n = {
     optCounting: 'Counting',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    btnBinCardView: '<i class="fa-solid fa-table-list"></i> Bin Card Update View',
-    txtBinCardTitle: '<i class="fa-solid fa-table-list" style="color:var(--success);"></i> Bin Card Update View',
+    btnBinCardView: '<i class="fa-solid fa-boxes-packing"></i> Bin Card Update View',
+    txtBinCardTitle: '<i class="fa-solid fa-boxes-packing" style="color:var(--primary);"></i> Bin Card Update View',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
@@ -89,7 +89,6 @@ let currentLang = localStorage.getItem('rmc_app_lang') || 'si';
 let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
 let inventory = []; 
 let selectedIndex = -1;
-let searchDebounceTimeout = null;
 let currentExportMode = 'excel'; 
 let currentlyEditingIndex = -1;
 
@@ -125,19 +124,19 @@ function updateCountingModeBadge() {
   const btnExcel = document.getElementById('btnExcel');
   const btnShare = document.getElementById('btnShare');
   const btnCountingDownload = document.getElementById('btnCountingDownload');
-  const btnBinCardView = document.getElementById('btnBinCardView');
-  
+  const binCardBtnContainer = document.getElementById('binCardBtnContainer');
+
   if (!sectionSelect || !badge) return;
-  
+
   if (sectionSelect.value === 'COUNTING') {
     badge.innerText = 'Normal Counting';
     badge.className = 'counting-mode-badge badge-normal';
     if (packCalcContainer) packCalcContainer.style.display = 'flex';
-    
+
     if (btnExcel) btnExcel.style.display = 'none';
     if (btnShare) btnShare.style.display = 'none';
     if (btnCountingDownload) btnCountingDownload.style.display = 'flex';
-    if (btnBinCardView) btnBinCardView.style.display = 'none';
+    if (binCardBtnContainer) binCardBtnContainer.style.display = 'none';
   } else {
     badge.innerText = 'Daily Stocks';
     badge.className = 'counting-mode-badge badge-daily';
@@ -146,7 +145,7 @@ function updateCountingModeBadge() {
     if (btnExcel) btnExcel.style.display = 'flex';
     if (btnShare) btnShare.style.display = 'flex';
     if (btnCountingDownload) btnCountingDownload.style.display = 'none';
-    if (btnBinCardView) btnBinCardView.style.display = 'inline-flex';
+    if (binCardBtnContainer) binCardBtnContainer.style.display = 'flex';
   }
 }
 
@@ -176,7 +175,7 @@ function applyLanguage(lang) {
   localStorage.setItem('rmc_app_lang', lang);
   const langSelect = document.getElementById('langSelect');
   if (langSelect) langSelect.value = lang;
-  
+
   const t = i18n[lang] || i18n['si'];
   const setHtml = (id, html) => { const el = document.getElementById(id); if(el) el.innerHTML = html; };
   const setText = (id, text) => { const el = document.getElementById(id); if(el) el.innerText = text; };
@@ -196,10 +195,10 @@ function applyLanguage(lang) {
   setHtml('btnSave', t.btnSave);
   setHtml('btnBinCardView', t.btnBinCardView);
   setHtml('txtBinCardTitle', t.txtBinCardTitle);
-  
+
   const btnExcel = document.getElementById('btnExcel'); if(btnExcel) btnExcel.title = t.titleExcel;
   const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
-  
+
   setHtml('txtSettingsTitle', t.txtSettingsTitle);
   setHtml('lblLanguage', t.lblLanguage);
   setHtml('lblTheme', t.lblTheme);
@@ -225,7 +224,7 @@ function showToast(message, type = 'success') {
   if (type === 'warning') iconClass = 'fa-triangle-exclamation'; 
   toast.innerHTML = `<i class="fa-solid ${iconClass}" style="font-size: 1.2rem; color: var(--${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'warning'});"></i> <span>${message}</span>`; 
   container.appendChild(toast); 
-  
+
   setTimeout(() => { 
     toast.style.opacity = '0';
     toast.style.transform = 'scale(0.8) translateY(20px)';
@@ -310,12 +309,12 @@ function clearSearchInput() {
   const searchInput = document.getElementById('searchInput');
   const selectedBadge = document.getElementById('selectedBadge');
   const searchResults = document.getElementById('searchResults');
-  
+
   if (searchInput) searchInput.value = '';
   selectedIndex = -1;
   if (selectedBadge) selectedBadge.style.display = 'none';
   if (searchResults) searchResults.style.display = 'none';
-  
+
   const packsCount = document.getElementById('inputPacksCount');
   if (packsCount) packsCount.value = '';
 
@@ -324,25 +323,61 @@ function clearSearchInput() {
   if (searchInput) searchInput.focus();
 }
 
+function handleSearchInput() {
+  const input = document.getElementById('searchInput');
+  const resultsDiv = document.getElementById('searchResults');
+  if (!input || !resultsDiv) return;
+
+  const q = input.value.trim().toLowerCase();
+  updateClearBtnVisibility();
+
+  if (q === '') {
+    resultsDiv.style.display = 'none';
+    resultsDiv.innerHTML = '';
+    return;
+  }
+
+  const filtered = inventory.map((item, originalIndex) => ({ item, originalIndex }))
+    .filter(({ item }) =>
+      String(item.code).toLowerCase().includes(q) ||
+      String(item.name).toLowerCase().includes(q)
+    );
+
+  if (filtered.length === 0) {
+    resultsDiv.innerHTML = '<div style="padding:14px; text-align:center; color:var(--text-muted); font-size:0.88rem;">ගැලපෙන Material හමුවුනේ නැත</div>';
+  } else {
+    resultsDiv.innerHTML = filtered.slice(0, 15).map(({ item, originalIndex }) => `
+      <div class="search-item" onclick="selectItem(${originalIndex})">
+        <div>
+          <strong style="color:var(--primary); font-weight:700;">${item.code}</strong> - <span>${item.name}</span>
+        </div>
+        <span style="font-size:0.75rem; background:var(--primary-light); color:var(--primary); padding:3px 8px; border-radius:12px; font-weight:700;">${item.uom}</span>
+      </div>
+    `).join('');
+  }
+  resultsDiv.style.display = 'block';
+  updateVisibilityState(true);
+}
+
 function selectItem(index) { 
   selectedIndex = index; 
   const item = inventory[index]; 
   if (!item) return;
-  
+
   const searchInput = document.getElementById('searchInput');
   const searchResults = document.getElementById('searchResults');
   const selectedBadge = document.getElementById('selectedBadge');
 
   if (searchInput) searchInput.value = `${item.code} - ${item.name}`; 
   if (searchResults) searchResults.style.display = 'none'; 
-  
+
   item.closing = calculateClosingStock(item);
 
   const dispCode = document.getElementById('dispCode'); if(dispCode) dispCode.innerText = item.code; 
   const dispName = document.getElementById('dispName'); if(dispName) dispName.innerText = item.name; 
   const dispUom = document.getElementById('dispUom'); if(dispUom) dispUom.innerText = item.uom; 
   const dispClosing = document.getElementById('dispClosing'); if(dispClosing) dispClosing.innerText = Number(item.closing).toLocaleString() + ' ' + item.uom; 
-  
+
   if(selectedBadge) selectedBadge.style.display = 'block'; 
   updateVisibilityState(true);
   updateClearBtnVisibility();
@@ -354,25 +389,25 @@ function selectItem(index) {
 function addSingleSectionData() { 
   const t = i18n[currentLang] || i18n['si'];
   if (selectedIndex === -1 || !inventory[selectedIndex]) { showToast(t.msgSelectMaterial, 'warning'); return; } 
-  
+
   const sectionSelect = document.getElementById('sectionSelect');
   const inputAmount = document.getElementById('inputAmount');
   const packsCountInput = document.getElementById('inputPacksCount');
-  
+
   if (!sectionSelect || !inputAmount) return;
 
   const targetSection = sectionSelect.value; 
   const rawVal = inputAmount.value.trim();
   const amount = parseFloat(rawVal) || 0; 
-  
+
   if (rawVal === "" || isNaN(amount) || amount <= 0 || rawVal.includes('-') || rawVal.includes('+') || rawVal.toLowerCase().includes('e')) { 
     showToast(t.msgValidAmount, 'error'); 
     inputAmount.focus();
     return; 
   } 
-  
+
   let item = inventory[selectedIndex]; 
-  
+
   if (targetSection === 'F') item.f_receipt = roundNum(item.f_receipt + amount); 
   else if (targetSection === 'G') item.g_issues = roundNum(item.g_issues + amount); 
   else if (targetSection === 'H') item.h_return = roundNum(item.h_return + amount); 
@@ -414,105 +449,152 @@ function hideModal(modalId) {
   setTimeout(() => { modal.style.display = 'none'; }, 250);
 }
 
-/* Bin Card Update View Modal Functions */
+/* --- Bin Card Update View Functionality --- */
+
+function getBinCardEntries() {
+  const entries = [];
+  const sectionDefs = [
+    { key: 'f_receipt', name: 'Receipt', sectionCode: 'Receipt (Section F)', icon: 'fa-arrow-down', colorClass: 'badge-success' },
+    { key: 'g_issues', name: 'Issues', sectionCode: 'Issues (Section G)', icon: 'fa-arrow-up', colorClass: 'badge-danger' },
+    { key: 'h_return', name: 'Return', sectionCode: 'Return (Section H)', icon: 'fa-rotate-left', colorClass: 'badge-warning' },
+    { key: 'i_ssl_received', name: 'Received to SSL', sectionCode: 'SSL Rec. (Section I)', icon: 'fa-arrow-right-to-bracket', colorClass: 'badge-success' },
+    { key: 'j_ssl_sent', name: 'Sent to SSL', sectionCode: 'SSL Sent (Section J)', icon: 'fa-arrow-right-from-bracket', colorClass: 'badge-danger' },
+    { key: 'l_rejection', name: 'Rejection', sectionCode: 'Rejection (Section L)', icon: 'fa-ban', colorClass: 'badge-danger' },
+    { key: 'counting', name: 'Counting', sectionCode: 'Counting', icon: 'fa-list-check', colorClass: 'badge-primary' }
+  ];
+
+  inventory.forEach(item => {
+    sectionDefs.forEach(sec => {
+      const val = Number(item[sec.key]) || 0;
+      if (val > 0) {
+        entries.push({
+          code: item.code,
+          name: item.name,
+          uom: item.uom,
+          type: item.type || "RM",
+          section: sec.name,
+          sectionCode: sec.sectionCode,
+          icon: sec.icon,
+          colorClass: sec.colorClass,
+          amount: val
+        });
+      }
+    });
+  });
+
+  return entries;
+}
+
 function openBinCardModal() {
   const searchInput = document.getElementById('binCardSearchInput');
   if (searchInput) searchInput.value = '';
   renderBinCardList();
   showModal('binCardModal');
 }
-
-function closeBinCardModal() {
-  hideModal('binCardModal');
-}
+function closeBinCardModal() { hideModal('binCardModal'); }
 
 function renderBinCardList() {
-  const tbody = document.getElementById('binCardTableBody');
-  if (!tbody) return;
-  tbody.innerHTML = '';
+  const container = document.getElementById('binCardGridContainer');
+  if (!container) return;
 
-  const searchVal = document.getElementById('binCardSearchInput') ? document.getElementById('binCardSearchInput').value.toLowerCase().trim() : '';
-  const onlyMovements = document.getElementById('toggleBinCardMovementsOnly')?.checked || false;
+  const entries = getBinCardEntries();
+  const searchVal = document.getElementById('binCardSearchInput')?.value.toLowerCase().trim() || '';
 
-  let count = 0;
-  const fragment = document.createDocumentFragment();
+  const filtered = entries.filter(e => 
+    (String(e.name) + " " + String(e.code) + " " + String(e.sectionCode)).toLowerCase().includes(searchVal)
+  );
 
-  inventory.forEach((item) => {
-    item.closing = calculateClosingStock(item);
-    
-    const hasMovement = (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || 
-                         item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0);
-
-    if (onlyMovements && !hasMovement) return;
-
-    const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(searchVal);
-    if (matchesSearch) {
-      count++;
-      const tr = document.createElement('tr');
-      if (hasMovement) tr.className = 'highlight-movement';
-
-      tr.innerHTML = `
-        <td style="font-weight:700;"><i class="fa-solid fa-barcode" style="color:var(--text-muted); font-size:0.75rem;"></i> ${item.code}</td>
-        <td style="font-weight:600; color:var(--text-dark);">${item.name}</td>
-        <td style="text-align:center;"><span style="background:var(--primary-light); color:var(--primary); padding:2px 6px; border-radius:6px; font-weight:700; font-size:0.75rem;">${item.uom}</span></td>
-        <td style="text-align:right; font-weight:${item.f_receipt > 0 ? '700' : '400'}; color:${item.f_receipt > 0 ? 'var(--success)' : 'inherit'};">${item.f_receipt > 0 ? Number(item.f_receipt).toLocaleString() : '-'}</td>
-        <td style="text-align:right; font-weight:${item.g_issues > 0 ? '700' : '400'}; color:${item.g_issues > 0 ? 'var(--danger)' : 'inherit'};">${item.g_issues > 0 ? Number(item.g_issues).toLocaleString() : '-'}</td>
-        <td style="text-align:right; font-weight:${item.h_return > 0 ? '700' : '400'}; color:${item.h_return > 0 ? 'var(--warning)' : 'inherit'};">${item.h_return > 0 ? Number(item.h_return).toLocaleString() : '-'}</td>
-        <td style="text-align:right; font-weight:${item.i_ssl_received > 0 ? '700' : '400'}; color:${item.i_ssl_received > 0 ? 'var(--success)' : 'inherit'};">${item.i_ssl_received > 0 ? Number(item.i_ssl_received).toLocaleString() : '-'}</td>
-        <td style="text-align:right; font-weight:${item.j_ssl_sent > 0 ? '700' : '400'}; color:${item.j_ssl_sent > 0 ? 'var(--danger)' : 'inherit'};">${item.j_ssl_sent > 0 ? Number(item.j_ssl_sent).toLocaleString() : '-'}</td>
-        <td style="text-align:right; font-weight:${item.l_rejection > 0 ? '700' : '400'}; color:${item.l_rejection > 0 ? 'var(--danger)' : 'inherit'};">${item.l_rejection > 0 ? Number(item.l_rejection).toLocaleString() : '-'}</td>
-        <td style="text-align:right; font-weight:800; color:var(--primary);">${Number(item.closing).toLocaleString()}</td>
-      `;
-      fragment.appendChild(tr);
-    }
-  });
-
-  if (count === 0) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="10" style="text-align:center; padding: 25px; color: var(--text-muted); font-weight:600;">දත්ත කිසිවක් හමු නොවීය.</td>`;
-    tbody.appendChild(tr);
-  } else {
-    tbody.appendChild(fragment);
-  }
-}
-
-function printBinCardData() {
-  if (!window.jspdf) {
-    window.print();
+  if (filtered.length === 0) {
+    container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted); font-weight:600;">Bin Card යාවත්කාලීන කිරීමට දත්ත කිසිවක් නොමැත.</div>`;
     return;
   }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF('landscape');
-  doc.setFontSize(16);
-  doc.text("Bin Card Update Sheet", 14, 15);
-  doc.setFontSize(10);
-  doc.text(`Date: ${getTodayStr()}`, 14, 22);
 
-  const tableData = inventory.map(item => [
-    item.code || "",
-    item.name || "",
-    item.uom || "",
-    item.op_stock || 0,
-    item.f_receipt || 0,
-    item.g_issues || 0,
-    item.h_return || 0,
-    item.i_ssl_received || 0,
-    item.j_ssl_sent || 0,
-    item.l_rejection || 0,
-    calculateClosingStock(item)
-  ]);
-
-  doc.autoTable({
-    startY: 28,
-    head: [['Code', 'Material Name', 'UOM', 'Op.Stock', 'Receipt (F)', 'Issues (G)', 'Return (H)', 'Rec.SSL (I)', 'Sent SSL (J)', 'Reject (L)', 'Closing']],
-    body: tableData,
-    theme: 'grid',
-    headStyles: { fillColor: [5, 150, 105] },
-    styles: { fontSize: 8 }
-  });
-
-  doc.save(`Bin_Card_Update_${getTodayStr()}.pdf`);
+  container.innerHTML = filtered.map(entry => `
+    <div class="bin-card-cart">
+      <div class="bin-card-cart-header">
+        <div class="bin-card-code"><i class="fa-solid fa-barcode"></i> ${entry.code}</div>
+        <span class="bin-card-badge ${entry.colorClass}"><i class="fa-solid ${entry.icon}"></i> ${entry.section}</span>
+      </div>
+      <div class="bin-card-name">${entry.name}</div>
+      <div class="bin-card-cart-footer">
+        <div class="bin-card-amount-label">Update Amount (ගණන):</div>
+        <div class="bin-card-amount-value">${Number(entry.amount).toLocaleString()} <span class="bin-card-uom">${entry.uom}</span></div>
+      </div>
+    </div>
+  `).join('');
 }
+
+function openBinCardDownloadModal() {
+  updateBinCardFileName();
+  showModal('binCardDownloadModal');
+}
+function closeBinCardDownloadModal() { hideModal('binCardDownloadModal'); }
+
+function updateBinCardFileName() {
+  const format = document.getElementById('binCardFormatSelect').value;
+  const input = document.getElementById('binCardFileNameInput');
+  if (input) input.value = `Bin_Card_Updates_${getTodayStr()}.${format}`;
+}
+
+async function processBinCardDownload() {
+  const format = document.getElementById('binCardFormatSelect').value;
+  const today = getTodayStr();
+  let filename = document.getElementById('binCardFileNameInput').value.trim();
+  if (!filename) filename = `Bin_Card_Updates_${today}.${format}`;
+  if (!filename.endsWith(`.${format}`)) filename += `.${format}`;
+
+  const entries = getBinCardEntries();
+  if (entries.length === 0) {
+    showToast('Download කිරීමට දත්ත නොමැත!', 'warning');
+    return;
+  }
+
+  showLoading(`Downloading Bin Card Updates (${format.toUpperCase()})...`);
+
+  setTimeout(() => {
+    try {
+      let fileBlob = null;
+      if (format === 'xlsx') {
+        const headers = ["Material Code", "Material Name", "Type", "Section", "Update Amount", "UOM"];
+        const sheetData = [headers];
+        entries.forEach(e => sheetData.push([e.code, e.name, e.type, e.sectionCode, e.amount, e.uom]));
+        const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+        worksheet['!cols'] = [{ wch: 16 }, { wch: 38 }, { wch: 8 }, { wch: 22 }, { wch: 16 }, { wch: 8 }];
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Bin_Card_Updates");
+        const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        fileBlob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      } else if (format === 'pdf') {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(16); doc.text("Bin Card Updates Sheet", 14, 15);
+        doc.setFontSize(10); doc.text(`Date: ${today}`, 14, 22);
+        const tableData = entries.map(e => [e.code, e.name, e.type, e.sectionCode, e.amount, e.uom]);
+        doc.autoTable({ startY: 28, head: [['Code', 'Material Name', 'Type', 'Section', 'Amount', 'UOM']], body: tableData, theme: 'grid', headStyles: { fillColor: [2, 132, 199] } });
+        fileBlob = doc.output('blob');
+      } else if (format === 'csv') {
+        let csv = "Material Code,Material Name,Type,Section,Update Amount,UOM\n";
+        entries.forEach(e => { csv += `"${e.code}","${e.name}","${e.type}","${e.sectionCode}",${e.amount},"${e.uom}"\n`; });
+        fileBlob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      } else if (format === 'txt') {
+        let txt = `BIN CARD UPDATES REPORT - ${today}\n\n`;
+        entries.forEach((e, idx) => {
+          txt += `${idx + 1}. [${e.code}] ${e.name}\n   Section: ${e.sectionCode} | Amount: ${e.amount} ${e.uom}\n--------------------------\n`;
+        });
+        fileBlob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
+      }
+
+      closeBinCardDownloadModal();
+      triggerDirectDownload(fileBlob, filename);
+      showToast("Bin Card Updates Downloaded Successfully!", "success");
+    } catch (e) {
+      showToast("Download කිරීමට යාමේදී දෝෂයක් සිදු විය!", "error");
+    }
+    hideLoading();
+  }, 300);
+}
+
+/* --- Today Uploaded Modal Functionality --- */
 
 function openTodayUploadedModal() {
   const todaySearchInput = document.getElementById('todayModalSearchInput');
@@ -538,7 +620,7 @@ function renderTodayUploadedList() {
   inventory.forEach((item, idx) => {
     item.closing = calculateClosingStock(item);
     let matchesCondition = false;
-    
+
     if (showCountingOnly) { matchesCondition = (item.counting > 0); } 
     else {
       matchesCondition = (item.last_updated === todayStr) || 
@@ -722,11 +804,11 @@ function processCountingShare() { processCountingSheet('share'); }
 async function processCountingSheet(action) {
   const format = document.getElementById('countingFormatSelect').value;
   const today = getTodayStr();
-  
+
   let fileNameInput = document.getElementById('countingFileNameInput').value.trim();
   if (!fileNameInput) fileNameInput = `Counting_Sheet_${today}.${format}`;
   if (!fileNameInput.endsWith(`.${format}`)) fileNameInput += `.${format}`;
-  
+
   const filename = fileNameInput;
   let fileBlob = null; let mimeType = '';
 
@@ -815,7 +897,7 @@ function openItemDetails(index) {
   if (!item) return;
   item.closing = calculateClosingStock(item);
   const setText = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
-  
+
   setText('detCode', item.code); setText('detName', item.name); setText('detUom', item.uom);
   setText('detOp', Number(item.op_stock).toLocaleString() + ' ' + item.uom);
   setText('detReceipt', Number(item.f_receipt).toLocaleString() + ' ' + item.uom);
@@ -847,7 +929,7 @@ function generateWorkbookWithFormulas() {
 
   const worksheet = XLSX.utils.aoa_to_sheet(sheetData); 
   worksheet['!cols'] = [{ wch: 8 }, { wch: 15 }, { wch: 38 }, { wch: 8 }, { wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 18 }];
-  
+
   const workbook = XLSX.utils.book_new(); 
   XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Summary");
   return workbook;
@@ -885,7 +967,7 @@ async function processExportAction() {
   const formatSelect = document.getElementById('exportFormatSelect');
   const fileNameInput = document.getElementById('exportFileNameInput');
   const chkShiftStock = document.getElementById('chkShiftStock');
-  
+
   const format = formatSelect ? formatSelect.value : 'xlsx';
   const shouldShift = chkShiftStock ? chkShiftStock.checked : false;
 
@@ -940,7 +1022,7 @@ function restoreFromXLSX() {
   const t = i18n[currentLang] || i18n['si'];
   const fileInput = document.getElementById('xlsxFileInput'); 
   if (!fileInput || !fileInput.files[0]) { showToast(t.msgRestoreSelect, 'warning'); return; } 
-  
+
   const file = fileInput.files[0]; showLoading("Restoring Excel data...");
   const reader = new FileReader(); 
   reader.onload = function(e) { 
@@ -949,12 +1031,12 @@ function restoreFromXLSX() {
       const workbook = XLSX.read(data, { type: 'array' }); 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]]; 
       const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); 
-      
+
       if (!matrix || matrix.length === 0) { hideLoading(); showToast('Error: Excel file is empty!', 'error'); return; } 
-      
+
       let headerIndex = -1; 
       let colMap = { type: -1, code: -1, name: -1, uom: -1, op_stock: -1, f_receipt: -1, g_issues: -1, h_return: -1, i_ssl_received: -1, j_ssl_sent: -1, l_rejection: -1, counting: -1, packs_count: -1, closing: -1 }; 
-      
+
       for (let r = 0; r < Math.min(matrix.length, 10); r++) { 
         const rowStr = matrix[r].map(c => String(c).toLowerCase().trim()); 
         if (rowStr.some(c => c.includes("code") || c.includes("name"))) { 
@@ -965,14 +1047,14 @@ function restoreFromXLSX() {
             else if (cellVal.includes("name")) colMap.name = colIdx; 
             else if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
             else if (cellVal.includes("op")) colMap.op_stock = colIdx; 
-            else if (cellVal.includes("receipt") || cellVal === "f" || cellVal.includes("rec")) colMap.f_receipt = colIdx; 
+            else if (cellVal.includes("receipt") || cellVal === "f") colMap.f_receipt = colIdx; 
             else if (cellVal.includes("issue") || cellVal === "g") colMap.g_issues = colIdx; 
-            else if (cellVal.includes("return") || cellVal === "h" || cellVal.includes("ret")) colMap.h_return = colIdx; 
-            else if (cellVal.includes("received to ssl") || cellVal.includes("rec. ssl") || cellVal === "i") colMap.i_ssl_received = colIdx; 
-            else if (cellVal.includes("sent to ssl") || cellVal.includes("sent ssl") || cellVal === "j") colMap.j_ssl_sent = colIdx; 
-            else if (cellVal.includes("rejection") || cellVal.includes("reject") || cellVal === "l") colMap.l_rejection = colIdx; 
+            else if (cellVal.includes("return") || cellVal === "h") colMap.h_return = colIdx; 
+            else if (cellVal.includes("received to ssl") || cellVal === "i") colMap.i_ssl_received = colIdx; 
+            else if (cellVal.includes("sent to ssl") || cellVal === "j") colMap.j_ssl_sent = colIdx; 
+            else if (cellVal.includes("rejection") || cellVal === "l") colMap.l_rejection = colIdx; 
             else if (cellVal.includes("counting")) colMap.counting = colIdx; 
-            else if (cellVal.includes("packs count") || cellVal.includes("packs")) colMap.packs_count = colIdx; 
+            else if (cellVal.includes("packs count")) colMap.packs_count = colIdx; 
             else if (cellVal.includes("closing")) colMap.closing = colIdx; 
           }); break; 
         } 
@@ -1001,13 +1083,8 @@ function restoreFromXLSX() {
           let closing = calculateClosingStock(tempItem); 
           let counting = colMap.counting !== -1 ? parseFloat(row[colMap.counting]) || 0 : 0; 
           let packs_count = colMap.packs_count !== -1 ? parseFloat(row[colMap.packs_count]) || 0 : 0; 
-            
-          restored.push({ 
-            type: colMap.type !== -1 && row[colMap.type] ? String(row[colMap.type]).trim() : "RM", 
-            code, name, 
-            uom: colMap.uom !== -1 && row[colMap.uom] ? String(row[colMap.uom]).trim() : "KG", 
-            ...tempItem, counting, packs_count, closing, last_updated: getTodayStr() 
-          }); 
+
+          restored.push({ type: colMap.type !== -1 ? String(row[colMap.type]).trim() : "RM", code, name, uom: colMap.uom !== -1 ? String(row[colMap.uom]).trim() : "KG", ...tempItem, counting, packs_count, closing, last_updated: "" }); 
         } 
       } 
       hideLoading();
@@ -1027,6 +1104,29 @@ function resetToDefault() {
   } 
 } 
 
+/* Initialization & Ripple Event Listeners */
+document.addEventListener('DOMContentLoaded', function() {
+  loadInventoryData();
+  applyTheme(currentTheme);
+  applyLanguage(currentLang);
+  updateCountingModeBadge();
+
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', handleSearchInput);
+  }
+
+  const binCardSearch = document.getElementById('binCardSearchInput');
+  if (binCardSearch) {
+    binCardSearch.addEventListener('input', renderBinCardList);
+  }
+
+  const todaySearch = document.getElementById('todayModalSearchInput');
+  if (todaySearch) {
+    todaySearch.addEventListener('input', renderTodayUploadedList);
+  }
+});
+
 document.addEventListener('click', function (e) {
   const target = e.target.closest('.ripple');
   if (target) {
@@ -1040,82 +1140,10 @@ document.addEventListener('click', function (e) {
     circle.style.top = `${e.clientY - rect.top - radius}px`;
     circle.classList.add('ripple-effect');
 
-    const existingRipple = target.querySelector('.ripple-effect');
-    if (existingRipple) existingRipple.remove();
+    const ripple = target.getElementsByClassName('ripple-effect')[0];
+    if (ripple) {
+      ripple.remove();
+    }
     target.appendChild(circle);
-    setTimeout(() => circle.remove(), 400);
-  }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  loadInventoryData(); applyTheme(currentTheme); applyLanguage(currentLang);
-  updateVisibilityState(false); updateClearBtnVisibility(); updateCountingModeBadge(); 
-
-  const searchInput = document.getElementById('searchInput');
-  const searchResults = document.getElementById('searchResults');
-  const inputAmount = document.getElementById('inputAmount');
-
-  if (searchInput) {
-    searchInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (searchResults && searchResults.style.display === 'block') {
-          const firstItem = searchResults.querySelector('.search-item');
-          if (firstItem) firstItem.click();
-        }
-      }
-    });
-
-    searchInput.addEventListener('input', function() { 
-      clearTimeout(searchDebounceTimeout);
-      const query = this.value.toLowerCase().trim(); 
-      updateClearBtnVisibility();
-      if (query === '') {
-        selectedIndex = -1;
-        const selectedBadge = document.getElementById('selectedBadge');
-        if (selectedBadge) selectedBadge.style.display = 'none';
-        updateVisibilityState(false);
-      } else { updateVisibilityState(true); }
-
-      searchDebounceTimeout = setTimeout(() => {
-        if (!searchResults) return;
-        searchResults.innerHTML = ''; 
-        if (!query) { searchResults.style.display = 'none'; return; } 
-        
-        const filtered = inventory.filter(item => String(item.code).toLowerCase().includes(query) || String(item.name).toLowerCase().includes(query));
-        
-        if (filtered.length > 0) {
-          filtered.slice(0, 15).forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'search-item';
-            div.innerHTML = `<div style="display:flex; flex-direction:column; gap:3px;">
-                               <span style="font-weight:700; font-size:0.92rem; color:var(--text-dark);">${item.name}</span>
-                               <span style="font-size:0.75rem; font-weight:600; color:var(--text-muted);"><i class="fa-solid fa-barcode"></i> ${item.code}</span>
-                             </div>
-                             <span style="font-size:0.8rem; font-weight:800; color:var(--primary); background:var(--primary-light); padding:4px 8px; border-radius:8px;">${item.uom}</span>`;
-            div.onclick = () => {
-              const originalIndex = inventory.findIndex(inv => inv.code === item.code);
-              selectItem(originalIndex);
-            };
-            searchResults.appendChild(div);
-          });
-          searchResults.style.display = 'block';
-        } else {
-          const noDiv = document.createElement('div');
-          noDiv.className = 'search-item';
-          noDiv.style.justifyContent = 'center';
-          noDiv.style.color = 'var(--text-muted)';
-          noDiv.innerText = 'No items found...';
-          searchResults.appendChild(noDiv);
-          searchResults.style.display = 'block';
-        }
-      }, 250);
-    });
-  }
-
-  if (inputAmount) {
-    inputAmount.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') { e.preventDefault(); addSingleSectionData(); }
-    });
   }
 });
