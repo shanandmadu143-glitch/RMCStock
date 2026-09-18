@@ -1,3 +1,4 @@
+const i18n = {
   si: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
     placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...',
@@ -11,6 +12,8 @@
     optCounting: 'Counting (ගණනය කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    btnBinCardView: '<i class="fa-solid fa-table-list"></i> Bin Card Update View',
+    txtBinCardTitle: '<i class="fa-solid fa-table-list" style="color:var(--success);"></i> Bin Card Update View',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share Data File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
@@ -31,7 +34,7 @@
     msgAdded: 'සාර්ථකව එකතු විය!',
     msgExcelShift: 'ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
     msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
-    msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
+    msgRestoreSuccess: 'Excel Restore සාර්ථකයි! Bin Card Update View හරහා දත්ත පරික්ෂා කරන්න.',
     msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
     shareTitle: 'RMC Daily Stock Summary',
     shareSuccess: 'ගොනුව Share කිරීමට සූදානම්!',
@@ -51,6 +54,8 @@
     optCounting: 'Counting',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    btnBinCardView: '<i class="fa-solid fa-table-list"></i> Bin Card Update View',
+    txtBinCardTitle: '<i class="fa-solid fa-table-list" style="color:var(--success);"></i> Bin Card Update View',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
@@ -120,7 +125,7 @@ function updateCountingModeBadge() {
   const btnExcel = document.getElementById('btnExcel');
   const btnShare = document.getElementById('btnShare');
   const btnCountingDownload = document.getElementById('btnCountingDownload');
-  const binCardBtnContainer = document.getElementById('binCardBtnContainer');
+  const btnBinCardView = document.getElementById('btnBinCardView');
   
   if (!sectionSelect || !badge) return;
   
@@ -132,7 +137,7 @@ function updateCountingModeBadge() {
     if (btnExcel) btnExcel.style.display = 'none';
     if (btnShare) btnShare.style.display = 'none';
     if (btnCountingDownload) btnCountingDownload.style.display = 'flex';
-    if (binCardBtnContainer) binCardBtnContainer.style.display = 'none';
+    if (btnBinCardView) btnBinCardView.style.display = 'none';
   } else {
     badge.innerText = 'Daily Stocks';
     badge.className = 'counting-mode-badge badge-daily';
@@ -141,7 +146,7 @@ function updateCountingModeBadge() {
     if (btnExcel) btnExcel.style.display = 'flex';
     if (btnShare) btnShare.style.display = 'flex';
     if (btnCountingDownload) btnCountingDownload.style.display = 'none';
-    if (binCardBtnContainer) binCardBtnContainer.style.display = 'block';
+    if (btnBinCardView) btnBinCardView.style.display = 'inline-flex';
   }
 }
 
@@ -189,6 +194,8 @@ function applyLanguage(lang) {
   setText('optCounting', t.optCounting);
   setHtml('lblAmount', t.lblAmount);
   setHtml('btnSave', t.btnSave);
+  setHtml('btnBinCardView', t.btnBinCardView);
+  setHtml('txtBinCardTitle', t.txtBinCardTitle);
   
   const btnExcel = document.getElementById('btnExcel'); if(btnExcel) btnExcel.title = t.titleExcel;
   const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
@@ -201,6 +208,8 @@ function applyLanguage(lang) {
   setHtml('btnRestore', t.btnRestore);
   setHtml('lblBackup', t.lblBackup);
   setText('descBackup', t.descBackup);
+  setHtml('lblReset', t.lblReset);
+  setText('descReset', t.descReset);
   setHtml('btnReset', t.btnReset);
   setHtml('lblFooter', t.lblFooter);
 }
@@ -263,7 +272,6 @@ function loadInventoryData() {
         item.l_rejection = Number(item.l_rejection) || 0;
         item.counting = Number(item.counting) || 0;
         item.packs_count = Number(item.packs_count) || 0;
-        item.bincard_status = item.bincard_status || false;
         item.closing = calculateClosingStock(item);
         item.last_updated = item.last_updated || "";
       });
@@ -276,7 +284,6 @@ function initDefaultInventory() {
     ...item, op_stock: Number(item.op_stock) || 0,
     f_receipt: 0, g_issues: 0, h_return: 0, i_ssl_received: 0, 
     j_ssl_sent: 0, l_rejection: 0, counting: 0, packs_count: 0,
-    bincard_status: false,
     closing: Number(item.op_stock) || 0, last_updated: ""
   })); 
   saveInventoryData(); 
@@ -409,88 +416,102 @@ function hideModal(modalId) {
 
 /* Bin Card Update View Modal Functions */
 function openBinCardModal() {
-  const searchInput = document.getElementById('binCardModalSearchInput');
+  const searchInput = document.getElementById('binCardSearchInput');
   if (searchInput) searchInput.value = '';
   renderBinCardList();
   showModal('binCardModal');
 }
 
-function closeBinCardModal() { hideModal('binCardModal'); }
-
-function toggleBinCardStatus(idx) {
-  if (!inventory[idx]) return;
-  inventory[idx].bincard_status = !inventory[idx].bincard_status;
-  saveInventoryData();
-  renderBinCardList();
-  showToast(inventory[idx].bincard_status ? 'Bin Card status marked as Updated!' : 'Bin Card status reset!', 'success');
+function closeBinCardModal() {
+  hideModal('binCardModal');
 }
 
 function renderBinCardList() {
-  const container = document.getElementById('binCardCardsContainer');
-  if (!container) return;
-  container.innerHTML = '';
+  const tbody = document.getElementById('binCardTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
 
-  const searchVal = (document.getElementById('binCardModalSearchInput')?.value || '').toLowerCase().trim();
-  const movementsOnly = document.getElementById('toggleBinCardMovementsOnly')?.checked ?? true;
+  const searchVal = document.getElementById('binCardSearchInput') ? document.getElementById('binCardSearchInput').value.toLowerCase().trim() : '';
+  const onlyMovements = document.getElementById('toggleBinCardMovementsOnly')?.checked || false;
 
+  let count = 0;
   const fragment = document.createDocumentFragment();
-  let renderedCount = 0;
 
-  inventory.forEach((item, idx) => {
+  inventory.forEach((item) => {
     item.closing = calculateClosingStock(item);
     
-    const hasMovements = (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0);
-    const matchesMovementFilter = movementsOnly ? hasMovements : true;
+    const hasMovement = (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || 
+                         item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0);
+
+    if (onlyMovements && !hasMovement) return;
+
     const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(searchVal);
+    if (matchesSearch) {
+      count++;
+      const tr = document.createElement('tr');
+      if (hasMovement) tr.className = 'highlight-movement';
 
-    if (matchesMovementFilter && matchesSearch) {
-      renderedCount++;
-      const isDone = item.bincard_status || false;
-
-      const card = document.createElement('div');
-      card.className = 'bincard-item-card';
-      card.style.opacity = isDone ? '0.75' : '1';
-      card.style.borderColor = isDone ? 'var(--success)' : 'var(--border-color)';
-
-      card.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-          <div>
-            <div style="font-weight: 700; font-size: 1rem; color: var(--text-dark);">${item.name}</div>
-            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-top: 2px;">
-              <i class="fa-solid fa-barcode"></i> Code: ${item.code} | UOM: <strong>${item.uom}</strong>
-            </div>
-          </div>
-          <button class="btn ripple" onclick="toggleBinCardStatus(${idx})" type="button" 
-                  style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; flex-shrink: 0;
-                  background: ${isDone ? 'var(--success-light)' : 'var(--primary-light)'}; 
-                  color: ${isDone ? 'var(--success)' : 'var(--primary)'}; 
-                  border: 1px solid ${isDone ? 'var(--success)' : 'var(--primary)'};">
-            <i class="fa-solid ${isDone ? 'fa-circle-check' : 'fa-circle'}"></i> ${isDone ? 'Updated' : 'Mark Done'}
-          </button>
-        </div>
-
-        <div class="bincard-chips-grid">
-          <span class="bincard-chip chip-op">Op: ${item.op_stock}</span>
-          ${item.f_receipt > 0 ? `<span class="bincard-chip chip-f">+Receipt (F): ${item.f_receipt}</span>` : ''}
-          ${item.g_issues > 0 ? `<span class="bincard-chip chip-g">-Issues (G): ${item.g_issues}</span>` : ''}
-          ${item.h_return > 0 ? `<span class="bincard-chip chip-h">+Return (H): ${item.h_return}</span>` : ''}
-          ${item.i_ssl_received > 0 ? `<span class="bincard-chip chip-f">+SSL In: ${item.i_ssl_received}</span>` : ''}
-          ${item.j_ssl_sent > 0 ? `<span class="bincard-chip chip-g">-SSL Out: ${item.j_ssl_sent}</span>` : ''}
-          ${item.l_rejection > 0 ? `<span class="bincard-chip chip-g">-Rejection: ${item.l_rejection}</span>` : ''}
-          <span class="bincard-chip chip-closing">Closing Stock: ${item.closing} ${item.uom}</span>
-        </div>
+      tr.innerHTML = `
+        <td style="font-weight:700;"><i class="fa-solid fa-barcode" style="color:var(--text-muted); font-size:0.75rem;"></i> ${item.code}</td>
+        <td style="font-weight:600; color:var(--text-dark);">${item.name}</td>
+        <td style="text-align:center;"><span style="background:var(--primary-light); color:var(--primary); padding:2px 6px; border-radius:6px; font-weight:700; font-size:0.75rem;">${item.uom}</span></td>
+        <td style="text-align:right; font-weight:${item.f_receipt > 0 ? '700' : '400'}; color:${item.f_receipt > 0 ? 'var(--success)' : 'inherit'};">${item.f_receipt > 0 ? Number(item.f_receipt).toLocaleString() : '-'}</td>
+        <td style="text-align:right; font-weight:${item.g_issues > 0 ? '700' : '400'}; color:${item.g_issues > 0 ? 'var(--danger)' : 'inherit'};">${item.g_issues > 0 ? Number(item.g_issues).toLocaleString() : '-'}</td>
+        <td style="text-align:right; font-weight:${item.h_return > 0 ? '700' : '400'}; color:${item.h_return > 0 ? 'var(--warning)' : 'inherit'};">${item.h_return > 0 ? Number(item.h_return).toLocaleString() : '-'}</td>
+        <td style="text-align:right; font-weight:${item.i_ssl_received > 0 ? '700' : '400'}; color:${item.i_ssl_received > 0 ? 'var(--success)' : 'inherit'};">${item.i_ssl_received > 0 ? Number(item.i_ssl_received).toLocaleString() : '-'}</td>
+        <td style="text-align:right; font-weight:${item.j_ssl_sent > 0 ? '700' : '400'}; color:${item.j_ssl_sent > 0 ? 'var(--danger)' : 'inherit'};">${item.j_ssl_sent > 0 ? Number(item.j_ssl_sent).toLocaleString() : '-'}</td>
+        <td style="text-align:right; font-weight:${item.l_rejection > 0 ? '700' : '400'}; color:${item.l_rejection > 0 ? 'var(--danger)' : 'inherit'};">${item.l_rejection > 0 ? Number(item.l_rejection).toLocaleString() : '-'}</td>
+        <td style="text-align:right; font-weight:800; color:var(--primary);">${Number(item.closing).toLocaleString()}</td>
       `;
-      fragment.appendChild(card);
+      fragment.appendChild(tr);
     }
   });
 
-  if (renderedCount === 0) {
-    container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight:600;">
-      ${movementsOnly ? 'චලනයන් සිදුවූ භාණ්ඩ කිසිවක් නොමැත.' : 'කිසිදු භාණ්ඩයක් හමු නොවුණි.'}
-    </div>`;
+  if (count === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="10" style="text-align:center; padding: 25px; color: var(--text-muted); font-weight:600;">දත්ත කිසිවක් හමු නොවීය.</td>`;
+    tbody.appendChild(tr);
   } else {
-    container.appendChild(fragment);
+    tbody.appendChild(fragment);
   }
+}
+
+function printBinCardData() {
+  if (!window.jspdf) {
+    window.print();
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('landscape');
+  doc.setFontSize(16);
+  doc.text("Bin Card Update Sheet", 14, 15);
+  doc.setFontSize(10);
+  doc.text(`Date: ${getTodayStr()}`, 14, 22);
+
+  const tableData = inventory.map(item => [
+    item.code || "",
+    item.name || "",
+    item.uom || "",
+    item.op_stock || 0,
+    item.f_receipt || 0,
+    item.g_issues || 0,
+    item.h_return || 0,
+    item.i_ssl_received || 0,
+    item.j_ssl_sent || 0,
+    item.l_rejection || 0,
+    calculateClosingStock(item)
+  ]);
+
+  doc.autoTable({
+    startY: 28,
+    head: [['Code', 'Material Name', 'UOM', 'Op.Stock', 'Receipt (F)', 'Issues (G)', 'Return (H)', 'Rec.SSL (I)', 'Sent SSL (J)', 'Reject (L)', 'Closing']],
+    body: tableData,
+    theme: 'grid',
+    headStyles: { fillColor: [5, 150, 105] },
+    styles: { fontSize: 8 }
+  });
+
+  doc.save(`Bin_Card_Update_${getTodayStr()}.pdf`);
 }
 
 function openTodayUploadedModal() {
@@ -910,7 +931,7 @@ function resetStockAndComplete(t) {
   inventory.forEach(item => { 
     item.op_stock = Number(item.closing) || 0; 
     item.f_receipt = 0; item.g_issues = 0; item.h_return = 0; item.i_ssl_received = 0; item.j_ssl_sent = 0; item.l_rejection = 0; 
-    item.counting = 0; item.packs_count = 0; item.bincard_status = false; item.closing = item.op_stock; item.last_updated = "";
+    item.counting = 0; item.packs_count = 0; item.closing = item.op_stock; item.last_updated = "";
   }); 
   saveInventoryData(); clearSearchInput(); showToast(t.msgExcelShift, 'success'); 
 }
@@ -944,14 +965,14 @@ function restoreFromXLSX() {
             else if (cellVal.includes("name")) colMap.name = colIdx; 
             else if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
             else if (cellVal.includes("op")) colMap.op_stock = colIdx; 
-            else if (cellVal.includes("receipt") || cellVal === "f") colMap.f_receipt = colIdx; 
+            else if (cellVal.includes("receipt") || cellVal === "f" || cellVal.includes("rec")) colMap.f_receipt = colIdx; 
             else if (cellVal.includes("issue") || cellVal === "g") colMap.g_issues = colIdx; 
-            else if (cellVal.includes("return") || cellVal === "h") colMap.h_return = colIdx; 
-            else if (cellVal.includes("received to ssl") || cellVal === "i") colMap.i_ssl_received = colIdx; 
-            else if (cellVal.includes("sent to ssl") || cellVal === "j") colMap.j_ssl_sent = colIdx; 
-            else if (cellVal.includes("rejection") || cellVal === "l") colMap.l_rejection = colIdx; 
+            else if (cellVal.includes("return") || cellVal === "h" || cellVal.includes("ret")) colMap.h_return = colIdx; 
+            else if (cellVal.includes("received to ssl") || cellVal.includes("rec. ssl") || cellVal === "i") colMap.i_ssl_received = colIdx; 
+            else if (cellVal.includes("sent to ssl") || cellVal.includes("sent ssl") || cellVal === "j") colMap.j_ssl_sent = colIdx; 
+            else if (cellVal.includes("rejection") || cellVal.includes("reject") || cellVal === "l") colMap.l_rejection = colIdx; 
             else if (cellVal.includes("counting")) colMap.counting = colIdx; 
-            else if (cellVal.includes("packs count")) colMap.packs_count = colIdx; 
+            else if (cellVal.includes("packs count") || cellVal.includes("packs")) colMap.packs_count = colIdx; 
             else if (cellVal.includes("closing")) colMap.closing = colIdx; 
           }); break; 
         } 
@@ -982,10 +1003,10 @@ function restoreFromXLSX() {
           let packs_count = colMap.packs_count !== -1 ? parseFloat(row[colMap.packs_count]) || 0 : 0; 
             
           restored.push({ 
-            type: colMap.type !== -1 ? String(row[colMap.type]).trim() : "RM", 
+            type: colMap.type !== -1 && row[colMap.type] ? String(row[colMap.type]).trim() : "RM", 
             code, name, 
-            uom: colMap.uom !== -1 ? String(row[colMap.uom]).trim() : "KG", 
-            ...tempItem, counting, packs_count, bincard_status: false, closing, last_updated: "" 
+            uom: colMap.uom !== -1 && row[colMap.uom] ? String(row[colMap.uom]).trim() : "KG", 
+            ...tempItem, counting, packs_count, closing, last_updated: getTodayStr() 
           }); 
         } 
       } 
