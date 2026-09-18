@@ -127,6 +127,7 @@ function loadInventoryData() {
   if (saved) {
     try {
       inventory = JSON.parse(saved);
+      // Ensure all required fields exist on items
       inventory = inventory.map(item => ({
         ...item,
         receipt: item.receipt || 0,
@@ -185,6 +186,7 @@ function setupEventListeners() {
     });
   }
 
+  // Ripple effect on buttons
   document.querySelectorAll('.ripple').forEach(btn => {
     btn.addEventListener('click', function (e) {
       const rect = this.getBoundingClientRect();
@@ -201,10 +203,11 @@ function setupEventListeners() {
     });
   });
 
+  // Close search results when clicking outside
   document.addEventListener('click', (e) => {
+    const searchContainer = document.querySelector('.search- input-container') || document.querySelector('.form-group');
     const resultsBox = document.getElementById('searchResults');
-    const searchInputEl = document.getElementById('searchInput');
-    if (resultsBox && searchInputEl && !resultsBox.contains(e.target) && !searchInputEl.contains(e.target)) {
+    if (resultsBox && !resultsBox.contains(e.target) && !document.getElementById('searchInput').contains(e.target)) {
       resultsBox.style.display = 'none';
     }
   });
@@ -360,9 +363,11 @@ function addSingleSectionData() {
 
   saveInventoryData();
 
+  // Reset inputs
   amountInput.value = '';
   if (packsInput) packsInput.value = '';
 
+  // Update closing stock display in badge
   document.getElementById('dispClosing').innerText = calculateClosingStock(item);
 
   showToast(`${item.name} ${i18n[currentLang].msgAdded}`, 'success');
@@ -389,6 +394,7 @@ function renderBinCardUpdateViewList() {
 
   const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
+  // Filter items that have updates or match search
   const filtered = inventory.filter(item => {
     const hasActivity = (Number(item.receipt) > 0 || Number(item.issues) > 0 || Number(item.return) > 0 || 
                          Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0 || 
@@ -418,6 +424,7 @@ function renderBinCardUpdateViewList() {
   filtered.forEach(item => {
     const closing = calculateClosingStock(item);
     
+    // Build badges for sections with values
     let detailsHtml = '';
     if (Number(item.receipt) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Receipt: ${item.receipt}</span>`;
     if (Number(item.issues) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Issues: ${item.issues}</span>`;
@@ -477,6 +484,7 @@ function restoreFromXLSX() {
         return;
       }
 
+      // Detect header columns dynamically
       const headers = jsonData[0].map(h => String(h).toLowerCase().trim());
       
       let codeIdx = headers.findIndex(h => h.includes('code') || h.includes('material code'));
@@ -484,6 +492,7 @@ function restoreFromXLSX() {
       let uomIdx = headers.findIndex(h => h.includes('uom') || h.includes('unit'));
       let opIdx = headers.findIndex(h => h.includes('op') || h.includes('opening') || h.includes('stock'));
       
+      // Specific columns for Bin Card / Sections if present in uploaded file
       let receiptIdx = headers.findIndex(h => h.includes('receipt') || h.includes('f'));
       let issuesIdx = headers.findIndex(h => h.includes('issues') || h.includes('g'));
       let returnIdx = headers.findIndex(h => h.includes('return') || h.includes('h'));
@@ -558,6 +567,7 @@ function restoreFromXLSX() {
   reader.readAsArrayBuffer(file);
 }
 
+// ==================== OTHER SUPPORTING FUNCTIONS ====================
 function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
@@ -755,6 +765,7 @@ function processCountingDownload() {
     doc.save(`${fileName}.pdf`);
     showToast("Counting Sheet PDF ගොනුව බාගත විය!", "success");
   } else {
+    // Word (.doc text format)
     let text = `Counting Sheet Report - ${dateStr}\n\n`;
     inventory.forEach(i => {
       text += `Code: ${i.code} | Name: ${i.name} | UOM: ${i.uom} | Counting: ${i.counting} | Packs: ${i.packs_count}\n`;
@@ -972,29 +983,29 @@ function switchHelpTopic(topic) {
 
   if (topic === 'fileType') {
     box.innerHTML = `
-      <strong>1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</strong><br>
-      ඔබට RMC Stock Backup එකක් හෝ පහත සඳහන් Column අඩංගු Excel (.xlsx) ගොනුවක් Upload කළ හැක:<br>
-      - Material Code / Code<br>
-      - Material Name / Name<br>
-      - UOM (KG, PCS ආදී වශයෙන්)<br>
-      - Opening Stock / Op Stock<br>
-      - Receipt, Issues, Return, Received to SSL, Sent to SSL, Rejection, Counting, Packs Count
+      <strong>1. Upload කළ යුත්තේ කුමන ආකාරයේ Excel File එකක්ද?</strong><br><br>
+      ඔබට ඔබගේ පද්ධතිය මඟින් Export කරන ලද හෝ පිළිවෙළට සකස් කරන ලද <code>.xlsx</code> හෝ <code>.xls</code> ගොනුවක් upload කළ හැක. 
+      මෙහි මූලික තීරු (Columns) ලෙස <strong>Material Code</strong>, <strong>Material Name</strong>, <strong>UOM</strong> සහ <strong>Opening Stock</strong> අඩංගු විය යුතුය. 
+      එමෙන්ම <strong>Receipt</strong>, <strong>Issues</strong>, <strong>Return</strong> වැනි අතිරේක තීරු තිබේ නම් ඒවාද ස්වයංක්‍රීයව Bin Card එකට යාවත්කාලීන වේ.
     `;
   } else if (topic === 'howToDo') {
     box.innerHTML = `
-      <strong>2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</strong><br>
-      - Settings බටනය (Gear icon) ක්ලික් කරන්න.<br>
-      - "Restore Excel (.xlsx) File" යටතේ Choose File මඟින් ඔබේ Excel ගොනුව තෝරන්න.<br>
-      - "Restore Excel Data" බොත්තම ක්ලික් කරන්න.<br>
-      - සාර්ථක වූ පසු ස්වයංක්‍රීයව Bin Card Update View විවෘත වී යාවත්කාලීන වූ දත්ත බලාගත හැක.
+      <strong>2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</strong><br><br>
+      - මුල් පිටුවේ ඉහළ වම්පස ඇති <strong>Settings (Gear Icon)</strong> ක්ලික් කරන්න.<br>
+      - <strong>Restore Excel (.xlsx) File</strong> කොටස වෙත යන්න.<br>
+      - <strong>Choose File</strong> මඟින් ඔබේ පරිගණකයෙන් හෝ දුරකථනයෙන් Excel ගොනුව තෝරන්න.<br>
+      - <strong>Restore Excel Data</strong> බොත්තම ඔබන්න. සාර්ථක වූ පසු ස්වයංක්‍රීයව <strong>Bin Card Update View</strong> විවෘත වී දත්ත බලාගත හැක.
     `;
-  } else if (topic === 'appFeatures') {
+  } else {
     box.innerHTML = `
-      <strong>3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</strong><br>
-      - විවිධ Sections (Receipt, Issues, Return, SSL, Rejection, Counting) යටතේ දත්ත ඇතුළත් කිරීම.<br>
-      - Bin Card Update View මඟින් යාවත්කාලීන වූ දත්ත පහසුවෙන් පරීක්ෂා කිරීම.<br>
-      - Counting Sheet සහ Daily Stock Reports Excel, PDF හෝ Word ලෙස Download සහ Share කිරීම.<br>
-      - දත්ත දිනපතා Closing Stock වෙත Shift කිරීම (Reset Daily Data).
+      <strong>3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</strong><br><br>
+      - දිනපතා Stock ගණනය කිරීම් (Counting) සහ Section අනුව දත්ත ඇතුළත් කිරීම.<br>
+      - <strong>Bin Card Update View</strong> හරහා යාවත්කාලීන වූ දත්ත Card ක්‍රමයට පහසුවෙන් පරීක්ෂා කිරීම.<br>
+      - Excel, PDF හෝ Word ფორමැට් වලින් Counting Sheets ඩවුන්ලෝඩ් කිරීම සහ Share කිරීම.<br>
+      - දත්ත සුරක්ෂිතව Backup ලබාගැනීම සහ අවශ්‍ය විට Restore කිරීම.
     `;
   }
 }
+
+function openItemDetailModal() {}
+function closeItemDetailModal() {}
