@@ -114,6 +114,19 @@ const defaultItems = [
   {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0} 
 ]; 
 
+// ==================== APP INITIALIZATION & SPLASH HIDE ====================
+window.addEventListener('load', () => {
+  const splash = document.getElementById('appSplashScreen');
+  if (splash) {
+    setTimeout(() => {
+      splash.classList.add('fade-out');
+      setTimeout(() => {
+        splash.style.display = 'none';
+      }, 500);
+    }, 600);
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   loadInventoryData();
   applyTheme(currentTheme);
@@ -202,11 +215,11 @@ function setupEventListeners() {
     });
   });
 
-  // Close search results when clicking outside (Fixed selector bug)
+  // Dismiss search list when clicking outside
   document.addEventListener('click', (e) => {
-    const searchContainer = document.querySelector('.search-input-container') || document.querySelector('.form-group');
+    const searchGroup = document.querySelector('.search-input-container');
     const resultsBox = document.getElementById('searchResults');
-    if (resultsBox && !searchContainer.contains(e.target) && !document.getElementById('searchInput').contains(e.target)) {
+    if (resultsBox && searchGroup && !searchGroup.contains(e.target)) {
       resultsBox.style.display = 'none';
     }
   });
@@ -408,7 +421,7 @@ function renderBinCardUpdateViewList() {
     container.innerHTML = `
       <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
         <i class="fa-solid fa-clipboard-question" style="font-size: 2.5rem; margin-bottom: 12px; color: var(--border-color);"></i>
-        <p style="font-weight: 600;">ಯාවත්කාලීන කරන ලද දත්ත කිසිවක් හමු නොවීය.</p>
+        <p style="font-weight: 600;">යාවත්කාලීන කරන ලද දත්ත කිසිවක් හමු නොවීය.</p>
         <p style="font-size: 0.85rem; margin-top: 4px;">Settings මඟින් Excel Restore කිරීමෙන් හෝ දත්ත ඇතුළත් කිරීමෙන් පසු මෙහි බලාගත හැක.</p>
       </div>
     `;
@@ -452,7 +465,7 @@ function renderBinCardUpdateViewList() {
   container.innerHTML = html;
 }
 
-// ==================== RESTORE EXCEL DATA FIX ====================
+// ==================== RESTORE EXCEL DATA ====================
 function restoreFromXLSX() {
   const fileInput = document.getElementById('xlsxFileInput');
   if (!fileInput || fileInput.files.length === 0) {
@@ -556,6 +569,33 @@ function restoreFromXLSX() {
     }
   };
   reader.readAsArrayBuffer(file);
+}
+
+// ==================== MATERIAL DETAILS MODAL ====================
+function openItemDetailModal(index) {
+  if (index < 0 || index >= inventory.length) return;
+  const item = inventory[index];
+  document.getElementById('detCode').innerText = item.code || '-';
+  document.getElementById('detUom').innerText = item.uom || '-';
+  document.getElementById('detName').innerText = item.name || '-';
+  document.getElementById('detOp').innerText = item.op_stock || 0;
+  document.getElementById('detReceipt').innerText = item.receipt || 0;
+  document.getElementById('detIssues').innerText = item.issues || 0;
+  document.getElementById('detReturn').innerText = item.return || 0;
+  document.getElementById('detSslI').innerText = item.ssl_i || 0;
+  document.getElementById('detSslJ').innerText = item.ssl_j || 0;
+  document.getElementById('detRejectionL').innerText = item.rejection_l || 0;
+  document.getElementById('detCounting').innerText = item.counting || 0;
+  document.getElementById('detPacksCount').innerText = item.packs_count || 0;
+  document.getElementById('detClosing').innerText = `${calculateClosingStock(item)} ${item.uom}`;
+
+  const modal = document.getElementById('itemDetailModal');
+  if (modal) modal.classList.add('show');
+}
+
+function closeItemDetailModal() {
+  const modal = document.getElementById('itemDetailModal');
+  if (modal) modal.classList.remove('show');
 }
 
 // ==================== OTHER SUPPORTING FUNCTIONS ====================
@@ -771,9 +811,30 @@ function processCountingDownload() {
   closeCountingDownloadModal();
 }
 
-function processCountingShare() {
-  processCountingDownload();
-  showToast(i18n[currentLang].shareSuccess, 'success');
+async function processCountingShare() {
+  const dateStr = new Date().toISOString().slice(0, 10);
+  let text = `Counting Sheet Report - ${dateStr}\n\n`;
+  inventory.forEach(i => {
+    if (Number(i.counting) > 0 || Number(i.packs_count) > 0) {
+      text += `Code: ${i.code} | Name: ${i.name} | Counting: ${i.counting} ${i.uom} | Packs: ${i.packs_count}\n`;
+    }
+  });
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'Stock Counting Sheet',
+        text: text
+      });
+      showToast(i18n[currentLang].shareSuccess, 'success');
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        processCountingDownload();
+      }
+    }
+  } else {
+    processCountingDownload();
+  }
 }
 
 function openTodayUploadedModal() {
@@ -885,7 +946,7 @@ function updateDefaultFileName() {
   if (input) input.placeholder = `Stock_Counting_${dateStr}`;
 }
 
-function processExportAction() {
+async function processExportAction() {
   const format = document.getElementById('exportFormatSelect').value;
   const inputName = document.getElementById('exportFileNameInput').value.trim();
   const dateStr = new Date().toISOString().slice(0, 10);
@@ -908,6 +969,46 @@ function processExportAction() {
     "Closing Stock": calculateClosingStock(item)
   }));
 
+  if (currentExportMode === 'share' && navigator.share) {
+    try {
+      let shareTxt = `Daily Stock Summary - ${dateStr}\n\n`;
+      exportData.forEach(i => {
+        shareTxt += `${i["Material Code"]} | ${i["Material Name"]} | Closing: ${i["Closing Stock"]} ${i["UOM"]}\n`;
+      });
+      await navigator.share({
+        title: 'Daily Stock Summary',
+        text: shareTxt
+      });
+      showToast(i18n[currentLang].shareSuccess, 'success');
+    } catch (e) {
+      if (e.name !== 'AbortError') {
+        downloadExportFile(format, exportData, fileName, dateStr);
+      }
+    }
+  } else {
+    downloadExportFile(format, exportData, fileName, dateStr);
+  }
+
+  if (shiftStock) {
+    inventory.forEach(item => {
+      item.op_stock = calculateClosingStock(item);
+      item.receipt = 0;
+      item.issues = 0;
+      item.return = 0;
+      item.ssl_i = 0;
+      item.ssl_j = 0;
+      item.rejection_l = 0;
+      item.counting = 0;
+      item.packs_count = 0;
+    });
+    saveInventoryData();
+  }
+
+  closeExportModal();
+  showToast(i18n[currentLang].msgExcelShift, 'success');
+}
+
+function downloadExportFile(format, exportData, fileName, dateStr) {
   if (format === 'xlsx') {
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
@@ -934,24 +1035,6 @@ function processExportAction() {
     a.download = `${fileName}.txt`;
     a.click();
   }
-
-  if (shiftStock) {
-    inventory.forEach(item => {
-      item.op_stock = calculateClosingStock(item);
-      item.receipt = 0;
-      item.issues = 0;
-      item.return = 0;
-      item.ssl_i = 0;
-      item.ssl_j = 0;
-      item.rejection_l = 0;
-      item.counting = 0;
-      item.packs_count = 0;
-    });
-    saveInventoryData();
-  }
-
-  closeExportModal();
-  showToast(i18n[currentLang].msgExcelShift, 'success');
 }
 
 function openRestoreHelpModal() {
@@ -973,29 +1056,34 @@ function switchHelpTopic(topic) {
 
   if (topic === 'fileType') {
     box.innerHTML = `
-      <strong>1. Upload කළ යුත්තේ කුමන ආකාරයේ Excel File එකක්ද?</strong><br><br>
-      ඔබට ඔබගේ පද්ධතිය මඟින් Export කරන ලද හෝ පිළිවෙළට සකස් කරන ලද <code>.xlsx</code> හෝ <code>.xls</code> ගොනුවක් upload කළ හැක. 
-      මෙහි මූලික තීරු (Columns) ලෙස <strong>Material Code</strong>, <strong>Material Name</strong>, <strong>UOM</strong> සහ <strong>Opening Stock</strong> අඩංගු විය යුතුය. 
-      එමෙන්ම <strong>Receipt</strong>, <strong>Issues</strong>, <strong>Return</strong> වැනි අතිරේක තීරු තිබේ නම් ඒවාද ස්වයංක්‍රීයව Bin Card එකට යාවත්කාලීන වේ.
+      <h4 style="margin-bottom:8px; color:var(--primary);"><i class="fa-solid fa-file-excel"></i> 1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</h4>
+      <p style="margin-bottom:10px;">පද්ධතියට දත්ත Restore කිරීම සඳහා පහත සදහන් Column හිස්තැන් (Headers) අඩංගු Excel (.xlsx, .xls) ගොනුවක් භාවිතා කළ හැක:</p>
+      <ul style="padding-left:20px; line-height:1.8;">
+        <li><strong>Code / Material Code:</strong> ද්‍රව්‍යයේ කේතය (අනිවාර්යයි)</li>
+        <li><strong>Name / Material Name:</strong> ද්‍රව්‍යයේ නම</li>
+        <li><strong>UOM:</strong> මිනුම් ඒකකය (KG, PCS, LTR, ආදිය)</li>
+        <li><strong>Opening / Op Stock:</strong> ආරම්භක තොග ප්‍රමාණය</li>
+        <li><strong>Receipt (F), Issues (G), Return (H), SSL_I, SSL_J, Rejection (L), Counting, Packs:</strong> අදාළ අංශයන්හි දත්ත.</li>
+      </ul>
     `;
   } else if (topic === 'howToDo') {
     box.innerHTML = `
-      <strong>2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</strong><br><br>
-      - මුල් පිටුවේ ඉහළ වම්පස ඇති <strong>Settings (Gear Icon)</strong> ක්ලික් කරන්න.<br>
-      - <strong>Restore Excel (.xlsx) File</strong> කොටස වෙත යන්න.<br>
-      - <strong>Choose File</strong> මඟින් ඔබේ පරිගණකයෙන් හෝ දුරකථනයෙන් Excel ගොනුව තෝරන්න.<br>
-      - <strong>Restore Excel Data</strong> බොත්තම ඔබන්න. සාර්ථක වූ පසු ස්වයංක්‍රීයව <strong>Bin Card Update View</strong> විවෘත වී දත්ත බලාගත හැක.
+      <h4 style="margin-bottom:8px; color:var(--success);"><i class="fa-solid fa-upload"></i> 2. Restore කරන්නේ කෙසේද?</h4>
+      <ol style="padding-left:20px; line-height:1.8;">
+        <li>Settings වෙත ගොස් <strong>"Choose File"</strong> ක්ලික් කර ඔබේ Excel ගොනුව තෝරන්න.</li>
+        <li><strong>"Restore Excel Data"</strong> බොත්තම ක්ලික් කරන්න.</li>
+        <li>දත්ත සාර්ථකව පද්ධතියට ඇතුළත් වූ පසු <strong>Bin Card Update View</strong> ස්වයංක්‍රීයව විවෘත වේ.</li>
+      </ol>
     `;
-  } else {
+  } else if (topic === 'appFeatures') {
     box.innerHTML = `
-      <strong>3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</strong><br><br>
-      - දිනපතා Stock ගණනය කිරීම් (Counting) සහ Section අනුව දත්ත ඇතුළත් කිරීම.<br>
-      - <strong>Bin Card Update View</strong> හරහා යාවත්කාලීන වූ දත්ත Card ක්‍රමයට පහසුවෙන් පරීක්ෂා කිරීම.<br>
-      - Excel, PDF හෝ Word ფორමැට් වලින් Counting Sheets ඩවුන්ලෝඩ් කිරීම සහ Share කිරීම.<br>
-      - දත්ත සුරක්ෂිතව Backup ලබාගැනීම සහ අවශ්‍ය විට Restore කිරීම.
+      <h4 style="margin-bottom:8px; color:var(--warning);"><i class="fa-solid fa-star"></i> 3. Web App එකේ ප්‍රධාන විශේෂාංග:</h4>
+      <ul style="padding-left:20px; line-height:1.8;">
+        <li><strong>Stock Entry & Counting:</strong> Receipt, Issues, Return, SSL, Rejection, Counting සහ Packs Count පහසුවෙන් සටහන් කිරීම.</li>
+        <li><strong>Bin Card Update View:</strong> සියලුම යාවත්කාලීන තොග විස්තර එකම ස්ථානයකින් බලාගැනීම.</li>
+        <li><strong>Live Updates & Edit:</strong> Updated Live Modal මඟින් ඇතුළත් කළ Counting ගණන් ඕනෑම වේලාවක වෙනස් කිරීම.</li>
+        <li><strong>Excel/PDF Export:</strong> දෛනික Stock Summary Excel, CSV, PDF හෝ Word මඟින් බාගත කිරීම සහ Share කිරීම.</li>
+      </ul>
     `;
   }
 }
-
-function openItemDetailModal() {}
-function closeItemDetailModal() {}
