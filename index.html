@@ -18,24 +18,31 @@
 </head>
 <body>
 
-<!-- Initial App Splash / Loading Screen -->
-<div id="appSplashScreen" class="app-splash-screen">
-  <div class="splash-card">
-    <div class="splash-icon">
-      <i class="fa-solid fa-boxes-stacked"></i>
+<!-- Modern 4-Second Splash Loading Screen -->
+<div id="splashScreen" class="splash-screen">
+  <div class="splash-bg-glow"></div>
+  <div class="splash-content">
+    <div class="splash-logo-box">
+      <i class="fa-solid fa-boxes-stacked splash-icon"></i>
     </div>
-    <div class="splash-brand">
-      <span class="splash-title">Stock</span>
-      <span class="splash-badge">Counting</span>
-    </div>
-    <p class="splash-sub">High Performance Dashboard</p>
+    <h1 class="splash-title">Stock <span>Counting</span></h1>
+    <p class="splash-subtitle">High Performance Inventory & Stock Management</p>
     
-    <div class="splash-loader-wrapper">
-      <div class="splash-spinner"></div>
+    <div class="splash-desc-box">
+      <p><i class="fa-solid fa-circle-check"></i> Raw Material තොග ගණනය කිරීම්, Receipt, Issues සහ Bin Card දත්ත නිවැරදිව හා පහසුවෙන් කළමනාකරණය කරන්න.</p>
     </div>
-    
+
+    <!-- 4 Second Progress Loader -->
+    <div class="splash-progress-container">
+      <div class="splash-progress-bar" id="splashProgressBar"></div>
+    </div>
+    <div class="splash-status">
+      <span id="splashStatusText">System Resources පූරණය වෙමින් පවතී...</span>
+      <span id="splashPercent">0%</span>
+    </div>
+
     <div class="splash-footer">
-      Created by <span>Yomal Lakshan</span>
+      Created By <span>Yomal Lakshan</span>
     </div>
   </div>
 </div>
@@ -95,8 +102,8 @@
           <i class="fa-solid fa-circle-check" style="color: var(--primary); font-size: 1.1rem;"></i>
           <span><span id="dispCode"></span> - <span id="dispName"></span></span>
         </div>
-        <button type="button" onclick="openItemDetailModal(selectedIndex)" title="View Details" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:1rem;">
-          <i class="fa-solid fa-circle-info"></i>
+        <button type="button" onclick="openSelectedItemDetails()" style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.85rem; font-weight:700;">
+          <i class="fa-solid fa-circle-info"></i> Info
         </button>
       </div>
       <div style="font-size: 0.85rem; opacity: 0.9; padding-left: 24px;">
@@ -178,7 +185,8 @@
     </div>
 
     <!-- Card Container for Bin Card Details -->
-    <div class="checklist-container" id="binCardCardsContainer"></div>
+    <div class="checklist-container" id="binCardCardsContainer">
+    </div>
   </div>
 </div>
 
@@ -398,7 +406,6 @@
         <select id="langSelect" onchange="changeLanguage(this.value)">
           <option value="si">සිංහල (Sinhala)</option>
           <option value="en">English</option>
-          <option value="ta">தமிழ் (Tamil)</option>
         </select>
       </div>
 
