@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+[source: 1]<!DOCTYPE html>
 <html lang="si">
 <head>
   <meta charset="UTF-8">
@@ -107,15 +107,16 @@
       </div>
     </div>
 
-    <!-- Save & Bin Card Update Buttons Container -->
-    <div class="save-btn-container" style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%;">
+    <div class="save-btn-container" style="margin-top: 24px;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
-      
-      <!-- Bin Card Update View Button (Shows on Daily Stocks mode) -->
-      <button class="btn ripple" id="btnBinCardView" onclick="openBinCardModal()" type="button" style="display:none; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; width: 100%; max-width: 320px; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);">
-        <i class="fa-solid fa-table-list"></i> Bin Card Update View
+    </div>
+
+    <!-- Bin Card Update View Button (Displayed under Save button) -->
+    <div class="bin-card-btn-container" id="binCardBtnContainer" style="margin-top: 14px; display: none; justify-content: center;">
+      <button class="btn btn-bin-card ripple" onclick="openBinCardModal()" id="btnBinCardView" type="button">
+        <i class="fa-solid fa-boxes-packing"></i> Bin Card Update View
       </button>
     </div>
 
@@ -133,61 +134,6 @@
   <div class="loading-box">
     <div class="spinner"></div>
     <div id="loadingText" style="font-weight: 600; font-size: 0.95rem; color: var(--text-dark);">Processing...</div>
-  </div>
-</div>
-
-<!-- Bin Card Update View Modal -->
-<div id="binCardModal" class="modal">
-  <div class="modal-content" style="max-width: 850px;">
-    <div class="modal-header">
-      <h3 id="txtBinCardTitle"><i class="fa-solid fa-table-list" style="color:var(--success);"></i> Bin Card Update View</h3>
-      <button class="close-btn ripple" onclick="closeBinCardModal()" type="button">&times;</button>
-    </div>
-
-    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;">
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <input type="text" id="binCardSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;" oninput="renderBinCardList()">
-        <button type="button" class="btn ripple" style="padding: 10px 16px; background: var(--primary); color: white; white-space: nowrap; font-size:0.88rem;" onclick="printBinCardData()">
-          <i class="fa-solid fa-file-pdf"></i> Download PDF
-        </button>
-      </div>
-
-      <div class="switch-container" style="padding: 8px 12px;">
-        <label class="switch-label" for="toggleBinCardMovementsOnly" style="font-size: 0.82rem;">
-          <i class="fa-solid fa-filter" style="color: var(--primary);"></i> වෙනස්වීම් (Movements) ඇති ද්‍රව්‍ය පමණක් පෙන්වන්න
-        </label>
-        <label class="switch">
-          <input type="checkbox" id="toggleBinCardMovementsOnly" onchange="renderBinCardList()">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">
-        <i class="fa-solid fa-circle-info"></i> Restore කරන ලද හෝ Daily Stocks ඇතුළත් කළ දත්ත Bin Card වල සටහන් කර ගැනීමට මෙතැනින් පහසුවෙන් බලාගත හැක.
-      </div>
-    </div>
-
-    <div class="bin-card-table-container">
-      <table class="bin-card-table">
-        <thead>
-          <tr>
-            <th style="min-width: 90px;">Code</th>
-            <th style="min-width: 160px;">Material Name</th>
-            <th style="text-align: center;">UOM</th>
-            <th style="text-align: right; color: var(--success);">Receipt (F)</th>
-            <th style="text-align: right; color: var(--danger);">Issues (G)</th>
-            <th style="text-align: right; color: var(--warning);">Return (H)</th>
-            <th style="text-align: right;">Rec. SSL (I)</th>
-            <th style="text-align: right;">Sent SSL (J)</th>
-            <th style="text-align: right; color: var(--danger);">Reject (L)</th>
-            <th style="text-align: right; color: var(--primary);">Closing</th>
-          </tr>
-        </thead>
-        <tbody id="binCardTableBody">
-          <!-- Populated dynamically -->
-        </tbody>
-      </table>
-    </div>
   </div>
 </div>
 
@@ -229,6 +175,61 @@
   </div>
 </div>
 
+<!-- Bin Card Update View Modal -->
+<div id="binCardModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="txtBinCardTitle"><i class="fa-solid fa-boxes-packing" style="color:var(--primary);"></i> Bin Card Update View</h3>
+      <button class="close-btn ripple" onclick="closeBinCardModal()" type="button">&times;</button>
+    </div>
+
+    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; gap: 10px; align-items: center;">
+      <input type="text" id="binCardSearchInput" placeholder="Filter items by code, name or section..." autocomplete="off" style="flex: 1;">
+      <button type="button" class="btn btn-primary ripple" onclick="openBinCardDownloadModal()" style="padding: 12px 18px; white-space: nowrap; flex-shrink: 0;">
+        <i class="fa-solid fa-file-arrow-down"></i> Download Updates
+      </button>
+    </div>
+
+    <div class="bin-card-grid" id="binCardGridContainer"></div>
+  </div>
+</div>
+
+<!-- Download Bin Card Updates Modal -->
+<div id="binCardDownloadModal" class="modal">
+  <div class="modal-content modal-small">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-file-arrow-down" style="color:var(--primary);"></i> Download Bin Card Updates</h3>
+      <button class="close-btn ripple" onclick="closeBinCardDownloadModal()" type="button">&times;</button>
+    </div>
+    <div class="modal-body-scroll">
+      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">Bin Card Update කළ යුතු දත්ත පමණක් Download කරගන්න:</p>
+      
+      <div class="form-group">
+        <label><i class="fa-solid fa-file-code"></i> Format:</label>
+        <select id="binCardFormatSelect" onchange="updateBinCardFileName()">
+          <option value="xlsx">Excel Workbook (.xlsx)</option>
+          <option value="pdf">PDF Document (.pdf)</option>
+          <option value="csv">CSV File (.csv)</option>
+          <option value="txt">Text File (.txt)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top: 14px;">
+        <label><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
+        <div class="input-glow-wrapper">
+          <input type="text" id="binCardFileNameInput" placeholder="Bin_Card_Updates_YYYY-MM-DD">
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top: 24px; gap: 10px;">
+        <button type="button" class="btn btn-primary ripple" onclick="processBinCardDownload()">
+          <i class="fa-solid fa-download"></i> Download
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Updated Live Modal -->
 <div id="todayUploadedModal" class="modal">
   <div class="modal-content">
@@ -248,7 +249,7 @@
         </label>
       </div>
 
-      <input type="text" id="todayModalSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;" oninput="renderTodayUploadedList()">
+      <input type="text" id="todayModalSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
     </div>
 
     <div class="checklist-container" id="todayCardsContainer"></div>
@@ -407,6 +408,7 @@
         <select id="langSelect" onchange="changeLanguage(this.value)">
           <option value="si">සිංහල (Sinhala)</option>
           <option value="en">English</option>
+          <option value="ta">தமிழ் (Tamil)</option>
         </select>
       </div>
 
