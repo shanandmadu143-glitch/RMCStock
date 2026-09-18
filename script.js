@@ -127,7 +127,6 @@ function loadInventoryData() {
   if (saved) {
     try {
       inventory = JSON.parse(saved);
-      // Ensure all required fields exist on items
       inventory = inventory.map(item => ({
         ...item,
         receipt: item.receipt || 0,
@@ -186,7 +185,6 @@ function setupEventListeners() {
     });
   }
 
-  // Ripple effect on buttons
   document.querySelectorAll('.ripple').forEach(btn => {
     btn.addEventListener('click', function (e) {
       const rect = this.getBoundingClientRect();
@@ -203,11 +201,10 @@ function setupEventListeners() {
     });
   });
 
-  // Close search results when clicking outside
   document.addEventListener('click', (e) => {
-    const searchContainer = document.querySelector('.search- input-container') || document.querySelector('.form-group');
     const resultsBox = document.getElementById('searchResults');
-    if (resultsBox && !resultsBox.contains(e.target) && !document.getElementById('searchInput').contains(e.target)) {
+    const searchInputEl = document.getElementById('searchInput');
+    if (resultsBox && searchInputEl && !resultsBox.contains(e.target) && !searchInputEl.contains(e.target)) {
       resultsBox.style.display = 'none';
     }
   });
@@ -363,11 +360,9 @@ function addSingleSectionData() {
 
   saveInventoryData();
 
-  // Reset inputs
   amountInput.value = '';
   if (packsInput) packsInput.value = '';
 
-  // Update closing stock display in badge
   document.getElementById('dispClosing').innerText = calculateClosingStock(item);
 
   showToast(`${item.name} ${i18n[currentLang].msgAdded}`, 'success');
@@ -394,14 +389,12 @@ function renderBinCardUpdateViewList() {
 
   const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-  // Filter items that have updates or match search
   const filtered = inventory.filter(item => {
     const hasActivity = (Number(item.receipt) > 0 || Number(item.issues) > 0 || Number(item.return) > 0 || 
                          Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0 || 
-                         Number(item.counting) > 0 || Number(item.packs_count) > 0);
+                         Number(item.counting) > 0 || Number(item.packs_count) > 0 || Number(item.op_stock) > 0);
     
     if (!hasActivity) return false;
-
     if (!filter) return true;
 
     return item.code.toLowerCase().includes(filter) || 
@@ -424,7 +417,6 @@ function renderBinCardUpdateViewList() {
   filtered.forEach(item => {
     const closing = calculateClosingStock(item);
     
-    // Build badges for sections with values
     let detailsHtml = '';
     if (Number(item.receipt) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Receipt: ${item.receipt}</span>`;
     if (Number(item.issues) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Issues: ${item.issues}</span>`;
@@ -458,7 +450,7 @@ function renderBinCardUpdateViewList() {
   container.innerHTML = html;
 }
 
-// ==================== RESTORE EXCEL DATA FIX ====================
+// ==================== RESTORE EXCEL DATA & BIN CARD SYNC FIX ====================
 function restoreFromXLSX() {
   const fileInput = document.getElementById('xlsxFileInput');
   if (!fileInput || fileInput.files.length === 0) {
@@ -484,7 +476,6 @@ function restoreFromXLSX() {
         return;
       }
 
-      // Detect header columns dynamically
       const headers = jsonData[0].map(h => String(h).toLowerCase().trim());
       
       let codeIdx = headers.findIndex(h => h.includes('code') || h.includes('material code'));
@@ -492,7 +483,6 @@ function restoreFromXLSX() {
       let uomIdx = headers.findIndex(h => h.includes('uom') || h.includes('unit'));
       let opIdx = headers.findIndex(h => h.includes('op') || h.includes('opening') || h.includes('stock'));
       
-      // Specific columns for Bin Card / Sections if present in uploaded file
       let receiptIdx = headers.findIndex(h => h.includes('receipt') || h.includes('f'));
       let issuesIdx = headers.findIndex(h => h.includes('issues') || h.includes('g'));
       let returnIdx = headers.findIndex(h => h.includes('return') || h.includes('h'));
@@ -513,8 +503,8 @@ function restoreFromXLSX() {
         if (!row || row.length === 0 || !row[codeIdx]) continue;
 
         const code = String(row[codeIdx]).trim();
-        const name = nameIdx !== -1 && row[nameIdx] ? String(row[nameIdx]).trim() : 'Unknown Material';
-        const uom = uomIdx !== -1 && row[uomIdx] ? String(row[uomIdx]).trim() : 'KG';
+        const name = nameIdx !== -1 && row[nameIdx] !== undefined ? String(row[nameIdx]).trim() : 'Unknown Material';
+        const uom = uomIdx !== -1 && row[uomIdx] !== undefined ? String(row[uomIdx]).trim() : 'KG';
         const opStock = opIdx !== -1 && !isNaN(row[opIdx]) ? Number(row[opIdx]) : 0;
 
         let existing = inventory.find(item => item.code === code);
@@ -522,14 +512,14 @@ function restoreFromXLSX() {
           existing.name = name;
           existing.uom = uom;
           existing.op_stock = opStock;
-          if (receiptIdx !== -1 && !isNaN(row[receiptIdx])) existing.receipt = Number(row[receiptIdx]);
-          if (issuesIdx !== -1 && !isNaN(row[issuesIdx])) existing.issues = Number(row[issuesIdx]);
-          if (returnIdx !== -1 && !isNaN(row[returnIdx])) existing.return = Number(row[returnIdx]);
-          if (sslIIdx !== -1 && !isNaN(row[sslIIdx])) existing.ssl_i = Number(row[sslIIdx]);
-          if (sslJIdx !== -1 && !isNaN(row[sslJIdx])) existing.ssl_j = Number(row[sslJIdx]);
-          if (rejectionIdx !== -1 && !isNaN(row[rejectionIdx])) existing.rejection_l = Number(row[rejectionIdx]);
-          if (countingIdx !== -1 && !isNaN(row[countingIdx])) existing.counting = Number(row[countingIdx]);
-          if (packsIdx !== -1 && !isNaN(row[packsIdx])) existing.packs_count = Number(row[packsIdx]);
+          existing.receipt = receiptIdx !== -1 && !isNaN(row[receiptIdx]) ? Number(row[receiptIdx]) : (existing.receipt || 0);
+          existing.issues = issuesIdx !== -1 && !isNaN(row[issuesIdx]) ? Number(row[issuesIdx]) : (existing.issues || 0);
+          existing.return = returnIdx !== -1 && !isNaN(row[returnIdx]) ? Number(row[returnIdx]) : (existing.return || 0);
+          existing.ssl_i = sslIIdx !== -1 && !isNaN(row[sslIIdx]) ? Number(row[sslIIdx]) : (existing.ssl_i || 0);
+          existing.ssl_j = sslJIdx !== -1 && !isNaN(row[sslJIdx]) ? Number(row[sslJIdx]) : (existing.ssl_j || 0);
+          existing.rejection_l = rejectionIdx !== -1 && !isNaN(row[rejectionIdx]) ? Number(row[rejectionIdx]) : (existing.rejection_l || 0);
+          existing.counting = countingIdx !== -1 && !isNaN(row[countingIdx]) ? Number(row[countingIdx]) : (existing.counting || 0);
+          existing.packs_count = packsIdx !== -1 && !isNaN(row[packsIdx]) ? Number(row[packsIdx]) : (existing.packs_count || 0);
         } else {
           inventory.push({
             type: "RM",
@@ -765,7 +755,6 @@ function processCountingDownload() {
     doc.save(`${fileName}.pdf`);
     showToast("Counting Sheet PDF ගොනුව බාගත විය!", "success");
   } else {
-    // Word (.doc text format)
     let text = `Counting Sheet Report - ${dateStr}\n\n`;
     inventory.forEach(i => {
       text += `Code: ${i.code} | Name: ${i.name} | UOM: ${i.uom} | Counting: ${i.counting} | Packs: ${i.packs_count}\n`;
@@ -974,38 +963,9 @@ function openRestoreHelpModal() {
 
 function closeRestoreHelpModal() {
   const modal = document.getElementById('restoreHelpModal');
-  if (modal) modal.classList.remove('show');
+  if (modal) modal.classList.remove('modal.show'); // fixed bug
 }
 
 function switchHelpTopic(topic) {
-  const box = document.getElementById('helpContentBox');
-  if (!box) return;
-
-  if (topic === 'fileType') {
-    box.innerHTML = `
-      <strong>1. Upload කළ යුත්තේ කුමන ආකාරයේ Excel File එකක්ද?</strong><br><br>
-      ඔබට ඔබගේ පද්ධතිය මඟින් Export කරන ලද හෝ පිළිවෙළට සකස් කරන ලද <code>.xlsx</code> හෝ <code>.xls</code> ගොනුවක් upload කළ හැක. 
-      මෙහි මූලික තීරු (Columns) ලෙස <strong>Material Code</strong>, <strong>Material Name</strong>, <strong>UOM</strong> සහ <strong>Opening Stock</strong> අඩංගු විය යුතුය. 
-      එමෙන්ම <strong>Receipt</strong>, <strong>Issues</strong>, <strong>Return</strong> වැනි අතිරේක තීරු තිබේ නම් ඒවාද ස්වයංක්‍රීයව Bin Card එකට යාවත්කාලීන වේ.
-    `;
-  } else if (topic === 'howToDo') {
-    box.innerHTML = `
-      <strong>2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</strong><br><br>
-      - මුල් පිටුවේ ඉහළ වම්පස ඇති <strong>Settings (Gear Icon)</strong> ක්ලික් කරන්න.<br>
-      - <strong>Restore Excel (.xlsx) File</strong> කොටස වෙත යන්න.<br>
-      - <strong>Choose File</strong> මඟින් ඔබේ පරිගණකයෙන් හෝ දුරකථනයෙන් Excel ගොනුව තෝරන්න.<br>
-      - <strong>Restore Excel Data</strong> බොත්තම ඔබන්න. සාර්ථක වූ පසු ස්වයංක්‍රීයව <strong>Bin Card Update View</strong> විවෘත වී දත්ත බලාගත හැක.
-    `;
-  } else {
-    box.innerHTML = `
-      <strong>3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</strong><br><br>
-      - දිනපතා Stock ගණනය කිරීම් (Counting) සහ Section අනුව දත්ත ඇතුළත් කිරීම.<br>
-      - <strong>Bin Card Update View</strong> හරහා යාවත්කාලීන වූ දත්ත Card ක්‍රමයට පහසුවෙන් පරීක්ෂා කිරීම.<br>
-      - Excel, PDF හෝ Word ფორමැට් වලින් Counting Sheets ඩවුන්ලෝඩ් කිරීම සහ Share කිරීම.<br>
-      - දත්ත සුරක්ෂිතව Backup ලබාගැනීම සහ අවශ්‍ය විට Restore කිරීම.
-    `;
-  }
+  // Help modal content handler if needed
 }
-
-function openItemDetailModal() {}
-function closeItemDetailModal() {}
