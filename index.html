@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="si">
 <head>
   <meta charset="UTF-8">
@@ -107,17 +106,18 @@
       </div>
     </div>
 
-    <div class="save-btn-container" style="margin-top: 24px;">
+    <!-- Save Button Container & Bin Card Update View Button -->
+    <div class="save-btn-container" style="margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
-    </div>
 
-    <!-- Bin Card Update View Button (Visible in Daily Stocks Mode) -->
-    <div class="bin-card-btn-container" id="binCardBtnContainer" style="display: none; margin-top: 14px;">
-      <button class="btn btn-bincard ripple" onclick="openBinCardModal()" id="btnBinCardView" type="button">
-        <i class="fa-solid fa-clipboard-list"></i> Bin Card Update View
-      </button>
+      <!-- Bin Card Update View Button (Shows only in Daily Stocks mode) -->
+      <div id="binCardBtnContainer" style="display: none; width: 100%; max-width: 320px;">
+        <button class="btn btn-bincard ripple" onclick="openBinCardModal()" id="btnBinCard" type="button">
+          <i class="fa-solid fa-boxes-packing"></i> Bin Card Update View
+        </button>
+      </div>
     </div>
 
   </div>
@@ -139,49 +139,27 @@
 
 <!-- Bin Card Update View Modal -->
 <div id="binCardModal" class="modal">
-  <div class="modal-content modal-large">
+  <div class="modal-content" style="max-width: 750px;">
     <div class="modal-header">
-      <h3 id="txtBinCardTitle"><i class="fa-solid fa-clipboard-list" style="color:#0d9488;"></i> Bin Card Update View</h3>
+      <h3><i class="fa-solid fa-boxes-packing" style="color:var(--primary);"></i> Bin Card Update View</h3>
       <button class="close-btn ripple" onclick="closeBinCardModal()" type="button">&times;</button>
     </div>
 
-    <div class="modal-body-scroll" style="display: flex; flex-direction: column; gap: 12px; overflow: hidden;">
-      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <div class="input-glow-wrapper search-input-container" style="flex: 1; min-width: 200px;">
-          <input type="text" id="binCardSearchInput" placeholder="Search by Code or Name..." oninput="renderBinCardTable()" autocomplete="off">
-        </div>
-        <button class="btn ripple" onclick="exportBinCardPDF()" type="button" style="padding: 12px 18px; background: #0d9488; color: white; font-size: 0.88rem; font-weight: 700; border-radius: var(--radius-md);" title="Export Bin Card to PDF">
-          <i class="fa-solid fa-file-pdf"></i> Export PDF
-        </button>
+    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;">
+      <div class="switch-container">
+        <label class="switch-label" for="toggleBinCardMovementsOnly">
+          <i class="fa-solid fa-filter" style="color: var(--primary);"></i> Show Daily Movements Only (චලනයන් ඇති දත්ත පමණක්)
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="toggleBinCardMovementsOnly" checked onchange="renderBinCardList()">
+          <span class="slider"></span>
+        </label>
       </div>
 
-      <div style="display: flex; gap: 8px; font-size: 0.82rem; font-weight: 700; flex-wrap: wrap;">
-        <button type="button" class="badge-filter active" id="btnFilterAll" onclick="setBinCardFilter('all')">සියලුම Items (All)</button>
-        <button type="button" class="badge-filter" id="btnFilterActive" onclick="setBinCardFilter('active')">යාවත්කාලීන වූ Items පමණක් (Updated Only)</button>
-      </div>
-
-      <div class="bin-card-table-wrapper">
-        <table class="bin-card-table">
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Material Name</th>
-              <th>UOM</th>
-              <th>Op. Stock</th>
-              <th class="th-receipt">Receipt (+F)</th>
-              <th class="th-issues">Issues (-G)</th>
-              <th class="th-return">Return (+H)</th>
-              <th class="th-ssli">SSL Rec (+I)</th>
-              <th class="th-sslj">SSL Sent (-J)</th>
-              <th class="th-reject">Reject (-L)</th>
-              <th class="th-closing">Closing Stock</th>
-            </tr>
-          </thead>
-          <tbody id="binCardTableBody">
-          </tbody>
-        </table>
-      </div>
+      <input type="text" id="binCardModalSearchInput" oninput="renderBinCardList()" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
     </div>
+
+    <div class="checklist-container" id="binCardCardsContainer"></div>
   </div>
 </div>
 
@@ -242,7 +220,7 @@
         </label>
       </div>
 
-      <input type="text" id="todayModalSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
+      <input type="text" id="todayModalSearchInput" oninput="renderTodayUploadedList()" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
     </div>
 
     <div class="checklist-container" id="todayCardsContainer"></div>
