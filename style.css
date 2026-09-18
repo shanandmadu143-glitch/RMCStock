@@ -77,7 +77,7 @@ body {
 .container {
   width: 100%;
   max-width: 850px;
-  margin: auto; /* Vertically Centers */
+  margin: auto;
   display: flex;
   flex-direction: column;
 }
@@ -208,6 +208,82 @@ body {
   background: rgba(16, 185, 129, 0.12);
   color: var(--success);
   border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* Bin Card Update View Button Styles */
+.bin-card-btn-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.btn-bincard {
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.25);
+  max-width: 320px;
+  width: 100%;
+  font-weight: 700;
+}
+.btn-bincard:hover {
+  box-shadow: 0 8px 25px rgba(13, 148, 136, 0.35);
+  transform: translateY(-2px);
+}
+
+/* Bin Card Table View Styles */
+.bin-card-table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+}
+.bin-card-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: left;
+  white-space: nowrap;
+}
+.bin-card-table th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-main);
+  color: var(--text-dark);
+  padding: 12px 14px;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-color);
+  z-index: 10;
+}
+.bin-card-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-dark);
+}
+.bin-card-table tr:hover {
+  background: var(--primary-light);
+}
+.bin-card-table .th-receipt, .bin-card-table .td-receipt { color: var(--success); }
+.bin-card-table .th-issues, .bin-card-table .td-issues { color: var(--danger); }
+.bin-card-table .th-return, .bin-card-table .td-return { color: var(--warning); }
+.bin-card-table .th-ssli, .bin-card-table .td-ssli { color: var(--success); }
+.bin-card-table .th-sslj, .bin-card-table .td-sslj { color: var(--danger); }
+.bin-card-table .th-reject, .bin-card-table .td-reject { color: var(--danger); }
+.bin-card-table .th-closing, .bin-card-table .td-closing { color: var(--primary); font-weight: 800; }
+
+.badge-filter {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-main);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.badge-filter.active {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 /* Make Packs Count Small & Beautiful */
@@ -527,6 +603,7 @@ input:focus, select:focus {
   overflow: hidden;
 }
 .modal-content.modal-small { max-width: 450px; }
+.modal-content.modal-large { max-width: 980px; width: 95%; height: 85vh; }
 
 .modal-body-scroll {
   overflow-y: auto; overflow-x: hidden;
