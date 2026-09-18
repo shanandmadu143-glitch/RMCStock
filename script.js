@@ -1,4 +1,4 @@
-[source: 3]const i18n = {
+const i18n = {
   si: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
     placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...',
@@ -12,8 +12,6 @@
     optCounting: 'Counting (ගණනය කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    btnBinCardView: '<i class="fa-solid fa-boxes-packing"></i> Bin Card Update View',
-    txtBinCardTitle: '<i class="fa-solid fa-boxes-packing" style="color:var(--primary);"></i> Bin Card Update View',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share Data File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
@@ -54,8 +52,6 @@
     optCounting: 'Counting',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
-    btnBinCardView: '<i class="fa-solid fa-boxes-packing"></i> Bin Card Update View',
-    txtBinCardTitle: '<i class="fa-solid fa-boxes-packing" style="color:var(--primary);"></i> Bin Card Update View',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
@@ -89,33 +85,222 @@ let currentLang = localStorage.getItem('rmc_app_lang') || 'si';
 let currentTheme = localStorage.getItem('rmc_app_theme') || 'light';
 let inventory = []; 
 let selectedIndex = -1;
+let searchDebounceTimeout = null;
 let currentExportMode = 'excel'; 
 let currentlyEditingIndex = -1;
 
 const defaultItems = [ 
-  {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000}, 
-  {type: "RM", code: "11061702", name: "WHITE SUGAR", uom: "KG", op_stock: 2500}, 
-  {type: "RM", code: "11002301", name: "MONOSODIUM GLUTAMATE", uom: "KG", op_stock: 4525}, 
-  {type: "RM", code: "67548375", name: "ONION POWDER", uom: "KG", op_stock: 120}, 
-  {type: "RM", code: "11067473", name: "CITRIC ACID MONOHYDRATE (FOOD GRADE)", uom: "KG", op_stock: 50}, 
-  {type: "RM", code: "11002242", name: "SPICE CELERY POWDER", uom: "KG", op_stock: 25}, 
-  {type: "RM", code: "67550393", name: "GARLIC POWDER", uom: "KG", op_stock: 25}, 
-  {type: "RM", code: "67548417", name: "WHITE PEPPER", uom: "KG", op_stock: 15}, 
-  {type: "RM", code: "11002253", name: "SPICE TURMERIC POWDER", uom: "KG", op_stock: 4}, 
-  {type: "RM", code: "11061729", name: "I+G SODIUM 5'RIBONUCLEOTID", uom: "KG", op_stock: 40}, 
-  {type: "RM", code: "11827361", name: "DRIED CORN STARCH 5% MOISTURE-SSL", uom: "KG", op_stock: 6000}, 
-  {type: "RM", code: "11061758", name: "CORN STARCH - IMPORT", uom: "KG", op_stock: 0}, 
-  {type: "RM", code: "11067112", name: "YEAST EXTR. MICROGRANUL. STANDARD 18% SA", uom: "KG", op_stock: 400}, 
-  {type: "RM", code: "11067118", name: "FLAVOUR CHICKEN POWDER (S-2182)", uom: "KG", op_stock: 25}, 
-  {type: "RM", code: "11061730", name: "CARAMEL COLOUR CLASS III (E150C)", uom: "KG", op_stock: 20}, 
-  {type: "RM", code: "11067140", name: "MALTO DEXTRIN 18-20 (M20)", uom: "KG", op_stock: 500}, 
-  {type: "RM", code: "11002220", name: "SPICE NUTMEG POWDER", uom: "KG", op_stock: 10}, 
-  {type: "RM", code: "11002206", name: "SPICE BLACK PEPPER POWDER", uom: "KG", op_stock: 150}, 
-  {type: "RM", code: "11002213", name: "SPICE CORIANDER POWDER", uom: "KG", op_stock: 0}, 
-  {type: "RM", code: "11002214", name: "SPICE CUMIN POWDER", uom: "KG", op_stock: 100}, 
-  {type: "RM", code: "11002211", name: "SPICE CLOVE POWDER", uom: "KG", op_stock: 10}, 
-  {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2} 
+  {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11061702", name: "WHITE SUGAR", uom: "KG", op_stock: 2500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002301", name: "MONOSODIUM GLUTAMATE", uom: "KG", op_stock: 4525, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "67548375", name: "ONION POWDER", uom: "KG", op_stock: 120, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11067473", name: "CITRIC ACID MONOHYDRATE (FOOD GRADE)", uom: "KG", op_stock: 50, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002242", name: "SPICE CELERY POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "67550393", name: "GARLIC POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "67548417", name: "WHITE PEPPER", uom: "KG", op_stock: 15, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002253", name: "SPICE TURMERIC POWDER", uom: "KG", op_stock: 4, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11061729", name: "I+G SODIUM 5'RIBONUCLEOTID", uom: "KG", op_stock: 40, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11827361", name: "DRIED CORN STARCH 5% MOISTURE-SSL", uom: "KG", op_stock: 6000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11061758", name: "CORN STARCH - IMPORT", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11067112", name: "YEAST EXTR. MICROGRANUL. STANDARD 18% SA", uom: "KG", op_stock: 400, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11067118", name: "FLAVOUR CHICKEN POWDER (S-2182)", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11061730", name: "CARAMEL COLOUR CLASS III (E150C)", uom: "KG", op_stock: 20, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11067140", name: "MALTO DEXTRIN 18-20 (M20)", uom: "KG", op_stock: 500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002220", name: "SPICE NUTMEG POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002206", name: "SPICE BLACK PEPPER POWDER", uom: "KG", op_stock: 150, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002213", name: "SPICE CORIANDER POWDER", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002214", name: "SPICE CUMIN POWDER", uom: "KG", op_stock: 100, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002211", name: "SPICE CLOVE POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0} 
 ]; 
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadInventoryData();
+  applyTheme(currentTheme);
+  applyLanguage(currentLang);
+  setupEventListeners();
+  updateCountingModeBadge();
+});
+
+function loadInventoryData() {
+  const saved = localStorage.getItem('rmc_inventory_data');
+  if (saved) {
+    try {
+      inventory = JSON.parse(saved);
+      // Ensure all required fields exist on items
+      inventory = inventory.map(item => ({
+        ...item,
+        receipt: item.receipt || 0,
+        issues: item.issues || 0,
+        return: item.return || 0,
+        ssl_i: item.ssl_i || 0,
+        ssl_j: item.ssl_j || 0,
+        rejection_l: item.rejection_l || 0,
+        counting: item.counting || 0,
+        packs_count: item.packs_count || 0
+      }));
+    } catch (e) {
+      inventory = JSON.parse(JSON.stringify(defaultItems));
+    }
+  } else {
+    inventory = JSON.parse(JSON.stringify(defaultItems));
+  }
+}
+
+function saveInventoryData() {
+  localStorage.setItem('rmc_inventory_data', JSON.stringify(inventory));
+}
+
+function setupEventListeners() {
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.trim();
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) clearBtn.style.display = query.length > 0 ? 'flex' : 'none';
+
+      clearTimeout(searchDebounceTimeout);
+      searchDebounceTimeout = setTimeout(() => {
+        handleSearch(query);
+      }, 150);
+    });
+
+    searchInput.addEventListener('focus', () => {
+      if (searchInput.value.trim().length > 0) {
+        handleSearch(searchInput.value.trim());
+      }
+    });
+  }
+
+  const todayModalSearch = document.getElementById('todayModalSearchInput');
+  if (todayModalSearch) {
+    todayModalSearch.addEventListener('input', () => {
+      renderTodayUploadedList();
+    });
+  }
+
+  const binCardSearch = document.getElementById('binCardSearchInput');
+  if (binCardSearch) {
+    binCardSearch.addEventListener('input', () => {
+      renderBinCardUpdateViewList();
+    });
+  }
+
+  // Ripple effect on buttons
+  document.querySelectorAll('.ripple').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      const rect = this.getBoundingClientRect();
+      const circle = document.createElement('span');
+      const diameter = Math.max(rect.width, rect.height);
+      const radius = diameter / 2;
+      circle.style.width = circle.style.height = `${diameter}px`;
+      circle.style.left = `${e.clientX - rect.left - radius}px`;
+      circle.style.top = `${e.clientY - rect.top - radius}px`;
+      circle.classList.add('ripple-effect');
+      const existing = this.getElementsByClassName('ripple-effect')[0];
+      if (existing) existing.remove();
+      this.appendChild(circle);
+    });
+  });
+
+  // Close search results when clicking outside
+  document.addEventListener('click', (e) => {
+    const searchContainer = document.querySelector('.search- input-container') || document.querySelector('.form-group');
+    const resultsBox = document.getElementById('searchResults');
+    if (resultsBox && !resultsBox.contains(e.target) && !document.getElementById('searchInput').contains(e.target)) {
+      resultsBox.style.display = 'none';
+    }
+  });
+}
+
+function handleSearch(query) {
+  const resultsBox = document.getElementById('searchResults');
+  if (!resultsBox) return;
+
+  if (!query) {
+    resultsBox.style.display = 'none';
+    resultsBox.innerHTML = '';
+    return;
+  }
+
+  const lowerQuery = query.toLowerCase();
+  const matched = inventory.filter(item => 
+    item.code.toLowerCase().includes(lowerQuery) || item.name.toLowerCase().includes(lowerQuery)
+  );
+
+  if (matched.length === 0) {
+    resultsBox.innerHTML = `<div class="search-item" style="color:var(--text-muted); justify-content:center;">No matching materials found</div>`;
+    resultsBox.style.display = 'block';
+    return;
+  }
+
+  let html = '';
+  matched.forEach(item => {
+    const originalIndex = inventory.findIndex(i => i.code === item.code);
+    html += `
+      <div class="search-item" onclick="selectMaterialByIndex(${originalIndex})">
+        <div><strong>${item.code}</strong> - ${item.name}</div>
+        <div style="font-size:0.8rem; color:var(--text-muted);">${item.uom} | Op: ${item.op_stock}</div>
+      </div>
+    `;
+  });
+  resultsBox.innerHTML = html;
+  resultsBox.style.display = 'block';
+}
+
+function clearSearchInput() {
+  const input = document.getElementById('searchInput');
+  if (input) input.value = '';
+  const clearBtn = document.getElementById('clearSearchBtn');
+  if (clearBtn) clearBtn.style.display = 'none';
+  const resultsBox = document.getElementById('searchResults');
+  if (resultsBox) {
+    resultsBox.style.display = 'none';
+    resultsBox.innerHTML = '';
+  }
+  selectedIndex = -1;
+  const badge = document.getElementById('selectedBadge');
+  if (badge) badge.style.display = 'none';
+}
+
+function selectMaterialByIndex(index) {
+  if (index < 0 || index >= inventory.length) return;
+  selectedIndex = index;
+  const item = inventory[index];
+
+  const input = document.getElementById('searchInput');
+  if (input) input.value = `${item.code} - ${item.name}`;
+
+  const resultsBox = document.getElementById('searchResults');
+  if (resultsBox) resultsBox.style.display = 'none';
+
+  const clearBtn = document.getElementById('clearSearchBtn');
+  if (clearBtn) clearBtn.style.display = 'flex';
+
+  const badge = document.getElementById('selectedBadge');
+  if (badge) {
+    document.getElementById('dispCode').innerText = item.code;
+    document.getElementById('dispName').innerText = item.name;
+    document.getElementById('dispUom').innerText = item.uom;
+    document.getElementById('dispClosing').innerText = calculateClosingStock(item);
+    badge.style.display = 'block';
+  }
+
+  const amountInput = document.getElementById('inputAmount');
+  if (amountInput) amountInput.focus();
+}
+
+function calculateClosingStock(item) {
+  const op = Number(item.op_stock) || 0;
+  const f = Number(item.receipt) || 0;
+  const g = Number(item.issues) || 0;
+  const h = Number(item.return) || 0;
+  const i = Number(item.ssl_i) || 0;
+  const j = Number(item.ssl_j) || 0;
+  const l = Number(item.rejection_l) || 0;
+
+  return (op + f + h + i) - (g + j + l);
+}
 
 function updateCountingModeBadge() {
   const sectionSelect = document.getElementById('sectionSelect');
@@ -124,19 +309,17 @@ function updateCountingModeBadge() {
   const btnExcel = document.getElementById('btnExcel');
   const btnShare = document.getElementById('btnShare');
   const btnCountingDownload = document.getElementById('btnCountingDownload');
-  const binCardBtnContainer = document.getElementById('binCardBtnContainer');
-
+  
   if (!sectionSelect || !badge) return;
-
+  
   if (sectionSelect.value === 'COUNTING') {
     badge.innerText = 'Normal Counting';
     badge.className = 'counting-mode-badge badge-normal';
     if (packCalcContainer) packCalcContainer.style.display = 'flex';
-
+    
     if (btnExcel) btnExcel.style.display = 'none';
     if (btnShare) btnShare.style.display = 'none';
     if (btnCountingDownload) btnCountingDownload.style.display = 'flex';
-    if (binCardBtnContainer) binCardBtnContainer.style.display = 'none';
   } else {
     badge.innerText = 'Daily Stocks';
     badge.className = 'counting-mode-badge badge-daily';
@@ -145,14 +328,271 @@ function updateCountingModeBadge() {
     if (btnExcel) btnExcel.style.display = 'flex';
     if (btnShare) btnShare.style.display = 'flex';
     if (btnCountingDownload) btnCountingDownload.style.display = 'none';
-    if (binCardBtnContainer) binCardBtnContainer.style.display = 'flex';
   }
 }
 
+function addSingleSectionData() {
+  if (selectedIndex < 0 || selectedIndex >= inventory.length) {
+    showToast(i18n[currentLang].msgSelectMaterial, 'error');
+    return;
+  }
+
+  const amountInput = document.getElementById('inputAmount');
+  const val = parseFloat(amountInput.value);
+  if (isNaN(val) || val < 0) {
+    showToast(i18n[currentLang].msgValidAmount, 'error');
+    return;
+  }
+
+  const packsInput = document.getElementById('inputPacksCount');
+  const packsVal = parseFloat(packsInput ? packsInput.value : 0) || 0;
+
+  const section = document.getElementById('sectionSelect').value;
+  const item = inventory[selectedIndex];
+
+  if (section === 'F') item.receipt = (Number(item.receipt) || 0) + val;
+  else if (section === 'G') item.issues = (Number(item.issues) || 0) + val;
+  else if (section === 'H') item.return = (Number(item.return) || 0) + val;
+  else if (section === 'I') item.ssl_i = (Number(item.ssl_i) || 0) + val;
+  else if (section === 'J') item.ssl_j = (Number(item.ssl_j) || 0) + val;
+  else if (section === 'L') item.rejection_l = (Number(item.rejection_l) || 0) + val;
+  else if (section === 'COUNTING') {
+    item.counting = val;
+    item.packs_count = packsVal;
+  }
+
+  saveInventoryData();
+
+  // Reset inputs
+  amountInput.value = '';
+  if (packsInput) packsInput.value = '';
+
+  // Update closing stock display in badge
+  document.getElementById('dispClosing').innerText = calculateClosingStock(item);
+
+  showToast(`${item.name} ${i18n[currentLang].msgAdded}`, 'success');
+}
+
+// ==================== BIN CARD UPDATE VIEW ====================
+function openBinCardUpdateView() {
+  const modal = document.getElementById('binCardUpdateModal');
+  if (modal) {
+    modal.classList.add('show');
+    renderBinCardUpdateViewList();
+  }
+}
+
+function closeBinCardUpdateView() {
+  const modal = document.getElementById('binCardUpdateModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function renderBinCardUpdateViewList() {
+  const container = document.getElementById('binCardCardsContainer');
+  const searchInput = document.getElementById('binCardSearchInput');
+  if (!container) return;
+
+  const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+  // Filter items that have updates or match search
+  const filtered = inventory.filter(item => {
+    const hasActivity = (Number(item.receipt) > 0 || Number(item.issues) > 0 || Number(item.return) > 0 || 
+                         Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0 || 
+                         Number(item.counting) > 0 || Number(item.packs_count) > 0);
+    
+    if (!hasActivity) return false;
+
+    if (!filter) return true;
+
+    return item.code.toLowerCase().includes(filter) || 
+           item.name.toLowerCase().includes(filter) ||
+           item.uom.toLowerCase().includes(filter);
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+        <i class="fa-solid fa-clipboard-question" style="font-size: 2.5rem; margin-bottom: 12px; color: var(--border-color);"></i>
+        <p style="font-weight: 600;">ಯාවත්කාලීන කරන ලද දත්ත කිසිවක් හමු නොවීය.</p>
+        <p style="font-size: 0.85rem; margin-top: 4px;">Settings මඟින් Excel Restore කිරීමෙන් හෝ දත්ත ඇතුළත් කිරීමෙන් පසු මෙහි බලාගත හැක.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  filtered.forEach(item => {
+    const closing = calculateClosingStock(item);
+    
+    // Build badges for sections with values
+    let detailsHtml = '';
+    if (Number(item.receipt) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Receipt: ${item.receipt}</span>`;
+    if (Number(item.issues) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Issues: ${item.issues}</span>`;
+    if (Number(item.return) > 0) detailsHtml += `<span style="background:rgba(245, 158, 11, 0.15); color:var(--warning); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Return: ${item.return}</span>`;
+    if (Number(item.ssl_i) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Recv SSL: ${item.ssl_i}</span>`;
+    if (Number(item.ssl_j) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Sent SSL: ${item.ssl_j}</span>`;
+    if (Number(item.rejection_l) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Rejection: ${item.rejection_l}</span>`;
+    if (Number(item.counting) > 0) detailsHtml += `<span style="background:var(--primary-light); color:var(--primary); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Counting: ${item.counting}</span>`;
+    if (Number(item.packs_count) > 0) detailsHtml += `<span style="background:var(--border-color); color:var(--text-dark); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Packs: ${item.packs_count}</span>`;
+
+    html += `
+      <div class="checklist-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+          <div class="checklist-info">
+            <span class="checklist-code"><i class="fa-solid fa-barcode"></i> Code: ${item.code}</span>
+            <span class="checklist-name">${item.name}</span>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Closing Stock</div>
+            <div style="font-size: 1.1rem; font-weight: 800; color: var(--primary);">${closing} ${item.uom}</div>
+          </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; padding-top: 6px; border-top: 1px dashed var(--border-color);">
+          <span style="background:var(--bg-main); color:var(--text-muted); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Opening: ${item.op_stock}</span>
+          ${detailsHtml}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+// ==================== RESTORE EXCEL DATA FIX ====================
+function restoreFromXLSX() {
+  const fileInput = document.getElementById('xlsxFileInput');
+  if (!fileInput || fileInput.files.length === 0) {
+    showToast(i18n[currentLang].msgRestoreSelect, 'error');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  showLoading("Restoring Excel Data...");
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      if (jsonData.length < 2) {
+        hideLoading();
+        showToast("Excel ගොනුවේ දත්ත ප්‍රමාණවත් නොවේ!", "error");
+        return;
+      }
+
+      // Detect header columns dynamically
+      const headers = jsonData[0].map(h => String(h).toLowerCase().trim());
+      
+      let codeIdx = headers.findIndex(h => h.includes('code') || h.includes('material code'));
+      let nameIdx = headers.findIndex(h => h.includes('name') || h.includes('material name') || h.includes('description'));
+      let uomIdx = headers.findIndex(h => h.includes('uom') || h.includes('unit'));
+      let opIdx = headers.findIndex(h => h.includes('op') || h.includes('opening') || h.includes('stock'));
+      
+      // Specific columns for Bin Card / Sections if present in uploaded file
+      let receiptIdx = headers.findIndex(h => h.includes('receipt') || h.includes('f'));
+      let issuesIdx = headers.findIndex(h => h.includes('issues') || h.includes('g'));
+      let returnIdx = headers.findIndex(h => h.includes('return') || h.includes('h'));
+      let sslIIdx = headers.findIndex(h => h.includes('ssl_i') || h.includes('received to ssl') || h.includes('i'));
+      let sslJIdx = headers.findIndex(h => h.includes('ssl_j') || h.includes('sent to ssl') || h.includes('j'));
+      let rejectionIdx = headers.findIndex(h => h.includes('rejection') || h.includes('l'));
+      let countingIdx = headers.findIndex(h => h.includes('counting'));
+      let packsIdx = headers.findIndex(h => h.includes('packs') || h.includes('කොටස්'));
+
+      if (codeIdx === -1) codeIdx = 0;
+      if (nameIdx === -1) nameIdx = 1;
+      if (uomIdx === -1) uomIdx = 2;
+      if (opIdx === -1) opIdx = 3;
+
+      let restoredCount = 0;
+      for (let i = 1; i < jsonData.length; i++) {
+        const row = jsonData[i];
+        if (!row || row.length === 0 || !row[codeIdx]) continue;
+
+        const code = String(row[codeIdx]).trim();
+        const name = nameIdx !== -1 && row[nameIdx] ? String(row[nameIdx]).trim() : 'Unknown Material';
+        const uom = uomIdx !== -1 && row[uomIdx] ? String(row[uomIdx]).trim() : 'KG';
+        const opStock = opIdx !== -1 && !isNaN(row[opIdx]) ? Number(row[opIdx]) : 0;
+
+        let existing = inventory.find(item => item.code === code);
+        if (existing) {
+          existing.name = name;
+          existing.uom = uom;
+          existing.op_stock = opStock;
+          if (receiptIdx !== -1 && !isNaN(row[receiptIdx])) existing.receipt = Number(row[receiptIdx]);
+          if (issuesIdx !== -1 && !isNaN(row[issuesIdx])) existing.issues = Number(row[issuesIdx]);
+          if (returnIdx !== -1 && !isNaN(row[returnIdx])) existing.return = Number(row[returnIdx]);
+          if (sslIIdx !== -1 && !isNaN(row[sslIIdx])) existing.ssl_i = Number(row[sslIIdx]);
+          if (sslJIdx !== -1 && !isNaN(row[sslJIdx])) existing.ssl_j = Number(row[sslJIdx]);
+          if (rejectionIdx !== -1 && !isNaN(row[rejectionIdx])) existing.rejection_l = Number(row[rejectionIdx]);
+          if (countingIdx !== -1 && !isNaN(row[countingIdx])) existing.counting = Number(row[countingIdx]);
+          if (packsIdx !== -1 && !isNaN(row[packsIdx])) existing.packs_count = Number(row[packsIdx]);
+        } else {
+          inventory.push({
+            type: "RM",
+            code: code,
+            name: name,
+            uom: uom,
+            op_stock: opStock,
+            receipt: receiptIdx !== -1 && !isNaN(row[receiptIdx]) ? Number(row[receiptIdx]) : 0,
+            issues: issuesIdx !== -1 && !isNaN(row[issuesIdx]) ? Number(row[issuesIdx]) : 0,
+            return: returnIdx !== -1 && !isNaN(row[returnIdx]) ? Number(row[returnIdx]) : 0,
+            ssl_i: sslIIdx !== -1 && !isNaN(row[sslIIdx]) ? Number(row[sslIIdx]) : 0,
+            ssl_j: sslJIdx !== -1 && !isNaN(row[sslJIdx]) ? Number(row[sslJIdx]) : 0,
+            rejection_l: rejectionIdx !== -1 && !isNaN(row[rejectionIdx]) ? Number(row[rejectionIdx]) : 0,
+            counting: countingIdx !== -1 && !isNaN(row[countingIdx]) ? Number(row[countingIdx]) : 0,
+            packs_count: packsIdx !== -1 && !isNaN(row[packsIdx]) ? Number(row[packsIdx]) : 0
+          });
+        }
+        restoredCount++;
+      }
+
+      saveInventoryData();
+      hideLoading();
+      showToast(`${i18n[currentLang].msgRestoreSuccess} (${restoredCount} items updated)`, 'success');
+      fileInput.value = '';
+      closeSettings();
+      
+      // Automatically open Bin Card Update View to easily view populated data
+      openBinCardUpdateView();
+    } catch (err) {
+      console.error(err);
+      hideLoading();
+      showToast("Excel ගොනුව කියවීමේ දෝෂයක් ඇතිවිය!", "error");
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ==================== OTHER SUPPORTING FUNCTIONS ====================
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  
+  let icon = 'fa-circle-check';
+  if (type === 'error') icon = 'fa-triangle-exclamation';
+  if (type === 'warning') icon = 'fa-circle-exclamation';
+
+  toast.innerHTML = `<i class="fa-solid ${icon}" style="font-size:1.2rem;"></i> <span>${message}</span>`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'scale(0.8) translateY(20px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
 function showLoading(text = "Processing...") {
-  const el = document.getElementById('loadingText');
-  if (el) el.innerText = text;
   const overlay = document.getElementById('loadingOverlay');
+  const txt = document.getElementById('loadingText');
+  if (txt) txt.innerText = text;
   if (overlay) overlay.style.display = 'flex';
 }
 
@@ -161,990 +601,411 @@ function hideLoading() {
   if (overlay) overlay.style.display = 'none';
 }
 
-function applyTheme(theme) {
-  currentTheme = theme;
-  document.documentElement.setAttribute('data-theme', theme);
-  const themeSelect = document.getElementById('themeSelect');
-  if (themeSelect) themeSelect.value = theme;
-  localStorage.setItem('rmc_app_theme', theme);
+function openSettings() {
+  const modal = document.getElementById('settingsModal');
+  if (modal) modal.classList.add('show');
 }
-function changeTheme(theme) { applyTheme(theme); }
 
-function applyLanguage(lang) {
+function closeSettings() {
+  const modal = document.getElementById('settingsModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function changeTheme(theme) {
+  currentTheme = theme;
+  localStorage.setItem('rmc_app_theme', theme);
+  applyTheme(theme);
+}
+
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  } else if (theme === 'blue') {
+    document.documentElement.setAttribute('data-theme', 'blue');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+  const select = document.getElementById('themeSelect');
+  if (select) select.value = theme;
+}
+
+function changeLanguage(lang) {
   currentLang = lang;
   localStorage.setItem('rmc_app_lang', lang);
+  applyLanguage(lang);
+}
+
+function applyLanguage(lang) {
+  const dict = i18n[lang];
+  if (!dict) return;
+
+  setElHTML('lblSearch', dict.lblSearch);
+  setElPlaceholder('searchInput', dict.placeholderSearch);
+  setElHTML('lblSection', dict.lblSection);
+  setElHTML('optReceipt', dict.optReceipt);
+  setElHTML('optIssues', dict.optIssues);
+  setElHTML('optReturn', dict.optReturn);
+  setElHTML('optSslI', dict.optSslI);
+  setElHTML('optSslJ', dict.optSslJ);
+  setElHTML('optRejectionL', dict.optRejectionL);
+  setElHTML('optCounting', dict.optCounting);
+  setElHTML('lblAmount', dict.lblAmount);
+  setElHTML('btnSave', dict.btnSave);
+  setElHTML('txtSettingsTitle', dict.txtSettingsTitle);
+  setElHTML('lblLanguage', dict.lblLanguage);
+  setElHTML('lblTheme', dict.lblTheme);
+  setElHTML('lblRestore', dict.lblRestore);
+  setElHTML('descRestore', dict.descRestore);
+  setElHTML('btnRestore', dict.btnRestore);
+  setElHTML('lblBackup', dict.lblBackup);
+  setElHTML('descBackup', dict.descBackup);
+  setElHTML('btnBackup', dict.btnBackup);
+  setElHTML('lblReset', dict.lblReset);
+  setElHTML('descReset', dict.descReset);
+  setElHTML('btnReset', dict.btnReset);
+  setElHTML('lblFooter', dict.lblFooter);
+
   const langSelect = document.getElementById('langSelect');
   if (langSelect) langSelect.value = lang;
-
-  const t = i18n[lang] || i18n['si'];
-  const setHtml = (id, html) => { const el = document.getElementById(id); if(el) el.innerHTML = html; };
-  const setText = (id, text) => { const el = document.getElementById(id); if(el) el.innerText = text; };
-
-  setHtml('lblSearch', t.lblSearch);
-  const searchInputEl = document.getElementById('searchInput');
-  if(searchInputEl) searchInputEl.placeholder = t.placeholderSearch;
-  setHtml('lblSection', t.lblSection);
-  setText('optReceipt', t.optReceipt);
-  setText('optIssues', t.optIssues);
-  setText('optReturn', t.optReturn);
-  setText('optSslI', t.optSslI);
-  setText('optSslJ', t.optSslJ);
-  setText('optRejectionL', t.optRejectionL);
-  setText('optCounting', t.optCounting);
-  setHtml('lblAmount', t.lblAmount);
-  setHtml('btnSave', t.btnSave);
-  setHtml('btnBinCardView', t.btnBinCardView);
-  setHtml('txtBinCardTitle', t.txtBinCardTitle);
-
-  const btnExcel = document.getElementById('btnExcel'); if(btnExcel) btnExcel.title = t.titleExcel;
-  const btnShare = document.getElementById('btnShare'); if(btnShare) btnShare.title = t.titleShare;
-
-  setHtml('txtSettingsTitle', t.txtSettingsTitle);
-  setHtml('lblLanguage', t.lblLanguage);
-  setHtml('lblTheme', t.lblTheme);
-  setHtml('lblRestore', t.lblRestore);
-  setText('descRestore', t.descRestore);
-  setHtml('btnRestore', t.btnRestore);
-  setHtml('lblBackup', t.lblBackup);
-  setText('descBackup', t.descBackup);
-  setHtml('lblReset', t.lblReset);
-  setText('descReset', t.descReset);
-  setHtml('btnReset', t.btnReset);
-  setHtml('lblFooter', t.lblFooter);
-}
-function changeLanguage(lang) { applyLanguage(lang); }
-
-function showToast(message, type = 'success') { 
-  const container = document.getElementById('toastContainer'); 
-  if (!container) return;
-  const toast = document.createElement('div'); 
-  toast.className = `toast toast-${type}`; 
-  let iconClass = 'fa-circle-check'; 
-  if (type === 'error') iconClass = 'fa-circle-xmark'; 
-  if (type === 'warning') iconClass = 'fa-triangle-exclamation'; 
-  toast.innerHTML = `<i class="fa-solid ${iconClass}" style="font-size: 1.2rem; color: var(--${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'warning'});"></i> <span>${message}</span>`; 
-  container.appendChild(toast); 
-
-  setTimeout(() => { 
-    toast.style.opacity = '0';
-    toast.style.transform = 'scale(0.8) translateY(20px)';
-    setTimeout(() => toast.remove(), 250);
-  }, 2500); 
-} 
-
-function getTodayStr() {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
 }
 
-function roundNum(val) {
-  return Math.round((Number(val) + Number.EPSILON) * 1000) / 1000;
+function setElHTML(id, html) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
 }
 
-function calculateClosingStock(item) {
-  const op = Number(item.op_stock) || 0;
-  const receipt = Number(item.f_receipt) || 0;
-  const issues = Number(item.g_issues) || 0;
-  const ret = Number(item.h_return) || 0;
-  const sslRec = Number(item.i_ssl_received) || 0;
-  const sslSent = Number(item.j_ssl_sent) || 0;
-  const rejection = Number(item.l_rejection) || 0;
-
-  return roundNum(op + receipt - issues + ret + sslRec - sslSent - rejection);
+function setElPlaceholder(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.placeholder = text;
 }
 
-function loadInventoryData() { 
-  const savedData = localStorage.getItem('rmc_stock_inventory'); 
-  if (savedData) { 
-    try { 
-      inventory = JSON.parse(savedData); 
-      inventory.forEach(item => {
-        item.op_stock = Number(item.op_stock) || 0;
-        item.f_receipt = Number(item.f_receipt) || 0;
-        item.g_issues = Number(item.g_issues) || 0;
-        item.h_return = Number(item.h_return) || 0;
-        item.i_ssl_received = Number(item.i_ssl_received) || 0;
-        item.j_ssl_sent = Number(item.j_ssl_sent) || 0;
-        item.l_rejection = Number(item.l_rejection) || 0;
-        item.counting = Number(item.counting) || 0;
-        item.packs_count = Number(item.packs_count) || 0;
-        item.closing = calculateClosingStock(item);
-        item.last_updated = item.last_updated || "";
-      });
-    } catch(e) { initDefaultInventory(); } 
-  } else { initDefaultInventory(); } 
-} 
-
-function initDefaultInventory() { 
-  inventory = defaultItems.map(item => ({ 
-    ...item, op_stock: Number(item.op_stock) || 0,
-    f_receipt: 0, g_issues: 0, h_return: 0, i_ssl_received: 0, 
-    j_ssl_sent: 0, l_rejection: 0, counting: 0, packs_count: 0,
-    closing: Number(item.op_stock) || 0, last_updated: ""
-  })); 
-  saveInventoryData(); 
-} 
-function saveInventoryData() { localStorage.setItem('rmc_stock_inventory', JSON.stringify(inventory)); } 
-
-function updateVisibilityState(isTypingOrSelected) {
-  const footerNote = document.getElementById('lblFooter');
-  if (footerNote) footerNote.style.display = isTypingOrSelected ? 'none' : 'block';
-}
-
-function updateClearBtnVisibility() {
-  const searchInput = document.getElementById('searchInput');
-  const clearSearchBtn = document.getElementById('clearSearchBtn');
-  if (!clearSearchBtn || !searchInput) return;
-  if (searchInput.value.trim() !== '' || selectedIndex !== -1) {
-    clearSearchBtn.style.display = 'flex';
-  } else {
-    clearSearchBtn.style.display = 'none';
+function resetToDefault() {
+  if (confirm(i18n[currentLang].msgResetConfirm)) {
+    inventory = JSON.parse(JSON.stringify(defaultItems));
+    saveInventoryData();
+    showToast("දත්ත මුල් තත්වයට පත් කරන ලදී!", "success");
+    closeSettings();
+    clearSearchInput();
   }
 }
 
-function clearSearchInput() {
-  const searchInput = document.getElementById('searchInput');
-  const selectedBadge = document.getElementById('selectedBadge');
-  const searchResults = document.getElementById('searchResults');
+function downloadXLSXBackup() {
+  const dataToExport = inventory.map(item => ({
+    "Material Code": item.code,
+    "Material Name": item.name,
+    "UOM": item.uom,
+    "Opening Stock": item.op_stock,
+    "Receipt (F)": item.receipt,
+    "Issues (G)": item.issues,
+    "Return (H)": item.return,
+    "Received to SSL (I)": item.ssl_i,
+    "Sent to SSL (J)": item.ssl_j,
+    "Rejection (L)": item.rejection_l,
+    "Counting": item.counting,
+    "Packs Count": item.packs_count,
+    "Closing Stock": calculateClosingStock(item)
+  }));
 
-  if (searchInput) searchInput.value = '';
-  selectedIndex = -1;
-  if (selectedBadge) selectedBadge.style.display = 'none';
-  if (searchResults) searchResults.style.display = 'none';
-
-  const packsCount = document.getElementById('inputPacksCount');
-  if (packsCount) packsCount.value = '';
-
-  updateVisibilityState(false);
-  updateClearBtnVisibility();
-  if (searchInput) searchInput.focus();
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory_Backup");
+  
+  const dateStr = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(workbook, `RMC_Stock_Backup_${dateStr}.xlsx`);
+  showToast("Backup ගොනුව සාර්ථකව Download විය!", "success");
 }
 
-function handleSearchInput() {
-  const input = document.getElementById('searchInput');
-  const resultsDiv = document.getElementById('searchResults');
-  if (!input || !resultsDiv) return;
-
-  const q = input.value.trim().toLowerCase();
-  updateClearBtnVisibility();
-
-  if (q === '') {
-    resultsDiv.style.display = 'none';
-    resultsDiv.innerHTML = '';
-    return;
-  }
-
-  const filtered = inventory.map((item, originalIndex) => ({ item, originalIndex }))
-    .filter(({ item }) =>
-      String(item.code).toLowerCase().includes(q) ||
-      String(item.name).toLowerCase().includes(q)
-    );
-
-  if (filtered.length === 0) {
-    resultsDiv.innerHTML = '<div style="padding:14px; text-align:center; color:var(--text-muted); font-size:0.88rem;">ගැලපෙන Material හමුවුනේ නැත</div>';
-  } else {
-    resultsDiv.innerHTML = filtered.slice(0, 15).map(({ item, originalIndex }) => `
-      <div class="search-item" onclick="selectItem(${originalIndex})">
-        <div>
-          <strong style="color:var(--primary); font-weight:700;">${item.code}</strong> - <span>${item.name}</span>
-        </div>
-        <span style="font-size:0.75rem; background:var(--primary-light); color:var(--primary); padding:3px 8px; border-radius:12px; font-weight:700;">${item.uom}</span>
-      </div>
-    `).join('');
-  }
-  resultsDiv.style.display = 'block';
-  updateVisibilityState(true);
+function openCountingDownloadModal() {
+  const modal = document.getElementById('countingDownloadModal');
+  if (modal) modal.classList.add('show');
+  updateCountingFileName();
 }
 
-function selectItem(index) { 
-  selectedIndex = index; 
-  const item = inventory[index]; 
-  if (!item) return;
-
-  const searchInput = document.getElementById('searchInput');
-  const searchResults = document.getElementById('searchResults');
-  const selectedBadge = document.getElementById('selectedBadge');
-
-  if (searchInput) searchInput.value = `${item.code} - ${item.name}`; 
-  if (searchResults) searchResults.style.display = 'none'; 
-
-  item.closing = calculateClosingStock(item);
-
-  const dispCode = document.getElementById('dispCode'); if(dispCode) dispCode.innerText = item.code; 
-  const dispName = document.getElementById('dispName'); if(dispName) dispName.innerText = item.name; 
-  const dispUom = document.getElementById('dispUom'); if(dispUom) dispUom.innerText = item.uom; 
-  const dispClosing = document.getElementById('dispClosing'); if(dispClosing) dispClosing.innerText = Number(item.closing).toLocaleString() + ' ' + item.uom; 
-
-  if(selectedBadge) selectedBadge.style.display = 'block'; 
-  updateVisibilityState(true);
-  updateClearBtnVisibility();
-
-  const inputAmount = document.getElementById('inputAmount');
-  if (inputAmount) inputAmount.focus();
-} 
-
-function addSingleSectionData() { 
-  const t = i18n[currentLang] || i18n['si'];
-  if (selectedIndex === -1 || !inventory[selectedIndex]) { showToast(t.msgSelectMaterial, 'warning'); return; } 
-
-  const sectionSelect = document.getElementById('sectionSelect');
-  const inputAmount = document.getElementById('inputAmount');
-  const packsCountInput = document.getElementById('inputPacksCount');
-
-  if (!sectionSelect || !inputAmount) return;
-
-  const targetSection = sectionSelect.value; 
-  const rawVal = inputAmount.value.trim();
-  const amount = parseFloat(rawVal) || 0; 
-
-  if (rawVal === "" || isNaN(amount) || amount <= 0 || rawVal.includes('-') || rawVal.includes('+') || rawVal.toLowerCase().includes('e')) { 
-    showToast(t.msgValidAmount, 'error'); 
-    inputAmount.focus();
-    return; 
-  } 
-
-  let item = inventory[selectedIndex]; 
-
-  if (targetSection === 'F') item.f_receipt = roundNum(item.f_receipt + amount); 
-  else if (targetSection === 'G') item.g_issues = roundNum(item.g_issues + amount); 
-  else if (targetSection === 'H') item.h_return = roundNum(item.h_return + amount); 
-  else if (targetSection === 'I') item.i_ssl_received = roundNum(item.i_ssl_received + amount); 
-  else if (targetSection === 'J') item.j_ssl_sent = roundNum(item.j_ssl_sent + amount); 
-  else if (targetSection === 'L') item.l_rejection = roundNum(item.l_rejection + amount); 
-  else if (targetSection === 'COUNTING') {
-    item.counting = roundNum(amount); 
-    if (packsCountInput) item.packs_count = parseFloat(packsCountInput.value) || 0;
-  }
-
-  item.closing = calculateClosingStock(item); 
-  item.last_updated = getTodayStr();
-
-  const dispClosing = document.getElementById('dispClosing');
-  if (dispClosing) dispClosing.innerText = Number(item.closing).toLocaleString() + ' ' + item.uom;
-
-  saveInventoryData(); 
-  inputAmount.value = ''; 
-  if (packsCountInput) packsCountInput.value = '';
-
-  showToast(`${item.name} [${targetSection}] - ${amount} ${t.msgAdded}`, 'success'); 
-  clearSearchInput();
-} 
-
-function showModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (!modal) return;
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-  requestAnimationFrame(() => { modal.classList.add('show'); });
+function closeCountingDownloadModal() {
+  const modal = document.getElementById('countingDownloadModal');
+  if (modal) modal.classList.remove('show');
 }
 
-function hideModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (!modal) return;
-  modal.classList.remove('show');
-  document.body.style.overflow = 'auto';
-  setTimeout(() => { modal.style.display = 'none'; }, 250);
+function updateCountingFileName() {
+  const input = document.getElementById('countingFileNameInput');
+  const dateStr = new Date().toISOString().slice(0, 10);
+  if (input) input.placeholder = `Counting_Sheet_${dateStr}`;
 }
 
-/* --- Bin Card Update View Functionality --- */
+function processCountingDownload() {
+  const format = document.getElementById('countingFormatSelect').value;
+  const inputName = document.getElementById('countingFileNameInput').value.trim();
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const fileName = inputName || `Counting_Sheet_${dateStr}`;
 
-function getBinCardEntries() {
-  const entries = [];
-  const sectionDefs = [
-    { key: 'f_receipt', name: 'Receipt', sectionCode: 'Receipt (Section F)', icon: 'fa-arrow-down', colorClass: 'badge-success' },
-    { key: 'g_issues', name: 'Issues', sectionCode: 'Issues (Section G)', icon: 'fa-arrow-up', colorClass: 'badge-danger' },
-    { key: 'h_return', name: 'Return', sectionCode: 'Return (Section H)', icon: 'fa-rotate-left', colorClass: 'badge-warning' },
-    { key: 'i_ssl_received', name: 'Received to SSL', sectionCode: 'SSL Rec. (Section I)', icon: 'fa-arrow-right-to-bracket', colorClass: 'badge-success' },
-    { key: 'j_ssl_sent', name: 'Sent to SSL', sectionCode: 'SSL Sent (Section J)', icon: 'fa-arrow-right-from-bracket', colorClass: 'badge-danger' },
-    { key: 'l_rejection', name: 'Rejection', sectionCode: 'Rejection (Section L)', icon: 'fa-ban', colorClass: 'badge-danger' },
-    { key: 'counting', name: 'Counting', sectionCode: 'Counting', icon: 'fa-list-check', colorClass: 'badge-primary' }
-  ];
-
-  inventory.forEach(item => {
-    sectionDefs.forEach(sec => {
-      const val = Number(item[sec.key]) || 0;
-      if (val > 0) {
-        entries.push({
-          code: item.code,
-          name: item.name,
-          uom: item.uom,
-          type: item.type || "RM",
-          section: sec.name,
-          sectionCode: sec.sectionCode,
-          icon: sec.icon,
-          colorClass: sec.colorClass,
-          amount: val
-        });
-      }
+  if (format === 'xlsx') {
+    const exportData = inventory.map(item => ({
+      "Code": item.code,
+      "Name": item.name,
+      "UOM": item.uom,
+      "Counting Amount": item.counting,
+      "Packs Count": item.packs_count
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Counting Sheet");
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+    showToast("Counting Sheet Excel ගොනුව බාගත විය!", "success");
+  } else if (format === 'pdf') {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.text("Counting Sheet Report - " + dateStr, 14, 15);
+    
+    const tableData = inventory.map(item => [item.code, item.name, item.uom, item.counting, item.packs_count]);
+    doc.autoTable({
+      head: [['Code', 'Material Name', 'UOM', 'Counting', 'Packs']],
+      body: tableData,
+      startY: 20
     });
-  });
-
-  return entries;
-}
-
-function openBinCardModal() {
-  const searchInput = document.getElementById('binCardSearchInput');
-  if (searchInput) searchInput.value = '';
-  renderBinCardList();
-  showModal('binCardModal');
-}
-function closeBinCardModal() { hideModal('binCardModal'); }
-
-function renderBinCardList() {
-  const container = document.getElementById('binCardGridContainer');
-  if (!container) return;
-
-  const entries = getBinCardEntries();
-  const searchVal = document.getElementById('binCardSearchInput')?.value.toLowerCase().trim() || '';
-
-  const filtered = entries.filter(e => 
-    (String(e.name) + " " + String(e.code) + " " + String(e.sectionCode)).toLowerCase().includes(searchVal)
-  );
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted); font-weight:600;">Bin Card යාවත්කාලීන කිරීමට දත්ත කිසිවක් නොමැත.</div>`;
-    return;
+    doc.save(`${fileName}.pdf`);
+    showToast("Counting Sheet PDF ගොනුව බාගත විය!", "success");
+  } else {
+    // Word (.doc text format)
+    let text = `Counting Sheet Report - ${dateStr}\n\n`;
+    inventory.forEach(i => {
+      text += `Code: ${i.code} | Name: ${i.name} | UOM: ${i.uom} | Counting: ${i.counting} | Packs: ${i.packs_count}\n`;
+    });
+    const blob = new Blob([text], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.doc`;
+    a.click();
+    showToast("Counting Sheet Word ගොනුව බාගත විය!", "success");
   }
-
-  container.innerHTML = filtered.map(entry => `
-    <div class="bin-card-cart">
-      <div class="bin-card-cart-header">
-        <div class="bin-card-code"><i class="fa-solid fa-barcode"></i> ${entry.code}</div>
-        <span class="bin-card-badge ${entry.colorClass}"><i class="fa-solid ${entry.icon}"></i> ${entry.section}</span>
-      </div>
-      <div class="bin-card-name">${entry.name}</div>
-      <div class="bin-card-cart-footer">
-        <div class="bin-card-amount-label">Update Amount (ගණන):</div>
-        <div class="bin-card-amount-value">${Number(entry.amount).toLocaleString()} <span class="bin-card-uom">${entry.uom}</span></div>
-      </div>
-    </div>
-  `).join('');
+  closeCountingDownloadModal();
 }
 
-function openBinCardDownloadModal() {
-  updateBinCardFileName();
-  showModal('binCardDownloadModal');
+function processCountingShare() {
+  processCountingDownload();
+  showToast(i18n[currentLang].shareSuccess, 'success');
 }
-function closeBinCardDownloadModal() { hideModal('binCardDownloadModal'); }
-
-function updateBinCardFileName() {
-  const format = document.getElementById('binCardFormatSelect').value;
-  const input = document.getElementById('binCardFileNameInput');
-  if (input) input.value = `Bin_Card_Updates_${getTodayStr()}.${format}`;
-}
-
-async function processBinCardDownload() {
-  const format = document.getElementById('binCardFormatSelect').value;
-  const today = getTodayStr();
-  let filename = document.getElementById('binCardFileNameInput').value.trim();
-  if (!filename) filename = `Bin_Card_Updates_${today}.${format}`;
-  if (!filename.endsWith(`.${format}`)) filename += `.${format}`;
-
-  const entries = getBinCardEntries();
-  if (entries.length === 0) {
-    showToast('Download කිරීමට දත්ත නොමැත!', 'warning');
-    return;
-  }
-
-  showLoading(`Downloading Bin Card Updates (${format.toUpperCase()})...`);
-
-  setTimeout(() => {
-    try {
-      let fileBlob = null;
-      if (format === 'xlsx') {
-        const headers = ["Material Code", "Material Name", "Type", "Section", "Update Amount", "UOM"];
-        const sheetData = [headers];
-        entries.forEach(e => sheetData.push([e.code, e.name, e.type, e.sectionCode, e.amount, e.uom]));
-        const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-        worksheet['!cols'] = [{ wch: 16 }, { wch: 38 }, { wch: 8 }, { wch: 22 }, { wch: 16 }, { wch: 8 }];
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Bin_Card_Updates");
-        const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-        fileBlob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      } else if (format === 'pdf') {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(16); doc.text("Bin Card Updates Sheet", 14, 15);
-        doc.setFontSize(10); doc.text(`Date: ${today}`, 14, 22);
-        const tableData = entries.map(e => [e.code, e.name, e.type, e.sectionCode, e.amount, e.uom]);
-        doc.autoTable({ startY: 28, head: [['Code', 'Material Name', 'Type', 'Section', 'Amount', 'UOM']], body: tableData, theme: 'grid', headStyles: { fillColor: [2, 132, 199] } });
-        fileBlob = doc.output('blob');
-      } else if (format === 'csv') {
-        let csv = "Material Code,Material Name,Type,Section,Update Amount,UOM\n";
-        entries.forEach(e => { csv += `"${e.code}","${e.name}","${e.type}","${e.sectionCode}",${e.amount},"${e.uom}"\n`; });
-        fileBlob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      } else if (format === 'txt') {
-        let txt = `BIN CARD UPDATES REPORT - ${today}\n\n`;
-        entries.forEach((e, idx) => {
-          txt += `${idx + 1}. [${e.code}] ${e.name}\n   Section: ${e.sectionCode} | Amount: ${e.amount} ${e.uom}\n--------------------------\n`;
-        });
-        fileBlob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
-      }
-
-      closeBinCardDownloadModal();
-      triggerDirectDownload(fileBlob, filename);
-      showToast("Bin Card Updates Downloaded Successfully!", "success");
-    } catch (e) {
-      showToast("Download කිරීමට යාමේදී දෝෂයක් සිදු විය!", "error");
-    }
-    hideLoading();
-  }, 300);
-}
-
-/* --- Today Uploaded Modal Functionality --- */
 
 function openTodayUploadedModal() {
-  const todaySearchInput = document.getElementById('todayModalSearchInput');
-  if (todaySearchInput) todaySearchInput.value = '';
-  renderTodayUploadedList();
-  showModal('todayUploadedModal');
+  const modal = document.getElementById('todayUploadedModal');
+  if (modal) {
+    modal.classList.add('show');
+    renderTodayUploadedList();
+  }
 }
-function closeTodayUploadedModal() { hideModal('todayUploadedModal'); }
+
+function closeTodayUploadedModal() {
+  const modal = document.getElementById('todayUploadedModal');
+  if (modal) modal.classList.remove('show');
+}
 
 function renderTodayUploadedList() {
   const container = document.getElementById('todayCardsContainer');
+  const searchInput = document.getElementById('todayModalSearchInput');
+  const toggleCountingOnly = document.getElementById('toggleCountingOnly');
   if (!container) return;
-  container.innerHTML = '';
 
-  const todayStr = getTodayStr();
-  const searchInputVal = document.getElementById('todayModalSearchInput');
-  const showCountingOnly = document.getElementById('toggleCountingOnly')?.checked || false;
-  const q = searchInputVal ? searchInputVal.value.toLowerCase().trim() : '';
-  const fragment = document.createDocumentFragment();
+  const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
+  const countingOnly = toggleCountingOnly ? toggleCountingOnly.checked : false;
 
-  let count = 0;
-
-  inventory.forEach((item, idx) => {
-    item.closing = calculateClosingStock(item);
-    let matchesCondition = false;
-
-    if (showCountingOnly) { matchesCondition = (item.counting > 0); } 
-    else {
-      matchesCondition = (item.last_updated === todayStr) || 
-                         (item.f_receipt > 0 || item.g_issues > 0 || item.h_return > 0 || item.i_ssl_received > 0 || item.j_ssl_sent > 0 || item.l_rejection > 0 || item.counting > 0);
-    }
-
-    if (matchesCondition) {
-      const matchesSearch = (String(item.name) + " " + String(item.code)).toLowerCase().includes(q);
-      if (matchesSearch) {
-        count++;
-
-        if (showCountingOnly) {
-          const swipeWrapper = document.createElement('div');
-          swipeWrapper.className = 'swipe-wrapper';
-
-          const packDetailText = (item.packs_count > 0) ? `<br><span style="color:var(--primary); font-size:0.75rem;">(${item.packs_count} packs)</span>` : '';
-
-          swipeWrapper.innerHTML = `
-            <div class="swipe-action edit-action"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
-            <div class="swipe-action delete-action"><i class="fa-solid fa-trash-can"></i> Delete</div>
-            <div class="checklist-item" id="swipe-item-${idx}">
-              <div class="checklist-left">
-                <div class="checklist-info">
-                  <div class="checklist-name" title="${item.name}">${item.name}</div>
-                  <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code} ${packDetailText}</div>
-                </div>
-              </div>
-              <div class="checklist-right">
-                <div class="checklist-stock" style="color:var(--primary);">${Number(item.counting).toLocaleString()} ${item.uom}</div>
-                <div style="font-size: 0.68rem; color: var(--primary); font-weight: 700; text-transform: uppercase;">Counting Amount</div>
-              </div>
-            </div>
-          `;
-
-          const cardItem = swipeWrapper.querySelector('.checklist-item');
-          setupSwipeEvents(swipeWrapper, cardItem, idx);
-          fragment.appendChild(swipeWrapper);
-
-        } else {
-          const itemDiv = document.createElement('div');
-          itemDiv.className = 'checklist-item';
-          itemDiv.innerHTML = ` 
-            <div class="checklist-left">
-              <div class="checklist-info">
-                <div class="checklist-name" title="${item.name}">${item.name}</div>
-                <div class="checklist-code"><i class="fa-solid fa-barcode"></i> ${item.code}</div>
-              </div>
-            </div>
-            <div class="checklist-right">
-              <div class="checklist-stock">${Number(item.closing).toLocaleString()} ${item.uom}</div>
-              <div style="font-size: 0.68rem; color: var(--success); font-weight: 700; text-transform: uppercase;">Today Live</div>
-            </div>
-          `;
-          itemDiv.onclick = () => openItemDetails(idx);
-          fragment.appendChild(itemDiv);
-        }
-      }
-    }
+  const filtered = inventory.filter(item => {
+    if (countingOnly && Number(item.counting) <= 0) return false;
+    if (!filter) return true;
+    return item.code.toLowerCase().includes(filter) || item.name.toLowerCase().includes(filter);
   });
 
-  if (count === 0) {
-    const noDataText = showCountingOnly ? "Counting දත්ත කිසිවක් ඇතුළත් කර නැත." : "දත්ත කිසිවක් ඇතුළත් කර නැත.";
-    container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight:600;">${noDataText}</div>`;
-  } else { container.appendChild(fragment); }
-}
+  if (filtered.length === 0) {
+    container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">දත්ත කිසිවක් හමු නොවීය.</div>`;
+    return;
+  }
 
-function setupSwipeEvents(wrapper, itemEl, index) {
-  let startX = 0; let currentX = 0; let isDragging = false;
-
-  const onStart = (e) => {
-    startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    isDragging = true;
-    itemEl.style.transition = 'none';
-  };
-  const onMove = (e) => {
-    if (!isDragging) return;
-    const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    const diff = x - startX;
-    if (Math.abs(diff) < 120) {
-      currentX = diff;
-      itemEl.style.transform = `translateX(${currentX}px)`;
-    }
-  };
-  const onEnd = () => {
-    if (!isDragging) return;
-    isDragging = false;
-    itemEl.style.transition = 'transform 0.2s ease-out';
-    if (currentX < -60) {
-      itemEl.style.transform = 'translateX(0px)';
-      openEditCountingModal(index);
-    } else if (currentX > 60) {
-      itemEl.style.transform = 'translateX(0px)';
-      deleteCountingAmount(index);
-    } else { itemEl.style.transform = 'translateX(0px)'; }
-    currentX = 0;
-  };
-
-  itemEl.addEventListener('touchstart', onStart, { passive: true });
-  itemEl.addEventListener('touchmove', onMove, { passive: true });
-  itemEl.addEventListener('touchend', onEnd);
-  itemEl.addEventListener('mousedown', onStart);
-  window.addEventListener('mousemove', onMove);
-  window.addEventListener('mouseup', onEnd);
+  let html = '';
+  filtered.forEach(item => {
+    const originalIndex = inventory.findIndex(i => i.code === item.code);
+    html += `
+      <div class="checklist-item" onclick="openEditCountingModal(${originalIndex})">
+        <div class="checklist-left">
+          <div class="checklist-info">
+            <span class="checklist-name">${item.name}</span>
+            <span class="checklist-code">Code: ${item.code} | UOM: ${item.uom}</span>
+          </div>
+        </div>
+        <div class="checklist-right">
+          <div class="checklist-stock">${item.counting || 0}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted);">Packs: ${item.packs_count || 0}</div>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
 }
 
 function openEditCountingModal(index) {
   currentlyEditingIndex = index;
   const item = inventory[index];
-  if (!item) return;
-
   document.getElementById('editModalItemName').innerText = item.name;
   document.getElementById('editModalItemCode').innerText = `Code: ${item.code} | UOM: ${item.uom}`;
   document.getElementById('editCountingAmountInput').value = item.counting || '';
   document.getElementById('editPacksCountInput').value = item.packs_count || '';
-
-  showModal('editCountingModal');
-  setTimeout(() => document.getElementById('editCountingAmountInput').focus(), 250);
+  
+  const modal = document.getElementById('editCountingModal');
+  if (modal) modal.classList.add('show');
 }
-function closeEditCountingModal() { hideModal('editCountingModal'); currentlyEditingIndex = -1; }
+
+function closeEditCountingModal() {
+  const modal = document.getElementById('editCountingModal');
+  if (modal) modal.classList.remove('show');
+}
 
 function saveEditedCountingAmount() {
-  if (currentlyEditingIndex === -1 || !inventory[currentlyEditingIndex]) return;
+  if (currentlyEditingIndex < 0 || currentlyEditingIndex >= inventory.length) return;
+  const amt = parseFloat(document.getElementById('editCountingAmountInput').value) || 0;
+  const packs = parseFloat(document.getElementById('editPacksCountInput').value) || 0;
 
-  const rawVal = document.getElementById('editCountingAmountInput').value.trim();
-  const amount = parseFloat(rawVal) || 0;
-
-  if (rawVal === "" || isNaN(amount) || amount < 0) {
-    showToast("කරුණාකර වලංගු අගයක් ඇතුළත් කරන්න!", "error"); return;
-  }
-
-  const item = inventory[currentlyEditingIndex];
-  item.counting = roundNum(amount);
-  item.packs_count = parseFloat(document.getElementById('editPacksCountInput').value) || 0;
-  item.closing = calculateClosingStock(item);
-  item.last_updated = getTodayStr();
-
+  inventory[currentlyEditingIndex].counting = amt;
+  inventory[currentlyEditingIndex].packs_count = packs;
   saveInventoryData();
+
   closeEditCountingModal();
   renderTodayUploadedList();
-  showToast(`${item.name} - Counting Amount updated to ${amount}`, 'success');
+  showToast("ගණනය කිරීමේ ප්‍රමාණය යාවත්කාලීන විය!", "success");
 }
-
-function deleteCountingAmount(index) {
-  const item = inventory[index];
-  if (!item) return;
-  if (confirm(`${item.name} හි Counting Amount එක ඉවත් (Delete) කිරීමට අවශ්‍යද?`)) {
-    item.counting = 0;
-    item.packs_count = 0;
-    item.closing = calculateClosingStock(item);
-    saveInventoryData();
-    renderTodayUploadedList();
-    showToast(`${item.name} Counting Amount deleted!`, 'warning');
-  }
-}
-
-function openSettings() { showModal('settingsModal'); } 
-function closeSettings() { hideModal('settingsModal'); } 
-
-function openRestoreHelpModal() { showModal('restoreHelpModal'); switchHelpTopic('fileType'); }
-function closeRestoreHelpModal() { hideModal('restoreHelpModal'); }
 
 function openExportModal(mode) {
   currentExportMode = mode;
+  const modal = document.getElementById('exportModal');
+  const title = document.getElementById('txtExportTitle');
+  const btn = document.getElementById('btnConfirmExport');
+  
+  if (title) title.innerHTML = `<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> ${mode === 'excel' ? i18n[currentLang].titleExcel : i18n[currentLang].titleShare}`;
+  if (btn) btn.innerHTML = `<i class="fa-solid ${mode === 'excel' ? 'fa-download' : 'fa-share-nodes'}"></i> ${mode === 'excel' ? 'Download Excel' : 'Share File'}`;
+  
   updateDefaultFileName();
-  showModal('exportModal');
-}
-function closeExportModal() { hideModal('exportModal'); }
-
-function openCountingDownloadModal() { updateCountingFileName(); showModal('countingDownloadModal'); }
-function closeCountingDownloadModal() { hideModal('countingDownloadModal'); }
-
-function updateCountingFileName() {
-  const format = document.getElementById('countingFormatSelect').value;
-  const input = document.getElementById('countingFileNameInput');
-  if (input) input.value = `Counting_Sheet_${getTodayStr()}.${format}`;
+  if (modal) modal.classList.add('show');
 }
 
-function processCountingDownload() { processCountingSheet('download'); }
-function processCountingShare() { processCountingSheet('share'); }
-
-async function processCountingSheet(action) {
-  const format = document.getElementById('countingFormatSelect').value;
-  const today = getTodayStr();
-
-  let fileNameInput = document.getElementById('countingFileNameInput').value.trim();
-  if (!fileNameInput) fileNameInput = `Counting_Sheet_${today}.${format}`;
-  if (!fileNameInput.endsWith(`.${format}`)) fileNameInput += `.${format}`;
-
-  const filename = fileNameInput;
-  let fileBlob = null; let mimeType = '';
-
-  showLoading(`Processing ${format.toUpperCase()}...`);
-
-  setTimeout(async () => {
-    try {
-      if (format === 'xlsx') {
-        const headers = ["Material Code", "Material Name", "RM/PM", "Counting Amount", "Packs Count"];
-        const sheetData = [headers];
-        inventory.forEach((item) => {
-          sheetData.push([item.code || "", item.name || "", item.type || "RM", Number(item.counting) || 0, Number(item.packs_count) || 0]);
-        });
-        const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-        worksheet['!cols'] = [{ wch: 18 }, { wch: 40 }, { wch: 10 }, { wch: 18 }, { wch: 14 }];
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Counting");
-        const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-        mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-        fileBlob = new Blob([buffer], { type: mimeType });
-      } 
-      else if (format === 'pdf') {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(16); doc.text("Stock Counting Sheet", 14, 15);
-        doc.setFontSize(10); doc.text(`Date: ${today}`, 14, 22);
-        const tableData = inventory.map(item => [item.code, item.name, item.type || "RM", item.counting || 0, item.packs_count || 0]);
-        doc.autoTable({ startY: 28, head: [['Code', 'Material Name', 'Type', 'Counting', 'Packs']], body: tableData, theme: 'grid', headStyles: { fillColor: [37, 99, 235] } });
-        fileBlob = doc.output('blob'); mimeType = 'application/pdf';
-      } 
-      else if (format === 'doc') {
-        const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Counting Sheet</title></head><body>";
-        const footer = "</body></html>";
-        let html = `<h2>Stock Counting Sheet - ${today}</h2>`;
-        html += `<table border='1' style='border-collapse: collapse; width: 100%;'><tr><th>Code</th><th>Name</th><th>Type</th><th>Counting</th><th>Packs</th></tr>`;
-        inventory.forEach(item => { html += `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.type || 'RM'}</td><td>${item.counting || 0}</td><td>${item.packs_count || 0}</td></tr>`; });
-        html += "</table>";
-        mimeType = 'application/msword';
-        fileBlob = new Blob(['\ufeff', header + html + footer], { type: mimeType });
-      }
-
-      closeCountingDownloadModal();
-
-      if (action === 'download') {
-        triggerDirectDownload(fileBlob, filename);
-        showToast(`${format.toUpperCase()} Downloaded Successfully!`, 'success');
-      } else if (action === 'share') {
-        const file = new File([fileBlob], filename, { type: mimeType });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-                await navigator.share({ title: `Counting Sheet - ${today}`, text: 'Please find the Counting Sheet attached.', files: [file] });
-                showToast('Shared successfully!', 'success');
-            } catch (err) {
-                if (err.name !== 'AbortError') { triggerDirectDownload(fileBlob, filename); showToast('Share failed. Downloaded directly.', 'warning'); }
-            }
-        } else {
-            triggerDirectDownload(fileBlob, filename); showToast('Sharing not supported. File downloaded.', 'warning');
-        }
-      }
-    } catch (error) { showToast(`Error processing ${format.toUpperCase()}!`, 'error'); }
-    hideLoading();
-  }, 400);
+function closeExportModal() {
+  const modal = document.getElementById('exportModal');
+  if (modal) modal.classList.remove('show');
 }
 
 function updateDefaultFileName() {
-  const formatSelect = document.getElementById('exportFormatSelect');
-  const fileNameInput = document.getElementById('exportFileNameInput');
-  if (!formatSelect || !fileNameInput) return;
-  fileNameInput.value = `Stock_Counting_${getTodayStr()}.${formatSelect.value}`;
+  const input = document.getElementById('exportFileNameInput');
+  const dateStr = new Date().toISOString().slice(0, 10);
+  if (input) input.placeholder = `Stock_Counting_${dateStr}`;
+}
+
+function processExportAction() {
+  const format = document.getElementById('exportFormatSelect').value;
+  const inputName = document.getElementById('exportFileNameInput').value.trim();
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const fileName = inputName || `Stock_Counting_${dateStr}`;
+  const shiftStock = document.getElementById('chkShiftStock').checked;
+
+  const exportData = inventory.map(item => ({
+    "Material Code": item.code,
+    "Material Name": item.name,
+    "UOM": item.uom,
+    "Opening Stock": item.op_stock,
+    "Receipt (F)": item.receipt,
+    "Issues (G)": item.issues,
+    "Return (H)": item.return,
+    "Received to SSL (I)": item.ssl_i,
+    "Sent to SSL (J)": item.ssl_j,
+    "Rejection (L)": item.rejection_l,
+    "Counting": item.counting,
+    "Packs Count": item.packs_count,
+    "Closing Stock": calculateClosingStock(item)
+  }));
+
+  if (format === 'xlsx') {
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Daily Stock");
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+  } else if (format === 'csv') {
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const csv = XLSX.utils.sheet_to_csv(ws);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.csv`;
+    a.click();
+  } else {
+    let txt = `Daily Stock Summary - ${dateStr}\n\n`;
+    exportData.forEach(i => {
+      txt += `${i["Material Code"]} | ${i["Material Name"]} | Closing: ${i["Closing Stock"]} ${i["UOM"]}\n`;
+    });
+    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.txt`;
+    a.click();
+  }
+
+  if (shiftStock) {
+    inventory.forEach(item => {
+      item.op_stock = calculateClosingStock(item);
+      item.receipt = 0;
+      item.issues = 0;
+      item.return = 0;
+      item.ssl_i = 0;
+      item.ssl_j = 0;
+      item.rejection_l = 0;
+      item.counting = 0;
+      item.packs_count = 0;
+    });
+    saveInventoryData();
+  }
+
+  closeExportModal();
+  showToast(i18n[currentLang].msgExcelShift, 'success');
+}
+
+function openRestoreHelpModal() {
+  const modal = document.getElementById('restoreHelpModal');
+  if (modal) {
+    modal.classList.add('show');
+    switchHelpTopic('fileType');
+  }
+}
+
+function closeRestoreHelpModal() {
+  const modal = document.getElementById('restoreHelpModal');
+  if (modal) modal.classList.remove('show');
 }
 
 function switchHelpTopic(topic) {
   const box = document.getElementById('helpContentBox');
   if (!box) return;
+
   if (topic === 'fileType') {
-    box.innerHTML = `<h4 style="color: var(--primary); margin-bottom: 8px;"><i class="fa-solid fa-file-excel"></i> Upload කළ යුත්තේ මොන වගේ File එකක්ද?</h4><p>• මෙම App එක මඟින් මීට පෙර Download කරගත් හෝ Backup එකක් ලෙස ලබාගත් <b>Excel (.xlsx හෝ .xls)</b> ගොනුවක් පමණක් upload කළ යුතුය.</p>`;
+    box.innerHTML = `
+      <strong>1. Upload කළ යුත්තේ කුමන ආකාරයේ Excel File එකක්ද?</strong><br><br>
+      ඔබට ඔබගේ පද්ධතිය මඟින් Export කරන ලද හෝ පිළිවෙළට සකස් කරන ලද <code>.xlsx</code> හෝ <code>.xls</code> ගොනුවක් upload කළ හැක. 
+      මෙහි මූලික තීරු (Columns) ලෙස <strong>Material Code</strong>, <strong>Material Name</strong>, <strong>UOM</strong> සහ <strong>Opening Stock</strong> අඩංගු විය යුතුය. 
+      එමෙන්ම <strong>Receipt</strong>, <strong>Issues</strong>, <strong>Return</strong> වැනි අතිරේක තීරු තිබේ නම් ඒවාද ස්වයංක්‍රීයව Bin Card එකට යාවත්කාලීන වේ.
+    `;
   } else if (topic === 'howToDo') {
-    box.innerHTML = `<h4 style="color: var(--success); margin-bottom: 8px;"><i class="fa-solid fa-upload"></i> Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</h4><p>1. Settings වෙත ගොස් <b>'Restore Excel (.xlsx) File'</b> යටතේ ඇති <b>'Choose File'</b> බොත්තම ඔබන්න.</p><p>2. කොළ පාටින් ඇති <b>'Restore Excel Data'</b> බොත්තම ක්ලික් කරන්න.</p>`;
-  } else if (topic === 'appFeatures') {
-    box.innerHTML = `<h4 style="color: var(--warning); margin-bottom: 8px;"><i class="fa-solid fa-boxes-stacked"></i> Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</h4><p>• <b>Stock Tracking & Counting:</b> Normal Counting සහ Daily Counting මඟින් තොග ප්‍රමාණ ගණනය කිරීම.</p>`;
+    box.innerHTML = `
+      <strong>2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</strong><br><br>
+      - මුල් පිටුවේ ඉහළ වම්පස ඇති <strong>Settings (Gear Icon)</strong> ක්ලික් කරන්න.<br>
+      - <strong>Restore Excel (.xlsx) File</strong> කොටස වෙත යන්න.<br>
+      - <strong>Choose File</strong> මඟින් ඔබේ පරිගණකයෙන් හෝ දුරකථනයෙන් Excel ගොනුව තෝරන්න.<br>
+      - <strong>Restore Excel Data</strong> බොත්තම ඔබන්න. සාර්ථක වූ පසු ස්වයංක්‍රීයව <strong>Bin Card Update View</strong> විවෘත වී දත්ත බලාගත හැක.
+    `;
+  } else {
+    box.innerHTML = `
+      <strong>3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</strong><br><br>
+      - දිනපතා Stock ගණනය කිරීම් (Counting) සහ Section අනුව දත්ත ඇතුළත් කිරීම.<br>
+      - <strong>Bin Card Update View</strong> හරහා යාවත්කාලීන වූ දත්ත Card ක්‍රමයට පහසුවෙන් පරීක්ෂා කිරීම.<br>
+      - Excel, PDF හෝ Word ფორමැට් වලින් Counting Sheets ඩවුන්ලෝඩ් කිරීම සහ Share කිරීම.<br>
+      - දත්ත සුරක්ෂිතව Backup ලබාගැනීම සහ අවශ්‍ය විට Restore කිරීම.
+    `;
   }
 }
 
-function openItemDetails(index) {
-  const item = inventory[index];
-  if (!item) return;
-  item.closing = calculateClosingStock(item);
-  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
-
-  setText('detCode', item.code); setText('detName', item.name); setText('detUom', item.uom);
-  setText('detOp', Number(item.op_stock).toLocaleString() + ' ' + item.uom);
-  setText('detReceipt', Number(item.f_receipt).toLocaleString() + ' ' + item.uom);
-  setText('detIssues', Number(item.g_issues).toLocaleString() + ' ' + item.uom);
-  setText('detReturn', Number(item.h_return).toLocaleString() + ' ' + item.uom);
-  setText('detSslI', Number(item.i_ssl_received || 0).toLocaleString() + ' ' + item.uom);
-  setText('detSslJ', Number(item.j_ssl_sent || 0).toLocaleString() + ' ' + item.uom);
-  setText('detRejectionL', Number(item.l_rejection || 0).toLocaleString() + ' ' + item.uom);
-  setText('detCounting', Number(item.counting || 0).toLocaleString() + ' ' + item.uom);
-  setText('detPacksCount', Number(item.packs_count || 0).toLocaleString());
-  setText('detClosing', Number(item.closing).toLocaleString() + ' ' + item.uom);
-
-  showModal('itemDetailModal');
-}
-function closeItemDetailModal() { hideModal('itemDetailModal'); }
-
-function generateWorkbookWithFormulas() {
-  const headers = [ "Type", "Material Code", "Material Name", "UOM", "Op.Stock-Warehouse", "Receipt", "Issues", "Return", "Received to SSL", "Sent to SSL", "Rejection", "Counting", "Packs Count", "Closing Stock" ];
-  const sheetData = [headers];
-
-  inventory.forEach((item) => {
-    sheetData.push([
-      item.type || "RM", item.code, item.name, item.uom, 
-      Number(item.op_stock) || 0, Number(item.f_receipt) || 0, Number(item.g_issues) || 0, Number(item.h_return) || 0,
-      Number(item.i_ssl_received) || 0, Number(item.j_ssl_sent) || 0, Number(item.l_rejection) || 0,
-      Number(item.counting) || 0, Number(item.packs_count) || 0, Number(item.closing) || 0
-    ]);
-  });
-
-  const worksheet = XLSX.utils.aoa_to_sheet(sheetData); 
-  worksheet['!cols'] = [{ wch: 8 }, { wch: 15 }, { wch: 38 }, { wch: 8 }, { wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 18 }];
-
-  const workbook = XLSX.utils.book_new(); 
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Stock_Summary");
-  return workbook;
-}
-
-function getFormattedFileData(format, customName) {
-  const today = getTodayStr();
-  const workbook = generateWorkbookWithFormulas();
-  const fileName = customName || `Stock_Counting_${today}.${format}`;
-
-  if (format === 'xlsx') {
-    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    return { blob: new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), filename: fileName, mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
-  } else if (format === 'csv') {
-    const csvContent = XLSX.utils.sheet_to_csv(workbook.Sheets["Stock_Summary"]);
-    return { blob: new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }), filename: fileName, mimeType: 'text/csv' };
-  } else if (format === 'txt') {
-    let txtContent = `STOCK COUNTING REPORT - ${today}\n\n`;
-    inventory.forEach((item, idx) => {
-      txtContent += `${idx + 1}. [${item.code}] ${item.name}\n   Op Stock: ${item.op_stock} | Receipts: ${item.f_receipt} | Issues: ${item.g_issues}\n   Closing Stock: ${item.closing} ${item.uom}\n--------------------------\n`;
-    });
-    return { blob: new Blob([txtContent], { type: 'text/plain;charset=utf-8;' }), filename: fileName, mimeType: 'text/plain' };
-  }
-}
-
-function triggerDirectDownload(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.style.display = 'none'; a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  setTimeout(() => { if (document.body.contains(a)) document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
-}
-
-async function processExportAction() {
-  const t = i18n[currentLang] || i18n['si'];
-  const formatSelect = document.getElementById('exportFormatSelect');
-  const fileNameInput = document.getElementById('exportFileNameInput');
-  const chkShiftStock = document.getElementById('chkShiftStock');
-
-  const format = formatSelect ? formatSelect.value : 'xlsx';
-  const shouldShift = chkShiftStock ? chkShiftStock.checked : false;
-
-  let customFileName = fileNameInput && fileNameInput.value.trim() !== '' ? fileNameInput.value.trim() : `Stock_Counting_${getTodayStr()}.${format}`;
-  if (!customFileName.endsWith(`.${format}`)) customFileName += `.${format}`;
-
-  showLoading("Generating file & exporting...");
-  setTimeout(async () => {
-    const fileData = getFormattedFileData(format, customFileName);
-    closeExportModal();
-
-    if (currentExportMode === 'excel') {
-      triggerDirectDownload(fileData.blob, customFileName);
-      if (shouldShift) resetStockAndComplete(t); else showToast('File Downloaded Successfully!', 'success');
-    } else if (currentExportMode === 'share') {
-      const file = new File([fileData.blob], customFileName, { type: fileData.mimeType });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({ title: t.shareTitle, text: `Report - ${getTodayStr()}`, files: [file] });
-          showToast(t.shareSuccess, 'success'); if (shouldShift) resetStockAndComplete(t);
-        } catch (err) {
-          if (err.name !== 'AbortError') { triggerDirectDownload(fileData.blob, customFileName); showToast('Share failed. Downloaded directly.', 'warning'); if (shouldShift) resetStockAndComplete(t); }
-        }
-      } else {
-        triggerDirectDownload(fileData.blob, customFileName); showToast(t.shareNotSupported, 'warning'); if (shouldShift) resetStockAndComplete(t);
-      }
-    }
-    hideLoading();
-  }, 300);
-}
-
-async function downloadXLSXBackup() { 
-  showLoading("Preparing backup file...");
-  setTimeout(() => {
-    const defaultName = `Stock_Counting_Backup_${getTodayStr()}.xlsx`;
-    const fileData = getFormattedFileData('xlsx', defaultName);
-    triggerDirectDownload(fileData.blob, defaultName);
-    hideLoading(); showToast('Backup File Downloaded Successfully!', 'success');
-  }, 300);
-}
-
-function resetStockAndComplete(t) {
-  inventory.forEach(item => { 
-    item.op_stock = Number(item.closing) || 0; 
-    item.f_receipt = 0; item.g_issues = 0; item.h_return = 0; item.i_ssl_received = 0; item.j_ssl_sent = 0; item.l_rejection = 0; 
-    item.counting = 0; item.packs_count = 0; item.closing = item.op_stock; item.last_updated = "";
-  }); 
-  saveInventoryData(); clearSearchInput(); showToast(t.msgExcelShift, 'success'); 
-}
-
-function restoreFromXLSX() { 
-  const t = i18n[currentLang] || i18n['si'];
-  const fileInput = document.getElementById('xlsxFileInput'); 
-  if (!fileInput || !fileInput.files[0]) { showToast(t.msgRestoreSelect, 'warning'); return; } 
-
-  const file = fileInput.files[0]; showLoading("Restoring Excel data...");
-  const reader = new FileReader(); 
-  reader.onload = function(e) { 
-    try { 
-      const data = new Uint8Array(e.target.result); 
-      const workbook = XLSX.read(data, { type: 'array' }); 
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]]; 
-      const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); 
-
-      if (!matrix || matrix.length === 0) { hideLoading(); showToast('Error: Excel file is empty!', 'error'); return; } 
-
-      let headerIndex = -1; 
-      let colMap = { type: -1, code: -1, name: -1, uom: -1, op_stock: -1, f_receipt: -1, g_issues: -1, h_return: -1, i_ssl_received: -1, j_ssl_sent: -1, l_rejection: -1, counting: -1, packs_count: -1, closing: -1 }; 
-
-      for (let r = 0; r < Math.min(matrix.length, 10); r++) { 
-        const rowStr = matrix[r].map(c => String(c).toLowerCase().trim()); 
-        if (rowStr.some(c => c.includes("code") || c.includes("name"))) { 
-          headerIndex = r; 
-          rowStr.forEach((cellVal, colIdx) => { 
-            if (cellVal.includes("type")) colMap.type = colIdx; 
-            else if (cellVal.includes("code")) colMap.code = colIdx; 
-            else if (cellVal.includes("name")) colMap.name = colIdx; 
-            else if (cellVal.includes("uom") || cellVal.includes("unit")) colMap.uom = colIdx; 
-            else if (cellVal.includes("op")) colMap.op_stock = colIdx; 
-            else if (cellVal.includes("receipt") || cellVal === "f") colMap.f_receipt = colIdx; 
-            else if (cellVal.includes("issue") || cellVal === "g") colMap.g_issues = colIdx; 
-            else if (cellVal.includes("return") || cellVal === "h") colMap.h_return = colIdx; 
-            else if (cellVal.includes("received to ssl") || cellVal === "i") colMap.i_ssl_received = colIdx; 
-            else if (cellVal.includes("sent to ssl") || cellVal === "j") colMap.j_ssl_sent = colIdx; 
-            else if (cellVal.includes("rejection") || cellVal === "l") colMap.l_rejection = colIdx; 
-            else if (cellVal.includes("counting")) colMap.counting = colIdx; 
-            else if (cellVal.includes("packs count")) colMap.packs_count = colIdx; 
-            else if (cellVal.includes("closing")) colMap.closing = colIdx; 
-          }); break; 
-        } 
-      } 
-
-      if (headerIndex === -1 || colMap.code === -1 || colMap.name === -1) {
-        hideLoading(); showToast('Error: Invalid format!', 'error'); return;
-      }
-
-      let restored = []; 
-      for (let r = headerIndex + 1; r < matrix.length; r++) { 
-        const row = matrix[r]; if (!row || row.length === 0) continue; 
-        let code = colMap.code !== -1 && row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : ""; 
-        let name = colMap.name !== -1 && row[colMap.name] !== undefined ? String(row[colMap.name]).trim() : ""; 
-
-        if (code || name) { 
-          let tempItem = {
-            op_stock: colMap.op_stock !== -1 ? parseFloat(row[colMap.op_stock]) || 0 : 0,
-            f_receipt: colMap.f_receipt !== -1 ? parseFloat(row[colMap.f_receipt]) || 0 : 0,
-            g_issues: colMap.g_issues !== -1 ? parseFloat(row[colMap.g_issues]) || 0 : 0,
-            h_return: colMap.h_return !== -1 ? parseFloat(row[colMap.h_return]) || 0 : 0,
-            i_ssl_received: colMap.i_ssl_received !== -1 ? parseFloat(row[colMap.i_ssl_received]) || 0 : 0,
-            j_ssl_sent: colMap.j_ssl_sent !== -1 ? parseFloat(row[colMap.j_ssl_sent]) || 0 : 0,
-            l_rejection: colMap.l_rejection !== -1 ? parseFloat(row[colMap.l_rejection]) || 0 : 0
-          };
-          let closing = calculateClosingStock(tempItem); 
-          let counting = colMap.counting !== -1 ? parseFloat(row[colMap.counting]) || 0 : 0; 
-          let packs_count = colMap.packs_count !== -1 ? parseFloat(row[colMap.packs_count]) || 0 : 0; 
-
-          restored.push({ type: colMap.type !== -1 ? String(row[colMap.type]).trim() : "RM", code, name, uom: colMap.uom !== -1 ? String(row[colMap.uom]).trim() : "KG", ...tempItem, counting, packs_count, closing, last_updated: "" }); 
-        } 
-      } 
-      hideLoading();
-      if (restored.length > 0) { 
-        inventory = restored; saveInventoryData(); fileInput.value = ""; closeSettings(); showToast(t.msgRestoreSuccess, 'success'); 
-      } else { showToast('Error: No data rows found!', 'error'); } 
-    } catch (err) { hideLoading(); showToast('Error reading Excel file!', 'error'); } 
-  }; 
-  reader.readAsArrayBuffer(file); 
-} 
-
-function resetToDefault() { 
-  const t = i18n[currentLang] || i18n['si'];
-  if (confirm(t.msgResetConfirm)) { 
-    localStorage.removeItem('rmc_stock_inventory'); 
-    initDefaultInventory(); clearSearchInput(); closeSettings(); showToast("Reset Successful!", "success"); 
-  } 
-} 
-
-/* Initialization & Ripple Event Listeners */
-document.addEventListener('DOMContentLoaded', function() {
-  loadInventoryData();
-  applyTheme(currentTheme);
-  applyLanguage(currentLang);
-  updateCountingModeBadge();
-
-  const searchInput = document.getElementById('searchInput');
-  if (searchInput) {
-    searchInput.addEventListener('input', handleSearchInput);
-  }
-
-  const binCardSearch = document.getElementById('binCardSearchInput');
-  if (binCardSearch) {
-    binCardSearch.addEventListener('input', renderBinCardList);
-  }
-
-  const todaySearch = document.getElementById('todayModalSearchInput');
-  if (todaySearch) {
-    todaySearch.addEventListener('input', renderTodayUploadedList);
-  }
-});
-
-document.addEventListener('click', function (e) {
-  const target = e.target.closest('.ripple');
-  if (target) {
-    const rect = target.getBoundingClientRect();
-    const circle = document.createElement('span');
-    const diameter = Math.max(rect.width, rect.height);
-    const radius = diameter / 2;
-
-    circle.style.width = circle.style.height = `${diameter}px`;
-    circle.style.left = `${e.clientX - rect.left - radius}px`;
-    circle.style.top = `${e.clientY - rect.top - radius}px`;
-    circle.classList.add('ripple-effect');
-
-    const ripple = target.getElementsByClassName('ripple-effect')[0];
-    if (ripple) {
-      ripple.remove();
-    }
-    target.appendChild(circle);
-  }
-});
-
+function openItemDetailModal() {}
+function closeItemDetailModal() {}
