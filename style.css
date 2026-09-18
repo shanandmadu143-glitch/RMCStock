@@ -1,3 +1,4 @@
+:root {
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --primary-light: #eff6ff;
@@ -209,7 +210,6 @@ body {
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-/* Make Packs Count Small & Beautiful */
 .pack-calc-container {
   margin: 16px auto 0 auto;
   padding: 10px 16px;
@@ -288,7 +288,6 @@ label i {
   transform: rotate(90deg);
 }
 
-/* Input Styles */
 input[type="text"], input[type="number"], select, input[type="file"] {
   width: 100%;
   padding: 14px 18px;
@@ -384,54 +383,6 @@ input:focus, select:focus {
   max-width: 320px;
   width: 100%;
 }
-
-/* Bin Card Update Button Styling */
-.btn-bincard {
-  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
-  color: white;
-  width: 100%;
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.25);
-}
-.btn-bincard:hover {
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.35);
-  transform: translateY(-2px);
-}
-
-/* Bin Card Item View Grid & Chips */
-.bincard-item-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: var(--transition-smooth);
-}
-.bincard-item-card:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-hover);
-}
-.bincard-chips-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 4px;
-}
-.bincard-chip {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.chip-op { background: var(--bg-main); color: var(--text-muted); border: 1px solid var(--border-color); }
-.chip-f { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
-.chip-g { background: rgba(239, 68, 68, 0.12); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
-.chip-h { background: rgba(245, 158, 11, 0.12); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
-.chip-closing { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary); font-size: 0.82rem; }
 
 .btn-row { display: flex; gap: 12px; align-items: center; }
 
@@ -597,7 +548,45 @@ input:focus, select:focus {
 }
 .close-btn:hover { background: var(--danger-light); color: var(--danger); transform: rotate(90deg); }
 
-/* Custom Checkbox */
+/* Bin Card Table Styling */
+.bin-card-table-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+}
+.bin-card-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.85rem;
+}
+.bin-card-table th {
+  background: var(--bg-main);
+  color: var(--text-dark);
+  padding: 12px 10px;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  white-space: nowrap;
+}
+.bin-card-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-dark);
+  white-space: nowrap;
+}
+.bin-card-table tr:hover {
+  background: var(--primary-light);
+}
+.bin-card-table tr.highlight-movement {
+  background: rgba(16, 185, 129, 0.08);
+}
+
 .custom-checkbox {
   appearance: none;
   width: 20px; height: 20px;
@@ -622,7 +611,7 @@ input:focus, select:focus {
   background: var(--bg-main); padding: 12px 16px;
   border-radius: var(--radius-md); border: 1.5px solid var(--border-color);
 }
-.switch-label { font-size: 0.88rem; font-weight: 700; margin-bottom: 0; cursor: pointer; }
+.switch-label { font-size: 0.9rem; font-weight: 700; margin-bottom: 0; cursor: pointer; }
 
 .switch { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
 .switch input { opacity: 0; width: 0; height: 0; }
