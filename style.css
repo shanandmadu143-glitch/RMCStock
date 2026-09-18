@@ -1,4 +1,4 @@
-[source: 2]:root {
+:root {
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --primary-light: #eff6ff;
@@ -77,7 +77,7 @@ body {
 .container {
   width: 100%;
   max-width: 850px;
-  margin: auto; /* Vertically Centers */
+  margin: auto;
   display: flex;
   flex-direction: column;
 }
@@ -381,122 +381,9 @@ input:focus, select:focus {
   justify-content: center;
   width: 100%;
 }
-.save-btn-container .btn-primary {
+.save-btn-container .btn-primary, .save-btn-container .btn-bincard-view {
   max-width: 320px;
   width: 100%;
-}
-
-/* Bin Card Update Button Styling */
-.bin-card-btn-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-.btn-bin-card {
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  color: white;
-  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.25);
-  width: 100%;
-  max-width: 320px;
-}
-.btn-bin-card:hover {
-  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(2, 132, 199, 0.35);
-}
-
-/* Bin Card Cart Grid & Cards Styling */
-.bin-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-  overflow-y: auto;
-  flex: 1;
-  padding-right: 4px;
-}
-
-.bin-card-cart {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  transition: var(--transition-smooth);
-}
-.bin-card-cart:hover {
-  border-color: var(--primary);
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-hover);
-}
-
-.bin-card-cart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.bin-card-code {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.bin-card-badge {
-  font-size: 0.72rem;
-  font-weight: 800;
-  padding: 4px 10px;
-  border-radius: 20px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  text-transform: uppercase;
-}
-
-.badge-success { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
-.badge-danger { background: rgba(239, 68, 68, 0.12); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
-.badge-warning { background: rgba(245, 158, 11, 0.12); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
-.badge-primary { background: rgba(37, 99, 235, 0.12); color: var(--primary); border: 1px solid rgba(37, 99, 235, 0.3); }
-
-.bin-card-name {
-  font-size: 0.98rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  line-height: 1.35;
-}
-
-.bin-card-cart-footer {
-  background: var(--bg-main);
-  padding: 10px 14px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid var(--border-color);
-}
-
-.bin-card-amount-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.bin-card-amount-value {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--primary);
-}
-
-.bin-card-uom {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-muted);
 }
 
 .btn-row { display: flex; gap: 12px; align-items: center; }
@@ -705,34 +592,21 @@ input:checked + .slider:before { transform: translateX(22px); }
 
 .checklist-container { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; overflow-x: hidden; flex: 1; padding-right: 4px; width: 100%; }
 
-.swipe-wrapper {
-  position: relative; width: 100%; overflow: hidden;
-  border-radius: var(--radius-md); touch-action: pan-y; user-select: none;
-  background-color: var(--border-color);
-}
-.swipe-action {
-  position: absolute; top: 0; bottom: 0; width: 100%;
-  display: flex; align-items: center; font-weight: 700; font-size: 0.95rem;
-  color: white; padding: 0 20px; box-sizing: border-box;
-}
-.swipe-action.edit-action { background: var(--primary); justify-content: flex-end; gap: 8px; }
-.swipe-action.delete-action { background: var(--danger); justify-content: flex-start; gap: 8px; }
-
 .checklist-item {
   position: relative; background: var(--card-bg);
   border: 1px solid var(--border-color); border-radius: var(--radius-md);
   padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; cursor: pointer; transition: transform 0.1s ease-out, border-color 0.2s ease, background 0.2s ease;
+  gap: 12px; transition: transform 0.1s ease-out, border-color 0.2s ease, background 0.2s ease;
   width: 100%; z-index: 2;
 }
 .checklist-item:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); }
 
 .checklist-left { display: flex; align-items: center; gap: 14px; overflow: hidden; flex: 1; }
-.checklist-info { display: flex; flex-direction: column; gap: 3px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.checklist-name { font-size: 0.98rem; font-weight: 700; color: var(--text-dark); overflow: hidden; text-overflow: ellipsis; }
+.checklist-info { display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
+.checklist-name { font-size: 0.98rem; font-weight: 700; color: var(--text-dark); word-break: break-word; }
 .checklist-code { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
 
-.checklist-right { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; }
+.checklist-right { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .checklist-stock { font-size: 1.05rem; font-weight: 800; color: var(--primary); }
 
 .detail-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; flex: 1; overflow-y: auto; }
@@ -770,7 +644,6 @@ input:checked + .slider:before { transform: translateX(22px); }
 @media (max-width: 640px) {
   .form-grid { grid-template-columns: 1fr; }
   .detail-card-grid { grid-template-columns: 1fr; }
-  .bin-card-grid { grid-template-columns: 1fr; }
   .detail-item-box.full-width { grid-column: span 1; }
   body { padding: 10px; display: block; }
   .container { margin-top: 10px; margin-bottom: 10px; }
