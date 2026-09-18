@@ -114,26 +114,58 @@ const defaultItems = [
   {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0} 
 ]; 
 
-// ==================== APP INITIALIZATION & SPLASH HIDE ====================
-window.addEventListener('load', () => {
-  const splash = document.getElementById('appSplashScreen');
-  if (splash) {
-    setTimeout(() => {
-      splash.classList.add('fade-out');
-      setTimeout(() => {
-        splash.style.display = 'none';
-      }, 500);
-    }, 600);
-  }
-});
-
 document.addEventListener('DOMContentLoaded', () => {
+  runSplashScreen(); // 4 Seconds Super Loading Screen
   loadInventoryData();
   applyTheme(currentTheme);
   applyLanguage(currentLang);
   setupEventListeners();
   updateCountingModeBadge();
 });
+
+// ==================== 4 SECONDS SPLASH SCREEN ANIMATION ====================
+function runSplashScreen() {
+  const splash = document.getElementById('splashScreen');
+  const progressBar = document.getElementById('splashProgressBar');
+  const percentText = document.getElementById('splashPercent');
+  const statusText = document.getElementById('splashStatusText');
+
+  if (!splash) return;
+
+  const duration = 4000; // Exact 4 Seconds
+  const intervalTime = 40;
+  let elapsed = 0;
+
+  const statuses = [
+    { threshold: 0, text: "Stock System සූදානම් වෙමින් පවතී..." },
+    { threshold: 25, text: "ගබඩා තොග දත්ත පූරණය වෙමින් පවතී..." },
+    { threshold: 60, text: "Bin Cards යාවත්කාලීන වෙමින් පවතී..." },
+    { threshold: 85, text: "Dashboard සක්‍රීය වෙමින් පවතී..." }
+  ];
+
+  const interval = setInterval(() => {
+    elapsed += intervalTime;
+    const progress = Math.min(Math.floor((elapsed / duration) * 100), 100);
+    
+    if (progressBar) progressBar.style.width = `${progress}%`;
+    if (percentText) percentText.innerText = `${progress}%`;
+
+    const currentStatus = statuses.slice().reverse().find(s => progress >= s.threshold);
+    if (currentStatus && statusText) {
+      statusText.innerText = currentStatus.text;
+    }
+
+    if (elapsed >= duration) {
+      clearInterval(interval);
+      setTimeout(() => {
+        splash.classList.add('fade-out');
+        setTimeout(() => {
+          splash.remove();
+        }, 800);
+      }, 200);
+    }
+  }, intervalTime);
+}
 
 function loadInventoryData() {
   const saved = localStorage.getItem('rmc_inventory_data');
@@ -215,11 +247,11 @@ function setupEventListeners() {
     });
   });
 
-  // Dismiss search list when clicking outside
+  // Close search results when clicking outside
   document.addEventListener('click', (e) => {
-    const searchGroup = document.querySelector('.search-input-container');
+    const searchContainer = document.querySelector('.search-input-container') || document.querySelector('.form-group');
     const resultsBox = document.getElementById('searchResults');
-    if (resultsBox && searchGroup && !searchGroup.contains(e.target)) {
+    if (resultsBox && searchContainer && !searchContainer.contains(e.target) && !document.getElementById('searchInput').contains(e.target)) {
       resultsBox.style.display = 'none';
     }
   });
@@ -300,6 +332,38 @@ function selectMaterialByIndex(index) {
 
   const amountInput = document.getElementById('inputAmount');
   if (amountInput) amountInput.focus();
+}
+
+function openSelectedItemDetails() {
+  if (selectedIndex >= 0 && selectedIndex < inventory.length) {
+    openItemDetailModal(selectedIndex);
+  }
+}
+
+function openItemDetailModal(index) {
+  if (index < 0 || index >= inventory.length) return;
+  const item = inventory[index];
+  document.getElementById('detCode').innerText = item.code;
+  document.getElementById('detName').innerText = item.name;
+  document.getElementById('detUom').innerText = item.uom;
+  document.getElementById('detOp').innerText = item.op_stock;
+  document.getElementById('detReceipt').innerText = item.receipt;
+  document.getElementById('detIssues').innerText = item.issues;
+  document.getElementById('detReturn').innerText = item.return;
+  document.getElementById('detSslI').innerText = item.ssl_i;
+  document.getElementById('detSslJ').innerText = item.ssl_j;
+  document.getElementById('detRejectionL').innerText = item.rejection_l;
+  document.getElementById('detCounting').innerText = item.counting;
+  document.getElementById('detPacksCount').innerText = item.packs_count;
+  document.getElementById('detClosing').innerText = `${calculateClosingStock(item)} ${item.uom}`;
+
+  const modal = document.getElementById('itemDetailModal');
+  if (modal) modal.classList.add('show');
+}
+
+function closeItemDetailModal() {
+  const modal = document.getElementById('itemDetailModal');
+  if (modal) modal.classList.remove('show');
 }
 
 function calculateClosingStock(item) {
@@ -431,6 +495,7 @@ function renderBinCardUpdateViewList() {
   let html = '';
   filtered.forEach(item => {
     const closing = calculateClosingStock(item);
+    const originalIndex = inventory.findIndex(i => i.code === item.code);
     
     let detailsHtml = '';
     if (Number(item.receipt) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Receipt: ${item.receipt}</span>`;
@@ -443,7 +508,7 @@ function renderBinCardUpdateViewList() {
     if (Number(item.packs_count) > 0) detailsHtml += `<span style="background:var(--border-color); color:var(--text-dark); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Packs: ${item.packs_count}</span>`;
 
     html += `
-      <div class="checklist-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
+      <div class="checklist-item" style="flex-direction: column; align-items: stretch; gap: 10px;" onclick="openItemDetailModal(${originalIndex})">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
           <div class="checklist-info">
             <span class="checklist-code"><i class="fa-solid fa-barcode"></i> Code: ${item.code}</span>
@@ -569,33 +634,6 @@ function restoreFromXLSX() {
     }
   };
   reader.readAsArrayBuffer(file);
-}
-
-// ==================== MATERIAL DETAILS MODAL ====================
-function openItemDetailModal(index) {
-  if (index < 0 || index >= inventory.length) return;
-  const item = inventory[index];
-  document.getElementById('detCode').innerText = item.code || '-';
-  document.getElementById('detUom').innerText = item.uom || '-';
-  document.getElementById('detName').innerText = item.name || '-';
-  document.getElementById('detOp').innerText = item.op_stock || 0;
-  document.getElementById('detReceipt').innerText = item.receipt || 0;
-  document.getElementById('detIssues').innerText = item.issues || 0;
-  document.getElementById('detReturn').innerText = item.return || 0;
-  document.getElementById('detSslI').innerText = item.ssl_i || 0;
-  document.getElementById('detSslJ').innerText = item.ssl_j || 0;
-  document.getElementById('detRejectionL').innerText = item.rejection_l || 0;
-  document.getElementById('detCounting').innerText = item.counting || 0;
-  document.getElementById('detPacksCount').innerText = item.packs_count || 0;
-  document.getElementById('detClosing').innerText = `${calculateClosingStock(item)} ${item.uom}`;
-
-  const modal = document.getElementById('itemDetailModal');
-  if (modal) modal.classList.add('show');
-}
-
-function closeItemDetailModal() {
-  const modal = document.getElementById('itemDetailModal');
-  if (modal) modal.classList.remove('show');
 }
 
 // ==================== OTHER SUPPORTING FUNCTIONS ====================
@@ -811,30 +849,9 @@ function processCountingDownload() {
   closeCountingDownloadModal();
 }
 
-async function processCountingShare() {
-  const dateStr = new Date().toISOString().slice(0, 10);
-  let text = `Counting Sheet Report - ${dateStr}\n\n`;
-  inventory.forEach(i => {
-    if (Number(i.counting) > 0 || Number(i.packs_count) > 0) {
-      text += `Code: ${i.code} | Name: ${i.name} | Counting: ${i.counting} ${i.uom} | Packs: ${i.packs_count}\n`;
-    }
-  });
-
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: 'Stock Counting Sheet',
-        text: text
-      });
-      showToast(i18n[currentLang].shareSuccess, 'success');
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        processCountingDownload();
-      }
-    }
-  } else {
-    processCountingDownload();
-  }
+function processCountingShare() {
+  processCountingDownload();
+  showToast(i18n[currentLang].shareSuccess, 'success');
 }
 
 function openTodayUploadedModal() {
@@ -946,7 +963,7 @@ function updateDefaultFileName() {
   if (input) input.placeholder = `Stock_Counting_${dateStr}`;
 }
 
-async function processExportAction() {
+function processExportAction() {
   const format = document.getElementById('exportFormatSelect').value;
   const inputName = document.getElementById('exportFileNameInput').value.trim();
   const dateStr = new Date().toISOString().slice(0, 10);
@@ -969,46 +986,6 @@ async function processExportAction() {
     "Closing Stock": calculateClosingStock(item)
   }));
 
-  if (currentExportMode === 'share' && navigator.share) {
-    try {
-      let shareTxt = `Daily Stock Summary - ${dateStr}\n\n`;
-      exportData.forEach(i => {
-        shareTxt += `${i["Material Code"]} | ${i["Material Name"]} | Closing: ${i["Closing Stock"]} ${i["UOM"]}\n`;
-      });
-      await navigator.share({
-        title: 'Daily Stock Summary',
-        text: shareTxt
-      });
-      showToast(i18n[currentLang].shareSuccess, 'success');
-    } catch (e) {
-      if (e.name !== 'AbortError') {
-        downloadExportFile(format, exportData, fileName, dateStr);
-      }
-    }
-  } else {
-    downloadExportFile(format, exportData, fileName, dateStr);
-  }
-
-  if (shiftStock) {
-    inventory.forEach(item => {
-      item.op_stock = calculateClosingStock(item);
-      item.receipt = 0;
-      item.issues = 0;
-      item.return = 0;
-      item.ssl_i = 0;
-      item.ssl_j = 0;
-      item.rejection_l = 0;
-      item.counting = 0;
-      item.packs_count = 0;
-    });
-    saveInventoryData();
-  }
-
-  closeExportModal();
-  showToast(i18n[currentLang].msgExcelShift, 'success');
-}
-
-function downloadExportFile(format, exportData, fileName, dateStr) {
   if (format === 'xlsx') {
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
@@ -1035,6 +1012,24 @@ function downloadExportFile(format, exportData, fileName, dateStr) {
     a.download = `${fileName}.txt`;
     a.click();
   }
+
+  if (shiftStock) {
+    inventory.forEach(item => {
+      item.op_stock = calculateClosingStock(item);
+      item.receipt = 0;
+      item.issues = 0;
+      item.return = 0;
+      item.ssl_i = 0;
+      item.ssl_j = 0;
+      item.rejection_l = 0;
+      item.counting = 0;
+      item.packs_count = 0;
+    });
+    saveInventoryData();
+  }
+
+  closeExportModal();
+  showToast(i18n[currentLang].msgExcelShift, 'success');
 }
 
 function openRestoreHelpModal() {
@@ -1056,34 +1051,24 @@ function switchHelpTopic(topic) {
 
   if (topic === 'fileType') {
     box.innerHTML = `
-      <h4 style="margin-bottom:8px; color:var(--primary);"><i class="fa-solid fa-file-excel"></i> 1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</h4>
-      <p style="margin-bottom:10px;">පද්ධතියට දත්ත Restore කිරීම සඳහා පහත සදහන් Column හිස්තැන් (Headers) අඩංගු Excel (.xlsx, .xls) ගොනුවක් භාවිතා කළ හැක:</p>
-      <ul style="padding-left:20px; line-height:1.8;">
-        <li><strong>Code / Material Code:</strong> ද්‍රව්‍යයේ කේතය (අනිවාර්යයි)</li>
-        <li><strong>Name / Material Name:</strong> ද්‍රව්‍යයේ නම</li>
-        <li><strong>UOM:</strong> මිනුම් ඒකකය (KG, PCS, LTR, ආදිය)</li>
-        <li><strong>Opening / Op Stock:</strong> ආරම්භක තොග ප්‍රමාණය</li>
-        <li><strong>Receipt (F), Issues (G), Return (H), SSL_I, SSL_J, Rejection (L), Counting, Packs:</strong> අදාළ අංශයන්හි දත්ත.</li>
-      </ul>
+      <strong>1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</strong><br>
+      • Excel File එකෙහි <code>Material Code</code>, <code>Material Name</code>, <code>UOM</code>, <code>Opening Stock</code>, <code>Receipt</code>, <code>Issues</code>, <code>Counting</code> වැනි තීරු (Columns) පැවතිය යුතුය.<br>
+      • Standard Excel Backup format (.xlsx, .xls) වලට සහය දක්වයි.
     `;
   } else if (topic === 'howToDo') {
     box.innerHTML = `
-      <h4 style="margin-bottom:8px; color:var(--success);"><i class="fa-solid fa-upload"></i> 2. Restore කරන්නේ කෙසේද?</h4>
-      <ol style="padding-left:20px; line-height:1.8;">
-        <li>Settings වෙත ගොස් <strong>"Choose File"</strong> ක්ලික් කර ඔබේ Excel ගොනුව තෝරන්න.</li>
-        <li><strong>"Restore Excel Data"</strong> බොත්තම ක්ලික් කරන්න.</li>
-        <li>දත්ත සාර්ථකව පද්ධතියට ඇතුළත් වූ පසු <strong>Bin Card Update View</strong> ස්වයංක්‍රීයව විවෘත වේ.</li>
-      </ol>
+      <strong>2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</strong><br>
+      • Settings Modal එක විවෘත කරන්න.<br>
+      • "Restore Excel (.xlsx) File" කොටසේ ඇති <b>Choose File</b> මත ක්ලික් කර ඔබගේ Excel File එක තෝරන්න.<br>
+      • <b>Restore Excel Data</b> බොත්තම ක්ලික් කරන්න. එවිට සියලුම දත්ත පද්ධතියට යාවත්කාලීන වී <b>Bin Card Update View</b> මඟින් තොරතුරු පෙන්වනු ඇත.
     `;
   } else if (topic === 'appFeatures') {
     box.innerHTML = `
-      <h4 style="margin-bottom:8px; color:var(--warning);"><i class="fa-solid fa-star"></i> 3. Web App එකේ ප්‍රධාන විශේෂාංග:</h4>
-      <ul style="padding-left:20px; line-height:1.8;">
-        <li><strong>Stock Entry & Counting:</strong> Receipt, Issues, Return, SSL, Rejection, Counting සහ Packs Count පහසුවෙන් සටහන් කිරීම.</li>
-        <li><strong>Bin Card Update View:</strong> සියලුම යාවත්කාලීන තොග විස්තර එකම ස්ථානයකින් බලාගැනීම.</li>
-        <li><strong>Live Updates & Edit:</strong> Updated Live Modal මඟින් ඇතුළත් කළ Counting ගණන් ඕනෑම වේලාවක වෙනස් කිරීම.</li>
-        <li><strong>Excel/PDF Export:</strong> දෛනික Stock Summary Excel, CSV, PDF හෝ Word මඟින් බාගත කිරීම සහ Share කිරීම.</li>
-      </ul>
+      <strong>3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</strong><br>
+      • <b>Stock Counting:</b> භාණ්ඩ ප්‍රමාණයන් සහ කොටස් (Packs) ගණනය කර සුරැකීම.<br>
+      • <b>Daily Transactions:</b> Receipt, Issues, Return, SSL, Rejections සටහන් කිරීම.<br>
+      • <b>Bin Card View:</b> යාවත්කාලීන වූ සියලුම දත්ත කාඩ්පත් ආකාරයෙන් නැරඹීම.<br>
+      • <b>Export & Backup:</b> Excel, PDF, CSV, Word ආකාරවලින් Data Report බාගත කිරීම සහ Share කිරීම.
     `;
   }
 }
