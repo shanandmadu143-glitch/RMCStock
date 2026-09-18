@@ -63,7 +63,6 @@ h1, h2, h3, h4, .brand-title {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Full Screen Alignment */
 body {
   background: var(--bg-main);
   color: var(--text-dark);
@@ -82,7 +81,6 @@ body {
   flex-direction: column;
 }
 
-/* Animations */
 .animate-fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .card { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .animate-slide-down { animation: slideDown 0.3s ease forwards; }
@@ -210,7 +208,6 @@ body {
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-/* Make Packs Count Small & Beautiful */
 .pack-calc-container {
   margin: 16px auto 0 auto;
   padding: 10px 16px;
@@ -289,7 +286,6 @@ label i {
   transform: rotate(90deg);
 }
 
-/* Input Styles */
 input[type="text"], input[type="number"], select, input[type="file"] {
   width: 100%;
   padding: 14px 18px;
@@ -311,18 +307,6 @@ input:focus, select:focus {
 
 .input-glow-wrapper {
   position: relative;
-}
-.input-glow-wrapper::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border-radius: var(--radius-md);
-  box-shadow: 0 0 15px rgba(37, 99, 235, 0);
-  transition: box-shadow 0.3s ease;
-  pointer-events: none;
-}
-.input-glow-wrapper:focus-within::after {
-  box-shadow: 0 0 15px rgba(37, 99, 235, 0.15);
 }
 
 .search-results {
@@ -431,10 +415,6 @@ input:focus, select:focus {
 .btn-icon-share { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 6px 15px rgba(59, 130, 246, 0.25); }
 .btn-icon-counting { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); box-shadow: 0 6px 15px rgba(139, 92, 246, 0.25); }
 
-.btn-icon-excel:hover, .btn-icon-share:hover, .btn-icon-counting:hover {
-  transform: translateY(-3px) scale(1.05);
-}
-
 .ripple { position: relative; overflow: hidden; }
 .ripple-effect {
   position: absolute;
@@ -478,7 +458,6 @@ input:focus, select:focus {
   align-items: center;
   gap: 16px;
   border: 1px solid var(--border-color);
-  animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 .spinner {
   width: 42px; height: 42px;
@@ -550,7 +529,6 @@ input:focus, select:focus {
 }
 .close-btn:hover { background: var(--danger-light); color: var(--danger); transform: rotate(90deg); }
 
-/* Custom Checkbox */
 .custom-checkbox {
   appearance: none;
   width: 20px; height: 20px;
@@ -560,7 +538,6 @@ input:focus, select:focus {
   display: inline-block;
   position: relative;
   cursor: pointer;
-  transition: all 0.2s;
 }
 .custom-checkbox:checked { background-color: var(--primary); }
 .custom-checkbox:checked::after {
@@ -609,12 +586,6 @@ input:checked + .slider:before { transform: translateX(22px); }
 .checklist-right { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .checklist-stock { font-size: 1.05rem; font-weight: 800; color: var(--primary); }
 
-.detail-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; flex: 1; overflow-y: auto; }
-.detail-item-box { background: var(--bg-main); border: 1px solid var(--border-color); padding: 18px; border-radius: var(--radius-md); }
-.detail-item-box.full-width { grid-column: span 2; }
-.detail-label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-.detail-value { font-size: 1.15rem; font-weight: 700; color: var(--text-dark); }
-
 .setting-option { background: var(--bg-main); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
 .setting-option p { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5; }
 
@@ -643,8 +614,6 @@ input:checked + .slider:before { transform: translateX(22px); }
 
 @media (max-width: 640px) {
   .form-grid { grid-template-columns: 1fr; }
-  .detail-card-grid { grid-template-columns: 1fr; }
-  .detail-item-box.full-width { grid-column: span 1; }
   body { padding: 10px; display: block; }
   .container { margin-top: 10px; margin-bottom: 10px; }
   .header-block { padding: 16px; }
