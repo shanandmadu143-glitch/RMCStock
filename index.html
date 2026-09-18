@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="si">
 <head>
   <meta charset="UTF-8">
@@ -106,18 +107,16 @@
       </div>
     </div>
 
-    <!-- Save Button Container & Bin Card Update View Button -->
-    <div class="save-btn-container" style="margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%;">
+    <!-- Save & Bin Card Update Buttons Container -->
+    <div class="save-btn-container" style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
-
-      <!-- Bin Card Update View Button (Shows only in Daily Stocks mode) -->
-      <div id="binCardBtnContainer" style="display: none; width: 100%; max-width: 320px;">
-        <button class="btn btn-bincard ripple" onclick="openBinCardModal()" id="btnBinCard" type="button">
-          <i class="fa-solid fa-boxes-packing"></i> Bin Card Update View
-        </button>
-      </div>
+      
+      <!-- Bin Card Update View Button (Shows on Daily Stocks mode) -->
+      <button class="btn ripple" id="btnBinCardView" onclick="openBinCardModal()" type="button" style="display:none; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; width: 100%; max-width: 320px; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);">
+        <i class="fa-solid fa-table-list"></i> Bin Card Update View
+      </button>
     </div>
 
   </div>
@@ -139,27 +138,56 @@
 
 <!-- Bin Card Update View Modal -->
 <div id="binCardModal" class="modal">
-  <div class="modal-content" style="max-width: 750px;">
+  <div class="modal-content" style="max-width: 850px;">
     <div class="modal-header">
-      <h3><i class="fa-solid fa-boxes-packing" style="color:var(--primary);"></i> Bin Card Update View</h3>
+      <h3 id="txtBinCardTitle"><i class="fa-solid fa-table-list" style="color:var(--success);"></i> Bin Card Update View</h3>
       <button class="close-btn ripple" onclick="closeBinCardModal()" type="button">&times;</button>
     </div>
 
-    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;">
-      <div class="switch-container">
-        <label class="switch-label" for="toggleBinCardMovementsOnly">
-          <i class="fa-solid fa-filter" style="color: var(--primary);"></i> Show Daily Movements Only (චලනයන් ඇති දත්ත පමණක්)
+    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" id="binCardSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;" oninput="renderBinCardList()">
+        <button type="button" class="btn ripple" style="padding: 10px 16px; background: var(--primary); color: white; white-space: nowrap; font-size:0.88rem;" onclick="printBinCardData()">
+          <i class="fa-solid fa-file-pdf"></i> Download PDF
+        </button>
+      </div>
+
+      <div class="switch-container" style="padding: 8px 12px;">
+        <label class="switch-label" for="toggleBinCardMovementsOnly" style="font-size: 0.82rem;">
+          <i class="fa-solid fa-filter" style="color: var(--primary);"></i> වෙනස්වීම් (Movements) ඇති ද්‍රව්‍ය පමණක් පෙන්වන්න
         </label>
         <label class="switch">
-          <input type="checkbox" id="toggleBinCardMovementsOnly" checked onchange="renderBinCardList()">
+          <input type="checkbox" id="toggleBinCardMovementsOnly" onchange="renderBinCardList()">
           <span class="slider"></span>
         </label>
       </div>
 
-      <input type="text" id="binCardModalSearchInput" oninput="renderBinCardList()" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
+      <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">
+        <i class="fa-solid fa-circle-info"></i> Restore කරන ලද හෝ Daily Stocks ඇතුළත් කළ දත්ත Bin Card වල සටහන් කර ගැනීමට මෙතැනින් පහසුවෙන් බලාගත හැක.
+      </div>
     </div>
 
-    <div class="checklist-container" id="binCardCardsContainer"></div>
+    <div class="bin-card-table-container">
+      <table class="bin-card-table">
+        <thead>
+          <tr>
+            <th style="min-width: 90px;">Code</th>
+            <th style="min-width: 160px;">Material Name</th>
+            <th style="text-align: center;">UOM</th>
+            <th style="text-align: right; color: var(--success);">Receipt (F)</th>
+            <th style="text-align: right; color: var(--danger);">Issues (G)</th>
+            <th style="text-align: right; color: var(--warning);">Return (H)</th>
+            <th style="text-align: right;">Rec. SSL (I)</th>
+            <th style="text-align: right;">Sent SSL (J)</th>
+            <th style="text-align: right; color: var(--danger);">Reject (L)</th>
+            <th style="text-align: right; color: var(--primary);">Closing</th>
+          </tr>
+        </thead>
+        <tbody id="binCardTableBody">
+          <!-- Populated dynamically -->
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -220,7 +248,7 @@
         </label>
       </div>
 
-      <input type="text" id="todayModalSearchInput" oninput="renderTodayUploadedList()" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
+      <input type="text" id="todayModalSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;" oninput="renderTodayUploadedList()">
     </div>
 
     <div class="checklist-container" id="todayCardsContainer"></div>
@@ -379,7 +407,6 @@
         <select id="langSelect" onchange="changeLanguage(this.value)">
           <option value="si">සිංහල (Sinhala)</option>
           <option value="en">English</option>
-          <option value="ta">தமிழ் (Tamil)</option>
         </select>
       </div>
 
