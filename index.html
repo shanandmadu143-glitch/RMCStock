@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Stock Counting | High Performance Dashboard</title>
+  <title>Stock Counting & Bin Card Dashboard</title>
   
   <!-- XLSX Library -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -17,36 +17,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<!-- Modern 4-Second Splash Loading Screen -->
-<div id="splashScreen" class="splash-screen">
-  <div class="splash-bg-glow"></div>
-  <div class="splash-content">
-    <div class="splash-logo-box">
-      <i class="fa-solid fa-boxes-stacked splash-icon"></i>
-    </div>
-    <h1 class="splash-title">Stock <span>Counting</span></h1>
-    <p class="splash-subtitle">High Performance Inventory & Stock Management</p>
-    
-    <div class="splash-desc-box">
-      <p><i class="fa-solid fa-circle-check"></i> Raw Material තොග ගණනය කිරීම්, Receipt, Issues සහ Bin Card දත්ත නිවැරදිව හා පහසුවෙන් කළමනාකරණය කරන්න.</p>
-    </div>
-
-    <!-- 4 Second Progress Loader -->
-    <div class="splash-progress-container">
-      <div class="splash-progress-bar" id="splashProgressBar"></div>
-    </div>
-    <div class="splash-status">
-      <span id="splashStatusText">System Resources පූරණය වෙමින් පවතී...</span>
-      <span id="splashPercent">0%</span>
-    </div>
-
-    <div class="splash-footer">
-      Created By <span>Yomal Lakshan</span>
-    </div>
-  </div>
-</div>
-
 <div class="container animate-fade-in">
   <!-- Header Block -->
   <div class="header-block">
@@ -57,7 +27,7 @@
     <div class="brand-title">
       <div class="brand-name-wrapper">
         <span class="main-brand-text">Stock</span>
-        <span class="sub-badge-counting">Counting</span>
+        <span class="sub-badge-counting">Counting & Bin Card</span>
       </div>
     </div>
 
@@ -68,23 +38,24 @@
 
   <div class="card">
     
-    <!-- Top Dynamic Counting Mode Indicator Badge & Action Icons -->
+    <!-- Dynamic Mode Indicator Badge & Action Icons -->
     <div class="mode-badge-wrapper">
-      <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button" style="display:none;">
+      <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
         <i class="fa-solid fa-file-excel"></i>
       </button>
 
-      <span id="countingModeBadge" class="counting-mode-badge badge-normal">Normal Counting</span>
+      <span id="countingModeBadge" class="counting-mode-badge badge-daily">Daily Stocks</span>
 
-      <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button" style="display:none;">
+      <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button">
         <i class="fa-solid fa-share-nodes"></i>
       </button>
 
-      <button class="btn-icon-counting ripple" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button" style="display:flex;">
+      <button class="btn-icon-counting ripple" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button" style="display:none;">
         <i class="fa-solid fa-file-arrow-down"></i>
       </button>
     </div>
 
+    <!-- Search Section -->
     <div class="form-group">
       <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:</label>
       <div class="input-glow-wrapper search-input-container">
@@ -96,32 +67,30 @@
       <div id="searchResults" class="search-results" style="display:none;"></div>
     </div>
 
+    <!-- Selected Item Info Badge -->
     <div id="selectedBadge" class="selected-badge animate-slide-down">
-      <div style="font-weight:700; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <i class="fa-solid fa-circle-check" style="color: var(--primary); font-size: 1.1rem;"></i>
-          <span><span id="dispCode"></span> - <span id="dispName"></span></span>
-        </div>
-        <button type="button" onclick="openSelectedItemDetails()" style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.85rem; font-weight:700;">
-          <i class="fa-solid fa-circle-info"></i> Info
-        </button>
+      <div style="font-weight:700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-circle-check" style="color: var(--primary); font-size: 1.1rem;"></i>
+        <span><span id="dispCode"></span> - <span id="dispName"></span></span>
       </div>
       <div style="font-size: 0.85rem; opacity: 0.9; padding-left: 24px;">
         UOM: <strong id="dispUom"></strong> &nbsp;|&nbsp; Closing Stock: <strong id="dispClosing"></strong>
       </div>
     </div>
 
+    <!-- Form Inputs Grid -->
     <div class="form-grid">
       <div class="form-group" style="margin-bottom:0;">
         <label id="lblSection"><i class="fa-solid fa-layer-group"></i> Select Section:</label>
         <select id="sectionSelect" onchange="updateCountingModeBadge()">
-          <option value="F" id="optReceipt">Receipt</option>
-          <option value="G" id="optIssues">Issues</option>
-          <option value="H" id="optReturn">Return</option>
-          <option value="I" id="optSslI">Received to SSL</option>
-          <option value="J" id="optSslJ">Sent to SSL</option>
-          <option value="L" id="optRejectionL">Rejection</option>
-          <option value="COUNTING" id="optCounting" selected>Counting</option>
+          <option value="G" id="optIssues" selected>Issues (G)</option>
+          <option value="F" id="optReceipt">Receipt (F)</option>
+          <option value="H" id="optReturn">Return (H)</option>
+          <option value="K" id="optSectionK">Section K</option>
+          <option value="I" id="optSslI">Received to SSL (I)</option>
+          <option value="J" id="optSslJ">Sent to SSL (J)</option>
+          <option value="L" id="optRejectionL">Rejection (L)</option>
+          <option value="COUNTING" id="optCounting">Counting</option>
         </select>
       </div>
       <div class="form-group" style="margin-bottom:0;">
@@ -132,8 +101,8 @@
       </div>
     </div>
 
-    <!-- Packs Count Field -->
-    <div id="packCalcContainer" class="pack-calc-container" style="display: flex;">
+    <!-- Packs Count Field (Displayed in Counting Mode) -->
+    <div id="packCalcContainer" class="pack-calc-container" style="display: none;">
       <div class="form-group" style="margin-bottom:0; width: 100%;">
         <label style="justify-content: center; font-size: 0.75rem;"><i class="fa-solid fa-cubes"></i> Packs Count (කොටස්):</label>
         <div class="input-glow-wrapper">
@@ -142,14 +111,14 @@
       </div>
     </div>
 
-    <!-- Save & Bin Card Update View Buttons Container -->
+    <!-- Save & Bin Card Update View Buttons -->
     <div class="save-btn-container" style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
       <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
       
-      <!-- Bin Card Update View Button -->
-      <button class="btn ripple btn-bincard-view" onclick="openBinCardUpdateView()" type="button" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; width: 100%; max-width: 320px;">
+      <!-- Bin Card Update View Button (Displayed ONLY when Daily Stock is active) -->
+      <button class="btn ripple btn-bincard-view" id="btnBinCardView" onclick="openBinCardUpdateView()" type="button" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; width: 100%; max-width: 320px;">
         <i class="fa-solid fa-clipboard-list"></i> Bin Card Update View
       </button>
     </div>
@@ -180,13 +149,18 @@
     </div>
 
     <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;">
-      <p style="font-size: 0.88rem; color: var(--text-muted);">Settings මඟින් Restore කරන ලද හෝ යාවත්කාලීන වූ දත්ත Bin Card එකට පිරවීම සඳහා පහසුවෙන් බලාගන්න:</p>
-      <input type="text" id="binCardSearchInput" placeholder="Search by Code, Material Name, Section or Amount..." autocomplete="off" style="width: 100%;">
+      <p style="font-size: 0.88rem; color: var(--text-muted);">Settings මඟින් Restore කරන ලද හෝ යාවත්කාලීන වූ දත්ත Bin Card එකට පිරවීම සඳහා පහසුවෙන් බලාගන්න (Code, Name, F, G, H, K Sections පමණි):</p>
+      
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="binCardSearchInput" placeholder="Search by Code or Name..." autocomplete="off" style="flex: 1;">
+        <button type="button" class="btn btn-primary ripple" style="background: var(--success); padding: 0 16px; font-size: 0.88rem; flex-shrink: 0;" onclick="downloadBinCardData()">
+          <i class="fa-solid fa-file-excel"></i> Download
+        </button>
+      </div>
     </div>
 
-    <!-- Card Container for Bin Card Details -->
-    <div class="checklist-container" id="binCardCardsContainer">
-    </div>
+    <!-- Container for Bin Card Details -->
+    <div class="checklist-container" id="binCardCardsContainer"></div>
   </div>
 </div>
 
@@ -247,18 +221,24 @@
         </label>
       </div>
 
-      <input type="text" id="todayModalSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+        <input type="text" id="todayModalSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
+      </div>
+      
+      <div class="swipe-hint">
+        <i class="fa-solid fa-hand-pointer"></i> Item එකක් දකුණට Swipe කර හෝ Edit මත ක්ලික් කර Edit කරන්න.
+      </div>
     </div>
 
     <div class="checklist-container" id="todayCardsContainer"></div>
   </div>
 </div>
 
-<!-- Edit Counting Amount Modal -->
+<!-- Edit Counting Amount & Extra Details Modal -->
 <div id="editCountingModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
-      <h3><i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i> Edit Counting Amount</h3>
+      <h3><i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i> Edit Counting Details</h3>
       <button class="close-btn ripple" onclick="closeEditCountingModal()" type="button">&times;</button>
     </div>
     <div class="modal-body-scroll">
@@ -266,26 +246,45 @@
         <div id="editModalItemName" style="font-weight: 700; color: var(--text-dark);">Item Name</div>
         <div id="editModalItemCode" style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Code: -</div>
       </div>
+      
       <div class="form-group">
-        <label><i class="fa-solid fa-calculator"></i> New Counting Amount:</label>
+        <label><i class="fa-solid fa-calculator"></i> Counting Amount:</label>
         <div class="input-glow-wrapper">
           <input type="number" id="editCountingAmountInput" min="0" step="any" placeholder="0.00" inputmode="decimal">
         </div>
       </div>
+
       <div class="form-group">
-        <label><i class="fa-solid fa-cubes"></i> Packs Count (කොටස් ගණන):</label>
-        <input type="number" id="editPacksCountInput" min="0" step="any" placeholder="0" inputmode="decimal">
+        <label><i class="fa-solid fa-weight-scale"></i> KG ගණන (KG Amount):</label>
+        <div class="input-glow-wrapper">
+          <input type="number" id="editKgAmountInput" min="0" step="any" placeholder="0.00" inputmode="decimal">
+        </div>
       </div>
+
+      <div class="form-group">
+        <label><i class="fa-solid fa-cubes-stacked"></i> එම KG ගණන සෑදෙන කැබලි ගණන (Pieces Count):</label>
+        <div class="input-glow-wrapper">
+          <input type="number" id="editPiecesCountInput" min="0" step="any" placeholder="0" inputmode="decimal">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fa-solid fa-boxes-stacked"></i> Packs Count (කොටස් ගණන):</label>
+        <div class="input-glow-wrapper">
+          <input type="number" id="editPacksCountInput" min="0" step="any" placeholder="0" inputmode="decimal">
+        </div>
+      </div>
+
       <div class="btn-row" style="margin-top: 18px;">
         <button type="button" class="btn btn-primary ripple" onclick="saveEditedCountingAmount()">
-          <i class="fa-solid fa-check"></i> Update Amount
+          <i class="fa-solid fa-check"></i> Update Counting
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Export Format & Options Modal -->
+<!-- Export Format Modal -->
 <div id="exportModal" class="modal">
   <div class="modal-content modal-small">
     <div class="modal-header">
@@ -321,72 +320,8 @@
 
       <div class="btn-row" style="margin-top: 24px;">
         <button type="button" class="btn btn-primary ripple" id="btnConfirmExport" onclick="processExportAction()">
-          <i class="fa-solid fa-paper-plane"></i> Continue / Process Action
+          <i class="fa-solid fa-paper-plane"></i> Process Export
         </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Material Detail Modal -->
-<div id="itemDetailModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3>
-      <button class="close-btn ripple" onclick="closeItemDetailModal()" type="button">&times;</button>
-    </div>
-    <div class="detail-card-grid" style="overflow-y: auto;">
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div>
-        <div class="detail-value" id="detCode">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-tag"></i> Unit of Measure (UOM)</div>
-        <div class="detail-value" id="detUom">-</div>
-      </div>
-      <div class="detail-item-box full-width">
-        <div class="detail-label"><i class="fa-solid fa-box"></i> Material Name</div>
-        <div class="detail-value" id="detName" style="color:var(--primary);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock</div>
-        <div class="detail-value" id="detOp">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-down" style="color:var(--success);"></i> Receipt (F)</div>
-        <div class="detail-value" id="detReceipt" style="color:var(--success);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-up" style="color:var(--danger);"></i> Issues (G)</div>
-        <div class="detail-value" id="detIssues" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-rotate-left" style="color:var(--warning);"></i> Return (H)</div>
-        <div class="detail-value" id="detReturn" style="color:var(--warning);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--success);"></i> Received to SSL</div>
-        <div class="detail-value" id="detSslI" style="color:var(--success);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--danger);"></i> Sent to SSL</div>
-        <div class="detail-value" id="detSslJ" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection</div>
-        <div class="detail-value" id="detRejectionL" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-list-check" style="color:var(--primary);"></i> Counting</div>
-        <div class="detail-value" id="detCounting" style="color:var(--primary);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-cubes" style="color:var(--primary);"></i> Packs Count</div>
-        <div class="detail-value" id="detPacksCount" style="color:var(--primary);">-</div>
-      </div>
-      <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);">
-        <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock</div>
-        <div class="detail-value" id="detClosing" style="font-size: 1.3rem; color:var(--primary);">-</div>
       </div>
     </div>
   </div>
@@ -421,11 +356,8 @@
       <div class="setting-option">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <label id="lblRestore" style="margin-bottom: 0;"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label>
-          <button class="btn ripple" onclick="openRestoreHelpModal()" type="button" style="padding: 5px 10px; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
-            <i class="fa-solid fa-circle-question"></i> Help / උදව්
-          </button>
         </div>
-        <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p>
+        <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් සියලුම විස්තර යාවත්කාලීන කරගන්න.</p>
         <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 12px;">
         <button class="btn ripple" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button">
           <i class="fa-solid fa-upload"></i> Restore Excel Data
@@ -446,30 +378,6 @@
         <button class="btn ripple" style="width:100%; padding: 12px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()" id="btnReset" type="button">
           <i class="fa-solid fa-trash-can"></i> Reset All Data
         </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Restore Help Modal -->
-<div id="restoreHelpModal" class="modal">
-  <div class="modal-content modal-small">
-    <div class="modal-header">
-      <h3 id="helpModalTitle"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore Help</h3>
-      <button class="close-btn ripple" onclick="closeRestoreHelpModal()" type="button">&times;</button>
-    </div>
-
-    <div class="modal-body-scroll">
-      <div class="form-group" style="margin-bottom: 16px;">
-        <label id="helpSelectLabel"><i class="fa-solid fa-list"></i> මාතෘකාව තෝරන්න:</label>
-        <select id="helpTopicSelect" onchange="switchHelpTopic(this.value)">
-          <option value="fileType">1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</option>
-          <option value="howToDo">2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</option>
-          <option value="appFeatures">3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</option>
-        </select>
-      </div>
-
-      <div id="helpContentBox" style="background: var(--bg-main); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-size: 0.92rem; line-height: 1.6; color: var(--text-dark);">
       </div>
     </div>
   </div>
