@@ -7,7 +7,7 @@
   
   <!-- XLSX Library -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <!-- jsPDF & AutoTable Libraries -->
+  <!-- jsPDF & AutoTable Libraries for PDF export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
@@ -44,13 +44,13 @@
         <i class="fa-solid fa-file-excel"></i>
       </button>
 
-      <span id="countingModeBadge" class="counting-mode-badge badge-normal">Normal Counting</span>
+      <span id="countingModeBadge" class="counting-mode-badge badge-daily">Daily Stocks</span>
 
       <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button" style="display:none;">
         <i class="fa-solid fa-share-nodes"></i>
       </button>
 
-      <button class="btn-icon-counting ripple" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button" style="display:flex;">
+      <button class="btn-icon-counting ripple" onclick="openCountingDownloadModal()" title="Download Counting Sheet" id="btnCountingDownload" type="button" style="display:none;">
         <i class="fa-solid fa-file-arrow-down"></i>
       </button>
     </div>
@@ -80,9 +80,10 @@
       <div class="form-group" style="margin-bottom:0;">
         <label id="lblSection"><i class="fa-solid fa-layer-group"></i> Select Section:</label>
         <select id="sectionSelect" onchange="updateCountingModeBadge()">
-          <option value="G" id="optIssues" selected>Issues</option>
-          <option value="F" id="optReceipt">Receipt</option>
-          <option value="H" id="optReturn">Return</option>
+          <option value="G" id="optIssues" selected>Issues (G)</option>
+          <option value="F" id="optReceipt">Receipt (F)</option>
+          <option value="H" id="optReturn">Return (H)</option>
+          <option value="K" id="optSectionK">Section K</option>
           <option value="I" id="optSslI">Received to SSL</option>
           <option value="J" id="optSslJ">Sent to SSL</option>
           <option value="L" id="optRejectionL">Rejection</option>
@@ -97,7 +98,7 @@
       </div>
     </div>
 
-    <!-- Packs Count Field -->
+    <!-- Packs Count Field (Smaller & Centered) -->
     <div id="packCalcContainer" class="pack-calc-container" style="display: none;">
       <div class="form-group" style="margin-bottom:0; width: 100%;">
         <label style="justify-content: center; font-size: 0.75rem;"><i class="fa-solid fa-cubes"></i> Packs Count (කොටස්):</label>
@@ -113,7 +114,7 @@
         <i class="fa-solid fa-floppy-disk"></i> Save
       </button>
       
-      <!-- Bin Card Update View Button (Shows conditionally on Daily Stock) -->
+      <!-- Bin Card Update View Button (Shown only in Daily Stock mode) -->
       <button id="btnBinCardView" class="btn ripple btn-bincard-view" onclick="openBinCardUpdateView()" type="button" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; width: 100%; max-width: 320px;">
         <i class="fa-solid fa-clipboard-list"></i> Bin Card Update View
       </button>
@@ -138,22 +139,26 @@
 
 <!-- Bin Card Update View Modal -->
 <div id="binCardUpdateModal" class="modal">
-  <div class="modal-content">
+  <div class="modal-content" style="max-width: 720px;">
     <div class="modal-header">
       <h3><i class="fa-solid fa-clipboard-list" style="color:var(--success);"></i> Bin Card Update View</h3>
       <div style="display: flex; gap: 8px; align-items: center;">
-        <button class="btn ripple" onclick="downloadBinCardViewData()" type="button" style="padding: 6px 12px; background: var(--success); color: white; border: none; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
-          <i class="fa-solid fa-download"></i> Download View
+        <button class="btn btn-primary ripple" onclick="downloadBinCardView()" type="button" style="padding: 6px 14px; font-size: 0.82rem; background: var(--success);">
+          <i class="fa-solid fa-download"></i> Download Data
         </button>
         <button class="close-btn ripple" onclick="closeBinCardUpdateView()" type="button">&times;</button>
       </div>
     </div>
 
     <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;">
-      <input type="text" id="binCardSearchInput" placeholder="Search by Name or Code..." autocomplete="off" style="width: 100%;">
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Settings මඟින් Restore කරන ලද හෝ යාවත්කාලීන වූ (F, G, H, K) දත්ත Bin Card එකට පිරවීම සඳහා පහසුවෙන් බලාගන්න:</p>
+      <input type="text" id="binCardSearchInput" placeholder="Search by Code or Material Name..." autocomplete="off" style="width: 100%;">
     </div>
 
-    <div class="checklist-container" id="binCardCardsContainer"></div>
+    <!-- Cards Container for Bin Card Details -->
+    <div class="bincard-grid-container" id="binCardCardsContainer">
+      <!-- Cards injected dynamically -->
+    </div>
   </div>
 </div>
 
@@ -217,6 +222,10 @@
       <input type="text" id="todayModalSearchInput" placeholder="Filter items by name or code..." autocomplete="off" style="width: 100%;">
     </div>
 
+    <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; text-align: center;">
+      <i class="fa-solid fa-angles-right" style="color: var(--primary);"></i> Item එකක් Edit කිරීමට දකුණට Swipe කරන්න (හෝ Tap කරන්න).
+    </div>
+
     <div class="checklist-container" id="todayCardsContainer"></div>
   </div>
 </div>
@@ -240,20 +249,24 @@
         </div>
       </div>
       <div class="form-group">
-        <label><i class="fa-solid fa-weight-hanging"></i> Weight in KG (තොගයේ බර):</label>
+        <label><i class="fa-solid fa-weight-hanging"></i> KG ගණන (Weight in KG):</label>
         <div class="input-glow-wrapper">
-          <input type="number" id="editWeightKgInput" min="0" step="any" placeholder="0.00" inputmode="decimal">
+          <input type="number" id="editKgWeightInput" min="0" step="any" placeholder="0.00" inputmode="decimal">
         </div>
       </div>
       <div class="form-group">
-        <label><i class="fa-solid fa-cubes"></i> Pieces Count (කැබලි ගණන):</label>
+        <label><i class="fa-solid fa-cubes-stacked"></i> කැබලි ගණන (Pieces Count):</label>
         <div class="input-glow-wrapper">
           <input type="number" id="editPiecesCountInput" min="0" step="any" placeholder="0" inputmode="decimal">
         </div>
       </div>
+      <div class="form-group">
+        <label><i class="fa-solid fa-cubes"></i> Packs Count (කොටස් ගණන):</label>
+        <input type="number" id="editPacksCountInput" min="0" step="any" placeholder="0" inputmode="decimal">
+      </div>
       <div class="btn-row" style="margin-top: 18px;">
         <button type="button" class="btn btn-primary ripple" onclick="saveEditedCountingAmount()">
-          <i class="fa-solid fa-check"></i> Save Details
+          <i class="fa-solid fa-check"></i> Update Details
         </button>
       </div>
     </div>
@@ -317,7 +330,6 @@
         <select id="langSelect" onchange="changeLanguage(this.value)">
           <option value="si">සිංහල (Sinhala)</option>
           <option value="en">English</option>
-          <option value="ta">தமிழ் (Tamil)</option>
         </select>
       </div>
 
@@ -334,10 +346,10 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <label id="lblRestore" style="margin-bottom: 0;"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label>
         </div>
-        <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත සියල්ල අඩුවක් නැතිව යාවත්කාලීන කරගන්න.</p>
+        <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් සියලුම දත්ත සම්පූර්ණයෙන්ම යාවත්කාලීන කරගන්න.</p>
         <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 12px;">
         <button class="btn ripple" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button">
-          <i class="fa-solid fa-upload"></i> Restore Excel Data
+          <i class="fa-solid fa-upload"></i> Restore Full Excel Data
         </button>
       </div>
 
