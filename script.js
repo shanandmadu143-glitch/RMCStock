@@ -3,14 +3,13 @@ const i18n = {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
     placeholderSearch: 'සොයන්න Code හෝ Name ඇතුලත් කරන්න...',
     lblSection: '<i class="fa-solid fa-layer-group"></i> Select Section:',
-    optReceipt: 'Receipt (F)',
-    optIssues: 'Issues (G)',
-    optReturn: 'Return (H)',
-    optSectionK: 'Section K',
-    optSslI: 'Received to SSL',
-    optSslJ: 'Sent to SSL',
-    optRejectionL: 'Rejection',
-    optCounting: 'Counting',
+    optReceipt: 'Receipt (ලැබීම්)',
+    optIssues: 'Issues (නිකුත් කිරීම්)',
+    optReturn: 'Return (නැවත භාරදීම්)',
+    optSslI: 'Received to SSL (SSL ලැබීම්)',
+    optSslJ: 'Sent to SSL (SSL යැවීම්)',
+    optRejectionL: 'Rejection (ප්‍රතික්ෂේප කිරීම්)',
+    optCounting: 'Counting (ගණනය කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download File & Shift Stock',
@@ -19,8 +18,8 @@ const i18n = {
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:',
     lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Excel (.xlsx) Restore කරන්න:',
-    descRestore: 'පෙර Save කරන ලද Full Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.',
-    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Full Excel Data',
+    descRestore: 'පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.',
+    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup එකක් ගන්න:',
     descBackup: 'වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.',
     btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
@@ -31,18 +30,22 @@ const i18n = {
     msgSelectMaterial: 'කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!',
     msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි අංකයක් පමණක් ඇතුළත් කරන්න!',
     msgAdded: 'සාර්ථකව එකතු විය!',
+    msgExcelShift: 'ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
     msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
     msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
-    msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?'
+    msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
+    shareTitle: 'RMC Daily Stock Summary',
+    shareSuccess: 'ගොනුව Share කිරීමට සූදානම්!',
+    shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි. Direct Download සක්‍රිය විය.',
+    msgItemCleared: 'දත්ත ඉවත් කර Closing Stock එක මුල් තත්වයට පත් කරන ලදී!'
   },
   en: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
     placeholderSearch: 'Type Code or Name to filter...',
     lblSection: '<i class="fa-solid fa-layer-group"></i> Select Section:',
-    optReceipt: 'Receipt (F)',
-    optIssues: 'Issues (G)',
-    optReturn: 'Return (H)',
-    optSectionK: 'Section K',
+    optReceipt: 'Receipt',
+    optIssues: 'Issues',
+    optReturn: 'Return',
     optSslI: 'Received to SSL',
     optSslJ: 'Sent to SSL',
     optRejectionL: 'Rejection',
@@ -56,7 +59,7 @@ const i18n = {
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:',
     lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:',
     descRestore: 'Update current inventory using a previously saved Excel file.',
-    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Full Excel Data',
+    btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:',
     descBackup: 'Get a safe backup copy of current inventory data.',
     btnBackup: '<i class="fa-solid fa-download"></i> Download Backup File',
@@ -67,9 +70,54 @@ const i18n = {
     msgSelectMaterial: 'Please select a Material Code or Name!',
     msgValidAmount: 'Please enter a valid number greater than 0!',
     msgAdded: 'successfully added!',
+    msgExcelShift: 'File downloaded and Stock shifted successfully!',
     msgRestoreSelect: 'Please select an Excel file!',
     msgRestoreSuccess: 'Excel Restore Successful!',
-    msgResetConfirm: 'Are you sure you want to reset to default data?'
+    msgResetConfirm: 'Are you sure you want to reset to default data?',
+    shareTitle: 'RMC Daily Stock Summary',
+    shareSuccess: 'File ready to share!',
+    shareNotSupported: 'Your browser does not support file sharing. Direct download initiated.',
+    msgItemCleared: 'Item data cleared and Closing Stock reset to original!'
+  },
+  ta: {
+    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீட்டால் தேடுக:',
+    placeholderSearch: 'குறியீடு அல்லது பெயரை உள்ளிடவும்...',
+    lblSection: '<i class="fa-solid fa-layer-group"></i> பிரிவை தேர்ந்தெடுக்கவும்:',
+    optReceipt: 'ரசீது (Receipt)',
+    optIssues: 'வெளியீடுகள் (Issues)',
+    optReturn: 'திரும்பப் பெறுதல் (Return)',
+    optSslI: 'SSL பெறப்பட்டது',
+    optSslJ: 'SSL அனுப்பப்பட்டது',
+    optRejectionL: 'நிராகரிப்பு (Rejection)',
+    optCounting: 'எண்ணிக்கை (Counting)',
+    lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
+    btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமி',
+    titleExcel: 'கோப்பைப் பதிவிறக்கு & ஸ்டாக் மாற்று',
+    titleShare: 'கோப்பை பகிர்',
+    txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
+    lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
+    lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> தீம் தேர்ந்தெடுக்கவும்:',
+    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Excel (.xlsx) ஐ மீட்டெடு:',
+    descRestore: 'முன்பு சேமித்த Excel கோப்பைப் பயன்படுத்தி தரவைப் புதுப்பிக்கவும்.',
+    btnRestore: '<i class="fa-solid fa-upload"></i> Excel தரவை மீட்டெடு',
+    lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup ஐப் பெறு:',
+    descBackup: 'தற்போதைய தரவின் பாதுகாப்பான காப்புப்பிரதியைப் பெறுங்கள்.',
+    btnBackup: '<i class="fa-solid fa-download"></i> Backup கோப்பை பதிவிறக்கு',
+    lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> இயல்புநிலைக்கு மீட்டமை:',
+    descReset: 'இந்த கணினியை மீட்டமைத்து இயல்புநிலை தரவைப் பெறவும்.',
+    btnReset: '<i class="fa-solid fa-trash-can"></i> தரவை மீட்டமை',
+    lblFooter: 'Created By <span>Yomal Lakshan</span>',
+    msgSelectMaterial: 'தயவுசெய்து ஒரு குறியீடு அல்லது பெயரை தேர்ந்தெடுக்கவும்!',
+    msgValidAmount: '0 ஐ விடப் பெரிய சரியான எண்ணை உள்ளிடவும்!',
+    msgAdded: 'வெற்றிகரமாக சேர்க்கப்பட்டது!',
+    msgExcelShift: 'கோப்பு பதிவிறக்கப்பட்டது மற்றும் ஸ்டாக் மாற்றப்பட்டது!',
+    msgRestoreSelect: 'தயவுசெய்து ஒரு Excel கோப்பை தேர்ந்தெடுக்கவும்!',
+    msgRestoreSuccess: 'Excel மீட்டெடுப்பு வெற்றிகரமானது!',
+    msgResetConfirm: 'நீங்கள் தரவை மீட்டமைக்க விரும்புகிறீர்களா?',
+    shareTitle: 'RMC Daily Stock Summary',
+    shareSuccess: 'கோப்பை பகிர தயார்!',
+    shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.',
+    msgItemCleared: 'தரவு அழிக்கப்பட்டு மூடும் ஸ்டாக் மீட்டமைக்கப்பட்டது!'
   }
 };
 
@@ -82,12 +130,29 @@ let currentExportMode = 'excel';
 let currentlyEditingIndex = -1;
 
 const defaultItems = [ 
-  {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000, receipt: 0, issues: 0, return: 0, section_k: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0, kg_weight: 0, pieces_count: 0}, 
-  {type: "RM", code: "11061702", name: "WHITE SUGAR", uom: "KG", op_stock: 2500, receipt: 0, issues: 0, return: 0, section_k: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0, kg_weight: 0, pieces_count: 0}, 
-  {type: "RM", code: "11002301", name: "MONOSODIUM GLUTAMATE", uom: "KG", op_stock: 4525, receipt: 0, issues: 0, return: 0, section_k: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0, kg_weight: 0, pieces_count: 0}, 
-  {type: "RM", code: "67548375", name: "ONION POWDER", uom: "KG", op_stock: 120, receipt: 0, issues: 0, return: 0, section_k: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0, kg_weight: 0, pieces_count: 0}, 
-  {type: "RM", code: "11067473", name: "CITRIC ACID MONOHYDRATE (FOOD GRADE)", uom: "KG", op_stock: 50, receipt: 0, issues: 0, return: 0, section_k: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0, kg_weight: 0, pieces_count: 0}
-];
+  {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11061702", name: "WHITE SUGAR", uom: "KG", op_stock: 2500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002301", name: "MONOSODIUM GLUTAMATE", uom: "KG", op_stock: 4525, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "67548375", name: "ONION POWDER", uom: "KG", op_stock: 120, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11067473", name: "CITRIC ACID MONOHYDRATE (FOOD GRADE)", uom: "KG", op_stock: 50, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002242", name: "SPICE CELERY POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "67550393", name: "GARLIC POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "67548417", name: "WHITE PEPPER", uom: "KG", op_stock: 15, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002253", name: "SPICE TURMERIC POWDER", uom: "KG", op_stock: 4, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11061729", name: "I+G SODIUM 5'RIBONUCLEOTID", uom: "KG", op_stock: 40, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11827361", name: "DRIED CORN STARCH 5% MOISTURE-SSL", uom: "KG", op_stock: 6000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11061758", name: "CORN STARCH - IMPORT", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11067112", name: "YEAST EXTR. MICROGRANUL. STANDARD 18% SA", uom: "KG", op_stock: 400, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11067118", name: "FLAVOUR CHICKEN POWDER (S-2182)", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11061730", name: "CARAMEL COLOUR CLASS III (E150C)", uom: "KG", op_stock: 20, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11067140", name: "MALTO DEXTRIN 18-20 (M20)", uom: "KG", op_stock: 500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002220", name: "SPICE NUTMEG POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002206", name: "SPICE BLACK PEPPER POWDER", uom: "KG", op_stock: 150, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002213", name: "SPICE CORIANDER POWDER", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002214", name: "SPICE CUMIN POWDER", uom: "KG", op_stock: 100, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002211", name: "SPICE CLOVE POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
+  {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0} 
+]; 
 
 document.addEventListener('DOMContentLoaded', () => {
   loadInventoryData();
@@ -107,14 +172,11 @@ function loadInventoryData() {
         receipt: item.receipt || 0,
         issues: item.issues || 0,
         return: item.return || 0,
-        section_k: item.section_k || 0,
         ssl_i: item.ssl_i || 0,
         ssl_j: item.ssl_j || 0,
         rejection_l: item.rejection_l || 0,
         counting: item.counting || 0,
-        packs_count: item.packs_count || 0,
-        kg_weight: item.kg_weight || 0,
-        pieces_count: item.pieces_count || 0
+        packs_count: item.packs_count || 0
       }));
     } catch (e) {
       inventory = JSON.parse(JSON.stringify(defaultItems));
@@ -141,6 +203,12 @@ function setupEventListeners() {
         handleSearch(query);
       }, 150);
     });
+
+    searchInput.addEventListener('focus', () => {
+      if (searchInput.value.trim().length > 0) {
+        handleSearch(searchInput.value.trim());
+      }
+    });
   }
 
   const todayModalSearch = document.getElementById('todayModalSearchInput');
@@ -157,11 +225,36 @@ function setupEventListeners() {
     });
   }
 
+  document.querySelectorAll('.ripple').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      const rect = this.getBoundingClientRect();
+      const circle = document.createElement('span');
+      const diameter = Math.max(rect.width, rect.height);
+      const radius = diameter / 2;
+      circle.style.width = circle.style.height = `${diameter}px`;
+      circle.style.left = `${e.clientX - rect.left - radius}px`;
+      circle.style.top = `${e.clientY - rect.top - radius}px`;
+      circle.classList.add('ripple-effect');
+      const existing = this.getElementsByClassName('ripple-effect')[0];
+      if (existing) existing.remove();
+      this.appendChild(circle);
+    });
+  });
+
+  // Bug Fix: Safely checking null objects before applying click logic
   document.addEventListener('click', (e) => {
     const searchContainer = document.querySelector('.search-input-container');
     const resultsBox = document.getElementById('searchResults');
-    if (resultsBox && searchContainer && !searchContainer.contains(e.target)) {
-      resultsBox.style.display = 'none';
+    const inputField = document.getElementById('searchInput');
+
+    if (resultsBox && resultsBox.style.display === 'block') {
+      let isInside = false;
+      if (searchContainer && searchContainer.contains(e.target)) isInside = true;
+      if (inputField && inputField.contains(e.target)) isInside = true;
+      
+      if (!isInside) {
+        resultsBox.style.display = 'none';
+      }
     }
   });
 }
@@ -248,12 +341,11 @@ function calculateClosingStock(item) {
   const f = Number(item.receipt) || 0;
   const g = Number(item.issues) || 0;
   const h = Number(item.return) || 0;
-  const k = Number(item.section_k) || 0;
   const i = Number(item.ssl_i) || 0;
   const j = Number(item.ssl_j) || 0;
   const l = Number(item.rejection_l) || 0;
 
-  return (op + f + h + i) - (g + k + j + l);
+  return (op + f + h + i) - (g + j + l);
 }
 
 function updateCountingModeBadge() {
@@ -263,7 +355,6 @@ function updateCountingModeBadge() {
   const btnExcel = document.getElementById('btnExcel');
   const btnShare = document.getElementById('btnShare');
   const btnCountingDownload = document.getElementById('btnCountingDownload');
-  const btnBinCardView = document.getElementById('btnBinCardView');
   
   if (!sectionSelect || !badge) return;
   
@@ -275,7 +366,6 @@ function updateCountingModeBadge() {
     if (btnExcel) btnExcel.style.display = 'none';
     if (btnShare) btnShare.style.display = 'none';
     if (btnCountingDownload) btnCountingDownload.style.display = 'flex';
-    if (btnBinCardView) btnBinCardView.style.display = 'none'; // Hidden in Counting mode
   } else {
     badge.innerText = 'Daily Stocks';
     badge.className = 'counting-mode-badge badge-daily';
@@ -284,7 +374,6 @@ function updateCountingModeBadge() {
     if (btnExcel) btnExcel.style.display = 'flex';
     if (btnShare) btnShare.style.display = 'flex';
     if (btnCountingDownload) btnCountingDownload.style.display = 'none';
-    if (btnBinCardView) btnBinCardView.style.display = 'flex'; // Shown ONLY in Daily Stock mode
   }
 }
 
@@ -301,30 +390,33 @@ function addSingleSectionData() {
     return;
   }
 
+  const packsInput = document.getElementById('inputPacksCount');
+  const packsVal = parseFloat(packsInput ? packsInput.value : 0) || 0;
+
   const section = document.getElementById('sectionSelect').value;
   const item = inventory[selectedIndex];
 
   if (section === 'F') item.receipt = (Number(item.receipt) || 0) + val;
   else if (section === 'G') item.issues = (Number(item.issues) || 0) + val;
   else if (section === 'H') item.return = (Number(item.return) || 0) + val;
-  else if (section === 'K') item.section_k = (Number(item.section_k) || 0) + val;
   else if (section === 'I') item.ssl_i = (Number(item.ssl_i) || 0) + val;
   else if (section === 'J') item.ssl_j = (Number(item.ssl_j) || 0) + val;
   else if (section === 'L') item.rejection_l = (Number(item.rejection_l) || 0) + val;
   else if (section === 'COUNTING') {
     item.counting = val;
-    const packsInput = document.getElementById('inputPacksCount');
-    if (packsInput) item.packs_count = parseFloat(packsInput.value) || 0;
+    item.packs_count = packsVal;
   }
 
   saveInventoryData();
 
   amountInput.value = '';
+  if (packsInput) packsInput.value = '';
+
   document.getElementById('dispClosing').innerText = calculateClosingStock(item);
+
   showToast(`${item.name} ${i18n[currentLang].msgAdded}`, 'success');
 }
 
-// ==================== BIN CARD UPDATE VIEW ====================
 function openBinCardUpdateView() {
   const modal = document.getElementById('binCardUpdateModal');
   if (modal) {
@@ -338,34 +430,32 @@ function closeBinCardUpdateView() {
   if (modal) modal.classList.remove('show');
 }
 
-function getBinCardFilteredItems() {
-  const searchInput = document.getElementById('binCardSearchInput');
-  const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
-
-  return inventory.filter(item => {
-    // Only show items with non-zero activity in sections F, G, H, or K
-    const hasBinCardData = (Number(item.receipt) > 0 || Number(item.issues) > 0 || 
-                            Number(item.return) > 0 || Number(item.section_k) > 0);
-    
-    if (!hasBinCardData) return false;
-    if (!filter) return true;
-
-    return item.code.toLowerCase().includes(filter) || item.name.toLowerCase().includes(filter);
-  });
-}
-
 function renderBinCardUpdateViewList() {
   const container = document.getElementById('binCardCardsContainer');
+  const searchInput = document.getElementById('binCardSearchInput');
   if (!container) return;
 
-  const filtered = getBinCardFilteredItems();
+  const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+  const filtered = inventory.filter(item => {
+    const hasActivity = (Number(item.receipt) > 0 || Number(item.issues) > 0 || Number(item.return) > 0 || 
+                         Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0 || 
+                         Number(item.counting) > 0 || Number(item.packs_count) > 0);
+    
+    if (!hasActivity) return false;
+    if (!filter) return true;
+
+    return item.code.toLowerCase().includes(filter) || 
+           item.name.toLowerCase().includes(filter) ||
+           item.uom.toLowerCase().includes(filter);
+  });
 
   if (filtered.length === 0) {
     container.innerHTML = `
-      <div style="text-align: center; grid-column: 1/-1; padding: 40px 20px; color: var(--text-muted);">
+      <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
         <i class="fa-solid fa-clipboard-question" style="font-size: 2.5rem; margin-bottom: 12px; color: var(--border-color);"></i>
-        <p style="font-weight: 600;">අදාළ දත්ත කිසිවක් හමු නොවීය.</p>
-        <p style="font-size: 0.85rem; margin-top: 4px;">F, G, H, K සෙක්ෂන් සඳහා දත්ත ඇතුළත් කිරීමෙන් පසු මෙහි බලාගත හැක.</p>
+        <p style="font-weight: 600;">යාවත්කාලීන කරන ලද දත්ත කිසිවක් හමු නොවීය.</p>
+        <p style="font-size: 0.85rem; margin-top: 4px;">Settings මඟින් Excel Restore කිරීමෙන් හෝ දත්ත ඇතුළත් කිරීමෙන් පසු මෙහි බලාගත හැක.</p>
       </div>
     `;
     return;
@@ -373,32 +463,34 @@ function renderBinCardUpdateViewList() {
 
   let html = '';
   filtered.forEach(item => {
+    const originalIndex = inventory.findIndex(i => i.code === item.code);
+    const closing = calculateClosingStock(item);
+    
+    let detailsHtml = '';
+    if (Number(item.receipt) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Receipt: ${item.receipt}</span>`;
+    if (Number(item.issues) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Issues: ${item.issues}</span>`;
+    if (Number(item.return) > 0) detailsHtml += `<span style="background:rgba(245, 158, 11, 0.15); color:var(--warning); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Return: ${item.return}</span>`;
+    if (Number(item.ssl_i) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Recv SSL: ${item.ssl_i}</span>`;
+    if (Number(item.ssl_j) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Sent SSL: ${item.ssl_j}</span>`;
+    if (Number(item.rejection_l) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Rejection: ${item.rejection_l}</span>`;
+    if (Number(item.counting) > 0) detailsHtml += `<span style="background:var(--primary-light); color:var(--primary); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Counting: ${item.counting}</span>`;
+    if (Number(item.packs_count) > 0) detailsHtml += `<span style="background:var(--border-color); color:var(--text-dark); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Packs: ${item.packs_count}</span>`;
+
     html += `
-      <div class="bincard-card">
-        <div class="bincard-header">
-          <div>
-            <span class="bincard-code">${item.code}</span>
-            <div class="bincard-name">${item.name}</div>
+      <div class="checklist-item" onclick="openItemDetailModal(${originalIndex})" style="flex-direction: column; align-items: stretch; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+          <div class="checklist-info">
+            <span class="checklist-code"><i class="fa-solid fa-barcode"></i> Code: ${item.code}</span>
+            <span class="checklist-name">${item.name}</span>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Closing Stock</div>
+            <div style="font-size: 1.1rem; font-weight: 800; color: var(--primary);">${closing} ${item.uom}</div>
           </div>
         </div>
-        
-        <div class="bincard-sections-grid">
-          <div class="bincard-sec-box sec-f">
-            <span>Receipt (F)</span>
-            <span style="font-size: 1rem; font-weight: 800;">${item.receipt || 0}</span>
-          </div>
-          <div class="bincard-sec-box sec-g">
-            <span>Issues (G)</span>
-            <span style="font-size: 1rem; font-weight: 800;">${item.issues || 0}</span>
-          </div>
-          <div class="bincard-sec-box sec-h">
-            <span>Return (H)</span>
-            <span style="font-size: 1rem; font-weight: 800;">${item.return || 0}</span>
-          </div>
-          <div class="bincard-sec-box sec-k">
-            <span>Section (K)</span>
-            <span style="font-size: 1rem; font-weight: 800;">${item.section_k || 0}</span>
-          </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; padding-top: 6px; border-top: 1px dashed var(--border-color);">
+          <span style="background:var(--bg-main); color:var(--text-muted); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Opening: ${item.op_stock}</span>
+          ${detailsHtml}
         </div>
       </div>
     `;
@@ -407,31 +499,6 @@ function renderBinCardUpdateViewList() {
   container.innerHTML = html;
 }
 
-function downloadBinCardView() {
-  const filtered = getBinCardFilteredItems();
-  if (filtered.length === 0) {
-    showToast("Download කිරීමට දත්ත නොමැත!", "error");
-    return;
-  }
-
-  const exportData = filtered.map(item => ({
-    "Material Code": item.code,
-    "Material Name": item.name,
-    "Receipt (F)": item.receipt || 0,
-    "Issues (G)": item.issues || 0,
-    "Return (H)": item.return || 0,
-    "Section (K)": item.section_k || 0
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(exportData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Bin Card Details");
-  const dateStr = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(wb, `Bin_Card_Update_View_${dateStr}.xlsx`);
-  showToast("Bin Card දත්ත Excel ගොනුව බාගත විය!", "success");
-}
-
-// ==================== RESTORE FULL EXCEL DATA ====================
 function restoreFromXLSX() {
   const fileInput = document.getElementById('xlsxFileInput');
   if (!fileInput || fileInput.files.length === 0) {
@@ -440,7 +507,7 @@ function restoreFromXLSX() {
   }
 
   const file = fileInput.files[0];
-  showLoading("Restoring Full Excel Data...");
+  showLoading("Restoring Excel Data...");
 
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -457,19 +524,21 @@ function restoreFromXLSX() {
         return;
       }
 
-      const headers = jsonData[0].map(h => String(h || '').toLowerCase().trim());
+      const headers = jsonData[0].map(h => String(h).toLowerCase().trim());
       
-      let codeIdx = headers.findIndex(h => h.includes('code'));
-      let nameIdx = headers.findIndex(h => h.includes('name') || h.includes('description'));
+      let codeIdx = headers.findIndex(h => h.includes('code') || h.includes('material code'));
+      let nameIdx = headers.findIndex(h => h.includes('name') || h.includes('material name') || h.includes('description'));
       let uomIdx = headers.findIndex(h => h.includes('uom') || h.includes('unit'));
-      let opIdx = headers.findIndex(h => h.includes('op') || h.includes('opening'));
+      let opIdx = headers.findIndex(h => h.includes('op') || h.includes('opening') || h.includes('stock'));
+      
       let receiptIdx = headers.findIndex(h => h.includes('receipt') || h.includes('f'));
       let issuesIdx = headers.findIndex(h => h.includes('issues') || h.includes('g'));
       let returnIdx = headers.findIndex(h => h.includes('return') || h.includes('h'));
-      let sectionKIdx = headers.findIndex(h => h.includes('section k') || h.includes('k'));
+      let sslIIdx = headers.findIndex(h => h.includes('ssl_i') || h.includes('received to ssl') || h.includes('i'));
+      let sslJIdx = headers.findIndex(h => h.includes('ssl_j') || h.includes('sent to ssl') || h.includes('j'));
+      let rejectionIdx = headers.findIndex(h => h.includes('rejection') || h.includes('l'));
       let countingIdx = headers.findIndex(h => h.includes('counting'));
-      let kgIdx = headers.findIndex(h => h.includes('kg') || h.includes('weight'));
-      let piecesIdx = headers.findIndex(h => h.includes('pieces') || h.includes('කැබලි'));
+      let packsIdx = headers.findIndex(h => h.includes('packs') || h.includes('කොටස්'));
 
       if (codeIdx === -1) codeIdx = 0;
       if (nameIdx === -1) nameIdx = 1;
@@ -479,10 +548,10 @@ function restoreFromXLSX() {
       let restoredCount = 0;
       for (let i = 1; i < jsonData.length; i++) {
         const row = jsonData[i];
-        if (!row || !row[codeIdx]) continue;
+        if (!row || row.length === 0 || !row[codeIdx]) continue;
 
         const code = String(row[codeIdx]).trim();
-        const name = nameIdx !== -1 && row[nameIdx] ? String(row[nameIdx]).trim() : 'Material';
+        const name = nameIdx !== -1 && row[nameIdx] ? String(row[nameIdx]).trim() : 'Unknown Material';
         const uom = uomIdx !== -1 && row[uomIdx] ? String(row[uomIdx]).trim() : 'KG';
         const opStock = opIdx !== -1 && !isNaN(row[opIdx]) ? Number(row[opIdx]) : 0;
 
@@ -494,11 +563,11 @@ function restoreFromXLSX() {
           if (receiptIdx !== -1 && !isNaN(row[receiptIdx])) existing.receipt = Number(row[receiptIdx]);
           if (issuesIdx !== -1 && !isNaN(row[issuesIdx])) existing.issues = Number(row[issuesIdx]);
           if (returnIdx !== -1 && !isNaN(row[returnIdx])) existing.return = Number(row[returnIdx]);
-          if (sectionKIdx !== -1 && !isNaN(row[sectionKIdx])) existing.section_k = Number(row[sectionKIdx]);
+          if (sslIIdx !== -1 && !isNaN(row[sslIIdx])) existing.ssl_i = Number(row[sslIIdx]);
+          if (sslJIdx !== -1 && !isNaN(row[sslJIdx])) existing.ssl_j = Number(row[sslJIdx]);
+          if (rejectionIdx !== -1 && !isNaN(row[rejectionIdx])) existing.rejection_l = Number(row[rejectionIdx]);
           if (countingIdx !== -1 && !isNaN(row[countingIdx])) existing.counting = Number(row[countingIdx]);
-          if (kgIdx !== -1 && !isNaN(row[kgIdx])) existing.kg_weight = Number(row[kgIdx]);
-          if (piecesIdx !== -1 && !isNaN(row[piecesIdx])) existing.pieces_count = Number(row[piecesIdx]);
-          existing.full_raw_row = row; // Keep complete row details
+          if (packsIdx !== -1 && !isNaN(row[packsIdx])) existing.packs_count = Number(row[packsIdx]);
         } else {
           inventory.push({
             type: "RM",
@@ -509,13 +578,11 @@ function restoreFromXLSX() {
             receipt: receiptIdx !== -1 && !isNaN(row[receiptIdx]) ? Number(row[receiptIdx]) : 0,
             issues: issuesIdx !== -1 && !isNaN(row[issuesIdx]) ? Number(row[issuesIdx]) : 0,
             return: returnIdx !== -1 && !isNaN(row[returnIdx]) ? Number(row[returnIdx]) : 0,
-            section_k: sectionKIdx !== -1 && !isNaN(row[sectionKIdx]) ? Number(row[sectionKIdx]) : 0,
-            ssl_i: 0, ssl_j: 0, rejection_l: 0,
+            ssl_i: sslIIdx !== -1 && !isNaN(row[sslIIdx]) ? Number(row[sslIIdx]) : 0,
+            ssl_j: sslJIdx !== -1 && !isNaN(row[sslJIdx]) ? Number(row[sslJIdx]) : 0,
+            rejection_l: rejectionIdx !== -1 && !isNaN(row[rejectionIdx]) ? Number(row[rejectionIdx]) : 0,
             counting: countingIdx !== -1 && !isNaN(row[countingIdx]) ? Number(row[countingIdx]) : 0,
-            packs_count: 0,
-            kg_weight: kgIdx !== -1 && !isNaN(row[kgIdx]) ? Number(row[kgIdx]) : 0,
-            pieces_count: piecesIdx !== -1 && !isNaN(row[piecesIdx]) ? Number(row[piecesIdx]) : 0,
-            full_raw_row: row
+            packs_count: packsIdx !== -1 && !isNaN(row[packsIdx]) ? Number(row[packsIdx]) : 0
           });
         }
         restoredCount++;
@@ -523,9 +590,10 @@ function restoreFromXLSX() {
 
       saveInventoryData();
       hideLoading();
-      showToast(`${i18n[currentLang].msgRestoreSuccess} (${restoredCount} Items)`, 'success');
+      showToast(`${i18n[currentLang].msgRestoreSuccess} (${restoredCount} items updated)`, 'success');
       fileInput.value = '';
       closeSettings();
+      
       openBinCardUpdateView();
     } catch (err) {
       console.error(err);
@@ -536,171 +604,25 @@ function restoreFromXLSX() {
   reader.readAsArrayBuffer(file);
 }
 
-// ==================== UPDATED LIVE & SWIPE TO EDIT ====================
-function openTodayUploadedModal() {
-  const modal = document.getElementById('todayUploadedModal');
-  if (modal) {
-    modal.classList.add('show');
-    renderTodayUploadedList();
-  }
-}
-
-function closeTodayUploadedModal() {
-  const modal = document.getElementById('todayUploadedModal');
-  if (modal) modal.classList.remove('show');
-}
-
-function renderTodayUploadedList() {
-  const container = document.getElementById('todayCardsContainer');
-  const searchInput = document.getElementById('todayModalSearchInput');
-  const toggleCountingOnly = document.getElementById('toggleCountingOnly');
-  if (!container) return;
-
-  const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
-  const countingOnly = toggleCountingOnly ? toggleCountingOnly.checked : false;
-
-  let filtered = [];
-
-  if (countingOnly) {
-    // Show Counting Details Only
-    filtered = inventory.filter(item => {
-      const matchSearch = !filter || item.code.toLowerCase().includes(filter) || item.name.toLowerCase().includes(filter);
-      return (Number(item.counting) > 0 || Number(item.kg_weight) > 0 || Number(item.pieces_count) > 0) && matchSearch;
-    });
-  } else {
-    // Show Closing Stock of Bin Card Update View Items
-    filtered = inventory.filter(item => {
-      const hasBinCardData = (Number(item.receipt) > 0 || Number(item.issues) > 0 || 
-                              Number(item.return) > 0 || Number(item.section_k) > 0);
-      const matchSearch = !filter || item.code.toLowerCase().includes(filter) || item.name.toLowerCase().includes(filter);
-      return hasBinCardData && matchSearch;
-    });
-  }
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">දත්ත කිසිවක් හමු නොවීය.</div>`;
-    return;
-  }
-
-  let html = '';
-  filtered.forEach(item => {
-    const originalIndex = inventory.findIndex(i => i.code === item.code);
-    const closing = calculateClosingStock(item);
-
-    if (countingOnly) {
-      // Display Counting details with KG Weight and Pieces Count
-      html += `
-        <div class="checklist-item" id="item-card-${originalIndex}" onclick="openEditCountingModal(${originalIndex})">
-          <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
-            <span style="font-size:0.98rem; font-weight:700; color:var(--text-dark);">${item.name}</span>
-            <span style="font-size:0.8rem; color:var(--text-muted);">Code: ${item.code} | UOM: ${item.uom}</span>
-            <div style="display:flex; gap:10px; margin-top:4px; font-size:0.8rem;">
-              <span style="color:var(--primary); font-weight:700;">KG: ${item.kg_weight || 0}</span>
-              <span style="color:var(--warning); font-weight:700;">Pieces: ${item.pieces_count || 0}</span>
-            </div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:1.1rem; font-weight:800; color:var(--primary);">${item.counting || 0}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">Packs: ${item.packs_count || 0}</div>
-          </div>
-        </div>
-      `;
-    } else {
-      // Display Closing Stock
-      html += `
-        <div class="checklist-item" id="item-card-${originalIndex}" onclick="openEditCountingModal(${originalIndex})">
-          <div style="display:flex; flex-direction:column; gap:2px; flex:1;">
-            <span style="font-size:0.98rem; font-weight:700; color:var(--text-dark);">${item.name}</span>
-            <span style="font-size:0.8rem; color:var(--text-muted);">Code: ${item.code} | UOM: ${item.uom}</span>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Closing Stock</div>
-            <div style="font-size:1.15rem; font-weight:800; color:var(--success);">${closing}</div>
-          </div>
-        </div>
-      `;
-    }
-  });
-
-  container.innerHTML = html;
-
-  // Add Touch Swipe Event Listeners to cards
-  filtered.forEach(item => {
-    const originalIndex = inventory.findIndex(i => i.code === item.code);
-    const cardEl = document.getElementById(`item-card-${originalIndex}`);
-    if (cardEl) setupSwipeRightGesture(cardEl, originalIndex);
-  });
-}
-
-function setupSwipeRightGesture(element, index) {
-  let touchStartX = 0;
-  let touchEndX = 0;
-
-  element.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  }, { passive: true });
-
-  element.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    if (touchEndX - touchStartX > 50) { // Swiped Right
-      openEditCountingModal(index);
-    }
-  }, { passive: true });
-}
-
-function openEditCountingModal(index) {
-  currentlyEditingIndex = index;
-  const item = inventory[index];
-  
-  document.getElementById('editModalItemName').innerText = item.name;
-  document.getElementById('editModalItemCode').innerText = `Code: ${item.code} | UOM: ${item.uom}`;
-  document.getElementById('editCountingAmountInput').value = item.counting || '';
-  document.getElementById('editKgWeightInput').value = item.kg_weight || '';
-  document.getElementById('editPiecesCountInput').value = item.pieces_count || '';
-  document.getElementById('editPacksCountInput').value = item.packs_count || '';
-  
-  const modal = document.getElementById('editCountingModal');
-  if (modal) modal.classList.add('show');
-}
-
-function closeEditCountingModal() {
-  const modal = document.getElementById('editCountingModal');
-  if (modal) modal.classList.remove('show');
-}
-
-function saveEditedCountingAmount() {
-  if (currentlyEditingIndex < 0 || currentlyEditingIndex >= inventory.length) return;
-  
-  const amt = parseFloat(document.getElementById('editCountingAmountInput').value) || 0;
-  const kg = parseFloat(document.getElementById('editKgWeightInput').value) || 0;
-  const pcs = parseFloat(document.getElementById('editPiecesCountInput').value) || 0;
-  const packs = parseFloat(document.getElementById('editPacksCountInput').value) || 0;
-
-  inventory[currentlyEditingIndex].counting = amt;
-  inventory[currentlyEditingIndex].kg_weight = kg;
-  inventory[currentlyEditingIndex].pieces_count = pcs;
-  inventory[currentlyEditingIndex].packs_count = packs;
-  
-  saveInventoryData();
-  closeEditCountingModal();
-  renderTodayUploadedList();
-  showToast("Counting & Weight විස්තර යාවත්කාලීන විය!", "success");
-}
-
-// ==================== UTILITY FUNCTIONS ====================
 function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
 
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  toast.innerHTML = `<i class="fa-solid fa-circle-check" style="font-size:1.2rem;"></i> <span>${message}</span>`;
+  
+  let icon = 'fa-circle-check';
+  if (type === 'error') icon = 'fa-triangle-exclamation';
+  if (type === 'warning') icon = 'fa-circle-exclamation';
+
+  toast.innerHTML = `<i class="fa-solid ${icon}" style="font-size:1.2rem;"></i> <span>${message}</span>`;
   container.appendChild(toast);
 
   setTimeout(() => {
     toast.style.opacity = '0';
+    toast.style.transform = 'scale(0.8) translateY(20px)';
     setTimeout(() => toast.remove(), 300);
-  }, 3000);
+  }, 3500);
 }
 
 function showLoading(text = "Processing...") {
@@ -732,10 +654,13 @@ function changeTheme(theme) {
 }
 
 function applyTheme(theme) {
-  if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-  else if (theme === 'blue') document.documentElement.setAttribute('data-theme', 'blue');
-  else document.documentElement.removeAttribute('data-theme');
-  
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  } else if (theme === 'blue') {
+    document.documentElement.setAttribute('data-theme', 'blue');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
   const select = document.getElementById('themeSelect');
   if (select) select.value = theme;
 }
@@ -747,16 +672,37 @@ function changeLanguage(lang) {
 }
 
 function applyLanguage(lang) {
-  const dict = i18n[lang];
+  const dict = i18n[lang] || i18n['en']; // Bug fix: fallback to 'en' if invalid language passed
   if (!dict) return;
 
   setElHTML('lblSearch', dict.lblSearch);
   setElPlaceholder('searchInput', dict.placeholderSearch);
   setElHTML('lblSection', dict.lblSection);
+  setElHTML('optReceipt', dict.optReceipt);
+  setElHTML('optIssues', dict.optIssues);
+  setElHTML('optReturn', dict.optReturn);
+  setElHTML('optSslI', dict.optSslI);
+  setElHTML('optSslJ', dict.optSslJ);
+  setElHTML('optRejectionL', dict.optRejectionL);
+  setElHTML('optCounting', dict.optCounting);
   setElHTML('lblAmount', dict.lblAmount);
   setElHTML('btnSave', dict.btnSave);
   setElHTML('txtSettingsTitle', dict.txtSettingsTitle);
+  setElHTML('lblLanguage', dict.lblLanguage);
+  setElHTML('lblTheme', dict.lblTheme);
+  setElHTML('lblRestore', dict.lblRestore);
+  setElHTML('descRestore', dict.descRestore);
+  setElHTML('btnRestore', dict.btnRestore);
+  setElHTML('lblBackup', dict.lblBackup);
+  setElHTML('descBackup', dict.descBackup);
+  setElHTML('btnBackup', dict.btnBackup);
+  setElHTML('lblReset', dict.lblReset);
+  setElHTML('descReset', dict.descReset);
+  setElHTML('btnReset', dict.btnReset);
   setElHTML('lblFooter', dict.lblFooter);
+
+  const langSelect = document.getElementById('langSelect');
+  if (langSelect) langSelect.value = lang;
 }
 
 function setElHTML(id, html) {
@@ -780,12 +726,29 @@ function resetToDefault() {
 }
 
 function downloadXLSXBackup() {
-  const ws = XLSX.utils.json_to_sheet(inventory);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Inventory_Backup");
+  const dataToExport = inventory.map(item => ({
+    "Material Code": item.code,
+    "Material Name": item.name,
+    "UOM": item.uom,
+    "Opening Stock": item.op_stock,
+    "Receipt (F)": item.receipt,
+    "Issues (G)": item.issues,
+    "Return (H)": item.return,
+    "Received to SSL (I)": item.ssl_i,
+    "Sent to SSL (J)": item.ssl_j,
+    "Rejection (L)": item.rejection_l,
+    "Counting": item.counting,
+    "Packs Count": item.packs_count,
+    "Closing Stock": calculateClosingStock(item)
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory_Backup");
+  
   const dateStr = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(wb, `RMC_Stock_Backup_${dateStr}.xlsx`);
-  showToast("Backup ගොනුව බාගත විය!", "success");
+  XLSX.writeFile(workbook, `RMC_Stock_Backup_${dateStr}.xlsx`);
+  showToast("Backup ගොනුව සාර්ථකව Download විය!", "success");
 }
 
 function openCountingDownloadModal() {
@@ -806,35 +769,153 @@ function updateCountingFileName() {
 }
 
 function processCountingDownload() {
+  const format = document.getElementById('countingFormatSelect').value;
   const inputName = document.getElementById('countingFileNameInput').value.trim();
   const dateStr = new Date().toISOString().slice(0, 10);
   const fileName = inputName || `Counting_Sheet_${dateStr}`;
 
-  const exportData = inventory.map(item => ({
-    "Code": item.code,
-    "Name": item.name,
-    "UOM": item.uom,
-    "Counting Amount": item.counting,
-    "KG Weight": item.kg_weight,
-    "Pieces": item.pieces_count,
-    "Packs": item.packs_count
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(exportData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Counting Sheet");
-  XLSX.writeFile(wb, `${fileName}.xlsx`);
-  showToast("Counting Sheet Excel ගොනුව බාගත විය!", "success");
+  if (format === 'xlsx') {
+    const exportData = inventory.map(item => ({
+      "Code": item.code,
+      "Name": item.name,
+      "UOM": item.uom,
+      "Counting Amount": item.counting,
+      "Packs Count": item.packs_count
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Counting Sheet");
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+    showToast("Counting Sheet Excel ගොනුව බාගත විය!", "success");
+  } else if (format === 'pdf') {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.text("Counting Sheet Report - " + dateStr, 14, 15);
+    
+    const tableData = inventory.map(item => [item.code, item.name, item.uom, item.counting, item.packs_count]);
+    doc.autoTable({
+      head: [['Code', 'Material Name', 'UOM', 'Counting', 'Packs']],
+      body: tableData,
+      startY: 20
+    });
+    doc.save(`${fileName}.pdf`);
+    showToast("Counting Sheet PDF ගොනුව බාගත විය!", "success");
+  } else {
+    let text = `Counting Sheet Report - ${dateStr}\n\n`;
+    inventory.forEach(i => {
+      text += `Code: ${i.code} | Name: ${i.name} | UOM: ${i.uom} | Counting: ${i.counting} | Packs: ${i.packs_count}\n`;
+    });
+    const blob = new Blob([text], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.doc`;
+    a.click();
+    showToast("Counting Sheet Word ගොනුව බාගත විය!", "success");
+  }
   closeCountingDownloadModal();
 }
 
 function processCountingShare() {
   processCountingDownload();
+  showToast(i18n[currentLang].shareSuccess, 'success');
+}
+
+function openTodayUploadedModal() {
+  const modal = document.getElementById('todayUploadedModal');
+  if (modal) {
+    modal.classList.add('show');
+    renderTodayUploadedList();
+  }
+}
+
+function closeTodayUploadedModal() {
+  const modal = document.getElementById('todayUploadedModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function renderTodayUploadedList() {
+  const container = document.getElementById('todayCardsContainer');
+  const searchInput = document.getElementById('todayModalSearchInput');
+  const toggleCountingOnly = document.getElementById('toggleCountingOnly');
+  if (!container) return;
+
+  const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
+  const countingOnly = toggleCountingOnly ? toggleCountingOnly.checked : false;
+
+  const filtered = inventory.filter(item => {
+    if (countingOnly && Number(item.counting) <= 0) return false;
+    if (!filter) return true;
+    return item.code.toLowerCase().includes(filter) || item.name.toLowerCase().includes(filter);
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">දත්ත කිසිවක් හමු නොවීය.</div>`;
+    return;
+  }
+
+  let html = '';
+  filtered.forEach(item => {
+    const originalIndex = inventory.findIndex(i => i.code === item.code);
+    html += `
+      <div class="checklist-item" onclick="openEditCountingModal(${originalIndex})">
+        <div class="checklist-left">
+          <div class="checklist-info">
+            <span class="checklist-name">${item.name}</span>
+            <span class="checklist-code">Code: ${item.code} | UOM: ${item.uom}</span>
+          </div>
+        </div>
+        <div class="checklist-right">
+          <div class="checklist-stock">${item.counting || 0}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted);">Packs: ${item.packs_count || 0}</div>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function openEditCountingModal(index) {
+  currentlyEditingIndex = index;
+  const item = inventory[index];
+  document.getElementById('editModalItemName').innerText = item.name;
+  document.getElementById('editModalItemCode').innerText = `Code: ${item.code} | UOM: ${item.uom}`;
+  document.getElementById('editCountingAmountInput').value = item.counting || '';
+  document.getElementById('editPacksCountInput').value = item.packs_count || '';
+  
+  const modal = document.getElementById('editCountingModal');
+  if (modal) modal.classList.add('show');
+}
+
+function closeEditCountingModal() {
+  const modal = document.getElementById('editCountingModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function saveEditedCountingAmount() {
+  if (currentlyEditingIndex < 0 || currentlyEditingIndex >= inventory.length) return;
+  const amt = parseFloat(document.getElementById('editCountingAmountInput').value) || 0;
+  const packs = parseFloat(document.getElementById('editPacksCountInput').value) || 0;
+
+  inventory[currentlyEditingIndex].counting = amt;
+  inventory[currentlyEditingIndex].packs_count = packs;
+  saveInventoryData();
+
+  closeEditCountingModal();
+  renderTodayUploadedList();
+  showToast("ගණනය කිරීමේ ප්‍රමාණය යාවත්කාලීන විය!", "success");
 }
 
 function openExportModal(mode) {
   currentExportMode = mode;
   const modal = document.getElementById('exportModal');
+  const title = document.getElementById('txtExportTitle');
+  const btn = document.getElementById('btnConfirmExport');
+  
+  if (title) title.innerHTML = `<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> ${mode === 'excel' ? i18n[currentLang].titleExcel : i18n[currentLang].titleShare}`;
+  if (btn) btn.innerHTML = `<i class="fa-solid ${mode === 'excel' ? 'fa-download' : 'fa-share-nodes'}"></i> ${mode === 'excel' ? 'Download Excel' : 'Share File'}`;
+  
+  updateDefaultFileName();
   if (modal) modal.classList.add('show');
 }
 
@@ -850,14 +931,143 @@ function updateDefaultFileName() {
 }
 
 function processExportAction() {
+  const format = document.getElementById('exportFormatSelect').value;
   const inputName = document.getElementById('exportFileNameInput').value.trim();
   const dateStr = new Date().toISOString().slice(0, 10);
   const fileName = inputName || `Stock_Counting_${dateStr}`;
+  const shiftStock = document.getElementById('chkShiftStock').checked;
 
-  const ws = XLSX.utils.json_to_sheet(inventory);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Daily Stock");
-  XLSX.writeFile(wb, `${fileName}.xlsx`);
-  showToast("Excel ගොනුව බාගත විය!", "success");
+  const exportData = inventory.map(item => ({
+    "Material Code": item.code,
+    "Material Name": item.name,
+    "UOM": item.uom,
+    "Opening Stock": item.op_stock,
+    "Receipt (F)": item.receipt,
+    "Issues (G)": item.issues,
+    "Return (H)": item.return,
+    "Received to SSL (I)": item.ssl_i,
+    "Sent to SSL (J)": item.ssl_j,
+    "Rejection (L)": item.rejection_l,
+    "Counting": item.counting,
+    "Packs Count": item.packs_count,
+    "Closing Stock": calculateClosingStock(item)
+  }));
+
+  if (format === 'xlsx') {
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Daily Stock");
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+  } else if (format === 'csv') {
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const csv = XLSX.utils.sheet_to_csv(ws);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.csv`;
+    a.click();
+  } else {
+    let txt = `Daily Stock Summary - ${dateStr}\n\n`;
+    exportData.forEach(i => {
+      txt += `${i["Material Code"]} | ${i["Material Name"]} | Closing: ${i["Closing Stock"]} ${i["UOM"]}\n`;
+    });
+    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.txt`;
+    a.click();
+  }
+
+  if (shiftStock) {
+    inventory.forEach(item => {
+      item.op_stock = calculateClosingStock(item);
+      item.receipt = 0;
+      item.issues = 0;
+      item.return = 0;
+      item.ssl_i = 0;
+      item.ssl_j = 0;
+      item.rejection_l = 0;
+      item.counting = 0;
+      item.packs_count = 0;
+    });
+    saveInventoryData();
+  }
+
   closeExportModal();
+  showToast(i18n[currentLang].msgExcelShift, 'success');
+}
+
+function openRestoreHelpModal() {
+  const modal = document.getElementById('restoreHelpModal');
+  if (modal) {
+    modal.classList.add('show');
+    switchHelpTopic('fileType');
+  }
+}
+
+function closeRestoreHelpModal() {
+  const modal = document.getElementById('restoreHelpModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function switchHelpTopic(topic) {
+  const box = document.getElementById('helpContentBox');
+  if (!box) return;
+
+  if (topic === 'fileType') {
+    box.innerHTML = `
+      <strong>1. Upload කළ යුත්තේ කුමන ආකාරයේ Excel File එකක්ද?</strong><br><br>
+      ඔබට ඔබගේ පද්ධතිය මඟින් Export කරන ලද හෝ පිළිවෙළට සකස් කරන ලද <code>.xlsx</code> හෝ <code>.xls</code> ගොනුවක් upload කළ හැක. 
+      මෙහි මූලික තීරු (Columns) ලෙස <strong>Material Code</strong>, <strong>Material Name</strong>, <strong>UOM</strong> සහ <strong>Opening Stock</strong> අඩංගු විය යුතුය. 
+      එමෙන්ම <strong>Receipt</strong>, <strong>Issues</strong>, <strong>Return</strong> වැනි අතිරේක තීරු තිබේ නම් ඒවාද ස්වයංක්‍රීයව Bin Card එකට යාවත්කාලීන වේ.
+    `;
+  } else if (topic === 'howToDo') {
+    box.innerHTML = `
+      <strong>2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</strong><br><br>
+      - මුල් පිටුවේ ඉහළ වම්පස ඇති <strong>Settings (Gear Icon)</strong> ක්ලික් කරන්න.<br>
+      - <strong>Restore Excel (.xlsx) File</strong> කොටස වෙත යන්න.<br>
+      - <strong>Choose File</strong> මඟින් ඔබේ පරිගණකයෙන් හෝ දුරකථනයෙන් Excel ගොනුව තෝරන්න.<br>
+      - <strong>Restore Excel Data</strong> බොත්තම ඔබන්න. සාර්ථක වූ පසු ස්වයංක්‍රීයව <strong>Bin Card Update View</strong> විවෘත වී දත්ත බලාගත හැක.
+    `;
+  } else {
+    box.innerHTML = `
+      <strong>3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</strong><br><br>
+      - දිනපතා Stock ගණනය කිරීම් (Counting) සහ Section අනුව දත්ත ඇතුළත් කිරීම.<br>
+      - <strong>Bin Card Update View</strong> හරහා යාවත්කාලීන වූ දත්ත Card ක්‍රමයට පහසුවෙන් පරීක්ෂා කිරීම.<br>
+      - Excel, PDF හෝ Word ფორමැට් වලින් Counting Sheets ඩවුන්ලෝඩ් කිරීම සහ Share කිරීම.<br>
+      - දත්ත සුරක්ෂිතව Backup ලබාගැනීම සහ අවශ්‍ය විට Restore කිරීම.
+    `;
+  }
+}
+
+// BUG FIX: සම්පූර්ණ දත්ත බැලීමට අදාළ Material Details Modal එක සක්‍රීය කරන ලදී.
+function openItemDetailModal(index) {
+  const item = inventory[index];
+  if (!item) return;
+
+  document.getElementById('detCode').innerText = item.code;
+  document.getElementById('detUom').innerText = item.uom;
+  document.getElementById('detName').innerText = item.name;
+  document.getElementById('detOp').innerText = item.op_stock || 0;
+  document.getElementById('detReceipt').innerText = item.receipt || 0;
+  document.getElementById('detIssues').innerText = item.issues || 0;
+  document.getElementById('detReturn').innerText = item.return || 0;
+  document.getElementById('detSslI').innerText = item.ssl_i || 0;
+  document.getElementById('detSslJ').innerText = item.ssl_j || 0;
+  document.getElementById('detRejectionL').innerText = item.rejection_l || 0;
+  document.getElementById('detCounting').innerText = item.counting || 0;
+  document.getElementById('detPacksCount').innerText = item.packs_count || 0;
+  
+  const closing = calculateClosingStock(item);
+  document.getElementById('detClosing').innerText = `${closing} ${item.uom}`;
+
+  const modal = document.getElementById('itemDetailModal');
+  if (modal) modal.classList.add('show');
+}
+
+function closeItemDetailModal() {
+  const modal = document.getElementById('itemDetailModal');
+  if (modal) modal.classList.remove('show');
 }
