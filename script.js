@@ -9,7 +9,6 @@ const i18n = {
     optSslI: 'Received to SSL (SSL ලැබීම්)',
     optSslJ: 'Sent to SSL (SSL යැවීම්)',
     optRejectionL: 'Rejection (ප්‍රතික්ෂේප කිරීම්)',
-    optCounting: 'Counting (ගණනය කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download File & Shift Stock',
@@ -49,7 +48,6 @@ const i18n = {
     optSslI: 'Received to SSL',
     optSslJ: 'Sent to SSL',
     optRejectionL: 'Rejection',
-    optCounting: 'Counting',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
     btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
     titleExcel: 'Download File & Shift Stock',
@@ -78,46 +76,6 @@ const i18n = {
     shareSuccess: 'File ready to share!',
     shareNotSupported: 'Your browser does not support file sharing. Direct download initiated.',
     msgItemCleared: 'Item data cleared and Closing Stock reset to original!'
-  },
-  ta: {
-    lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> பெயர் அல்லது குறியீட்டால் தேடுக:',
-    placeholderSearch: 'குறியீடு அல்லது பெயரை உள்ளிடவும்...',
-    lblSection: '<i class="fa-solid fa-layer-group"></i> பிரிவை தேர்ந்தெடுக்கவும்:',
-    optReceipt: 'ரசீது (Receipt)',
-    optIssues: 'வெளியீடுகள் (Issues)',
-    optReturn: 'திரும்பப் பெறுதல் (Return)',
-    optSslI: 'SSL பெறப்பட்டது',
-    optSslJ: 'SSL அனுப்பப்பட்டது',
-    optRejectionL: 'நிராகரிப்பு (Rejection)',
-    optCounting: 'எண்ணிக்கை (Counting)',
-    lblAmount: '<i class="fa-solid fa-calculator"></i> அளவை உள்ளிடவும்:',
-    btnSave: '<i class="fa-solid fa-floppy-disk"></i> சேமி',
-    titleExcel: 'கோப்பைப் பதிவிறக்கு & ஸ்டாக் மாற்று',
-    titleShare: 'கோப்பை பகிர்',
-    txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> அமைப்புகள் (Settings)',
-    lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> மொழியைத் தேர்ந்தெடுக்கவும்:',
-    lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> தீம் தேர்ந்தெடுக்கவும்:',
-    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Excel (.xlsx) ஐ மீட்டெடு:',
-    descRestore: 'முன்பு சேமித்த Excel கோப்பைப் பயன்படுத்தி தரவைப் புதுப்பிக்கவும்.',
-    btnRestore: '<i class="fa-solid fa-upload"></i> Excel தரவை மீட்டெடு',
-    lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup ஐப் பெறு:',
-    descBackup: 'தற்போதைய தரவின் பாதுகாப்பான காப்புப்பிரதியைப் பெறுங்கள்.',
-    btnBackup: '<i class="fa-solid fa-download"></i> Backup கோப்பை பதிவிறக்கு',
-    lblReset: '<i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> இயல்புநிலைக்கு மீட்டமை:',
-    descReset: 'இந்த கணினியை மீட்டமைத்து இயல்புநிலை தரவைப் பெறவும்.',
-    btnReset: '<i class="fa-solid fa-trash-can"></i> தரவை மீட்டமை',
-    lblFooter: 'Created By <span>Yomal Lakshan</span>',
-    msgSelectMaterial: 'தயவுசெய்து ஒரு குறியீடு அல்லது பெயரை தேர்ந்தெடுக்கவும்!',
-    msgValidAmount: '0 ஐ விடப் பெரிய சரியான எண்ணை உள்ளிடவும்!',
-    msgAdded: 'வெற்றிகரமாக சேர்க்கப்பட்டது!',
-    msgExcelShift: 'கோப்பு பதிவிறக்கப்பட்டது மற்றும் ஸ்டாக் மாற்றப்பட்டது!',
-    msgRestoreSelect: 'தயவுசெய்து ஒரு Excel கோப்பை தேர்ந்தெடுக்கவும்!',
-    msgRestoreSuccess: 'Excel மீட்டெடுப்பு வெற்றிகரமானது!',
-    msgResetConfirm: 'நீங்கள் தரவை மீட்டமைக்க விரும்புகிறீர்களா?',
-    shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'கோப்பை பகிர தயார்!',
-    shareNotSupported: 'உங்கள் உலாவி கோப்பு பகிர்வை ஆதரிக்கவில்லை.',
-    msgItemCleared: 'தரவு அழிக்கப்பட்டு மூடும் ஸ்டாக் மீட்டமைக்கப்பட்டது!'
   }
 };
 
@@ -127,31 +85,30 @@ let inventory = [];
 let selectedIndex = -1;
 let searchDebounceTimeout = null;
 let currentExportMode = 'excel'; 
-let currentlyEditingIndex = -1;
 
 const defaultItems = [ 
-  {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11061702", name: "WHITE SUGAR", uom: "KG", op_stock: 2500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11002301", name: "MONOSODIUM GLUTAMATE", uom: "KG", op_stock: 4525, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "67548375", name: "ONION POWDER", uom: "KG", op_stock: 120, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11067473", name: "CITRIC ACID MONOHYDRATE (FOOD GRADE)", uom: "KG", op_stock: 50, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11002242", name: "SPICE CELERY POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "67550393", name: "GARLIC POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "67548417", name: "WHITE PEPPER", uom: "KG", op_stock: 15, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11002253", name: "SPICE TURMERIC POWDER", uom: "KG", op_stock: 4, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11061729", name: "I+G SODIUM 5'RIBONUCLEOTID", uom: "KG", op_stock: 40, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11827361", name: "DRIED CORN STARCH 5% MOISTURE-SSL", uom: "KG", op_stock: 6000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11061758", name: "CORN STARCH - IMPORT", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11067112", name: "YEAST EXTR. MICROGRANUL. STANDARD 18% SA", uom: "KG", op_stock: 400, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11067118", name: "FLAVOUR CHICKEN POWDER (S-2182)", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11061730", name: "CARAMEL COLOUR CLASS III (E150C)", uom: "KG", op_stock: 20, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11067140", name: "MALTO DEXTRIN 18-20 (M20)", uom: "KG", op_stock: 500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11002220", name: "SPICE NUTMEG POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11002206", name: "SPICE BLACK PEPPER POWDER", uom: "KG", op_stock: 150, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11002213", name: "SPICE CORIANDER POWDER", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11002214", name: "SPICE CUMIN POWDER", uom: "KG", op_stock: 100, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11002211", name: "SPICE CLOVE POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0}, 
-  {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, counting: 0, packs_count: 0} 
+  {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11061702", name: "WHITE SUGAR", uom: "KG", op_stock: 2500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11002301", name: "MONOSODIUM GLUTAMATE", uom: "KG", op_stock: 4525, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "67548375", name: "ONION POWDER", uom: "KG", op_stock: 120, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11067473", name: "CITRIC ACID MONOHYDRATE (FOOD GRADE)", uom: "KG", op_stock: 50, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11002242", name: "SPICE CELERY POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "67550393", name: "GARLIC POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "67548417", name: "WHITE PEPPER", uom: "KG", op_stock: 15, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11002253", name: "SPICE TURMERIC POWDER", uom: "KG", op_stock: 4, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11061729", name: "I+G SODIUM 5'RIBONUCLEOTID", uom: "KG", op_stock: 40, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11827361", name: "DRIED CORN STARCH 5% MOISTURE-SSL", uom: "KG", op_stock: 6000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11061758", name: "CORN STARCH - IMPORT", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11067112", name: "YEAST EXTR. MICROGRANUL. STANDARD 18% SA", uom: "KG", op_stock: 400, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11067118", name: "FLAVOUR CHICKEN POWDER (S-2182)", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11061730", name: "CARAMEL COLOUR CLASS III (E150C)", uom: "KG", op_stock: 20, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11067140", name: "MALTO DEXTRIN 18-20 (M20)", uom: "KG", op_stock: 500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11002220", name: "SPICE NUTMEG POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11002206", name: "SPICE BLACK PEPPER POWDER", uom: "KG", op_stock: 150, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11002213", name: "SPICE CORIANDER POWDER", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11002214", name: "SPICE CUMIN POWDER", uom: "KG", op_stock: 100, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11002211", name: "SPICE CLOVE POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
+  {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0} 
 ]; 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -159,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(currentTheme);
   applyLanguage(currentLang);
   setupEventListeners();
-  updateCountingModeBadge();
 });
 
 function loadInventoryData() {
@@ -174,9 +130,7 @@ function loadInventoryData() {
         return: item.return || 0,
         ssl_i: item.ssl_i || 0,
         ssl_j: item.ssl_j || 0,
-        rejection_l: item.rejection_l || 0,
-        counting: item.counting || 0,
-        packs_count: item.packs_count || 0
+        rejection_l: item.rejection_l || 0
       }));
     } catch (e) {
       inventory = JSON.parse(JSON.stringify(defaultItems));
@@ -225,6 +179,7 @@ function setupEventListeners() {
     });
   }
 
+  // Ripple effect on buttons
   document.querySelectorAll('.ripple').forEach(btn => {
     btn.addEventListener('click', function (e) {
       const rect = this.getBoundingClientRect();
@@ -241,20 +196,12 @@ function setupEventListeners() {
     });
   });
 
-  // Bug Fix: Safely checking null objects before applying click logic
+  // Close search results when clicking outside
   document.addEventListener('click', (e) => {
-    const searchContainer = document.querySelector('.search-input-container');
+    const searchContainer = document.querySelector('.search-input-container') || document.querySelector('.form-group');
     const resultsBox = document.getElementById('searchResults');
-    const inputField = document.getElementById('searchInput');
-
-    if (resultsBox && resultsBox.style.display === 'block') {
-      let isInside = false;
-      if (searchContainer && searchContainer.contains(e.target)) isInside = true;
-      if (inputField && inputField.contains(e.target)) isInside = true;
-      
-      if (!isInside) {
-        resultsBox.style.display = 'none';
-      }
+    if (resultsBox && !searchContainer.contains(e.target) && !document.getElementById('searchInput').contains(e.target)) {
+      resultsBox.style.display = 'none';
     }
   });
 }
@@ -329,6 +276,10 @@ function selectMaterialByIndex(index) {
     document.getElementById('dispName').innerText = item.name;
     document.getElementById('dispUom').innerText = item.uom;
     document.getElementById('dispClosing').innerText = calculateClosingStock(item);
+    
+    // Add ability to open item details by clicking on the selected badge
+    badge.setAttribute('onclick', `openItemDetailModal(${index})`);
+    
     badge.style.display = 'block';
   }
 
@@ -348,35 +299,6 @@ function calculateClosingStock(item) {
   return (op + f + h + i) - (g + j + l);
 }
 
-function updateCountingModeBadge() {
-  const sectionSelect = document.getElementById('sectionSelect');
-  const badge = document.getElementById('countingModeBadge');
-  const packCalcContainer = document.getElementById('packCalcContainer');
-  const btnExcel = document.getElementById('btnExcel');
-  const btnShare = document.getElementById('btnShare');
-  const btnCountingDownload = document.getElementById('btnCountingDownload');
-  
-  if (!sectionSelect || !badge) return;
-  
-  if (sectionSelect.value === 'COUNTING') {
-    badge.innerText = 'Normal Counting';
-    badge.className = 'counting-mode-badge badge-normal';
-    if (packCalcContainer) packCalcContainer.style.display = 'flex';
-    
-    if (btnExcel) btnExcel.style.display = 'none';
-    if (btnShare) btnShare.style.display = 'none';
-    if (btnCountingDownload) btnCountingDownload.style.display = 'flex';
-  } else {
-    badge.innerText = 'Daily Stocks';
-    badge.className = 'counting-mode-badge badge-daily';
-    if (packCalcContainer) packCalcContainer.style.display = 'none';
-
-    if (btnExcel) btnExcel.style.display = 'flex';
-    if (btnShare) btnShare.style.display = 'flex';
-    if (btnCountingDownload) btnCountingDownload.style.display = 'none';
-  }
-}
-
 function addSingleSectionData() {
   if (selectedIndex < 0 || selectedIndex >= inventory.length) {
     showToast(i18n[currentLang].msgSelectMaterial, 'error');
@@ -390,9 +312,6 @@ function addSingleSectionData() {
     return;
   }
 
-  const packsInput = document.getElementById('inputPacksCount');
-  const packsVal = parseFloat(packsInput ? packsInput.value : 0) || 0;
-
   const section = document.getElementById('sectionSelect').value;
   const item = inventory[selectedIndex];
 
@@ -402,21 +321,41 @@ function addSingleSectionData() {
   else if (section === 'I') item.ssl_i = (Number(item.ssl_i) || 0) + val;
   else if (section === 'J') item.ssl_j = (Number(item.ssl_j) || 0) + val;
   else if (section === 'L') item.rejection_l = (Number(item.rejection_l) || 0) + val;
-  else if (section === 'COUNTING') {
-    item.counting = val;
-    item.packs_count = packsVal;
-  }
 
   saveInventoryData();
 
   amountInput.value = '';
-  if (packsInput) packsInput.value = '';
 
   document.getElementById('dispClosing').innerText = calculateClosingStock(item);
 
   showToast(`${item.name} ${i18n[currentLang].msgAdded}`, 'success');
 }
 
+// ==================== ITEM DETAILS VIEW ====================
+function openItemDetailModal(index) {
+  const item = inventory[index];
+  document.getElementById('detCode').innerText = item.code;
+  document.getElementById('detUom').innerText = item.uom;
+  document.getElementById('detName').innerText = item.name;
+  document.getElementById('detOp').innerText = item.op_stock;
+  document.getElementById('detReceipt').innerText = item.receipt || 0;
+  document.getElementById('detIssues').innerText = item.issues || 0;
+  document.getElementById('detReturn').innerText = item.return || 0;
+  document.getElementById('detSslI').innerText = item.ssl_i || 0;
+  document.getElementById('detSslJ').innerText = item.ssl_j || 0;
+  document.getElementById('detRejectionL').innerText = item.rejection_l || 0;
+  document.getElementById('detClosing').innerText = calculateClosingStock(item);
+  
+  const modal = document.getElementById('itemDetailModal');
+  if (modal) modal.classList.add('show');
+}
+
+function closeItemDetailModal() {
+  const modal = document.getElementById('itemDetailModal');
+  if (modal) modal.classList.remove('show');
+}
+
+// ==================== BIN CARD UPDATE VIEW ====================
 function openBinCardUpdateView() {
   const modal = document.getElementById('binCardUpdateModal');
   if (modal) {
@@ -439,8 +378,7 @@ function renderBinCardUpdateViewList() {
 
   const filtered = inventory.filter(item => {
     const hasActivity = (Number(item.receipt) > 0 || Number(item.issues) > 0 || Number(item.return) > 0 || 
-                         Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0 || 
-                         Number(item.counting) > 0 || Number(item.packs_count) > 0);
+                         Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0);
     
     if (!hasActivity) return false;
     if (!filter) return true;
@@ -463,7 +401,6 @@ function renderBinCardUpdateViewList() {
 
   let html = '';
   filtered.forEach(item => {
-    const originalIndex = inventory.findIndex(i => i.code === item.code);
     const closing = calculateClosingStock(item);
     
     let detailsHtml = '';
@@ -473,11 +410,9 @@ function renderBinCardUpdateViewList() {
     if (Number(item.ssl_i) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Recv SSL: ${item.ssl_i}</span>`;
     if (Number(item.ssl_j) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Sent SSL: ${item.ssl_j}</span>`;
     if (Number(item.rejection_l) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Rejection: ${item.rejection_l}</span>`;
-    if (Number(item.counting) > 0) detailsHtml += `<span style="background:var(--primary-light); color:var(--primary); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Counting: ${item.counting}</span>`;
-    if (Number(item.packs_count) > 0) detailsHtml += `<span style="background:var(--border-color); color:var(--text-dark); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Packs: ${item.packs_count}</span>`;
 
     html += `
-      <div class="checklist-item" onclick="openItemDetailModal(${originalIndex})" style="flex-direction: column; align-items: stretch; gap: 10px;">
+      <div class="checklist-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
           <div class="checklist-info">
             <span class="checklist-code"><i class="fa-solid fa-barcode"></i> Code: ${item.code}</span>
@@ -499,6 +434,7 @@ function renderBinCardUpdateViewList() {
   container.innerHTML = html;
 }
 
+// ==================== RESTORE EXCEL DATA FIX ====================
 function restoreFromXLSX() {
   const fileInput = document.getElementById('xlsxFileInput');
   if (!fileInput || fileInput.files.length === 0) {
@@ -537,8 +473,6 @@ function restoreFromXLSX() {
       let sslIIdx = headers.findIndex(h => h.includes('ssl_i') || h.includes('received to ssl') || h.includes('i'));
       let sslJIdx = headers.findIndex(h => h.includes('ssl_j') || h.includes('sent to ssl') || h.includes('j'));
       let rejectionIdx = headers.findIndex(h => h.includes('rejection') || h.includes('l'));
-      let countingIdx = headers.findIndex(h => h.includes('counting'));
-      let packsIdx = headers.findIndex(h => h.includes('packs') || h.includes('කොටස්'));
 
       if (codeIdx === -1) codeIdx = 0;
       if (nameIdx === -1) nameIdx = 1;
@@ -566,8 +500,6 @@ function restoreFromXLSX() {
           if (sslIIdx !== -1 && !isNaN(row[sslIIdx])) existing.ssl_i = Number(row[sslIIdx]);
           if (sslJIdx !== -1 && !isNaN(row[sslJIdx])) existing.ssl_j = Number(row[sslJIdx]);
           if (rejectionIdx !== -1 && !isNaN(row[rejectionIdx])) existing.rejection_l = Number(row[rejectionIdx]);
-          if (countingIdx !== -1 && !isNaN(row[countingIdx])) existing.counting = Number(row[countingIdx]);
-          if (packsIdx !== -1 && !isNaN(row[packsIdx])) existing.packs_count = Number(row[packsIdx]);
         } else {
           inventory.push({
             type: "RM",
@@ -580,9 +512,7 @@ function restoreFromXLSX() {
             return: returnIdx !== -1 && !isNaN(row[returnIdx]) ? Number(row[returnIdx]) : 0,
             ssl_i: sslIIdx !== -1 && !isNaN(row[sslIIdx]) ? Number(row[sslIIdx]) : 0,
             ssl_j: sslJIdx !== -1 && !isNaN(row[sslJIdx]) ? Number(row[sslJIdx]) : 0,
-            rejection_l: rejectionIdx !== -1 && !isNaN(row[rejectionIdx]) ? Number(row[rejectionIdx]) : 0,
-            counting: countingIdx !== -1 && !isNaN(row[countingIdx]) ? Number(row[countingIdx]) : 0,
-            packs_count: packsIdx !== -1 && !isNaN(row[packsIdx]) ? Number(row[packsIdx]) : 0
+            rejection_l: rejectionIdx !== -1 && !isNaN(row[rejectionIdx]) ? Number(row[rejectionIdx]) : 0
           });
         }
         restoredCount++;
@@ -602,6 +532,34 @@ function restoreFromXLSX() {
     }
   };
   reader.readAsArrayBuffer(file);
+}
+
+// ==================== SUPPORTING FUNCTIONS & MODALS ====================
+
+function openRestoreHelpModal() {
+  const modal = document.getElementById('restoreHelpModal');
+  if (modal) {
+    modal.classList.add('show');
+    switchHelpTopic('fileType');
+  }
+}
+
+function closeRestoreHelpModal() {
+  const modal = document.getElementById('restoreHelpModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function switchHelpTopic(topic) {
+  const contentBox = document.getElementById('helpContentBox');
+  if (!contentBox) return;
+  
+  if (topic === 'fileType') {
+    contentBox.innerHTML = `<strong>1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</strong><br>ඔබගේ Excel File එකේ Material Code, Name, UOM, සහ Opening Stock වැනි තීරු අනිවාර්යයෙන්ම තිබිය යුතුය.`;
+  } else if (topic === 'howToDo') {
+    contentBox.innerHTML = `<strong>2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</strong><br>සැකසුම් මෙනුවේ (Settings) ඇති 'Restore Excel Data' බොත්තම ඔබා ඔබගේ .xlsx ගොනුව තෝරන්න. ඉන්පසු දත්ත පද්ධතියට එක් වේ.`;
+  } else if (topic === 'appFeatures') {
+    contentBox.innerHTML = `<strong>3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</strong><br>ඔබට දෛනික Stock ගණනය කිරීම්, යාවත්කාලීන කිරීම් සහ අවසාන වාර්තා Excel, CSV, PDF හෝ Share කිරීම මඟින් පහසුවෙන් කළ හැක.`;
+  }
 }
 
 function showToast(message, type = 'success') {
@@ -672,7 +630,7 @@ function changeLanguage(lang) {
 }
 
 function applyLanguage(lang) {
-  const dict = i18n[lang] || i18n['en']; // Bug fix: fallback to 'en' if invalid language passed
+  const dict = i18n[lang];
   if (!dict) return;
 
   setElHTML('lblSearch', dict.lblSearch);
@@ -684,7 +642,6 @@ function applyLanguage(lang) {
   setElHTML('optSslI', dict.optSslI);
   setElHTML('optSslJ', dict.optSslJ);
   setElHTML('optRejectionL', dict.optRejectionL);
-  setElHTML('optCounting', dict.optCounting);
   setElHTML('lblAmount', dict.lblAmount);
   setElHTML('btnSave', dict.btnSave);
   setElHTML('txtSettingsTitle', dict.txtSettingsTitle);
@@ -737,8 +694,6 @@ function downloadXLSXBackup() {
     "Received to SSL (I)": item.ssl_i,
     "Sent to SSL (J)": item.ssl_j,
     "Rejection (L)": item.rejection_l,
-    "Counting": item.counting,
-    "Packs Count": item.packs_count,
     "Closing Stock": calculateClosingStock(item)
   }));
 
@@ -749,76 +704,6 @@ function downloadXLSXBackup() {
   const dateStr = new Date().toISOString().slice(0, 10);
   XLSX.writeFile(workbook, `RMC_Stock_Backup_${dateStr}.xlsx`);
   showToast("Backup ගොනුව සාර්ථකව Download විය!", "success");
-}
-
-function openCountingDownloadModal() {
-  const modal = document.getElementById('countingDownloadModal');
-  if (modal) modal.classList.add('show');
-  updateCountingFileName();
-}
-
-function closeCountingDownloadModal() {
-  const modal = document.getElementById('countingDownloadModal');
-  if (modal) modal.classList.remove('show');
-}
-
-function updateCountingFileName() {
-  const input = document.getElementById('countingFileNameInput');
-  const dateStr = new Date().toISOString().slice(0, 10);
-  if (input) input.placeholder = `Counting_Sheet_${dateStr}`;
-}
-
-function processCountingDownload() {
-  const format = document.getElementById('countingFormatSelect').value;
-  const inputName = document.getElementById('countingFileNameInput').value.trim();
-  const dateStr = new Date().toISOString().slice(0, 10);
-  const fileName = inputName || `Counting_Sheet_${dateStr}`;
-
-  if (format === 'xlsx') {
-    const exportData = inventory.map(item => ({
-      "Code": item.code,
-      "Name": item.name,
-      "UOM": item.uom,
-      "Counting Amount": item.counting,
-      "Packs Count": item.packs_count
-    }));
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Counting Sheet");
-    XLSX.writeFile(wb, `${fileName}.xlsx`);
-    showToast("Counting Sheet Excel ගොනුව බාගත විය!", "success");
-  } else if (format === 'pdf') {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.text("Counting Sheet Report - " + dateStr, 14, 15);
-    
-    const tableData = inventory.map(item => [item.code, item.name, item.uom, item.counting, item.packs_count]);
-    doc.autoTable({
-      head: [['Code', 'Material Name', 'UOM', 'Counting', 'Packs']],
-      body: tableData,
-      startY: 20
-    });
-    doc.save(`${fileName}.pdf`);
-    showToast("Counting Sheet PDF ගොනුව බාගත විය!", "success");
-  } else {
-    let text = `Counting Sheet Report - ${dateStr}\n\n`;
-    inventory.forEach(i => {
-      text += `Code: ${i.code} | Name: ${i.name} | UOM: ${i.uom} | Counting: ${i.counting} | Packs: ${i.packs_count}\n`;
-    });
-    const blob = new Blob([text], { type: 'application/msword' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${fileName}.doc`;
-    a.click();
-    showToast("Counting Sheet Word ගොනුව බාගත විය!", "success");
-  }
-  closeCountingDownloadModal();
-}
-
-function processCountingShare() {
-  processCountingDownload();
-  showToast(i18n[currentLang].shareSuccess, 'success');
 }
 
 function openTodayUploadedModal() {
@@ -837,73 +722,52 @@ function closeTodayUploadedModal() {
 function renderTodayUploadedList() {
   const container = document.getElementById('todayCardsContainer');
   const searchInput = document.getElementById('todayModalSearchInput');
-  const toggleCountingOnly = document.getElementById('toggleCountingOnly');
   if (!container) return;
 
   const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
-  const countingOnly = toggleCountingOnly ? toggleCountingOnly.checked : false;
 
   const filtered = inventory.filter(item => {
-    if (countingOnly && Number(item.counting) <= 0) return false;
+    const hasActivity = (Number(item.receipt) > 0 || Number(item.issues) > 0 || Number(item.return) > 0 || 
+                         Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0);
+    
+    if (!hasActivity) return false;
     if (!filter) return true;
     return item.code.toLowerCase().includes(filter) || item.name.toLowerCase().includes(filter);
   });
 
   if (filtered.length === 0) {
-    container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">දත්ත කිසිවක් හමු නොවීය.</div>`;
+    container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">යාවත්කාලීන කරන ලද දත්ත කිසිවක් අද දින හමු නොවීය.</div>`;
     return;
   }
 
   let html = '';
   filtered.forEach(item => {
-    const originalIndex = inventory.findIndex(i => i.code === item.code);
+    const closing = calculateClosingStock(item);
+    let acts = [];
+    if(item.receipt > 0) acts.push(`Rec: ${item.receipt}`);
+    if(item.issues > 0) acts.push(`Iss: ${item.issues}`);
+    if(item.return > 0) acts.push(`Ret: ${item.return}`);
+    if(item.ssl_i > 0) acts.push(`SSL-R: ${item.ssl_i}`);
+    if(item.ssl_j > 0) acts.push(`SSL-S: ${item.ssl_j}`);
+    if(item.rejection_l > 0) acts.push(`Rej: ${item.rejection_l}`);
+
     html += `
-      <div class="checklist-item" onclick="openEditCountingModal(${originalIndex})">
+      <div class="checklist-item">
         <div class="checklist-left">
           <div class="checklist-info">
             <span class="checklist-name">${item.name}</span>
             <span class="checklist-code">Code: ${item.code} | UOM: ${item.uom}</span>
+            <div style="font-size:0.75rem; color:var(--primary); margin-top:4px; font-weight:600;">${acts.join(' | ')}</div>
           </div>
         </div>
         <div class="checklist-right">
-          <div class="checklist-stock">${item.counting || 0}</div>
-          <div style="font-size:0.75rem; color:var(--text-muted);">Packs: ${item.packs_count || 0}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Closing</div>
+          <div class="checklist-stock">${closing}</div>
         </div>
       </div>
     `;
   });
   container.innerHTML = html;
-}
-
-function openEditCountingModal(index) {
-  currentlyEditingIndex = index;
-  const item = inventory[index];
-  document.getElementById('editModalItemName').innerText = item.name;
-  document.getElementById('editModalItemCode').innerText = `Code: ${item.code} | UOM: ${item.uom}`;
-  document.getElementById('editCountingAmountInput').value = item.counting || '';
-  document.getElementById('editPacksCountInput').value = item.packs_count || '';
-  
-  const modal = document.getElementById('editCountingModal');
-  if (modal) modal.classList.add('show');
-}
-
-function closeEditCountingModal() {
-  const modal = document.getElementById('editCountingModal');
-  if (modal) modal.classList.remove('show');
-}
-
-function saveEditedCountingAmount() {
-  if (currentlyEditingIndex < 0 || currentlyEditingIndex >= inventory.length) return;
-  const amt = parseFloat(document.getElementById('editCountingAmountInput').value) || 0;
-  const packs = parseFloat(document.getElementById('editPacksCountInput').value) || 0;
-
-  inventory[currentlyEditingIndex].counting = amt;
-  inventory[currentlyEditingIndex].packs_count = packs;
-  saveInventoryData();
-
-  closeEditCountingModal();
-  renderTodayUploadedList();
-  showToast("ගණනය කිරීමේ ප්‍රමාණය යාවත්කාලීන විය!", "success");
 }
 
 function openExportModal(mode) {
@@ -913,7 +777,7 @@ function openExportModal(mode) {
   const btn = document.getElementById('btnConfirmExport');
   
   if (title) title.innerHTML = `<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> ${mode === 'excel' ? i18n[currentLang].titleExcel : i18n[currentLang].titleShare}`;
-  if (btn) btn.innerHTML = `<i class="fa-solid ${mode === 'excel' ? 'fa-download' : 'fa-share-nodes'}"></i> ${mode === 'excel' ? 'Download Excel' : 'Share File'}`;
+  if (btn) btn.innerHTML = `<i class="fa-solid ${mode === 'excel' ? 'fa-download' : 'fa-share-nodes'}"></i> ${mode === 'excel' ? 'Download Data' : 'Share File'}`;
   
   updateDefaultFileName();
   if (modal) modal.classList.add('show');
@@ -927,14 +791,15 @@ function closeExportModal() {
 function updateDefaultFileName() {
   const input = document.getElementById('exportFileNameInput');
   const dateStr = new Date().toISOString().slice(0, 10);
-  if (input) input.placeholder = `Stock_Counting_${dateStr}`;
+  if (input) input.placeholder = `Stock_Summary_${dateStr}`;
 }
 
+// Fixed processExportAction code which was cut off previously
 function processExportAction() {
   const format = document.getElementById('exportFormatSelect').value;
   const inputName = document.getElementById('exportFileNameInput').value.trim();
   const dateStr = new Date().toISOString().slice(0, 10);
-  const fileName = inputName || `Stock_Counting_${dateStr}`;
+  const fileName = inputName || `Stock_Summary_${dateStr}`;
   const shiftStock = document.getElementById('chkShiftStock').checked;
 
   const exportData = inventory.map(item => ({
@@ -948,15 +813,13 @@ function processExportAction() {
     "Received to SSL (I)": item.ssl_i,
     "Sent to SSL (J)": item.ssl_j,
     "Rejection (L)": item.rejection_l,
-    "Counting": item.counting,
-    "Packs Count": item.packs_count,
     "Closing Stock": calculateClosingStock(item)
   }));
 
   if (format === 'xlsx') {
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Daily Stock");
+    XLSX.utils.book_append_sheet(wb, ws, "Daily Stock Summary");
     XLSX.writeFile(wb, `${fileName}.xlsx`);
   } else if (format === 'csv') {
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -967,10 +830,10 @@ function processExportAction() {
     a.href = url;
     a.download = `${fileName}.csv`;
     a.click();
-  } else {
-    let txt = `Daily Stock Summary - ${dateStr}\n\n`;
-    exportData.forEach(i => {
-      txt += `${i["Material Code"]} | ${i["Material Name"]} | Closing: ${i["Closing Stock"]} ${i["UOM"]}\n`;
+  } else if (format === 'txt') {
+    let txt = "Material Code\tMaterial Name\tUOM\tOpening Stock\tReceipt (F)\tIssues (G)\tReturn (H)\tReceived SSL (I)\tSent SSL (J)\tRejection (L)\tClosing Stock\n";
+    exportData.forEach(r => {
+      txt += `${r["Material Code"]}\t${r["Material Name"]}\t${r["UOM"]}\t${r["Opening Stock"]}\t${r["Receipt (F)"]}\t${r["Issues (G)"]}\t${r["Return (H)"]}\t${r["Received to SSL (I)"]}\t${r["Sent to SSL (J)"]}\t${r["Rejection (L)"]}\t${r["Closing Stock"]}\n`;
     });
     const blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -980,6 +843,7 @@ function processExportAction() {
     a.click();
   }
 
+  // Shift logic fix
   if (shiftStock) {
     inventory.forEach(item => {
       item.op_stock = calculateClosingStock(item);
@@ -989,85 +853,15 @@ function processExportAction() {
       item.ssl_i = 0;
       item.ssl_j = 0;
       item.rejection_l = 0;
-      item.counting = 0;
-      item.packs_count = 0;
     });
     saveInventoryData();
   }
 
   closeExportModal();
   showToast(i18n[currentLang].msgExcelShift, 'success');
-}
-
-function openRestoreHelpModal() {
-  const modal = document.getElementById('restoreHelpModal');
-  if (modal) {
-    modal.classList.add('show');
-    switchHelpTopic('fileType');
+  if (currentExportMode === 'share') {
+    setTimeout(() => {
+      alert(i18n[currentLang].shareSuccess);
+    }, 500);
   }
-}
-
-function closeRestoreHelpModal() {
-  const modal = document.getElementById('restoreHelpModal');
-  if (modal) modal.classList.remove('show');
-}
-
-function switchHelpTopic(topic) {
-  const box = document.getElementById('helpContentBox');
-  if (!box) return;
-
-  if (topic === 'fileType') {
-    box.innerHTML = `
-      <strong>1. Upload කළ යුත්තේ කුමන ආකාරයේ Excel File එකක්ද?</strong><br><br>
-      ඔබට ඔබගේ පද්ධතිය මඟින් Export කරන ලද හෝ පිළිවෙළට සකස් කරන ලද <code>.xlsx</code> හෝ <code>.xls</code> ගොනුවක් upload කළ හැක. 
-      මෙහි මූලික තීරු (Columns) ලෙස <strong>Material Code</strong>, <strong>Material Name</strong>, <strong>UOM</strong> සහ <strong>Opening Stock</strong> අඩංගු විය යුතුය. 
-      එමෙන්ම <strong>Receipt</strong>, <strong>Issues</strong>, <strong>Return</strong> වැනි අතිරේක තීරු තිබේ නම් ඒවාද ස්වයංක්‍රීයව Bin Card එකට යාවත්කාලීන වේ.
-    `;
-  } else if (topic === 'howToDo') {
-    box.innerHTML = `
-      <strong>2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</strong><br><br>
-      - මුල් පිටුවේ ඉහළ වම්පස ඇති <strong>Settings (Gear Icon)</strong> ක්ලික් කරන්න.<br>
-      - <strong>Restore Excel (.xlsx) File</strong> කොටස වෙත යන්න.<br>
-      - <strong>Choose File</strong> මඟින් ඔබේ පරිගණකයෙන් හෝ දුරකථනයෙන් Excel ගොනුව තෝරන්න.<br>
-      - <strong>Restore Excel Data</strong> බොත්තම ඔබන්න. සාර්ථක වූ පසු ස්වයංක්‍රීයව <strong>Bin Card Update View</strong> විවෘත වී දත්ත බලාගත හැක.
-    `;
-  } else {
-    box.innerHTML = `
-      <strong>3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</strong><br><br>
-      - දිනපතා Stock ගණනය කිරීම් (Counting) සහ Section අනුව දත්ත ඇතුළත් කිරීම.<br>
-      - <strong>Bin Card Update View</strong> හරහා යාවත්කාලීන වූ දත්ත Card ක්‍රමයට පහසුවෙන් පරීක්ෂා කිරීම.<br>
-      - Excel, PDF හෝ Word ფორමැට් වලින් Counting Sheets ඩවුන්ලෝඩ් කිරීම සහ Share කිරීම.<br>
-      - දත්ත සුරක්ෂිතව Backup ලබාගැනීම සහ අවශ්‍ය විට Restore කිරීම.
-    `;
-  }
-}
-
-// BUG FIX: සම්පූර්ණ දත්ත බැලීමට අදාළ Material Details Modal එක සක්‍රීය කරන ලදී.
-function openItemDetailModal(index) {
-  const item = inventory[index];
-  if (!item) return;
-
-  document.getElementById('detCode').innerText = item.code;
-  document.getElementById('detUom').innerText = item.uom;
-  document.getElementById('detName').innerText = item.name;
-  document.getElementById('detOp').innerText = item.op_stock || 0;
-  document.getElementById('detReceipt').innerText = item.receipt || 0;
-  document.getElementById('detIssues').innerText = item.issues || 0;
-  document.getElementById('detReturn').innerText = item.return || 0;
-  document.getElementById('detSslI').innerText = item.ssl_i || 0;
-  document.getElementById('detSslJ').innerText = item.ssl_j || 0;
-  document.getElementById('detRejectionL').innerText = item.rejection_l || 0;
-  document.getElementById('detCounting').innerText = item.counting || 0;
-  document.getElementById('detPacksCount').innerText = item.packs_count || 0;
-  
-  const closing = calculateClosingStock(item);
-  document.getElementById('detClosing').innerText = `${closing} ${item.uom}`;
-
-  const modal = document.getElementById('itemDetailModal');
-  if (modal) modal.classList.add('show');
-}
-
-function closeItemDetailModal() {
-  const modal = document.getElementById('itemDetailModal');
-  if (modal) modal.classList.remove('show');
 }
