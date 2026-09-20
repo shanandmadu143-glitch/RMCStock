@@ -51,7 +51,8 @@
       </button>
     </div>
 
-    <div class="form-group">
+    <!-- Added z-index:10 to prevent search dropdown hiding behind selected badge -->
+    <div class="form-group" style="position: relative; z-index: 10;">
       <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:</label>
       <div class="input-glow-wrapper search-input-container">
         <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off">
@@ -94,12 +95,12 @@
 
     <!-- UI Icon Action Buttons Row -->
     <div class="action-buttons-row">
-      <button class="btn-action-icon btn-save-icon ripple" onclick="addSingleSectionData()" id="btnSave" type="button" title="Save Data">
+      <button class="btn-action-icon btn-save-icon ripple" onclick="addSingleSectionData()" id="btnSave" type="button" title="Save Data / දත්ත සුරකින්න">
         <i class="fa-solid fa-floppy-disk"></i>
         <span class="icon-btn-label" id="txtSaveBtnLabel">Save</span>
       </button>
 
-      <button class="btn-action-icon btn-bincard-icon ripple" onclick="openBinCardUpdateView()" id="btnBinCardView" type="button" title="Bin Card Update View">
+      <button class="btn-action-icon btn-bincard-icon ripple" onclick="openBinCardUpdateView()" id="btnBinCardView" type="button" title="Bin Card Update View / බින් කාඩ් පෙනුම">
         <i class="fa-solid fa-clipboard-list"></i>
         <span class="icon-btn-label" id="txtBinCardBtnLabel">Bin Card</span>
       </button>
@@ -126,7 +127,7 @@
 <div id="binCardUpdateModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 id="txtBinCardTitle"><i class="fa-solid fa-clipboard-list" style="color:var(--success);"></i> Bin Card Update View</h3>
+      <h3><i class="fa-solid fa-clipboard-list" style="color:var(--success);"></i> Bin Card Update View</h3>
       <div style="display:flex; gap:10px; align-items:center;">
         <!-- PDF Download Button -->
         <button class="btn ripple" onclick="downloadBinCardPDF()" style="padding: 6px 14px; background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;" type="button" title="Download Report as PDF">
@@ -137,7 +138,7 @@
     </div>
 
     <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;">
-      <p id="txtBinCardDesc" style="font-size: 0.88rem; color: var(--text-muted);">යාවත්කාලීන වූ දත්ත පමණක් පෙන්වයි. විස්තර බැලීමට අදාල අයිතමය මත Click කරන්න:</p>
+      <p style="font-size: 0.88rem; color: var(--text-muted);">යාවත්කාලීන වූ දත්ත පමණක් පෙන්වයි. විස්තර බැලීමට අදාල අයිතමය මත Click කරන්න:</p>
       <input type="text" id="binCardSearchInput" placeholder="Search by Code, Material Name, Section or Amount..." autocomplete="off" style="width: 100%;">
     </div>
 
@@ -170,7 +171,7 @@
       <button class="close-btn ripple" onclick="closeExportModal()" type="button">&times;</button>
     </div>
     <div class="modal-body-scroll">
-      <p id="txtExportDesc" style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">ඔබට අවශ්‍ය Format සහ ගොනුවේ තොරතුරු සකසන්න:</p>
+      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">ඔබට අවශ්‍ය Format සහ ගොනුවේ තොරතුරු සකසන්න:</p>
       
       <div class="form-group">
         <label><i class="fa-solid fa-file-code"></i> Format:</label>
@@ -182,7 +183,7 @@
       </div>
 
       <div class="form-group" style="margin-top: 14px;">
-        <label id="lblExportName"><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
+        <label><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
         <div class="input-glow-wrapper">
           <input type="text" id="exportFileNameInput" placeholder="Stock_Summary_YYYY-MM-DD">
         </div>
@@ -192,7 +193,7 @@
         <label><i class="fa-solid fa-toggle-on"></i> Options:</label>
         <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
           <input type="checkbox" id="chkShiftStock" class="custom-checkbox" checked>
-          <label for="chkShiftStock" id="lblShiftStock" style="text-transform:none; margin:0; cursor:pointer; font-size:0.88rem;">Shift Stock to Opening (Reset Daily Data)</label>
+          <label for="chkShiftStock" style="text-transform:none; margin:0; cursor:pointer; font-size:0.88rem;">Shift Stock to Opening (Reset Daily Data)</label>
         </div>
       </div>
 
@@ -205,11 +206,11 @@
   </div>
 </div>
 
-<!-- Material Detail Modal -->
+<!-- Material Detail Modal (Beautiful UI Popup) -->
 <div id="itemDetailModal" class="modal" style="z-index: 1050;">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 id="txtMaterialDetails"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3>
+      <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3>
       <button class="close-btn ripple" onclick="closeItemDetailModal()" type="button">&times;</button>
     </div>
     <div class="detail-card-grid" style="overflow-y: auto;">
@@ -229,6 +230,7 @@
         <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock</div>
         <div class="detail-value" id="detOp">-</div>
       </div>
+      
       <div class="detail-item-box" id="boxReceipt">
         <div class="detail-label"><i class="fa-solid fa-arrow-down" style="color:var(--success);"></i> Receipt (F)</div>
         <div class="detail-value" id="detReceipt" style="color:var(--success);">-</div>
@@ -257,6 +259,13 @@
         <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock</div>
         <div class="detail-value" id="detClosing" style="font-size: 1.3rem; color:var(--primary);">-</div>
       </div>
+    </div>
+    
+    <!-- Footer for Item Clear Action -->
+    <div class="modal-footer" style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid var(--border-color); padding-top: 15px;">
+      <button class="btn ripple" style="background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem;" onclick="clearSelectedItem()" id="btnClearItem" type="button">
+        <i class="fa-solid fa-eraser"></i> <span id="txtClearBtnLabel">Clear Updates</span>
+      </button>
     </div>
   </div>
 </div>
@@ -291,7 +300,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <label id="lblRestore" style="margin-bottom: 0;"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label>
           <button class="btn ripple" onclick="openRestoreHelpModal()" type="button" style="padding: 5px 10px; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
-            <i class="fa-solid fa-circle-question"></i> <span id="txtHelpBtn">Help / උදව්</span>
+            <i class="fa-solid fa-circle-question"></i> Help / උදව්
           </button>
         </div>
         <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p>
@@ -330,7 +339,7 @@
 
     <div class="modal-body-scroll">
       <div class="form-group" style="margin-bottom: 16px;">
-        <label id="helpSelectLabel"><i class="fa-solid fa-list"></i> මාතෘකාව තෝරන්න (Select Topic):</label>
+        <label id="helpSelectLabel"><i class="fa-solid fa-list"></i> මාතෘකාව තෝරන්න:</label>
         <select id="helpTopicSelect" onchange="switchHelpTopic(this.value)">
           <option value="fileType">1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</option>
           <option value="howToDo">2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</option>
@@ -347,4 +356,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
