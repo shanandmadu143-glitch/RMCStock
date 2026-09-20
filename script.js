@@ -17,7 +17,7 @@ const i18n = {
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:',
-    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) Restore කරන්න:',
+    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Excel (.xlsx) Restore කරන්න:',
     descRestore: 'පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.',
     btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup එකක් ගන්න:',
@@ -30,14 +30,20 @@ const i18n = {
     msgSelectMaterial: 'කරුණාකර Material Code එකක් හෝ Name එකක් තෝරන්න!',
     msgValidAmount: 'කරුණාකර වලංගු 0 ට වැඩි අංකයක් පමණක් ඇතුළත් කරන්න!',
     msgAdded: 'සාර්ථකව එකතු විය!',
-    msgExcelShift: 'ගොනුව බාගත වූ අතර Stock එක යාවත්කාලීන විය!',
+    msgExcelShift: 'ක්‍රියාවලිය සාර්ථකයි! Stock එක යාවත්කාලීන විය!',
     msgRestoreSelect: 'කරුණාකර Excel File එකක් තෝරන්න!',
     msgRestoreSuccess: 'Excel Restore සාර්ථකයි!',
     msgResetConfirm: 'ඔබට නැවත මුල් දත්ත ලබා ගැනීමට අවශ්‍ය බව විශ්වාසද?',
     shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'ගොනුව Share කිරීමට සූදානම්!',
-    shareNotSupported: 'ඔබගේ බ්‍රවුසරය File Share කිරීමට සහය නොදක්වයි. Direct Download සක්‍රිය විය.',
-    msgItemCleared: 'දත්ත ඉවත් කර Closing Stock එක මුල් තත්වයට පත් කරන ලදී!'
+    shareSuccess: 'ගොනුව Share කිරීම සාර්ථකයි!',
+    shareNotSupported: 'ඔබගේ බ්‍රවුසරය/උපාංගය File Share කිරීමට සහය නොදක්වයි. Download කිරීම ආරම්භ විය.',
+    txtUpdatedLiveTitle: '<i class="fa-solid fa-cloud-arrow-up" style="color:var(--success);"></i> අලුත් වූ දත්ත (Live Details)',
+    helpModalTitle: '<i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore උදව්',
+    txtBinCardTitle: '<i class="fa-solid fa-clipboard-list" style="color:var(--success);"></i> Bin Card Update දත්ත',
+    txtMaterialDetails: '<i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material විස්තර',
+    lblShiftStock: 'Shift Stock to Opening (Reset Daily Data) / දෛනික දත්ත මුල් තත්වයට හරවන්න',
+    txtExportDesc: 'ඔබට අවශ්‍ය Format සහ ගොනුවේ නම සකසන්න:',
+    lblExportName: '<i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):'
   },
   en: {
     lblSearch: '<i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:',
@@ -70,14 +76,20 @@ const i18n = {
     msgSelectMaterial: 'Please select a Material Code or Name!',
     msgValidAmount: 'Please enter a valid number greater than 0!',
     msgAdded: 'successfully added!',
-    msgExcelShift: 'File downloaded and Stock shifted successfully!',
+    msgExcelShift: 'Action successful! Stock shifted.',
     msgRestoreSelect: 'Please select an Excel file!',
     msgRestoreSuccess: 'Excel Restore Successful!',
     msgResetConfirm: 'Are you sure you want to reset to default data?',
     shareTitle: 'RMC Daily Stock Summary',
-    shareSuccess: 'File ready to share!',
-    shareNotSupported: 'Your browser does not support file sharing. Direct download initiated.',
-    msgItemCleared: 'Item data cleared and Closing Stock reset to original!'
+    shareSuccess: 'File shared successfully!',
+    shareNotSupported: 'Your browser/device does not support file sharing. Direct download initiated.',
+    txtUpdatedLiveTitle: '<i class="fa-solid fa-cloud-arrow-up" style="color:var(--success);"></i> Updated Live Details',
+    helpModalTitle: '<i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore Help',
+    txtBinCardTitle: '<i class="fa-solid fa-clipboard-list" style="color:var(--success);"></i> Bin Card Update View',
+    txtMaterialDetails: '<i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details',
+    lblShiftStock: 'Shift Stock to Opening (Reset Daily Data)',
+    txtExportDesc: 'Set your preferred format and file name:',
+    lblExportName: '<i class="fa-solid fa-pen-to-square"></i> File Name:'
   }
 };
 
@@ -256,6 +268,9 @@ function clearSearchInput() {
   selectedIndex = -1;
   const badge = document.getElementById('selectedBadge');
   if (badge) badge.style.display = 'none';
+  
+  const amountInput = document.getElementById('inputAmount');
+  if (amountInput) amountInput.value = '';
 }
 
 function selectMaterialByIndex(index) {
@@ -332,7 +347,7 @@ function addSingleSectionData() {
   showToast(`${item.name} ${i18n[currentLang].msgAdded}`, 'success');
 }
 
-// ==================== ITEM DETAILS VIEW (Beautiful View) ====================
+// ==================== ITEM DETAILS VIEW ====================
 function openItemDetailModal(index) {
   const item = inventory[index];
   if (!item) return;
@@ -342,7 +357,6 @@ function openItemDetailModal(index) {
   document.getElementById('detName').innerText = item.name;
   document.getElementById('detOp').innerText = item.op_stock;
 
-  // Helper Function for clean UI - hide/fade zero values
   const setDetailValue = (valId, boxId, value) => {
     const el = document.getElementById(valId);
     const box = document.getElementById(boxId);
@@ -410,7 +424,6 @@ function renderBinCardUpdateViewList() {
       <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
         <i class="fa-solid fa-clipboard-question" style="font-size: 2.5rem; margin-bottom: 12px; color: var(--border-color);"></i>
         <p style="font-weight: 600;">යාවත්කාලීන කරන ලද දත්ත කිසිවක් හමු නොවීය.</p>
-        <p style="font-size: 0.85rem; margin-top: 4px;">Settings මඟින් Excel Restore කිරීමෙන් හෝ දත්ත ඇතුළත් කිරීමෙන් පසු මෙහි බලාගත හැක.</p>
       </div>
     `;
     return;
@@ -419,8 +432,6 @@ function renderBinCardUpdateViewList() {
   let html = '';
   filtered.forEach(item => {
     const closing = calculateClosingStock(item);
-    
-    // Only show updated things beautifully
     let detailsHtml = '';
     if (Number(item.receipt) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Receipt: ${item.receipt}</span>`;
     if (Number(item.issues) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Issues: ${item.issues}</span>`;
@@ -459,7 +470,7 @@ function renderBinCardUpdateViewList() {
 // ==================== BIN CARD PDF DOWNLOAD ====================
 function downloadBinCardPDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF('landscape'); // Landscape to fit more columns
+  const doc = new jsPDF('landscape'); 
 
   const updatedItems = inventory.filter(item => {
     return item.isUpdated || item.isNew || 
@@ -473,7 +484,7 @@ function downloadBinCardPDF() {
   }
 
   doc.setFontSize(18);
-  doc.setTextColor(37, 99, 235); // Primary blue color
+  doc.setTextColor(37, 99, 235);
   doc.text("Daily Bin Card Update Report", 14, 20);
   
   doc.setFontSize(10);
@@ -511,7 +522,7 @@ function downloadBinCardPDF() {
     alternateRowStyles: { fillColor: [248, 250, 252] },
     columnStyles: {
       0: { fontStyle: 'bold' },
-      10: { fontStyle: 'bold', textColor: [16, 185, 129] } // closing stock column color
+      10: { fontStyle: 'bold', textColor: [16, 185, 129] }
     }
   });
 
@@ -519,8 +530,6 @@ function downloadBinCardPDF() {
   showToast("PDF එක සාර්ථකව Download විය!", "success");
 }
 
-
-// Excel column index helper
 function findColumnIndex(headers, keywords) {
   for (let i = 0; i < headers.length; i++) {
     const h = String(headers[i] || '').toLowerCase().trim();
@@ -820,6 +829,14 @@ function applyLanguage(lang) {
   setElHTML('descReset', dict.descReset);
   setElHTML('btnReset', dict.btnReset);
   setElHTML('lblFooter', dict.lblFooter);
+  setElHTML('txtUpdatedLiveTitle', dict.txtUpdatedLiveTitle);
+  setElHTML('helpModalTitle', dict.helpModalTitle);
+  setElHTML('txtBinCardTitle', dict.txtBinCardTitle);
+  setElHTML('txtMaterialDetails', dict.txtMaterialDetails);
+  setElHTML('lblShiftStock', dict.lblShiftStock);
+  setElHTML('txtExportDesc', dict.txtExportDesc);
+  setElHTML('lblExportName', dict.lblExportName);
+
   const langSelect = document.getElementById('langSelect');
   if (langSelect) langSelect.value = lang;
 }
@@ -851,9 +868,20 @@ function downloadXLSXBackup() {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory_Backup");
   const dateStr = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(workbook, `RMC_Stock_Backup_${dateStr}.xlsx`);
+  
+  const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a'); 
+  a.href = url; 
+  a.download = `RMC_Stock_Backup_${dateStr}.xlsx`; 
+  a.click();
+  
+  URL.revokeObjectURL(url);
   showToast("Backup ගොනුව සාර්ථකව Download විය!", "success");
 }
+
 function openExportModal(mode) {
   currentExportMode = mode;
   const modal = document.getElementById('exportModal');
@@ -864,16 +892,19 @@ function openExportModal(mode) {
   updateDefaultFileName();
   if (modal) modal.classList.add('show');
 }
+
 function closeExportModal() {
   const modal = document.getElementById('exportModal');
   if (modal) modal.classList.remove('show');
 }
+
 function updateDefaultFileName() {
   const input = document.getElementById('exportFileNameInput');
   const dateStr = new Date().toISOString().slice(0, 10);
   if (input) input.placeholder = `Stock_Summary_${dateStr}`;
 }
-function processExportAction() {
+
+async function processExportAction() {
   const format = document.getElementById('exportFormatSelect').value;
   const inputName = document.getElementById('exportFileNameInput').value.trim();
   const dateStr = new Date().toISOString().slice(0, 10);
@@ -887,40 +918,70 @@ function processExportAction() {
     "Closing Stock": calculateClosingStock(item)
   }));
 
+  let fileBlob, fileExt;
+
   if (format === 'xlsx') {
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Daily Stock Summary");
-    XLSX.writeFile(wb, `${fileName}.xlsx`);
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    fileBlob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    fileExt = '.xlsx';
   } else if (format === 'csv') {
     const ws = XLSX.utils.json_to_sheet(exportData);
     const csv = XLSX.utils.sheet_to_csv(ws);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `${fileName}.csv`; a.click();
+    fileBlob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    fileExt = '.csv';
   } else if (format === 'txt') {
     let txt = "Material Code\tMaterial Name\tUOM\tOpening Stock\tReceipt (F)\tIssues (G)\tReturn (H)\tReceived SSL (I)\tSent SSL (J)\tRejection (L)\tClosing Stock\n";
     exportData.forEach(r => {
       txt += `${r["Material Code"]}\t${r["Material Name"]}\t${r["UOM"]}\t${r["Opening Stock"]}\t${r["Receipt (F)"]}\t${r["Issues (G)"]}\t${r["Return (H)"]}\t${r["Received to SSL (I)"]}\t${r["Sent to SSL (J)"]}\t${r["Rejection (L)"]}\t${r["Closing Stock"]}\n`;
     });
-    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `${fileName}.txt`; a.click();
+    fileBlob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
+    fileExt = '.txt';
   }
 
-  if (shiftStock) {
-    inventory.forEach(item => {
-      item.op_stock = calculateClosingStock(item);
-      item.receipt = 0; item.issues = 0; item.return = 0;
-      item.ssl_i = 0; item.ssl_j = 0; item.rejection_l = 0;
-      item.isUpdated = false; item.isNew = false;
-    });
-    saveInventoryData();
-  }
+  const completeAction = () => {
+    if (shiftStock) {
+      inventory.forEach(item => {
+        item.op_stock = calculateClosingStock(item);
+        item.receipt = 0; item.issues = 0; item.return = 0;
+        item.ssl_i = 0; item.ssl_j = 0; item.rejection_l = 0;
+        item.isUpdated = false; item.isNew = false;
+      });
+      saveInventoryData();
+      clearSearchInput();
+    }
+    closeExportModal();
+  };
 
-  closeExportModal();
-  showToast(i18n[currentLang].msgExcelShift, 'success');
   if (currentExportMode === 'share') {
-    setTimeout(() => { alert(i18n[currentLang].shareSuccess); }, 500);
+    const fileToShare = new File([fileBlob], `${fileName}${fileExt}`, { type: fileBlob.type });
+    if (navigator.canShare && navigator.canShare({ files: [fileToShare] })) {
+      try {
+        await navigator.share({
+          title: i18n[currentLang].shareTitle,
+          files: [fileToShare]
+        });
+        completeAction();
+        showToast(i18n[currentLang].shareSuccess, 'success');
+      } catch (err) {
+        console.error("Share failed or was cancelled:", err);
+      }
+      return;
+    } else {
+      showToast(i18n[currentLang].shareNotSupported, 'warning');
+    }
   }
+
+  // Handle Download (Or Share fallback)
+  const url = URL.createObjectURL(fileBlob);
+  const a = document.createElement('a'); 
+  a.href = url; 
+  a.download = `${fileName}${fileExt}`; 
+  a.click();
+  URL.revokeObjectURL(url);
+  
+  completeAction();
+  showToast(i18n[currentLang].msgExcelShift, 'success');
 }
