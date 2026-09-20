@@ -183,7 +183,6 @@ function setupEventListeners() {
     });
   }
 
-  // Ripple effect on buttons
   document.querySelectorAll('.ripple').forEach(btn => {
     btn.addEventListener('click', function (e) {
       const rect = this.getBoundingClientRect();
@@ -200,7 +199,6 @@ function setupEventListeners() {
     });
   });
 
-  // Close search results when clicking outside
   document.addEventListener('click', (e) => {
     const searchContainer = document.querySelector('.search-input-container') || document.querySelector('.form-group');
     const resultsBox = document.getElementById('searchResults');
@@ -329,13 +327,12 @@ function addSingleSectionData() {
   saveInventoryData();
 
   amountInput.value = '';
-
   document.getElementById('dispClosing').innerText = calculateClosingStock(item);
 
   showToast(`${item.name} ${i18n[currentLang].msgAdded}`, 'success');
 }
 
-// ==================== ITEM DETAILS VIEW ====================
+// ==================== ITEM DETAILS VIEW (Beautiful View) ====================
 function openItemDetailModal(index) {
   const item = inventory[index];
   if (!item) return;
@@ -344,12 +341,27 @@ function openItemDetailModal(index) {
   document.getElementById('detUom').innerText = item.uom;
   document.getElementById('detName').innerText = item.name;
   document.getElementById('detOp').innerText = item.op_stock;
-  document.getElementById('detReceipt').innerText = item.receipt || 0;
-  document.getElementById('detIssues').innerText = item.issues || 0;
-  document.getElementById('detReturn').innerText = item.return || 0;
-  document.getElementById('detSslI').innerText = item.ssl_i || 0;
-  document.getElementById('detSslJ').innerText = item.ssl_j || 0;
-  document.getElementById('detRejectionL').innerText = item.rejection_l || 0;
+
+  // Helper Function for clean UI - hide/fade zero values
+  const setDetailValue = (valId, boxId, value) => {
+    const el = document.getElementById(valId);
+    const box = document.getElementById(boxId);
+    if (Number(value) === 0) {
+      el.innerText = '-';
+      box.style.opacity = '0.35';
+    } else {
+      el.innerText = value;
+      box.style.opacity = '1';
+    }
+  };
+
+  setDetailValue('detReceipt', 'boxReceipt', item.receipt);
+  setDetailValue('detIssues', 'boxIssues', item.issues);
+  setDetailValue('detReturn', 'boxReturn', item.return);
+  setDetailValue('detSslI', 'boxSslI', item.ssl_i);
+  setDetailValue('detSslJ', 'boxSslJ', item.ssl_j);
+  setDetailValue('detRejectionL', 'boxRejection', item.rejection_l);
+
   document.getElementById('detClosing').innerText = calculateClosingStock(item);
   
   const modal = document.getElementById('itemDetailModal');
@@ -385,7 +397,6 @@ function renderBinCardUpdateViewList() {
   const filtered = inventory.filter(item => {
     const hasActivity = item.isUpdated || item.isNew || (Number(item.receipt) > 0 || Number(item.issues) > 0 || Number(item.return) > 0 || 
                          Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0);
-    
     if (!hasActivity) return false;
     if (!filter) return true;
 
@@ -409,6 +420,7 @@ function renderBinCardUpdateViewList() {
   filtered.forEach(item => {
     const closing = calculateClosingStock(item);
     
+    // Only show updated things beautifully
     let detailsHtml = '';
     if (Number(item.receipt) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Receipt: ${item.receipt}</span>`;
     if (Number(item.issues) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Issues: ${item.issues}</span>`;
@@ -417,21 +429,25 @@ function renderBinCardUpdateViewList() {
     if (Number(item.ssl_j) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Sent SSL: ${item.ssl_j}</span>`;
     if (Number(item.rejection_l) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Rejection: ${item.rejection_l}</span>`;
 
+    const originalIndex = inventory.findIndex(i => String(i.code) === String(item.code));
+
     html += `
-      <div class="checklist-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-          <div class="checklist-info">
-            <span class="checklist-code"><i class="fa-solid fa-barcode"></i> Code: ${item.code}</span>
-            <span class="checklist-name">${item.name}</span>
+      <div class="checklist-item clickable-item" onclick="openItemDetailModal(${originalIndex})" title="Click to view full details">
+        <div style="flex-direction: column; align-items: stretch; gap: 10px; width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+            <div class="checklist-info">
+              <span class="checklist-code"><i class="fa-solid fa-barcode"></i> Code: ${item.code}</span>
+              <span class="checklist-name">${item.name}</span>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Closing Stock</div>
+              <div style="font-size: 1.1rem; font-weight: 800; color: var(--primary);">${closing} ${item.uom}</div>
+            </div>
           </div>
-          <div style="text-align: right;">
-            <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Closing Stock</div>
-            <div style="font-size: 1.1rem; font-weight: 800; color: var(--primary);">${closing} ${item.uom}</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; padding-top: 6px; border-top: 1px dashed var(--border-color);">
+            <span style="background:var(--bg-main); color:var(--text-muted); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Opening: ${item.op_stock}</span>
+            ${detailsHtml}
           </div>
-        </div>
-        <div style="display: flex; flex-wrap: wrap; gap: 6px; padding-top: 6px; border-top: 1px dashed var(--border-color);">
-          <span style="background:var(--bg-main); color:var(--text-muted); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Opening: ${item.op_stock}</span>
-          ${detailsHtml}
         </div>
       </div>
     `;
@@ -440,7 +456,71 @@ function renderBinCardUpdateViewList() {
   container.innerHTML = html;
 }
 
-// Helper to find column indexes intelligently in Excel sheets
+// ==================== BIN CARD PDF DOWNLOAD ====================
+function downloadBinCardPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('landscape'); // Landscape to fit more columns
+
+  const updatedItems = inventory.filter(item => {
+    return item.isUpdated || item.isNew || 
+           (Number(item.receipt) > 0 || Number(item.issues) > 0 || Number(item.return) > 0 || 
+            Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0);
+  });
+
+  if (updatedItems.length === 0) {
+    showToast("PDF එක සෑදීමට යාවත්කාලීන වූ දත්ත නොමැත!", "warning");
+    return;
+  }
+
+  doc.setFontSize(18);
+  doc.setTextColor(37, 99, 235); // Primary blue color
+  doc.text("Daily Bin Card Update Report", 14, 20);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  const dateStr = new Date().toLocaleString();
+  doc.text(`Generated on: ${dateStr}`, 14, 28);
+
+  const tableColumn = ["Code", "Name", "UOM", "Opening", "Receipt (F)", "Issues (G)", "Return (H)", "SSL Recv(I)", "SSL Sent(J)", "Reject (L)", "Closing"];
+  const tableRows = [];
+
+  updatedItems.forEach(item => {
+    const itemData = [
+      item.code,
+      item.name,
+      item.uom,
+      item.op_stock,
+      item.receipt || '-',
+      item.issues || '-',
+      item.return || '-',
+      item.ssl_i || '-',
+      item.ssl_j || '-',
+      item.rejection_l || '-',
+      calculateClosingStock(item)
+    ];
+    tableRows.push(itemData);
+  });
+
+  doc.autoTable({
+    head: [tableColumn],
+    body: tableRows,
+    startY: 35,
+    theme: 'grid',
+    styles: { fontSize: 9, cellPadding: 3 },
+    headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [248, 250, 252] },
+    columnStyles: {
+      0: { fontStyle: 'bold' },
+      10: { fontStyle: 'bold', textColor: [16, 185, 129] } // closing stock column color
+    }
+  });
+
+  doc.save(`Bin_Card_Update_${new Date().toISOString().slice(0, 10)}.pdf`);
+  showToast("PDF එක සාර්ථකව Download විය!", "success");
+}
+
+
+// Excel column index helper
 function findColumnIndex(headers, keywords) {
   for (let i = 0; i < headers.length; i++) {
     const h = String(headers[i] || '').toLowerCase().trim();
@@ -457,7 +537,6 @@ function findColumnIndex(headers, keywords) {
   return -1;
 }
 
-// ==================== RESTORE EXCEL DATA ACCURATE FIX ====================
 function restoreFromXLSX() {
   const fileInput = document.getElementById('xlsxFileInput');
   if (!fileInput || fileInput.files.length === 0) {
@@ -483,7 +562,6 @@ function restoreFromXLSX() {
         return;
       }
 
-      // Find header row index (scanning first 5 rows)
       let headerRowIndex = 0;
       for (let r = 0; r < Math.min(jsonData.length, 5); r++) {
         const rowStr = jsonData[r].map(c => String(c).toLowerCase()).join(' ');
@@ -592,12 +670,10 @@ function renderTodayUploadedList() {
 
   const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-  // Show only modified or newly added items
   const filtered = inventory.filter(item => {
     const isModified = item.isUpdated || item.isNew || 
                        (Number(item.receipt) > 0 || Number(item.issues) > 0 || Number(item.return) > 0 || 
                         Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0);
-    
     if (!isModified) return false;
     if (!filter) return true;
     return String(item.code).toLowerCase().includes(filter) || String(item.name).toLowerCase().includes(filter);
@@ -620,9 +696,10 @@ function renderTodayUploadedList() {
     if(item.rejection_l > 0) acts.push(`Rej: ${item.rejection_l}`);
 
     let badgeTag = item.isNew ? `<span style="background:var(--success-light); color:var(--success); font-size:0.7rem; font-weight:800; padding:2px 6px; border-radius:4px; margin-left:6px;">NEW</span>` : '';
+    const originalIndex = inventory.findIndex(i => String(i.code) === String(item.code));
 
     html += `
-      <div class="checklist-item">
+      <div class="checklist-item clickable-item" onclick="openItemDetailModal(${originalIndex})" title="Click to view details">
         <div class="checklist-left">
           <div class="checklist-info">
             <span class="checklist-name">${item.name} ${badgeTag}</span>
@@ -640,8 +717,7 @@ function renderTodayUploadedList() {
   container.innerHTML = html;
 }
 
-// ==================== SUPPORTING FUNCTIONS & MODALS ====================
-
+// ==================== SUPPORTING FUNCTIONS ====================
 function openRestoreHelpModal() {
   const modal = document.getElementById('restoreHelpModal');
   if (modal) {
@@ -649,16 +725,13 @@ function openRestoreHelpModal() {
     switchHelpTopic('fileType');
   }
 }
-
 function closeRestoreHelpModal() {
   const modal = document.getElementById('restoreHelpModal');
   if (modal) modal.classList.remove('show');
 }
-
 function switchHelpTopic(topic) {
   const contentBox = document.getElementById('helpContentBox');
   if (!contentBox) return;
-  
   if (topic === 'fileType') {
     contentBox.innerHTML = `<strong>1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</strong><br>ඔබගේ Excel File එකේ Material Code, Name, UOM, සහ Opening Stock වැනි තීරු අනිවාර්යයෙන්ම තිබිය යුතුය.`;
   } else if (topic === 'howToDo') {
@@ -671,74 +744,57 @@ function switchHelpTopic(topic) {
 function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
-
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  
   let icon = 'fa-circle-check';
   if (type === 'error') icon = 'fa-triangle-exclamation';
   if (type === 'warning') icon = 'fa-circle-exclamation';
-
   toast.innerHTML = `<i class="fa-solid ${icon}" style="font-size:1.2rem;"></i> <span>${message}</span>`;
   container.appendChild(toast);
-
   setTimeout(() => {
     toast.style.opacity = '0';
     toast.style.transform = 'scale(0.8) translateY(20px)';
     setTimeout(() => toast.remove(), 300);
   }, 3500);
 }
-
 function showLoading(text = "Processing...") {
   const overlay = document.getElementById('loadingOverlay');
   const txt = document.getElementById('loadingText');
   if (txt) txt.innerText = text;
   if (overlay) overlay.style.display = 'flex';
 }
-
 function hideLoading() {
   const overlay = document.getElementById('loadingOverlay');
   if (overlay) overlay.style.display = 'none';
 }
-
 function openSettings() {
   const modal = document.getElementById('settingsModal');
   if (modal) modal.classList.add('show');
 }
-
 function closeSettings() {
   const modal = document.getElementById('settingsModal');
   if (modal) modal.classList.remove('show');
 }
-
 function changeTheme(theme) {
   currentTheme = theme;
   localStorage.setItem('rmc_app_theme', theme);
   applyTheme(theme);
 }
-
 function applyTheme(theme) {
-  if (theme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  } else if (theme === 'blue') {
-    document.documentElement.setAttribute('data-theme', 'blue');
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-  }
+  if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  else if (theme === 'blue') document.documentElement.setAttribute('data-theme', 'blue');
+  else document.documentElement.removeAttribute('data-theme');
   const select = document.getElementById('themeSelect');
   if (select) select.value = theme;
 }
-
 function changeLanguage(lang) {
   currentLang = lang;
   localStorage.setItem('rmc_app_lang', lang);
   applyLanguage(lang);
 }
-
 function applyLanguage(lang) {
   const dict = i18n[lang];
   if (!dict) return;
-
   setElHTML('lblSearch', dict.lblSearch);
   setElPlaceholder('searchInput', dict.placeholderSearch);
   setElHTML('lblSection', dict.lblSection);
@@ -764,21 +820,17 @@ function applyLanguage(lang) {
   setElHTML('descReset', dict.descReset);
   setElHTML('btnReset', dict.btnReset);
   setElHTML('lblFooter', dict.lblFooter);
-
   const langSelect = document.getElementById('langSelect');
   if (langSelect) langSelect.value = lang;
 }
-
 function setElHTML(id, html) {
   const el = document.getElementById(id);
   if (el) el.innerHTML = html;
 }
-
 function setElPlaceholder(id, text) {
   const el = document.getElementById(id);
   if (el) el.placeholder = text;
 }
-
 function resetToDefault() {
   if (confirm(i18n[currentLang].msgResetConfirm)) {
     inventory = JSON.parse(JSON.stringify(defaultItems));
@@ -788,55 +840,39 @@ function resetToDefault() {
     clearSearchInput();
   }
 }
-
 function downloadXLSXBackup() {
   const dataToExport = inventory.map(item => ({
-    "Material Code": item.code,
-    "Material Name": item.name,
-    "UOM": item.uom,
-    "Opening Stock": item.op_stock,
-    "Receipt (F)": item.receipt,
-    "Issues (G)": item.issues,
-    "Return (H)": item.return,
-    "Received to SSL (I)": item.ssl_i,
-    "Sent to SSL (J)": item.ssl_j,
-    "Rejection (L)": item.rejection_l,
+    "Material Code": item.code, "Material Name": item.name, "UOM": item.uom, "Opening Stock": item.op_stock,
+    "Receipt (F)": item.receipt, "Issues (G)": item.issues, "Return (H)": item.return,
+    "Received to SSL (I)": item.ssl_i, "Sent to SSL (J)": item.ssl_j, "Rejection (L)": item.rejection_l,
     "Closing Stock": calculateClosingStock(item)
   }));
-
   const worksheet = XLSX.utils.json_to_sheet(dataToExport);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory_Backup");
-  
   const dateStr = new Date().toISOString().slice(0, 10);
   XLSX.writeFile(workbook, `RMC_Stock_Backup_${dateStr}.xlsx`);
   showToast("Backup ගොනුව සාර්ථකව Download විය!", "success");
 }
-
 function openExportModal(mode) {
   currentExportMode = mode;
   const modal = document.getElementById('exportModal');
   const title = document.getElementById('txtExportTitle');
   const btn = document.getElementById('btnConfirmExport');
-  
   if (title) title.innerHTML = `<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> ${mode === 'excel' ? i18n[currentLang].titleExcel : i18n[currentLang].titleShare}`;
   if (btn) btn.innerHTML = `<i class="fa-solid ${mode === 'excel' ? 'fa-download' : 'fa-share-nodes'}"></i> ${mode === 'excel' ? 'Download Data' : 'Share File'}`;
-  
   updateDefaultFileName();
   if (modal) modal.classList.add('show');
 }
-
 function closeExportModal() {
   const modal = document.getElementById('exportModal');
   if (modal) modal.classList.remove('show');
 }
-
 function updateDefaultFileName() {
   const input = document.getElementById('exportFileNameInput');
   const dateStr = new Date().toISOString().slice(0, 10);
   if (input) input.placeholder = `Stock_Summary_${dateStr}`;
 }
-
 function processExportAction() {
   const format = document.getElementById('exportFormatSelect').value;
   const inputName = document.getElementById('exportFileNameInput').value.trim();
@@ -845,16 +881,9 @@ function processExportAction() {
   const shiftStock = document.getElementById('chkShiftStock').checked;
 
   const exportData = inventory.map(item => ({
-    "Material Code": item.code,
-    "Material Name": item.name,
-    "UOM": item.uom,
-    "Opening Stock": item.op_stock,
-    "Receipt (F)": item.receipt,
-    "Issues (G)": item.issues,
-    "Return (H)": item.return,
-    "Received to SSL (I)": item.ssl_i,
-    "Sent to SSL (J)": item.ssl_j,
-    "Rejection (L)": item.rejection_l,
+    "Material Code": item.code, "Material Name": item.name, "UOM": item.uom, "Opening Stock": item.op_stock,
+    "Receipt (F)": item.receipt, "Issues (G)": item.issues, "Return (H)": item.return,
+    "Received to SSL (I)": item.ssl_i, "Sent to SSL (J)": item.ssl_j, "Rejection (L)": item.rejection_l,
     "Closing Stock": calculateClosingStock(item)
   }));
 
@@ -868,10 +897,7 @@ function processExportAction() {
     const csv = XLSX.utils.sheet_to_csv(ws);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${fileName}.csv`;
-    a.click();
+    const a = document.createElement('a'); a.href = url; a.download = `${fileName}.csv`; a.click();
   } else if (format === 'txt') {
     let txt = "Material Code\tMaterial Name\tUOM\tOpening Stock\tReceipt (F)\tIssues (G)\tReturn (H)\tReceived SSL (I)\tSent SSL (J)\tRejection (L)\tClosing Stock\n";
     exportData.forEach(r => {
@@ -879,23 +905,15 @@ function processExportAction() {
     });
     const blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${fileName}.txt`;
-    a.click();
+    const a = document.createElement('a'); a.href = url; a.download = `${fileName}.txt`; a.click();
   }
 
   if (shiftStock) {
     inventory.forEach(item => {
       item.op_stock = calculateClosingStock(item);
-      item.receipt = 0;
-      item.issues = 0;
-      item.return = 0;
-      item.ssl_i = 0;
-      item.ssl_j = 0;
-      item.rejection_l = 0;
-      item.isUpdated = false;
-      item.isNew = false;
+      item.receipt = 0; item.issues = 0; item.return = 0;
+      item.ssl_i = 0; item.ssl_j = 0; item.rejection_l = 0;
+      item.isUpdated = false; item.isNew = false;
     });
     saveInventoryData();
   }
@@ -903,8 +921,6 @@ function processExportAction() {
   closeExportModal();
   showToast(i18n[currentLang].msgExcelShift, 'success');
   if (currentExportMode === 'share') {
-    setTimeout(() => {
-      alert(i18n[currentLang].shareSuccess);
-    }, 500);
+    setTimeout(() => { alert(i18n[currentLang].shareSuccess); }, 500);
   }
 }
