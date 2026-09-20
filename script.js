@@ -10,13 +10,14 @@ const i18n = {
     optSslJ: 'Sent to SSL (SSL යැවීම්)',
     optRejectionL: 'Rejection (ප්‍රතික්ෂේප කිරීම්)',
     lblAmount: '<i class="fa-solid fa-calculator"></i> ප්‍රමාණය ඇතුළත් කරන්න:',
-    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    btnSaveLabel: 'Save',
+    btnBinCardLabel: 'Bin Card',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share Data File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> සැකසුම් (Settings)',
     lblLanguage: '<i class="fa-solid fa-language" style="color:var(--primary);"></i> භාෂාව තෝරන්න (Language):',
     lblTheme: '<i class="fa-solid fa-palette" style="color:var(--warning);"></i> Theme එක තෝරන්න:',
-    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:',
+    lblRestore: '<i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) Restore කරන්න:',
     descRestore: 'පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.',
     btnRestore: '<i class="fa-solid fa-upload"></i> Restore Excel Data',
     lblBackup: '<i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Excel Backup එකක් ගන්න:',
@@ -49,7 +50,8 @@ const i18n = {
     optSslJ: 'Sent to SSL',
     optRejectionL: 'Rejection',
     lblAmount: '<i class="fa-solid fa-calculator"></i> Enter Amount:',
-    btnSave: '<i class="fa-solid fa-floppy-disk"></i> Save',
+    btnSaveLabel: 'Save',
+    btnBinCardLabel: 'Bin Card',
     titleExcel: 'Download File & Shift Stock',
     titleShare: 'Share File',
     txtSettingsTitle: '<i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences',
@@ -87,28 +89,28 @@ let searchDebounceTimeout = null;
 let currentExportMode = 'excel'; 
 
 const defaultItems = [ 
-  {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11061702", name: "WHITE SUGAR", uom: "KG", op_stock: 2500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11002301", name: "MONOSODIUM GLUTAMATE", uom: "KG", op_stock: 4525, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "67548375", name: "ONION POWDER", uom: "KG", op_stock: 120, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11067473", name: "CITRIC ACID MONOHYDRATE (FOOD GRADE)", uom: "KG", op_stock: 50, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11002242", name: "SPICE CELERY POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "67550393", name: "GARLIC POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "67548417", name: "WHITE PEPPER", uom: "KG", op_stock: 15, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11002253", name: "SPICE TURMERIC POWDER", uom: "KG", op_stock: 4, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11061729", name: "I+G SODIUM 5'RIBONUCLEOTID", uom: "KG", op_stock: 40, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11827361", name: "DRIED CORN STARCH 5% MOISTURE-SSL", uom: "KG", op_stock: 6000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11061758", name: "CORN STARCH - IMPORT", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11067112", name: "YEAST EXTR. MICROGRANUL. STANDARD 18% SA", uom: "KG", op_stock: 400, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11067118", name: "FLAVOUR CHICKEN POWDER (S-2182)", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11061730", name: "CARAMEL COLOUR CLASS III (E150C)", uom: "KG", op_stock: 20, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11067140", name: "MALTO DEXTRIN 18-20 (M20)", uom: "KG", op_stock: 500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11002220", name: "SPICE NUTMEG POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11002206", name: "SPICE BLACK PEPPER POWDER", uom: "KG", op_stock: 150, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11002213", name: "SPICE CORIANDER POWDER", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11002214", name: "SPICE CUMIN POWDER", uom: "KG", op_stock: 100, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11002211", name: "SPICE CLOVE POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0}, 
-  {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0} 
+  {type: "RM", code: "11067431", name: "SALT - FLOW", uom: "KG", op_stock: 11000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11061702", name: "WHITE SUGAR", uom: "KG", op_stock: 2500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11002301", name: "MONOSODIUM GLUTAMATE", uom: "KG", op_stock: 4525, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "67548375", name: "ONION POWDER", uom: "KG", op_stock: 120, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11067473", name: "CITRIC ACID MONOHYDRATE (FOOD GRADE)", uom: "KG", op_stock: 50, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11002242", name: "SPICE CELERY POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "67550393", name: "GARLIC POWDER", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "67548417", name: "WHITE PEPPER", uom: "KG", op_stock: 15, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11002253", name: "SPICE TURMERIC POWDER", uom: "KG", op_stock: 4, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11061729", name: "I+G SODIUM 5'RIBONUCLEOTID", uom: "KG", op_stock: 40, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11827361", name: "DRIED CORN STARCH 5% MOISTURE-SSL", uom: "KG", op_stock: 6000, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11061758", name: "CORN STARCH - IMPORT", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11067112", name: "YEAST EXTR. MICROGRANUL. STANDARD 18% SA", uom: "KG", op_stock: 400, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11067118", name: "FLAVOUR CHICKEN POWDER (S-2182)", uom: "KG", op_stock: 25, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11061730", name: "CARAMEL COLOUR CLASS III (E150C)", uom: "KG", op_stock: 20, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11067140", name: "MALTO DEXTRIN 18-20 (M20)", uom: "KG", op_stock: 500, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11002220", name: "SPICE NUTMEG POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11002206", name: "SPICE BLACK PEPPER POWDER", uom: "KG", op_stock: 150, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11002213", name: "SPICE CORIANDER POWDER", uom: "KG", op_stock: 0, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11002214", name: "SPICE CUMIN POWDER", uom: "KG", op_stock: 100, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11002211", name: "SPICE CLOVE POWDER", uom: "KG", op_stock: 10, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false}, 
+  {type: "RM", code: "11002210", name: "SPICE CINNAMON POWDER", uom: "KG", op_stock: 2, receipt: 0, issues: 0, return: 0, ssl_i: 0, ssl_j: 0, rejection_l: 0, isUpdated: false, isNew: false} 
 ]; 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -125,16 +127,14 @@ function loadInventoryData() {
       inventory = JSON.parse(saved);
       inventory = inventory.map(item => ({
         ...item,
-        code: String(item.code || ''),
-        name: String(item.name || ''),
-        uom: String(item.uom || 'KG'),
-        op_stock: parseNum(item.op_stock),
-        receipt: parseNum(item.receipt),
-        issues: parseNum(item.issues),
-        return: parseNum(item.return),
-        ssl_i: parseNum(item.ssl_i),
-        ssl_j: parseNum(item.ssl_j),
-        rejection_l: parseNum(item.rejection_l)
+        receipt: Number(item.receipt) || 0,
+        issues: Number(item.issues) || 0,
+        return: Number(item.return) || 0,
+        ssl_i: Number(item.ssl_i) || 0,
+        ssl_j: Number(item.ssl_j) || 0,
+        rejection_l: Number(item.rejection_l) || 0,
+        isUpdated: !!item.isUpdated,
+        isNew: !!item.isNew
       }));
     } catch (e) {
       inventory = JSON.parse(JSON.stringify(defaultItems));
@@ -146,14 +146,6 @@ function loadInventoryData() {
 
 function saveInventoryData() {
   localStorage.setItem('rmc_inventory_data', JSON.stringify(inventory));
-}
-
-function parseNum(val) {
-  if (val === null || val === undefined || val === '') return 0;
-  if (typeof val === 'number') return isNaN(val) ? 0 : val;
-  const str = String(val).replace(/,/g, '').replace(/\s+/g, '').trim();
-  const num = parseFloat(str);
-  return isNaN(num) ? 0 : num;
 }
 
 function setupEventListeners() {
@@ -212,7 +204,7 @@ function setupEventListeners() {
   document.addEventListener('click', (e) => {
     const searchContainer = document.querySelector('.search-input-container') || document.querySelector('.form-group');
     const resultsBox = document.getElementById('searchResults');
-    if (resultsBox && !searchContainer.contains(e.target) && !document.getElementById('searchInput').contains(e.target)) {
+    if (resultsBox && searchContainer && !searchContainer.contains(e.target) && !document.getElementById('searchInput').contains(e.target)) {
       resultsBox.style.display = 'none';
     }
   });
@@ -230,8 +222,7 @@ function handleSearch(query) {
 
   const lowerQuery = query.toLowerCase();
   const matched = inventory.filter(item => 
-    String(item.code || '').toLowerCase().includes(lowerQuery) || 
-    String(item.name || '').toLowerCase().includes(lowerQuery)
+    String(item.code).toLowerCase().includes(lowerQuery) || String(item.name).toLowerCase().includes(lowerQuery)
   );
 
   if (matched.length === 0) {
@@ -242,7 +233,7 @@ function handleSearch(query) {
 
   let html = '';
   matched.forEach(item => {
-    const originalIndex = inventory.findIndex(i => String(i.code).toLowerCase() === String(item.code).toLowerCase());
+    const originalIndex = inventory.findIndex(i => String(i.code) === String(item.code));
     html += `
       <div class="search-item" onclick="selectMaterialByIndex(${originalIndex})">
         <div><strong>${item.code}</strong> - ${item.name}</div>
@@ -299,13 +290,13 @@ function selectMaterialByIndex(index) {
 }
 
 function calculateClosingStock(item) {
-  const op = parseNum(item.op_stock);
-  const f = parseNum(item.receipt);
-  const g = parseNum(item.issues);
-  const h = parseNum(item.return);
-  const i = parseNum(item.ssl_i);
-  const j = parseNum(item.ssl_j);
-  const l = parseNum(item.rejection_l);
+  const op = Number(item.op_stock) || 0;
+  const f = Number(item.receipt) || 0;
+  const g = Number(item.issues) || 0;
+  const h = Number(item.return) || 0;
+  const i = Number(item.ssl_i) || 0;
+  const j = Number(item.ssl_j) || 0;
+  const l = Number(item.rejection_l) || 0;
 
   return (op + f + h + i) - (g + j + l);
 }
@@ -318,7 +309,7 @@ function addSingleSectionData() {
 
   const amountInput = document.getElementById('inputAmount');
   const val = parseFloat(amountInput.value);
-  if (isNaN(val) || val < 0) {
+  if (isNaN(val) || val <= 0) {
     showToast(i18n[currentLang].msgValidAmount, 'error');
     return;
   }
@@ -326,16 +317,19 @@ function addSingleSectionData() {
   const section = document.getElementById('sectionSelect').value;
   const item = inventory[selectedIndex];
 
-  if (section === 'F') item.receipt = parseNum(item.receipt) + val;
-  else if (section === 'G') item.issues = parseNum(item.issues) + val;
-  else if (section === 'H') item.return = parseNum(item.return) + val;
-  else if (section === 'I') item.ssl_i = parseNum(item.ssl_i) + val;
-  else if (section === 'J') item.ssl_j = parseNum(item.ssl_j) + val;
-  else if (section === 'L') item.rejection_l = parseNum(item.rejection_l) + val;
+  if (section === 'F') item.receipt = (Number(item.receipt) || 0) + val;
+  else if (section === 'G') item.issues = (Number(item.issues) || 0) + val;
+  else if (section === 'H') item.return = (Number(item.return) || 0) + val;
+  else if (section === 'I') item.ssl_i = (Number(item.ssl_i) || 0) + val;
+  else if (section === 'J') item.ssl_j = (Number(item.ssl_j) || 0) + val;
+  else if (section === 'L') item.rejection_l = (Number(item.rejection_l) || 0) + val;
+
+  item.isUpdated = true;
 
   saveInventoryData();
 
   amountInput.value = '';
+
   document.getElementById('dispClosing').innerText = calculateClosingStock(item);
 
   showToast(`${item.name} ${i18n[currentLang].msgAdded}`, 'success');
@@ -344,6 +338,8 @@ function addSingleSectionData() {
 // ==================== ITEM DETAILS VIEW ====================
 function openItemDetailModal(index) {
   const item = inventory[index];
+  if (!item) return;
+
   document.getElementById('detCode').innerText = item.code;
   document.getElementById('detUom').innerText = item.uom;
   document.getElementById('detName').innerText = item.name;
@@ -387,15 +383,15 @@ function renderBinCardUpdateViewList() {
   const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
   const filtered = inventory.filter(item => {
-    const hasActivity = (parseNum(item.receipt) > 0 || parseNum(item.issues) > 0 || parseNum(item.return) > 0 || 
-                         parseNum(item.ssl_i) > 0 || parseNum(item.ssl_j) > 0 || parseNum(item.rejection_l) > 0 || parseNum(item.op_stock) > 0);
+    const hasActivity = item.isUpdated || item.isNew || (Number(item.receipt) > 0 || Number(item.issues) > 0 || Number(item.return) > 0 || 
+                         Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0);
     
     if (!hasActivity) return false;
     if (!filter) return true;
 
-    return String(item.code || '').toLowerCase().includes(filter) || 
-           String(item.name || '').toLowerCase().includes(filter) ||
-           String(item.uom || '').toLowerCase().includes(filter);
+    return String(item.code).toLowerCase().includes(filter) || 
+           String(item.name).toLowerCase().includes(filter) ||
+           String(item.uom).toLowerCase().includes(filter);
   });
 
   if (filtered.length === 0) {
@@ -414,12 +410,12 @@ function renderBinCardUpdateViewList() {
     const closing = calculateClosingStock(item);
     
     let detailsHtml = '';
-    if (parseNum(item.receipt) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Receipt: ${item.receipt}</span>`;
-    if (parseNum(item.issues) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Issues: ${item.issues}</span>`;
-    if (parseNum(item.return) > 0) detailsHtml += `<span style="background:rgba(245, 158, 11, 0.15); color:var(--warning); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Return: ${item.return}</span>`;
-    if (parseNum(item.ssl_i) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Recv SSL: ${item.ssl_i}</span>`;
-    if (parseNum(item.ssl_j) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Sent SSL: ${item.ssl_j}</span>`;
-    if (parseNum(item.rejection_l) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Rejection: ${item.rejection_l}</span>`;
+    if (Number(item.receipt) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Receipt: ${item.receipt}</span>`;
+    if (Number(item.issues) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Issues: ${item.issues}</span>`;
+    if (Number(item.return) > 0) detailsHtml += `<span style="background:rgba(245, 158, 11, 0.15); color:var(--warning); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Return: ${item.return}</span>`;
+    if (Number(item.ssl_i) > 0) detailsHtml += `<span style="background:var(--success-light); color:var(--success); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Recv SSL: ${item.ssl_i}</span>`;
+    if (Number(item.ssl_j) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Sent SSL: ${item.ssl_j}</span>`;
+    if (Number(item.rejection_l) > 0) detailsHtml += `<span style="background:var(--danger-light); color:var(--danger); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">Rejection: ${item.rejection_l}</span>`;
 
     html += `
       <div class="checklist-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
@@ -444,36 +440,24 @@ function renderBinCardUpdateViewList() {
   container.innerHTML = html;
 }
 
-// Helper to safely find column index without false positive matches
-function findColumnIndex(headers, targets) {
-  // 1. Try exact match (case insensitive, trimmed)
-  for (let target of targets) {
-    const normTarget = target.toLowerCase().trim();
-    const idx = headers.findIndex(h => h.toLowerCase().trim() === normTarget);
-    if (idx !== -1) return idx;
-  }
-
-  // 2. Try word boundary / Regex / Phrase match
-  for (let target of targets) {
-    const normTarget = target.toLowerCase().trim();
-    for (let i = 0; i < headers.length; i++) {
-      const h = headers[i].toLowerCase().trim();
-      if (!h) continue;
-
-      if (normTarget.length === 1) {
-        // Must match single letter in parentheses e.g. "(f)" or standalone word "f"
-        const regex = new RegExp(`(?:^|[^a-z0-9])${normTarget}(?:$|[^a-z0-9])`, 'i');
+// Helper to find column indexes intelligently in Excel sheets
+function findColumnIndex(headers, keywords) {
+  for (let i = 0; i < headers.length; i++) {
+    const h = String(headers[i] || '').toLowerCase().trim();
+    for (let kw of keywords) {
+      kw = kw.toLowerCase();
+      if (kw.length <= 2) {
+        const regex = new RegExp(`(?:^|\\b|\\()${kw}(?:$|\\b|\\))`, 'i');
         if (regex.test(h)) return i;
       } else {
-        if (h.includes(normTarget)) return i;
+        if (h.includes(kw)) return i;
       }
     }
   }
-
   return -1;
 }
 
-// ==================== RESTORE EXCEL DATA FIX ====================
+// ==================== RESTORE EXCEL DATA ACCURATE FIX ====================
 function restoreFromXLSX() {
   const fileInput = document.getElementById('xlsxFileInput');
   if (!fileInput || fileInput.files.length === 0) {
@@ -491,101 +475,66 @@ function restoreFromXLSX() {
       const workbook = XLSX.read(data, { type: 'array' });
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
-      if (!jsonData || jsonData.length < 2) {
+      if (jsonData.length < 2) {
         hideLoading();
         showToast("Excel ගොනුවේ දත්ත ප්‍රමාණවත් නොවේ!", "error");
         return;
       }
 
-      // Targets for Column Search
-      const codeTargets = ['material code', 'code', 'mat code', 'item code', 'id', 'no'];
-      const nameTargets = ['material name', 'name', 'item name', 'description', 'material', 'item'];
-      const uomTargets = ['uom', 'unit', 'unit of measure', 'measure'];
-      const opTargets = ['opening stock', 'op stock', 'opening', 'op_stock', 'op', 'starting stock'];
-      const receiptTargets = ['receipt (f)', 'receipt', 'rec', 'f'];
-      const issuesTargets = ['issues (g)', 'issues', 'issue', 'iss', 'g'];
-      const returnTargets = ['return (h)', 'return', 'returns', 'ret', 'h'];
-      const sslITargets = ['received to ssl (i)', 'received to ssl', 'ssl_i', 'ssl i', 'ssl receive', 'recv ssl', 'ssl_rec', 'ssl-r', 'i'];
-      const sslJTargets = ['sent to ssl (j)', 'sent to ssl', 'ssl_j', 'ssl j', 'ssl send', 'sent ssl', 'ssl_sent', 'ssl-s', 'j'];
-      const rejectionTargets = ['rejection (l)', 'rejection', 'rejections', 'rej', 'rejection_l', 'l'];
-
-      // Dynamically detect header row index
-      let headerRowIdx = 0;
-      let maxScore = -1;
-
-      for (let r = 0; r < Math.min(jsonData.length, 15); r++) {
-        const row = jsonData[r];
-        if (!Array.isArray(row) || row.length === 0) continue;
-        
-        let score = 0;
-        const rowCells = row.map(cell => String(cell || '').toLowerCase().trim());
-        
-        if (findColumnIndex(rowCells, codeTargets) !== -1) score += 3;
-        if (findColumnIndex(rowCells, nameTargets) !== -1) score += 3;
-        if (findColumnIndex(rowCells, uomTargets) !== -1) score += 1;
-        if (findColumnIndex(rowCells, opTargets) !== -1) score += 2;
-        if (findColumnIndex(rowCells, receiptTargets) !== -1) score += 1;
-        
-        if (score > maxScore) {
-          maxScore = score;
-          headerRowIdx = r;
+      // Find header row index (scanning first 5 rows)
+      let headerRowIndex = 0;
+      for (let r = 0; r < Math.min(jsonData.length, 5); r++) {
+        const rowStr = jsonData[r].map(c => String(c).toLowerCase()).join(' ');
+        if (rowStr.includes('code') || rowStr.includes('name') || rowStr.includes('stock') || rowStr.includes('material')) {
+          headerRowIndex = r;
+          break;
         }
       }
 
-      const headers = jsonData[headerRowIdx].map(h => String(h || '').toLowerCase().trim());
+      const headers = jsonData[headerRowIndex].map(h => String(h || '').trim());
+      
+      let codeIdx = findColumnIndex(headers, ['material code', 'item code', 'code']);
+      let nameIdx = findColumnIndex(headers, ['material name', 'item name', 'description', 'name']);
+      let uomIdx = findColumnIndex(headers, ['uom', 'unit']);
+      let opIdx = findColumnIndex(headers, ['opening stock', 'op stock', 'opening', 'op']);
+      
+      let receiptIdx = findColumnIndex(headers, ['receipt', '(f)', 'f']);
+      let issuesIdx = findColumnIndex(headers, ['issues', 'issue', '(g)', 'g']);
+      let returnIdx = findColumnIndex(headers, ['return', '(h)', 'h']);
+      let sslIIdx = findColumnIndex(headers, ['received to ssl', 'received ssl', 'ssl_i', 'ssl-i', 'ssl-r', '(i)', 'i']);
+      let sslJIdx = findColumnIndex(headers, ['sent to ssl', 'sent ssl', 'ssl_j', 'ssl-j', 'ssl-s', '(j)', 'j']);
+      let rejectionIdx = findColumnIndex(headers, ['rejection', 'reject', '(l)', 'l']);
 
-      const codeIdx = findColumnIndex(headers, codeTargets);
-      const nameIdx = findColumnIndex(headers, nameTargets);
-      const uomIdx = findColumnIndex(headers, uomTargets);
-      const opIdx = findColumnIndex(headers, opTargets);
-      const receiptIdx = findColumnIndex(headers, receiptTargets);
-      const issuesIdx = findColumnIndex(headers, issuesTargets);
-      const returnIdx = findColumnIndex(headers, returnTargets);
-      const sslIIdx = findColumnIndex(headers, sslITargets);
-      const sslJIdx = findColumnIndex(headers, sslJTargets);
-      const rejectionIdx = findColumnIndex(headers, rejectionTargets);
-
-      const finalCodeIdx = codeIdx !== -1 ? codeIdx : 0;
-      const finalNameIdx = nameIdx !== -1 ? nameIdx : 1;
-      const finalUomIdx = uomIdx !== -1 ? uomIdx : (headers.length > 2 ? 2 : -1);
-      const finalOpIdx = opIdx !== -1 ? opIdx : (headers.length > 3 ? 3 : -1);
+      if (codeIdx === -1) codeIdx = 0;
+      if (nameIdx === -1) nameIdx = 1;
+      if (uomIdx === -1 && headers.length > 2) uomIdx = 2;
+      if (opIdx === -1 && headers.length > 3) opIdx = 3;
 
       let restoredCount = 0;
-
-      for (let i = headerRowIdx + 1; i < jsonData.length; i++) {
+      for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
         const row = jsonData[i];
-        if (!row || !Array.isArray(row) || row.length === 0) continue;
+        if (!row || row.length === 0 || row[codeIdx] === undefined || String(row[codeIdx]).trim() === '') continue;
 
-        const rawCode = row[finalCodeIdx];
-        if (rawCode === undefined || rawCode === null || String(rawCode).trim() === '') continue;
+        const code = String(row[codeIdx]).trim();
+        const name = nameIdx !== -1 && row[nameIdx] !== undefined ? String(row[nameIdx]).trim() : 'Unknown Material';
+        const uom = uomIdx !== -1 && row[uomIdx] !== undefined ? String(row[uomIdx]).trim() : 'KG';
+        const opStock = opIdx !== -1 && row[opIdx] !== undefined && !isNaN(parseFloat(row[opIdx])) ? parseFloat(row[opIdx]) : 0;
 
-        const code = String(rawCode).trim();
-        const name = finalNameIdx !== -1 && row[finalNameIdx] != null ? String(row[finalNameIdx]).trim() : `Item-${code}`;
-        const uom = finalUomIdx !== -1 && row[finalUomIdx] != null ? String(row[finalUomIdx]).trim() : 'KG';
-        
-        const opStock = finalOpIdx !== -1 ? parseNum(row[finalOpIdx]) : 0;
-        const receipt = receiptIdx !== -1 ? parseNum(row[receiptIdx]) : 0;
-        const issues = issuesIdx !== -1 ? parseNum(row[issuesIdx]) : 0;
-        const ret = returnIdx !== -1 ? parseNum(row[returnIdx]) : 0;
-        const sslI = sslIIdx !== -1 ? parseNum(row[sslIIdx]) : 0;
-        const sslJ = sslJIdx !== -1 ? parseNum(row[sslJIdx]) : 0;
-        const rejection = rejectionIdx !== -1 ? parseNum(row[rejectionIdx]) : 0;
-
-        let existing = inventory.find(item => String(item.code).trim().toLowerCase() === code.toLowerCase());
-
+        let existing = inventory.find(item => String(item.code) === code);
         if (existing) {
-          existing.code = code;
-          existing.name = name;
-          existing.uom = uom;
+          existing.name = name || existing.name;
+          existing.uom = uom || existing.uom;
           existing.op_stock = opStock;
-          existing.receipt = receipt;
-          existing.issues = issues;
-          existing.return = ret;
-          existing.ssl_i = sslI;
-          existing.ssl_j = sslJ;
-          existing.rejection_l = rejection;
+          if (receiptIdx !== -1 && row[receiptIdx] !== undefined && !isNaN(parseFloat(row[receiptIdx]))) existing.receipt = parseFloat(row[receiptIdx]);
+          if (issuesIdx !== -1 && row[issuesIdx] !== undefined && !isNaN(parseFloat(row[issuesIdx]))) existing.issues = parseFloat(row[issuesIdx]);
+          if (returnIdx !== -1 && row[returnIdx] !== undefined && !isNaN(parseFloat(row[returnIdx]))) existing.return = parseFloat(row[returnIdx]);
+          if (sslIIdx !== -1 && row[sslIIdx] !== undefined && !isNaN(parseFloat(row[sslIIdx]))) existing.ssl_i = parseFloat(row[sslIIdx]);
+          if (sslJIdx !== -1 && row[sslJIdx] !== undefined && !isNaN(parseFloat(row[sslJIdx]))) existing.ssl_j = parseFloat(row[sslJIdx]);
+          if (rejectionIdx !== -1 && row[rejectionIdx] !== undefined && !isNaN(parseFloat(row[rejectionIdx]))) existing.rejection_l = parseFloat(row[rejectionIdx]);
+          
+          existing.isUpdated = true;
         } else {
           inventory.push({
             type: "RM",
@@ -593,12 +542,14 @@ function restoreFromXLSX() {
             name: name,
             uom: uom,
             op_stock: opStock,
-            receipt: receipt,
-            issues: issues,
-            return: ret,
-            ssl_i: sslI,
-            ssl_j: sslJ,
-            rejection_l: rejection
+            receipt: receiptIdx !== -1 && row[receiptIdx] !== undefined && !isNaN(parseFloat(row[receiptIdx])) ? parseFloat(row[receiptIdx]) : 0,
+            issues: issuesIdx !== -1 && row[issuesIdx] !== undefined && !isNaN(parseFloat(row[issuesIdx])) ? parseFloat(row[issuesIdx]) : 0,
+            return: returnIdx !== -1 && row[returnIdx] !== undefined && !isNaN(parseFloat(row[returnIdx])) ? parseFloat(row[returnIdx]) : 0,
+            ssl_i: sslIIdx !== -1 && row[sslIIdx] !== undefined && !isNaN(parseFloat(row[sslIIdx])) ? parseFloat(row[sslIIdx]) : 0,
+            ssl_j: sslJIdx !== -1 && row[sslJIdx] !== undefined && !isNaN(parseFloat(row[sslJIdx])) ? parseFloat(row[sslJIdx]) : 0,
+            rejection_l: rejectionIdx !== -1 && row[rejectionIdx] !== undefined && !isNaN(parseFloat(row[rejectionIdx])) ? parseFloat(row[rejectionIdx]) : 0,
+            isUpdated: true,
+            isNew: true
           });
         }
         restoredCount++;
@@ -606,7 +557,7 @@ function restoreFromXLSX() {
 
       saveInventoryData();
       hideLoading();
-      showToast(`${i18n[currentLang].msgRestoreSuccess} (${restoredCount} items restored)`, 'success');
+      showToast(`${i18n[currentLang].msgRestoreSuccess} (${restoredCount} items updated)`, 'success');
       fileInput.value = '';
       closeSettings();
       
@@ -618,6 +569,75 @@ function restoreFromXLSX() {
     }
   };
   reader.readAsArrayBuffer(file);
+}
+
+// ==================== UPDATED LIVE DETAILS ====================
+function openTodayUploadedModal() {
+  const modal = document.getElementById('todayUploadedModal');
+  if (modal) {
+    modal.classList.add('show');
+    renderTodayUploadedList();
+  }
+}
+
+function closeTodayUploadedModal() {
+  const modal = document.getElementById('todayUploadedModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function renderTodayUploadedList() {
+  const container = document.getElementById('todayCardsContainer');
+  const searchInput = document.getElementById('todayModalSearchInput');
+  if (!container) return;
+
+  const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+  // Show only modified or newly added items
+  const filtered = inventory.filter(item => {
+    const isModified = item.isUpdated || item.isNew || 
+                       (Number(item.receipt) > 0 || Number(item.issues) > 0 || Number(item.return) > 0 || 
+                        Number(item.ssl_i) > 0 || Number(item.ssl_j) > 0 || Number(item.rejection_l) > 0);
+    
+    if (!isModified) return false;
+    if (!filter) return true;
+    return String(item.code).toLowerCase().includes(filter) || String(item.name).toLowerCase().includes(filter);
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">වෙනස්කම් සිදු කළ හෝ අලුතින් එක්කළ දත්ත කිසිවක් හමු නොවීය.</div>`;
+    return;
+  }
+
+  let html = '';
+  filtered.forEach(item => {
+    const closing = calculateClosingStock(item);
+    let acts = [];
+    if(item.receipt > 0) acts.push(`Rec: ${item.receipt}`);
+    if(item.issues > 0) acts.push(`Iss: ${item.issues}`);
+    if(item.return > 0) acts.push(`Ret: ${item.return}`);
+    if(item.ssl_i > 0) acts.push(`SSL-R: ${item.ssl_i}`);
+    if(item.ssl_j > 0) acts.push(`SSL-S: ${item.ssl_j}`);
+    if(item.rejection_l > 0) acts.push(`Rej: ${item.rejection_l}`);
+
+    let badgeTag = item.isNew ? `<span style="background:var(--success-light); color:var(--success); font-size:0.7rem; font-weight:800; padding:2px 6px; border-radius:4px; margin-left:6px;">NEW</span>` : '';
+
+    html += `
+      <div class="checklist-item">
+        <div class="checklist-left">
+          <div class="checklist-info">
+            <span class="checklist-name">${item.name} ${badgeTag}</span>
+            <span class="checklist-code">Code: ${item.code} | UOM: ${item.uom}</span>
+            <div style="font-size:0.75rem; color:var(--primary); margin-top:4px; font-weight:600;">${acts.length > 0 ? acts.join(' | ') : 'Updated Stock'}</div>
+          </div>
+        </div>
+        <div class="checklist-right">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Closing</div>
+          <div class="checklist-stock">${closing}</div>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
 }
 
 // ==================== SUPPORTING FUNCTIONS & MODALS ====================
@@ -729,7 +749,8 @@ function applyLanguage(lang) {
   setElHTML('optSslJ', dict.optSslJ);
   setElHTML('optRejectionL', dict.optRejectionL);
   setElHTML('lblAmount', dict.lblAmount);
-  setElHTML('btnSave', dict.btnSave);
+  setElHTML('txtSaveBtnLabel', dict.btnSaveLabel);
+  setElHTML('txtBinCardBtnLabel', dict.btnBinCardLabel);
   setElHTML('txtSettingsTitle', dict.txtSettingsTitle);
   setElHTML('lblLanguage', dict.lblLanguage);
   setElHTML('lblTheme', dict.lblTheme);
@@ -792,70 +813,6 @@ function downloadXLSXBackup() {
   showToast("Backup ගොනුව සාර්ථකව Download විය!", "success");
 }
 
-function openTodayUploadedModal() {
-  const modal = document.getElementById('todayUploadedModal');
-  if (modal) {
-    modal.classList.add('show');
-    renderTodayUploadedList();
-  }
-}
-
-function closeTodayUploadedModal() {
-  const modal = document.getElementById('todayUploadedModal');
-  if (modal) modal.classList.remove('show');
-}
-
-function renderTodayUploadedList() {
-  const container = document.getElementById('todayCardsContainer');
-  const searchInput = document.getElementById('todayModalSearchInput');
-  if (!container) return;
-
-  const filter = searchInput ? searchInput.value.toLowerCase().trim() : '';
-
-  const filtered = inventory.filter(item => {
-    const hasActivity = (parseNum(item.receipt) > 0 || parseNum(item.issues) > 0 || parseNum(item.return) > 0 || 
-                         parseNum(item.ssl_i) > 0 || parseNum(item.ssl_j) > 0 || parseNum(item.rejection_l) > 0);
-    
-    if (!hasActivity) return false;
-    if (!filter) return true;
-    return String(item.code || '').toLowerCase().includes(filter) || String(item.name || '').toLowerCase().includes(filter);
-  });
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">යාවත්කාලීන කරන ලද දත්ත කිසිවක් අද දින හමු නොවීය.</div>`;
-    return;
-  }
-
-  let html = '';
-  filtered.forEach(item => {
-    const closing = calculateClosingStock(item);
-    let acts = [];
-    if(item.receipt > 0) acts.push(`Rec: ${item.receipt}`);
-    if(item.issues > 0) acts.push(`Iss: ${item.issues}`);
-    if(item.return > 0) acts.push(`Ret: ${item.return}`);
-    if(item.ssl_i > 0) acts.push(`SSL-R: ${item.ssl_i}`);
-    if(item.ssl_j > 0) acts.push(`SSL-S: ${item.ssl_j}`);
-    if(item.rejection_l > 0) acts.push(`Rej: ${item.rejection_l}`);
-
-    html += `
-      <div class="checklist-item">
-        <div class="checklist-left">
-          <div class="checklist-info">
-            <span class="checklist-name">${item.name}</span>
-            <span class="checklist-code">Code: ${item.code} | UOM: ${item.uom}</span>
-            <div style="font-size:0.75rem; color:var(--primary); margin-top:4px; font-weight:600;">${acts.join(' | ')}</div>
-          </div>
-        </div>
-        <div class="checklist-right">
-          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Closing</div>
-          <div class="checklist-stock">${closing}</div>
-        </div>
-      </div>
-    `;
-  });
-  container.innerHTML = html;
-}
-
 function openExportModal(mode) {
   currentExportMode = mode;
   const modal = document.getElementById('exportModal');
@@ -906,35 +863,6 @@ function processExportAction() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Daily Stock Summary");
     XLSX.writeFile(wb, `${fileName}.xlsx`);
-  } else if (format === 'pdf') {
-    if (window.jspdf) {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('p', 'pt', 'a4');
-      doc.setFontSize(14);
-      doc.text("Daily Stock Summary Report", 40, 40);
-      doc.setFontSize(9);
-      doc.text(`Generated Date: ${dateStr}`, 40, 56);
-
-      const tableColumn = ["Code", "Material Name", "UOM", "Opening", "Receipt", "Issues", "Return", "Rec. SSL", "Sent SSL", "Rejection", "Closing"];
-      const tableRows = exportData.map(r => [
-        r["Material Code"], r["Material Name"], r["UOM"], r["Opening Stock"],
-        r["Receipt (F)"], r["Issues (G)"], r["Return (H)"], r["Received to SSL (I)"],
-        r["Sent to SSL (J)"], r["Rejection (L)"], r["Closing Stock"]
-      ]);
-
-      if (doc.autoTable) {
-        doc.autoTable({
-          head: [tableColumn],
-          body: tableRows,
-          startY: 70,
-          styles: { fontSize: 7, cellPadding: 3 },
-          headStyles: { fillColor: [37, 99, 235] }
-        });
-      }
-      doc.save(`${fileName}.pdf`);
-    } else {
-      showToast("PDF Library loading failed", "error");
-    }
   } else if (format === 'csv') {
     const ws = XLSX.utils.json_to_sheet(exportData);
     const csv = XLSX.utils.sheet_to_csv(ws);
@@ -944,7 +872,6 @@ function processExportAction() {
     a.href = url;
     a.download = `${fileName}.csv`;
     a.click();
-    URL.revokeObjectURL(url);
   } else if (format === 'txt') {
     let txt = "Material Code\tMaterial Name\tUOM\tOpening Stock\tReceipt (F)\tIssues (G)\tReturn (H)\tReceived SSL (I)\tSent SSL (J)\tRejection (L)\tClosing Stock\n";
     exportData.forEach(r => {
@@ -956,10 +883,8 @@ function processExportAction() {
     a.href = url;
     a.download = `${fileName}.txt`;
     a.click();
-    URL.revokeObjectURL(url);
   }
 
-  // Shift logic
   if (shiftStock) {
     inventory.forEach(item => {
       item.op_stock = calculateClosingStock(item);
@@ -969,6 +894,8 @@ function processExportAction() {
       item.ssl_i = 0;
       item.ssl_j = 0;
       item.rejection_l = 0;
+      item.isUpdated = false;
+      item.isNew = false;
     });
     saveInventoryData();
   }
