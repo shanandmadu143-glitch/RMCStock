@@ -92,15 +92,16 @@
       </div>
     </div>
 
-    <!-- Save & Bin Card Update View Buttons Container -->
-    <div class="save-btn-container" style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
-      <button class="btn btn-primary ripple" onclick="addSingleSectionData()" id="btnSave" type="button">
-        <i class="fa-solid fa-floppy-disk"></i> Save
+    <!-- UI Icon Action Buttons Row (Save & Bin Card Update View) -->
+    <div class="action-buttons-row">
+      <button class="btn-action-icon btn-save-icon ripple" onclick="addSingleSectionData()" id="btnSave" type="button" title="Save Data / දත්ත සුරකින්න">
+        <i class="fa-solid fa-floppy-disk"></i>
+        <span class="icon-btn-label" id="txtSaveBtnLabel">Save</span>
       </button>
-      
-      <!-- Bin Card Update View Button -->
-      <button class="btn ripple btn-bincard-view" onclick="openBinCardUpdateView()" type="button" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; width: 100%; max-width: 320px;">
-        <i class="fa-solid fa-clipboard-list"></i> Bin Card Update View
+
+      <button class="btn-action-icon btn-bincard-icon ripple" onclick="openBinCardUpdateView()" id="btnBinCardView" type="button" title="Bin Card Update View / බින් කාඩ් පෙනුම">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span class="icon-btn-label" id="txtBinCardBtnLabel">Bin Card</span>
       </button>
     </div>
 
@@ -169,7 +170,6 @@
         <label><i class="fa-solid fa-file-code"></i> Format:</label>
         <select id="exportFormatSelect" onchange="updateDefaultFileName()">
           <option value="xlsx">Excel Workbook (.xlsx)</option>
-          <option value="pdf">PDF Document (.pdf)</option>
           <option value="csv">CSV File (.csv)</option>
           <option value="txt">Text File (.txt)</option>
         </select>
