@@ -132,7 +132,7 @@
         /* Card Layout */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
             padding: 0 20px 40px 20px;
             max-width: 1400px;
@@ -146,6 +146,9 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             border-top: 5px solid var(--primary);
             transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .card:hover {
@@ -172,43 +175,40 @@
             font-weight: 600;
             color: var(--text-main);
             word-wrap: break-word;
-            line-height: 1.3;
+            line-height: 1.35;
         }
 
         .data-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 10px;
         }
 
         .data-item {
-            flex: 1;
-            min-width: 70px;
             background: #f9fafb;
-            padding: 10px 5px;
+            padding: 10px;
             border-radius: 8px;
             text-align: center;
+            border: 1px solid #e5e7eb;
         }
 
         .data-item.full-width {
-            flex: 1 1 100%;
+            grid-column: 1 / -1;
             background: #eff6ff;
             border: 1px solid #bfdbfe;
             margin-top: 5px;
-            padding: 10px;
         }
 
         .d-label {
             display: block;
-            font-size: 11px;
+            font-size: 12px;
             color: var(--text-light);
             margin-bottom: 4px;
-            font-weight: 600;
-            text-transform: uppercase;
+            font-weight: 500;
         }
 
         .d-value {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--text-main);
         }
@@ -268,7 +268,7 @@
             transition: background 0.3s, border-color 0.3s;
         }
 
-        .upload-area:hover, .upload-area.dragover {
+        .upload-area:hover {
             background: #f1f5f9;
             border-color: var(--primary);
         }
@@ -369,15 +369,11 @@
         <div class="modal">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <h2><i class="fas fa-file-excel" style="color: #16a34a;"></i> Upload Bin Card File</h2>
-            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">
-                Upload Excel file (.xlsx, .xls). Data will be mapped using:<br>
-                <strong>Col B:</strong> Code | <strong>Col C:</strong> Name | <strong>Col F:</strong> Receipts<br>
-                <strong>Col G:</strong> Issues | <strong>Col H:</strong> Return | <strong>Col K:</strong> Closing Stock
-            </p>
+            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">Upload your Excel (.xlsx, .xls, .csv) file to update Bin Card stock details.</p>
             
-            <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
                 <i class="fas fa-cloud-upload-alt"></i>
-                <p style="margin:0; font-weight: 600;">Click or Drag & Drop file here</p>
+                <p style="margin:0; font-weight: 600;">Click here to select file</p>
                 <span style="font-size: 12px; color: var(--text-light);">Supports .xlsx, .xls, .csv</span>
                 <input type="file" id="fileInput" accept=".xlsx, .xls, .csv">
             </div>
@@ -421,8 +417,6 @@
             } else {
                 showEmptyState();
             }
-
-            setupDragAndDrop();
         });
 
         // Close Modal on Outside Click
@@ -439,36 +433,6 @@
             document.getElementById('uploadModal').style.display = 'none';
         }
 
-        // Drag & Drop Handling
-        function setupDragAndDrop() {
-            const dropArea = document.getElementById('dropArea');
-
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
-            });
-
-            dropArea.addEventListener('drop', (e) => {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                if (files.length > 0) {
-                    processFile(files[0]);
-                }
-            });
-        }
-
         // Helper to format Bytes to KB/MB
         function formatBytes(bytes) {
             if (bytes === 0) return '0 Bytes';
@@ -478,37 +442,31 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Safely format numerical values
-        function formatValue(val) {
-            if (val === undefined || val === null || val === "") return "0";
-            if (typeof val === 'number') return val.toLocaleString();
-            
-            // Clean comma-formatted strings if any
-            const cleanedStr = String(val).replace(/,/g, '').trim();
-            const num = parseFloat(cleanedStr);
-            return isNaN(num) ? String(val).trim() : num.toLocaleString();
+        // Helper to check if a value is 0, empty, null, or undefined
+        function isZeroOrEmpty(val) {
+            if (val === undefined || val === null || val === '') return true;
+            const str = String(val).replace(/,/g, '').trim();
+            if (str === '' || str === '-' || str === '0') return true;
+            const num = Number(str);
+            return !isNaN(num) && num === 0;
         }
 
-        // Check if value exists and is non-zero
-        function hasValue(val) {
-            if (val === undefined || val === null || val === "") return false;
-            const cleanedStr = String(val).replace(/,/g, '').trim();
-            const num = parseFloat(cleanedStr);
-            return !isNaN(num) && num !== 0;
-        }
-
-        // File Selection Listener
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            if (e.target.files.length > 0) {
-                processFile(e.target.files[0]);
+        // Helper to format numbers cleanly with commas
+        function formatDisplayVal(val) {
+            if (val === undefined || val === null || val === '') return '0';
+            const str = String(val).trim();
+            const num = Number(str.replace(/,/g, ''));
+            if (!isNaN(num)) {
+                return num.toLocaleString('en-US');
             }
-        });
+            return str;
+        }
 
-        // Main File Processing Function
-        function processFile(file) {
+        // File Upload Processing
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
             const statusEl = document.getElementById('uploadStatus');
-            statusEl.style.display = 'none';
-
+            
             if (!file) return;
 
             const reader = new FileReader();
@@ -521,58 +479,63 @@
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     
-                    // Convert Sheet using column letters (A, B, C, D...) as Keys
-                    const rawJson = XLSX.utils.sheet_to_json(worksheet, { header: "A", defval: "" });
+                    // Parse Excel with direct column letter headers (A, B, C, D, E, F, G, H, I, J, K...)
+                    const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: "A", defval: "" });
 
-                    if (!rawJson || rawJson.length === 0) {
-                        throw new Error("No data found in the selected Excel file.");
+                    if (!rawRows || rawRows.length === 0) {
+                        throw new Error("තෝරාගත් File එකේ කිසිදු දත්තයක් නොමැත.");
                     }
 
-                    const cleanedData = [];
+                    // Check if row 1 is a Header row (e.g., Column B contains 'Code' or 'කේත')
+                    let startIndex = 0;
+                    const firstRowB = String(rawRows[0]['B'] || '').toLowerCase();
+                    const firstRowC = String(rawRows[0]['C'] || '').toLowerCase();
+                    
+                    if (firstRowB.includes('code') || firstRowB.includes('කේත') || firstRowC.includes('name') || firstRowC.includes('විස්තර') || firstRowC.includes('material')) {
+                        startIndex = 1; // Skip header row
+                    }
 
-                    // Loop through each row and map columns directly:
-                    // Col B: Material Code
-                    // Col C: Material Name
-                    // Col F: Receipts
-                    // Col G: Issues
-                    // Col H: Returns
-                    // Col K: Total Closing Stock
-                    for (let i = 0; i < rawJson.length; i++) {
-                        const row = rawJson[i];
+                    const parsedData = [];
 
-                        const rawCode = row['B'] !== undefined ? String(row['B']).trim() : '';
-                        const rawName = row['C'] !== undefined ? String(row['C']).trim() : '';
-                        
-                        // Skip blank rows or rows with no Code AND Name
-                        if (!rawCode && !rawName) continue;
+                    for (let i = startIndex; i < rawRows.length; i++) {
+                        const row = rawRows[i];
 
-                        // Header detection check to skip top title rows
-                        const lowerCode = rawCode.toLowerCase();
-                        const lowerName = rawName.toLowerCase();
-                        if (
-                            lowerCode.includes('code') || lowerCode.includes('කේතය') || lowerCode.includes('mat code') ||
-                            lowerName.includes('name') || lowerName.includes('description') || lowerName.includes('විස්තර') || lowerName.includes('නම')
-                        ) {
-                            continue; // Skip table header row
+                        // Extract exact requested sections:
+                        // B Section: Material Code
+                        // C Section: Material Name
+                        // F Section: Receipt
+                        // G Section: Issue
+                        // H Section: Return
+                        // K Section: Useable Material Total Closing Stock
+                        const matCode = String(row['B'] || '').trim();
+                        const matName = String(row['C'] || '').trim();
+                        const receipt = row['F'];
+                        const issues = row['G'];
+                        const returnQty = row['H'];
+                        const closingStock = row['K'];
+
+                        // Skip completely empty rows
+                        if (!matCode && !matName && isZeroOrEmpty(closingStock)) {
+                            continue;
                         }
 
-                        cleanedData.push({
-                            matCode: rawCode || `ITEM-${i + 1}`,
-                            matName: rawName || 'Unspecified Material',
-                            receipt: formatValue(row['F']),
-                            issues: formatValue(row['G']),
-                            returnQty: formatValue(row['H']),
-                            closingStock: formatValue(row['K'])
+                        parsedData.push({
+                            matCode: matCode || `ITEM-${i + 1}`,
+                            matName: matName || 'නමක් නොමැත (Unknown)',
+                            receipt: receipt,
+                            issues: issues,
+                            returnQty: returnQty,
+                            closingStock: closingStock
                         });
                     }
 
-                    if (cleanedData.length === 0) {
-                        throw new Error("No valid material records found in columns B, C, F, G, H, K.");
+                    if (parsedData.length === 0) {
+                        throw new Error("Excel ගොනුවෙන් නිවැරදි දත්ත හඳුනා ගැනීමට නොහැකි විය.");
                     }
 
-                    binCardData = cleanedData;
+                    binCardData = parsedData;
 
-                    // Create File Metadata
+                    // Metadata Creation
                     fileMetaData = {
                         name: file.name,
                         size: formatBytes(file.size),
@@ -580,25 +543,21 @@
                         uploadTime: new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
                     };
 
-                    // Save to LocalStorage safely
-                    try {
-                        localStorage.setItem('binCardData', JSON.stringify(binCardData));
-                        localStorage.setItem('binCardMeta', JSON.stringify(fileMetaData));
-                    } catch (storageErr) {
-                        console.warn("LocalStorage full, data loaded in-memory:", storageErr);
-                    }
+                    // Save to LocalStorage
+                    localStorage.setItem('binCardData', JSON.stringify(binCardData));
+                    localStorage.setItem('binCardMeta', JSON.stringify(fileMetaData));
 
                     // Update UI
                     updateFileInfoUI(fileMetaData);
                     document.getElementById('searchInput').value = '';
                     renderCards(binCardData);
 
-                    // Show Success Message
-                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> File processed successfully!';
+                    // Show Success
+                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> File එක සාර්ථකව Upload කර දත්ත යාවත්කාලීන गरා ගන්නා ලදී!';
                     statusEl.className = 'status-message status-success';
                     statusEl.style.display = 'block';
 
-                    setTimeout(closeModal, 1500);
+                    setTimeout(closeModal, 1600);
 
                 } catch (error) {
                     console.error("File Parse Error:", error);
@@ -606,12 +565,12 @@
                     statusEl.className = 'status-message status-error';
                     statusEl.style.display = 'block';
                 } finally {
-                    document.getElementById('fileInput').value = ''; // Reset File Input
+                    e.target.value = ''; // Reset File Input
                 }
             };
             
             reader.readAsArrayBuffer(file);
-        }
+        });
 
         // Update File Meta Info in Header & Modal
         function updateFileInfoUI(meta) {
@@ -631,7 +590,7 @@
             document.getElementById('mFileTime').innerText = meta.uploadTime;
         }
 
-        // Render Bin Cards
+        // Render Bin Cards with Conditional Display logic
         function renderCards(data) {
             const container = document.getElementById('cardContainer');
             container.innerHTML = '';
@@ -647,53 +606,52 @@
                 const card = document.createElement('div');
                 card.className = 'card';
 
-                let dataGridContent = '';
+                // Dynamically build metrics grid (only include if NOT 0 or empty)
+                let dynamicGridHtml = '';
 
-                // Only render Receipts if non-zero
-                if (hasValue(item.receipt)) {
-                    dataGridContent += `
+                if (!isZeroOrEmpty(item.receipt)) {
+                    dynamicGridHtml += `
                         <div class="data-item">
                             <span class="d-label">Receipts</span>
-                            <span class="d-value">${item.receipt}</span>
+                            <span class="d-value">${formatDisplayVal(item.receipt)}</span>
                         </div>
                     `;
                 }
 
-                // Only render Issues if non-zero
-                if (hasValue(item.issues)) {
-                    dataGridContent += `
+                if (!isZeroOrEmpty(item.issues)) {
+                    dynamicGridHtml += `
                         <div class="data-item">
                             <span class="d-label">Issues</span>
-                            <span class="d-value">${item.issues}</span>
+                            <span class="d-value">${formatDisplayVal(item.issues)}</span>
                         </div>
                     `;
                 }
 
-                // Only render Returns if non-zero
-                if (hasValue(item.returnQty)) {
-                    dataGridContent += `
+                if (!isZeroOrEmpty(item.returnQty)) {
+                    dynamicGridHtml += `
                         <div class="data-item">
                             <span class="d-label">Returns</span>
-                            <span class="d-value">${item.returnQty}</span>
+                            <span class="d-value">${formatDisplayVal(item.returnQty)}</span>
                         </div>
                     `;
                 }
 
-                // Total Closing Stock always displayed
-                dataGridContent += `
+                // Total Closing Stock (Always displayed)
+                const closingStockHtml = `
                     <div class="data-item full-width">
-                        <span class="d-label">Total Closing Stock</span>
-                        <span class="d-value">${item.closingStock}</span>
+                        <span class="d-label">Useable Material Total Closing Stock</span>
+                        <span class="d-value">${formatDisplayVal(item.closingStock)}</span>
                     </div>
                 `;
 
                 card.innerHTML = `
                     <div class="card-header">
-                        <div class="mat-code"><i class="fas fa-barcode"></i> ${escapeHtml(item.matCode)}</div>
-                        <div class="mat-name">${escapeHtml(item.matName)}</div>
+                        <div class="mat-code"><i class="fas fa-barcode"></i> ${item.matCode}</div>
+                        <div class="mat-name">${item.matName}</div>
                     </div>
                     <div class="data-grid">
-                        ${dataGridContent}
+                        ${dynamicGridHtml}
+                        ${closingStockHtml}
                     </div>
                 `;
                 fragment.appendChild(card);
@@ -702,29 +660,19 @@
             container.appendChild(fragment);
         }
 
-        // Safe HTML Encoding helper
-        function escapeHtml(str) {
-            return String(str)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
         // Empty State UI
         function showEmptyState() {
             document.getElementById('fileInfoBar').style.display = 'none';
             document.getElementById('cardContainer').innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-folder-open"></i>
-                    <h2>No Data Available</h2>
-                    <p>Click on <strong>"Upload Data File"</strong> button above to upload your Excel Bin Card file.</p>
+                    <h2>දත්ත ලබාගත නොහැක (No Data Available)</h2>
+                    <p>ඉහළ ඇති <strong>"Upload Data File"</strong> බොත්තම මත ක්ලික් කර ඔබගේ Excel Bin Card ගොනුව Upload කරන්න.</p>
                 </div>
             `;
         }
 
-        // Search Filter Logic
+        // Search Filter
         function filterCards() {
             const query = document.getElementById('searchInput').value.toLowerCase().trim();
             
