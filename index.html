@@ -132,7 +132,7 @@
         /* Card Layout */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
             padding: 0 20px 40px 20px;
             max-width: 1400px;
@@ -168,7 +168,7 @@
         }
 
         .mat-name {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 600;
             color: var(--text-main);
             word-wrap: break-word;
@@ -177,34 +177,36 @@
 
         .data-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
         }
 
         .data-item {
             background: #f9fafb;
-            padding: 10px;
+            padding: 10px 5px;
             border-radius: 8px;
             text-align: center;
         }
 
         .data-item.full-width {
-            grid-column: span 2;
+            grid-column: span 3;
             background: #eff6ff;
             border: 1px solid #bfdbfe;
             margin-top: 5px;
+            padding: 10px;
         }
 
         .d-label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-light);
             margin-bottom: 4px;
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
         }
 
         .d-value {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--text-main);
         }
@@ -264,7 +266,7 @@
             transition: background 0.3s, border-color 0.3s;
         }
 
-        .upload-area:hover {
+        .upload-area:hover, .upload-area.dragover {
             background: #f1f5f9;
             border-color: var(--primary);
         }
@@ -365,11 +367,15 @@
         <div class="modal">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <h2><i class="fas fa-file-excel" style="color: #16a34a;"></i> Upload Bin Card File</h2>
-            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">Upload your Excel (.xlsx, .xls) file to update Bin Card stock details.</p>
+            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">
+                Upload Excel file (.xlsx, .xls). Data will be mapped using:<br>
+                <strong>Col B:</strong> Code | <strong>Col C:</strong> Name | <strong>Col F:</strong> Receipts<br>
+                <strong>Col G:</strong> Issues | <strong>Col H:</strong> Return | <strong>Col K:</strong> Closing Stock
+            </p>
             
-            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
                 <i class="fas fa-cloud-upload-alt"></i>
-                <p style="margin:0; font-weight: 600;">Click here to select file</p>
+                <p style="margin:0; font-weight: 600;">Click or Drag & Drop file here</p>
                 <span style="font-size: 12px; color: var(--text-light);">Supports .xlsx, .xls, .csv</span>
                 <input type="file" id="fileInput" accept=".xlsx, .xls, .csv">
             </div>
@@ -413,6 +419,8 @@
             } else {
                 showEmptyState();
             }
+
+            setupDragAndDrop();
         });
 
         // Close Modal on Outside Click
@@ -429,6 +437,36 @@
             document.getElementById('uploadModal').style.display = 'none';
         }
 
+        // Drag & Drop Handling
+        function setupDragAndDrop() {
+            const dropArea = document.getElementById('dropArea');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
+            });
+
+            dropArea.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    processFile(files[0]);
+                }
+            });
+        }
+
         // Helper to format Bytes to KB/MB
         function formatBytes(bytes) {
             if (bytes === 0) return '0 Bytes';
@@ -438,26 +476,29 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Smart Excel Field Search Logic
-        function getSmartValue(row, possibleKeys, defaultVal = "0") {
-            const keys = Object.keys(row);
-            for (let key of keys) {
-                const cleanKey = key.trim().toLowerCase();
-                for (let pKey of possibleKeys) {
-                    if (cleanKey.includes(pKey.toLowerCase())) {
-                        const val = row[key];
-                        return (val !== undefined && val !== null && val !== "") ? val : defaultVal;
-                    }
-                }
-            }
-            return defaultVal;
+        // Safely format numerical values
+        function formatValue(val) {
+            if (val === undefined || val === null || val === "") return "0";
+            if (typeof val === 'number') return val.toLocaleString();
+            
+            // Clean comma-formatted strings if any
+            const cleanedStr = String(val).replace(/,/g, '').trim();
+            const num = parseFloat(cleanedStr);
+            return isNaN(num) ? String(val).trim() : num.toLocaleString();
         }
 
-        // File Upload Processing
+        // File Selection Listener
         document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
+            if (e.target.files.length > 0) {
+                processFile(e.target.files[0]);
+            }
+        });
+
+        // Main File Processing Function
+        function processFile(file) {
             const statusEl = document.getElementById('uploadStatus');
-            
+            statusEl.style.display = 'none';
+
             if (!file) return;
 
             const reader = new FileReader();
@@ -470,36 +511,58 @@
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     
-                    // Convert Sheet to JSON
-                    const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: 0 });
+                    // Convert Sheet using column letters (A, B, C, D...) as Keys
+                    const rawJson = XLSX.utils.sheet_to_json(worksheet, { header: "A", defval: "" });
 
                     if (!rawJson || rawJson.length === 0) {
-                        throw new Error("No data found in the selected file.");
+                        throw new Error("No data found in the selected Excel file.");
                     }
 
-                    // Flexible Column Extraction
-                    binCardData = rawJson.map((row, index) => {
-                        const keys = Object.keys(row);
+                    const cleanedData = [];
+
+                    // Loop through each row and map columns directly:
+                    // Col B: Material Code
+                    // Col C: Material Name
+                    // Col F: Receipts
+                    // Col G: Issues
+                    // Col H: Returns
+                    // Col K: Total Closing Stock
+                    for (let i = 0; i < rawJson.length; i++) {
+                        const row = rawJson[i];
+
+                        const rawCode = row['B'] !== undefined ? String(row['B']).trim() : '';
+                        const rawName = row['C'] !== undefined ? String(row['C']).trim() : '';
                         
-                        // Smart Key Mapping + Index Fallback
-                        let code = getSmartValue(row, ["code", "කේතය", "item code", "mat code"], keys[0] ? row[keys[0]] : `ITEM-${index+1}`);
-                        let name = getSmartValue(row, ["name", "description", "විස්තර", "නම", "item name"], keys[1] ? row[keys[1]] : "Unknown Material");
-                        let receipt = getSmartValue(row, ["receipt", "in", "ලැබීම්", "ලැබුනු"], keys[2] ? row[keys[2]] : 0);
-                        let issues = getSmartValue(row, ["issue", "out", "නිකුත්", "නිකුතු"], keys[3] ? row[keys[3]] : 0);
-                        let returnQty = getSmartValue(row, ["return", "ආපසු"], keys[4] ? row[keys[4]] : 0);
-                        let closingStock = getSmartValue(row, ["closing", "stock", "balance", "total", "ශේෂය", "තොගය"], keys[5] ? row[keys[5]] : 0);
+                        // Skip blank rows or rows with no Code AND Name
+                        if (!rawCode && !rawName) continue;
 
-                        return {
-                            matCode: String(code).trim(),
-                            matName: String(name).trim(),
-                            receipt: isNaN(receipt) ? receipt : Number(receipt).toLocaleString(),
-                            issues: isNaN(issues) ? issues : Number(issues).toLocaleString(),
-                            returnQty: isNaN(returnQty) ? returnQty : Number(returnQty).toLocaleString(),
-                            closingStock: isNaN(closingStock) ? closingStock : Number(closingStock).toLocaleString()
-                        };
-                    });
+                        // Header detection check to skip top title rows
+                        const lowerCode = rawCode.toLowerCase();
+                        const lowerName = rawName.toLowerCase();
+                        if (
+                            lowerCode.includes('code') || lowerCode.includes('කේතය') || lowerCode.includes('mat code') ||
+                            lowerName.includes('name') || lowerName.includes('description') || lowerName.includes('විස්තර') || lowerName.includes('නම')
+                        ) {
+                            continue; // Skip table header row
+                        }
 
-                    // Metadata Creation
+                        cleanedData.push({
+                            matCode: rawCode || `ITEM-${i + 1}`,
+                            matName: rawName || 'Unspecified Material',
+                            receipt: formatValue(row['F']),
+                            issues: formatValue(row['G']),
+                            returnQty: formatValue(row['H']),
+                            closingStock: formatValue(row['K'])
+                        });
+                    }
+
+                    if (cleanedData.length === 0) {
+                        throw new Error("No valid material records found in columns B, C, F, G, H, K.");
+                    }
+
+                    binCardData = cleanedData;
+
+                    // Create File Metadata
                     fileMetaData = {
                         name: file.name,
                         size: formatBytes(file.size),
@@ -507,34 +570,38 @@
                         uploadTime: new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
                     };
 
-                    // Save to LocalStorage
-                    localStorage.setItem('binCardData', JSON.stringify(binCardData));
-                    localStorage.setItem('binCardMeta', JSON.stringify(fileMetaData));
+                    // Save to LocalStorage safely
+                    try {
+                        localStorage.setItem('binCardData', JSON.stringify(binCardData));
+                        localStorage.setItem('binCardMeta', JSON.stringify(fileMetaData));
+                    } catch (storageErr) {
+                        console.warn("LocalStorage full, data loaded in-memory:", storageErr);
+                    }
 
                     // Update UI
                     updateFileInfoUI(fileMetaData);
                     document.getElementById('searchInput').value = '';
                     renderCards(binCardData);
 
-                    // Show Success
-                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> File uploaded & data updated successfully!';
+                    // Show Success Message
+                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> File processed successfully!';
                     statusEl.className = 'status-message status-success';
                     statusEl.style.display = 'block';
 
-                    setTimeout(closeModal, 1600);
+                    setTimeout(closeModal, 1500);
 
                 } catch (error) {
                     console.error("File Parse Error:", error);
-                    statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error reading file: ${error.message}`;
+                    statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${error.message}`;
                     statusEl.className = 'status-message status-error';
                     statusEl.style.display = 'block';
                 } finally {
-                    e.target.value = ''; // Reset File Input
+                    document.getElementById('fileInput').value = ''; // Reset File Input
                 }
             };
             
             reader.readAsArrayBuffer(file);
-        });
+        }
 
         // Update File Meta Info in Header & Modal
         function updateFileInfoUI(meta) {
@@ -571,8 +638,8 @@
                 card.className = 'card';
                 card.innerHTML = `
                     <div class="card-header">
-                        <div class="mat-code"><i class="fas fa-barcode"></i> ${item.matCode}</div>
-                        <div class="mat-name">${item.matName}</div>
+                        <div class="mat-code"><i class="fas fa-barcode"></i> ${escapeHtml(item.matCode)}</div>
+                        <div class="mat-name">${escapeHtml(item.matName)}</div>
                     </div>
                     <div class="data-grid">
                         <div class="data-item">
@@ -599,6 +666,16 @@
             container.appendChild(fragment);
         }
 
+        // Safe HTML Encoding helper
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         // Empty State UI
         function showEmptyState() {
             document.getElementById('fileInfoBar').style.display = 'none';
@@ -611,7 +688,7 @@
             `;
         }
 
-        // Search Filter
+        // Search Filter Logic
         function filterCards() {
             const query = document.getElementById('searchInput').value.toLowerCase().trim();
             
