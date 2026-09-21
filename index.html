@@ -16,6 +16,7 @@
             --text-light: #6b7280;
             --card-bg: #ffffff;
             --danger: #dc2626;
+            --success: #16a34a;
         }
 
         body {
@@ -49,16 +50,45 @@
         }
 
         .settings-btn {
-            background: none;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            font-size: 24px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
             cursor: pointer;
-            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
         }
 
         .settings-btn:hover {
-            transform: rotate(90deg);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* File Meta Info Bar */
+        .file-info-bar {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 10px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            font-size: 13px;
+            color: var(--text-light);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .file-info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .file-info-item strong {
+            color: var(--text-main);
         }
 
         /* Search Bar */
@@ -102,7 +132,7 @@
         /* Card Layout */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Modified for better mobile view */
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
             padding: 0 20px 40px 20px;
             max-width: 1400px;
@@ -130,23 +160,25 @@
         }
 
         .mat-code {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--primary);
             font-weight: 700;
             margin-bottom: 5px;
+            text-transform: uppercase;
         }
 
         .mat-name {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 600;
             color: var(--text-main);
             word-wrap: break-word;
+            line-height: 1.3;
         }
 
         .data-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 10px;
         }
 
         .data-item {
@@ -167,19 +199,19 @@
             display: block;
             font-size: 12px;
             color: var(--text-light);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             font-weight: 500;
         }
 
         .d-value {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--text-main);
         }
 
         .data-item.full-width .d-value {
             color: var(--primary);
-            font-size: 22px;
+            font-size: 20px;
         }
 
         /* Modal Styling */
@@ -196,10 +228,10 @@
 
         .modal {
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 12px;
             width: 90%;
-            max-width: 400px;
+            max-width: 450px;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
             position: relative;
         }
@@ -208,7 +240,7 @@
             margin-top: 0;
             color: var(--text-main);
             font-size: 18px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .close-modal {
@@ -220,16 +252,11 @@
             font-size: 20px;
             cursor: pointer;
             color: var(--text-light);
-            transition: color 0.3s;
-        }
-
-        .close-modal:hover {
-            color: var(--danger);
         }
 
         .upload-area {
             border: 2px dashed #cbd5e1;
-            padding: 40px 20px;
+            padding: 30px 20px;
             text-align: center;
             border-radius: 8px;
             cursor: pointer;
@@ -243,7 +270,7 @@
         }
 
         .upload-area i {
-            font-size: 40px;
+            font-size: 38px;
             color: var(--primary);
             margin-bottom: 10px;
         }
@@ -252,19 +279,37 @@
             display: none;
         }
 
+        /* File Details Box in Modal */
+        .active-file-card {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .active-file-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .status-message {
             text-align: center; 
             margin-top: 15px; 
-            font-size: 14px; 
+            font-size: 13px; 
             font-weight: bold; 
             display: none;
         }
-        .status-success { color: #16a34a; }
+        .status-success { color: var(--success); }
         .status-error { color: var(--danger); }
 
         .empty-state {
             text-align: center;
-            padding: 50px 20px;
+            padding: 60px 20px;
             color: var(--text-light);
             grid-column: 1 / -1;
         }
@@ -281,10 +326,26 @@
     <!-- Header Section -->
     <header>
         <h1><i class="fas fa-boxes-stacked"></i> Bin Card Manager</h1>
-        <button class="settings-btn" onclick="openModal()" title="Upload File Settings">
-            <i class="fas fa-cog"></i>
+        <button class="settings-btn" onclick="openModal()">
+            <i class="fas fa-cog"></i> <span>Upload Data File</span>
         </button>
     </header>
+
+    <!-- File Meta Info Bar -->
+    <div class="file-info-bar" id="fileInfoBar" style="display: none;">
+        <div class="file-info-item">
+            <i class="fas fa-file-excel" style="color: #16a34a;"></i>
+            <span>File: <strong id="infoFileName">-</strong></span>
+        </div>
+        <div class="file-info-item">
+            <i class="fas fa-cubes" style="color: var(--primary);"></i>
+            <span>Total Items: <strong id="infoTotalItems">0</strong></span>
+        </div>
+        <div class="file-info-item">
+            <i class="fas fa-clock"></i>
+            <span>Updated: <strong id="infoUploadTime">-</strong></span>
+        </div>
+    </div>
 
     <!-- Search Section -->
     <div class="search-container">
@@ -296,20 +357,30 @@
 
     <!-- Cards Container -->
     <div class="cards-grid" id="cardContainer">
-        <!-- Cards will be generated here by JavaScript -->
+        <!-- Cards will be generated here dynamically -->
     </div>
 
     <!-- Settings / Upload Modal -->
     <div class="modal-overlay" id="uploadModal">
-        <div class="modal" id="modalContent">
+        <div class="modal">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
-            <h2><i class="fas fa-file-excel"></i> Upload Data File</h2>
-            <p style="font-size: 13px; color: gray; margin-bottom: 15px;">Upload your Excel (.xlsx) file to update Bin Card details.</p>
+            <h2><i class="fas fa-file-excel" style="color: #16a34a;"></i> Upload Bin Card File</h2>
+            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">Upload your Excel (.xlsx, .xls) file to update Bin Card stock details.</p>
             
             <div class="upload-area" onclick="document.getElementById('fileInput').click()">
                 <i class="fas fa-cloud-upload-alt"></i>
-                <p style="margin:0; font-weight: 500;">Click to select file</p>
+                <p style="margin:0; font-weight: 600;">Click here to select file</p>
+                <span style="font-size: 12px; color: var(--text-light);">Supports .xlsx, .xls, .csv</span>
                 <input type="file" id="fileInput" accept=".xlsx, .xls, .csv">
+            </div>
+
+            <!-- Uploaded File Details Container -->
+            <div id="modalFileInfo" class="active-file-card" style="display: none;">
+                <h4><i class="fas fa-check-circle"></i> Currently Loaded File</h4>
+                <div><strong>Name:</strong> <span id="mFileName">-</span></div>
+                <div><strong>Size:</strong> <span id="mFileSize">-</span></div>
+                <div><strong>Records:</strong> <span id="mFileRows">0</span> items</div>
+                <div><strong>Last Upload:</strong> <span id="mFileTime">-</span></div>
             </div>
             
             <p id="uploadStatus" class="status-message"></p>
@@ -319,16 +390,24 @@
     <!-- JavaScript Logic -->
     <script>
         let binCardData = [];
+        let fileMetaData = null;
 
-        // App ආරම්භයේදී Local Storage එකේ දත්ත තිබේදැයි බැලීම
+        // Page Load - Local Storage Check
         document.addEventListener('DOMContentLoaded', () => {
             const savedData = localStorage.getItem('binCardData');
+            const savedMeta = localStorage.getItem('binCardMeta');
+
             if (savedData) {
                 try {
                     binCardData = JSON.parse(savedData);
                     renderCards(binCardData);
+                    
+                    if (savedMeta) {
+                        fileMetaData = JSON.parse(savedMeta);
+                        updateFileInfoUI(fileMetaData);
+                    }
                 } catch (e) {
-                    console.error("Error parsing local storage data", e);
+                    console.error("Error loading local storage data", e);
                     showEmptyState();
                 }
             } else {
@@ -336,14 +415,11 @@
             }
         });
 
-        // Modal එකට පිටින් click කළ විට එය වැසීම (Close modal on outside click)
+        // Close Modal on Outside Click
         document.getElementById('uploadModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
+            if (e.target === this) closeModal();
         });
 
-        // Modal Open & Close Functions
         function openModal() {
             document.getElementById('uploadModal').style.display = 'flex';
             document.getElementById('uploadStatus').style.display = 'none';
@@ -353,21 +429,31 @@
             document.getElementById('uploadModal').style.display = 'none';
         }
 
-        // Excel Headers වල spaces/cases ප්‍රශ්න මගහරවා අගය ලබා ගැනීමේ Function එක
-        function getExcelValue(row, possibleKeys) {
+        // Helper to format Bytes to KB/MB
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Smart Excel Field Search Logic
+        function getSmartValue(row, possibleKeys, defaultVal = "0") {
             const keys = Object.keys(row);
             for (let key of keys) {
                 const cleanKey = key.trim().toLowerCase();
                 for (let pKey of possibleKeys) {
-                    if (cleanKey === pKey.toLowerCase()) {
-                        return row[key];
+                    if (cleanKey.includes(pKey.toLowerCase())) {
+                        const val = row[key];
+                        return (val !== undefined && val !== null && val !== "") ? val : defaultVal;
                     }
                 }
             }
-            return 0; // Default අගය
+            return defaultVal;
         }
 
-        // File Upload හා Data කියවීම
+        // File Upload Processing
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             const statusEl = document.getElementById('uploadStatus');
@@ -379,65 +465,105 @@
             reader.onload = function(event) {
                 try {
                     const data = new Uint8Array(event.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
+                    const workbook = XLSX.read(data, { type: 'array' });
                     
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     
-                    const json = XLSX.utils.sheet_to_json(worksheet, {defval: 0});
-                    
-                    // දත්ත Format කිරීම
-                    binCardData = json.map(row => {
+                    // Convert Sheet to JSON
+                    const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: 0 });
+
+                    if (!rawJson || rawJson.length === 0) {
+                        throw new Error("No data found in the selected file.");
+                    }
+
+                    // Flexible Column Extraction
+                    binCardData = rawJson.map((row, index) => {
+                        const keys = Object.keys(row);
+                        
+                        // Smart Key Mapping + Index Fallback
+                        let code = getSmartValue(row, ["code", "කේතය", "item code", "mat code"], keys[0] ? row[keys[0]] : `ITEM-${index+1}`);
+                        let name = getSmartValue(row, ["name", "description", "විස්තර", "නම", "item name"], keys[1] ? row[keys[1]] : "Unknown Material");
+                        let receipt = getSmartValue(row, ["receipt", "in", "ලැබීම්", "ලැබුනු"], keys[2] ? row[keys[2]] : 0);
+                        let issues = getSmartValue(row, ["issue", "out", "නිකුත්", "නිකුතු"], keys[3] ? row[keys[3]] : 0);
+                        let returnQty = getSmartValue(row, ["return", "ආපසු"], keys[4] ? row[keys[4]] : 0);
+                        let closingStock = getSmartValue(row, ["closing", "stock", "balance", "total", "ශේෂය", "තොගය"], keys[5] ? row[keys[5]] : 0);
+
                         return {
-                            matCode: getExcelValue(row, ["Material Code", "Material_Code", "Code", "Item Code", "ItemCode"]) || "N/A",
-                            matName: getExcelValue(row, ["Material Name", "Material_Name", "Name", "Item Name", "Description"]) || "Unknown Material",
-                            receipt: getExcelValue(row, ["Receipt", "Receipts", "In"]),
-                            issues: getExcelValue(row, ["Issues", "Issue", "Out"]),
-                            returnQty: getExcelValue(row, ["Return", "Returns"]),
-                            closingStock: getExcelValue(row, ["Useable Material Total Closing Stock", "Total Closing Stock", "Closing Stock", "Balance", "Stock"])
+                            matCode: String(code).trim(),
+                            matName: String(name).trim(),
+                            receipt: isNaN(receipt) ? receipt : Number(receipt).toLocaleString(),
+                            issues: isNaN(issues) ? issues : Number(issues).toLocaleString(),
+                            returnQty: isNaN(returnQty) ? returnQty : Number(returnQty).toLocaleString(),
+                            closingStock: isNaN(closingStock) ? closingStock : Number(closingStock).toLocaleString()
                         };
                     });
 
-                    // දත්ත Local Storage හි Save කිරීම
-                    localStorage.setItem('binCardData', JSON.stringify(binCardData));
+                    // Metadata Creation
+                    fileMetaData = {
+                        name: file.name,
+                        size: formatBytes(file.size),
+                        totalRows: binCardData.length,
+                        uploadTime: new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+                    };
 
-                    // Success Message පෙන්වීම
-                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> File Data Saved Successfully!';
+                    // Save to LocalStorage
+                    localStorage.setItem('binCardData', JSON.stringify(binCardData));
+                    localStorage.setItem('binCardMeta', JSON.stringify(fileMetaData));
+
+                    // Update UI
+                    updateFileInfoUI(fileMetaData);
+                    document.getElementById('searchInput').value = '';
+                    renderCards(binCardData);
+
+                    // Show Success
+                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> File uploaded & data updated successfully!';
                     statusEl.className = 'status-message status-success';
                     statusEl.style.display = 'block';
-                    
-                    // UI එක Update කිරීම
-                    document.getElementById('searchInput').value = ''; // Reset search
-                    renderCards(binCardData);
-                    
-                    // තත්පර 1.5 කට පසු Modal එක වැසීම
-                    setTimeout(closeModal, 1500);
+
+                    setTimeout(closeModal, 1600);
 
                 } catch (error) {
-                    console.error(error);
-                    statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error reading file. Please check format.';
+                    console.error("File Parse Error:", error);
+                    statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error reading file: ${error.message}`;
                     statusEl.className = 'status-message status-error';
                     statusEl.style.display = 'block';
                 } finally {
-                    // එකම file එක නැවත select කිරීමට හැකිවන පරිදි input එක reset කිරීම
-                    e.target.value = ''; 
+                    e.target.value = ''; // Reset File Input
                 }
             };
             
             reader.readAsArrayBuffer(file);
         });
 
-        // UI Card සෑදීමේ Function එක
+        // Update File Meta Info in Header & Modal
+        function updateFileInfoUI(meta) {
+            if (!meta) return;
+
+            // Header Info Bar
+            document.getElementById('fileInfoBar').style.display = 'flex';
+            document.getElementById('infoFileName').innerText = meta.name;
+            document.getElementById('infoTotalItems').innerText = meta.totalRows;
+            document.getElementById('infoUploadTime').innerText = meta.uploadTime;
+
+            // Modal File Info
+            document.getElementById('modalFileInfo').style.display = 'block';
+            document.getElementById('mFileName').innerText = meta.name;
+            document.getElementById('mFileSize').innerText = meta.size;
+            document.getElementById('mFileRows').innerText = meta.totalRows;
+            document.getElementById('mFileTime').innerText = meta.uploadTime;
+        }
+
+        // Render Bin Cards
         function renderCards(data) {
             const container = document.getElementById('cardContainer');
-            container.innerHTML = ''; 
+            container.innerHTML = '';
 
             if (!data || data.length === 0) {
                 showEmptyState();
                 return;
             }
 
-            // Cards නිර්මාණය කිරීම
             const fragment = document.createDocumentFragment();
             
             data.forEach(item => {
@@ -473,18 +599,19 @@
             container.appendChild(fragment);
         }
 
-        // හිස් අවස්ථාවේදී පෙන්වන UI
+        // Empty State UI
         function showEmptyState() {
+            document.getElementById('fileInfoBar').style.display = 'none';
             document.getElementById('cardContainer').innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-folder-open"></i>
                     <h2>No Data Available</h2>
-                    <p>Please click the settings gear icon to upload your Bin Card Excel file.</p>
+                    <p>Click on <strong>"Upload Data File"</strong> button above to upload your Excel Bin Card file.</p>
                 </div>
             `;
         }
 
-        // Search/Filter Function
+        // Search Filter
         function filterCards() {
             const query = document.getElementById('searchInput').value.toLowerCase().trim();
             
@@ -493,15 +620,13 @@
                 return;
             }
 
-            const filteredData = binCardData.filter(item => {
-                // null හෝ undefined අගයන් ආවොත් crash වීම වැළැක්වීමට String() භාවිතය
+            const filtered = binCardData.filter(item => {
                 const code = String(item.matCode || '').toLowerCase();
                 const name = String(item.matName || '').toLowerCase();
-                
                 return code.includes(query) || name.includes(query);
             });
             
-            renderCards(filteredData);
+            renderCards(filtered);
         }
     </script>
 </body>
