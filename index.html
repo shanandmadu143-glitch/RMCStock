@@ -176,12 +176,14 @@
         }
 
         .data-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            display: flex;
+            flex-wrap: wrap;
             gap: 8px;
         }
 
         .data-item {
+            flex: 1;
+            min-width: 70px;
             background: #f9fafb;
             padding: 10px 5px;
             border-radius: 8px;
@@ -189,7 +191,7 @@
         }
 
         .data-item.full-width {
-            grid-column: span 3;
+            flex: 1 1 100%;
             background: #eff6ff;
             border: 1px solid #bfdbfe;
             margin-top: 5px;
@@ -487,6 +489,14 @@
             return isNaN(num) ? String(val).trim() : num.toLocaleString();
         }
 
+        // Check if value exists and is non-zero
+        function hasValue(val) {
+            if (val === undefined || val === null || val === "") return false;
+            const cleanedStr = String(val).replace(/,/g, '').trim();
+            const num = parseFloat(cleanedStr);
+            return !isNaN(num) && num !== 0;
+        }
+
         // File Selection Listener
         document.getElementById('fileInput').addEventListener('change', function(e) {
             if (e.target.files.length > 0) {
@@ -636,28 +646,54 @@
             data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'card';
+
+                let dataGridContent = '';
+
+                // Only render Receipts if non-zero
+                if (hasValue(item.receipt)) {
+                    dataGridContent += `
+                        <div class="data-item">
+                            <span class="d-label">Receipts</span>
+                            <span class="d-value">${item.receipt}</span>
+                        </div>
+                    `;
+                }
+
+                // Only render Issues if non-zero
+                if (hasValue(item.issues)) {
+                    dataGridContent += `
+                        <div class="data-item">
+                            <span class="d-label">Issues</span>
+                            <span class="d-value">${item.issues}</span>
+                        </div>
+                    `;
+                }
+
+                // Only render Returns if non-zero
+                if (hasValue(item.returnQty)) {
+                    dataGridContent += `
+                        <div class="data-item">
+                            <span class="d-label">Returns</span>
+                            <span class="d-value">${item.returnQty}</span>
+                        </div>
+                    `;
+                }
+
+                // Total Closing Stock always displayed
+                dataGridContent += `
+                    <div class="data-item full-width">
+                        <span class="d-label">Total Closing Stock</span>
+                        <span class="d-value">${item.closingStock}</span>
+                    </div>
+                `;
+
                 card.innerHTML = `
                     <div class="card-header">
                         <div class="mat-code"><i class="fas fa-barcode"></i> ${escapeHtml(item.matCode)}</div>
                         <div class="mat-name">${escapeHtml(item.matName)}</div>
                     </div>
                     <div class="data-grid">
-                        <div class="data-item">
-                            <span class="d-label">Receipts</span>
-                            <span class="d-value">${item.receipt}</span>
-                        </div>
-                        <div class="data-item">
-                            <span class="d-label">Issues</span>
-                            <span class="d-value">${item.issues}</span>
-                        </div>
-                        <div class="data-item">
-                            <span class="d-label">Returns</span>
-                            <span class="d-value">${item.returnQty}</span>
-                        </div>
-                        <div class="data-item full-width">
-                            <span class="d-label">Total Closing Stock</span>
-                            <span class="d-value">${item.closingStock}</span>
-                        </div>
+                        ${dataGridContent}
                     </div>
                 `;
                 fragment.appendChild(card);
