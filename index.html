@@ -146,9 +146,6 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             border-top: 5px solid var(--primary);
             transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
         }
 
         .card:hover {
@@ -171,16 +168,16 @@
         }
 
         .mat-name {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
             color: var(--text-main);
             word-wrap: break-word;
-            line-height: 1.35;
+            line-height: 1.3;
         }
 
         .data-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
 
@@ -189,11 +186,10 @@
             padding: 10px;
             border-radius: 8px;
             text-align: center;
-            border: 1px solid #e5e7eb;
         }
 
         .data-item.full-width {
-            grid-column: 1 / -1;
+            grid-column: span 2;
             background: #eff6ff;
             border: 1px solid #bfdbfe;
             margin-top: 5px;
@@ -343,7 +339,7 @@
         </div>
         <div class="file-info-item">
             <i class="fas fa-cubes" style="color: var(--primary);"></i>
-            <span>Total Items: <strong id="infoTotalItems">0</strong></span>
+            <span>Total Active Items: <strong id="infoTotalItems">0</strong></span>
         </div>
         <div class="file-info-item">
             <i class="fas fa-clock"></i>
@@ -369,7 +365,7 @@
         <div class="modal">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <h2><i class="fas fa-file-excel" style="color: #16a34a;"></i> Upload Bin Card File</h2>
-            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">Upload your Excel (.xlsx, .xls, .csv) file to update Bin Card stock details.</p>
+            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">Upload your Excel (.xlsx, .xls) file to update Bin Card stock details.</p>
             
             <div class="upload-area" onclick="document.getElementById('fileInput').click()">
                 <i class="fas fa-cloud-upload-alt"></i>
@@ -383,7 +379,7 @@
                 <h4><i class="fas fa-check-circle"></i> Currently Loaded File</h4>
                 <div><strong>Name:</strong> <span id="mFileName">-</span></div>
                 <div><strong>Size:</strong> <span id="mFileSize">-</span></div>
-                <div><strong>Records:</strong> <span id="mFileRows">0</span> items</div>
+                <div><strong>Active Records:</strong> <span id="mFileRows">0</span> items</div>
                 <div><strong>Last Upload:</strong> <span id="mFileTime">-</span></div>
             </div>
             
@@ -442,27 +438,106 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Helper to check if a value is 0, empty, null, or undefined
-        function isZeroOrEmpty(val) {
-            if (val === undefined || val === null || val === '') return true;
-            const str = String(val).replace(/,/g, '').trim();
-            if (str === '' || str === '-' || str === '0') return true;
-            const num = Number(str);
-            return !isNaN(num) && num === 0;
+        // Safe Number Parser
+        function parseNum(val) {
+            if (val === undefined || val === null || val === '') return 0;
+            if (typeof val === 'number') return isNaN(val) ? 0 : val;
+            const cleanStr = String(val).replace(/,/g, '').trim();
+            const parsed = parseFloat(cleanStr);
+            return isNaN(parsed) ? 0 : parsed;
         }
 
-        // Helper to format numbers cleanly with commas
-        function formatDisplayVal(val) {
-            if (val === undefined || val === null || val === '') return '0';
-            const str = String(val).trim();
-            const num = Number(str.replace(/,/g, ''));
-            if (!isNaN(num)) {
-                return num.toLocaleString('en-US');
+        // Smart Fallback Field Search (if column letters missing)
+        function getSmartValue(row, possibleKeys, defaultVal = "") {
+            const keys = Object.keys(row);
+            for (let key of keys) {
+                const cleanKey = key.trim().toLowerCase();
+                for (let pKey of possibleKeys) {
+                    if (cleanKey.includes(pKey.toLowerCase())) {
+                        const val = row[key];
+                        return (val !== undefined && val !== null) ? val : defaultVal;
+                    }
+                }
             }
-            return str;
+            return defaultVal;
         }
 
-        // File Upload Processing
+        // Parse Excel Worksheet with Direct Column Letter Mapping (B, C, F, G, H, K)
+        function processWorksheet(worksheet) {
+            // Read Excel with Column Header mode (A, B, C, D...)
+            const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: "A", defval: "" });
+            let parsedItems = [];
+
+            rawRows.forEach((row, index) => {
+                let code = row["B"] !== undefined ? String(row["B"]).trim() : "";
+                let name = row["C"] !== undefined ? String(row["C"]).trim() : "";
+
+                // Skip completely empty rows
+                if (!code && !name) return;
+
+                // Skip Header / Title Rows
+                const lowerCode = code.toLowerCase();
+                const lowerName = name.toLowerCase();
+                if (lowerCode.includes("code") || lowerCode.includes("කේත") || 
+                    lowerName.includes("name") || lowerName.includes("description") || lowerName.includes("විස්තර")) {
+                    return;
+                }
+
+                // Parse B, C, F, G, H, K Columns
+                let receiptNum = parseNum(row["F"]);
+                let issuesNum = parseNum(row["G"]);
+                let returnNum = parseNum(row["H"]);
+                let closingNum = parseNum(row["K"]);
+
+                // FILTER CONDITION:
+                // Hide card completely if Receipts, Issues, and Returns are ALL 0 or empty
+                if (receiptNum === 0 && issuesNum === 0 && returnNum === 0) {
+                    return; // Skip this record
+                }
+
+                parsedItems.push({
+                    matCode: code || `ITEM-${index + 1}`,
+                    matName: name || "Unknown Material",
+                    receipt: receiptNum.toLocaleString(),
+                    issues: issuesNum.toLocaleString(),
+                    returnQty: returnNum.toLocaleString(),
+                    closingStock: closingNum.toLocaleString()
+                });
+            });
+
+            // Fallback: If Column B/C detection yielded 0 items (e.g., sheet headers mismatch), use smart detection
+            if (parsedItems.length === 0) {
+                const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                rawJson.forEach((row, index) => {
+                    let code = String(getSmartValue(row, ["code", "කේතය", "item code", "mat code", "b"], "")).trim();
+                    let name = String(getSmartValue(row, ["name", "description", "විස්තර", "නම", "item name", "c"], "")).trim();
+
+                    if (!code && !name) return;
+
+                    let receiptNum = parseNum(getSmartValue(row, ["receipt", "in", "ලැබීම්", "ලැබුනු", "f"], 0));
+                    let issuesNum = parseNum(getSmartValue(row, ["issue", "out", "නිකුත්", "නිකුතු", "g"], 0));
+                    let returnNum = parseNum(getSmartValue(row, ["return", "ආපසු", "h"], 0));
+                    let closingNum = parseNum(getSmartValue(row, ["closing", "stock", "balance", "total", "ශේෂය", "තොගය", "useable", "k"], 0));
+
+                    if (receiptNum === 0 && issuesNum === 0 && returnNum === 0) {
+                        return; // Hide zero/empty records
+                    }
+
+                    parsedItems.push({
+                        matCode: code || `ITEM-${index + 1}`,
+                        matName: name || "Unknown Material",
+                        receipt: receiptNum.toLocaleString(),
+                        issues: issuesNum.toLocaleString(),
+                        returnQty: returnNum.toLocaleString(),
+                        closingStock: closingNum.toLocaleString()
+                    });
+                });
+            }
+
+            return parsedItems;
+        }
+
+        // File Upload Event Handling
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             const statusEl = document.getElementById('uploadStatus');
@@ -479,61 +554,12 @@
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     
-                    // Parse Excel with direct column letter headers (A, B, C, D, E, F, G, H, I, J, K...)
-                    const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: "A", defval: "" });
+                    // Parse and Filter Data based on strict rules
+                    binCardData = processWorksheet(worksheet);
 
-                    if (!rawRows || rawRows.length === 0) {
-                        throw new Error("තෝරාගත් File එකේ කිසිදු දත්තයක් නොමැත.");
+                    if (!binCardData || binCardData.length === 0) {
+                        throw new Error("No active items with Receipt, Issue, or Return values found in the selected file.");
                     }
-
-                    // Check if row 1 is a Header row (e.g., Column B contains 'Code' or 'කේත')
-                    let startIndex = 0;
-                    const firstRowB = String(rawRows[0]['B'] || '').toLowerCase();
-                    const firstRowC = String(rawRows[0]['C'] || '').toLowerCase();
-                    
-                    if (firstRowB.includes('code') || firstRowB.includes('කේත') || firstRowC.includes('name') || firstRowC.includes('විස්තර') || firstRowC.includes('material')) {
-                        startIndex = 1; // Skip header row
-                    }
-
-                    const parsedData = [];
-
-                    for (let i = startIndex; i < rawRows.length; i++) {
-                        const row = rawRows[i];
-
-                        // Extract exact requested sections:
-                        // B Section: Material Code
-                        // C Section: Material Name
-                        // F Section: Receipt
-                        // G Section: Issue
-                        // H Section: Return
-                        // K Section: Useable Material Total Closing Stock
-                        const matCode = String(row['B'] || '').trim();
-                        const matName = String(row['C'] || '').trim();
-                        const receipt = row['F'];
-                        const issues = row['G'];
-                        const returnQty = row['H'];
-                        const closingStock = row['K'];
-
-                        // Skip completely empty rows
-                        if (!matCode && !matName && isZeroOrEmpty(closingStock)) {
-                            continue;
-                        }
-
-                        parsedData.push({
-                            matCode: matCode || `ITEM-${i + 1}`,
-                            matName: matName || 'නමක් නොමැත (Unknown)',
-                            receipt: receipt,
-                            issues: issues,
-                            returnQty: returnQty,
-                            closingStock: closingStock
-                        });
-                    }
-
-                    if (parsedData.length === 0) {
-                        throw new Error("Excel ගොනුවෙන් නිවැරදි දත්ත හඳුනා ගැනීමට නොහැකි විය.");
-                    }
-
-                    binCardData = parsedData;
 
                     // Metadata Creation
                     fileMetaData = {
@@ -553,7 +579,7 @@
                     renderCards(binCardData);
 
                     // Show Success
-                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> File එක සාර්ථකව Upload කර දත්ත යාවත්කාලීන गरා ගන්නා ලදී!';
+                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> File uploaded & active items updated successfully!';
                     statusEl.className = 'status-message status-success';
                     statusEl.style.display = 'block';
 
@@ -561,7 +587,7 @@
 
                 } catch (error) {
                     console.error("File Parse Error:", error);
-                    statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${error.message}`;
+                    statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error reading file: ${error.message}`;
                     statusEl.className = 'status-message status-error';
                     statusEl.style.display = 'block';
                 } finally {
@@ -590,7 +616,7 @@
             document.getElementById('mFileTime').innerText = meta.uploadTime;
         }
 
-        // Render Bin Cards with Conditional Display logic
+        // Render Bin Cards
         function renderCards(data) {
             const container = document.getElementById('cardContainer');
             container.innerHTML = '';
@@ -605,53 +631,28 @@
             data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'card';
-
-                // Dynamically build metrics grid (only include if NOT 0 or empty)
-                let dynamicGridHtml = '';
-
-                if (!isZeroOrEmpty(item.receipt)) {
-                    dynamicGridHtml += `
-                        <div class="data-item">
-                            <span class="d-label">Receipts</span>
-                            <span class="d-value">${formatDisplayVal(item.receipt)}</span>
-                        </div>
-                    `;
-                }
-
-                if (!isZeroOrEmpty(item.issues)) {
-                    dynamicGridHtml += `
-                        <div class="data-item">
-                            <span class="d-label">Issues</span>
-                            <span class="d-value">${formatDisplayVal(item.issues)}</span>
-                        </div>
-                    `;
-                }
-
-                if (!isZeroOrEmpty(item.returnQty)) {
-                    dynamicGridHtml += `
-                        <div class="data-item">
-                            <span class="d-label">Returns</span>
-                            <span class="d-value">${formatDisplayVal(item.returnQty)}</span>
-                        </div>
-                    `;
-                }
-
-                // Total Closing Stock (Always displayed)
-                const closingStockHtml = `
-                    <div class="data-item full-width">
-                        <span class="d-label">Useable Material Total Closing Stock</span>
-                        <span class="d-value">${formatDisplayVal(item.closingStock)}</span>
-                    </div>
-                `;
-
                 card.innerHTML = `
                     <div class="card-header">
                         <div class="mat-code"><i class="fas fa-barcode"></i> ${item.matCode}</div>
                         <div class="mat-name">${item.matName}</div>
                     </div>
                     <div class="data-grid">
-                        ${dynamicGridHtml}
-                        ${closingStockHtml}
+                        <div class="data-item">
+                            <span class="d-label">Receipts</span>
+                            <span class="d-value">${item.receipt}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="d-label">Issues</span>
+                            <span class="d-value">${item.issues}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="d-label">Returns</span>
+                            <span class="d-value">${item.returnQty}</span>
+                        </div>
+                        <div class="data-item full-width">
+                            <span class="d-label">Total Closing Stock</span>
+                            <span class="d-value">${item.closingStock}</span>
+                        </div>
                     </div>
                 `;
                 fragment.appendChild(card);
@@ -666,8 +667,8 @@
             document.getElementById('cardContainer').innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-folder-open"></i>
-                    <h2>දත්ත ලබාගත නොහැක (No Data Available)</h2>
-                    <p>ඉහළ ඇති <strong>"Upload Data File"</strong> බොත්තම මත ක්ලික් කර ඔබගේ Excel Bin Card ගොනුව Upload කරන්න.</p>
+                    <h2>No Active Data Available</h2>
+                    <p>Click on <strong>"Upload Data File"</strong> button above to upload your Excel Bin Card file.</p>
                 </div>
             `;
         }
