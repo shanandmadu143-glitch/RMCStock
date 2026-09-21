@@ -4,145 +4,237 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bin Card Manager</title>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- SheetJS for Excel processing -->
+    <!-- SheetJS for reading Excel Files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4F46E5;
-            --bg-color: #F3F4F6;
-            --card-bg: #FFFFFF;
-            --text-main: #1F2937;
-            --text-muted: #6B7280;
-            --success: #10B981;
-            --danger: #EF4444;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+            --primary: #2563eb;
+            --bg-color: #f3f4f6;
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+            --card-bg: #ffffff;
         }
 
         body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
             color: var(--text-main);
         }
 
-        /* Header Styles */
+        /* Header Styling */
         header {
             background-color: var(--primary);
             color: white;
-            padding: 1rem 2rem;
+            padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 10;
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 600;
+        header h1 {
+            margin: 0;
+            font-size: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .search-container {
-            flex: 1;
-            max-width: 400px;
-            margin: 0 20px;
-            position: relative;
-        }
-
-        .search-container input {
-            width: 100%;
-            padding: 10px 40px 10px 15px;
-            border-radius: 20px;
-            border: none;
-            outline: none;
-            font-size: 1rem;
-        }
-
-        .search-container i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
         }
 
         .settings-btn {
             background: none;
             border: none;
             color: white;
-            font-size: 1.5rem;
+            font-size: 24px;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s;
         }
 
         .settings-btn:hover {
             transform: rotate(90deg);
         }
 
-        /* Modal Styles */
-        .modal {
+        /* Search Bar */
+        .search-container {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border-radius: 30px;
+            border: 1px solid #d1d5db;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        /* Card Layout (Responsive Grid) */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid var(--primary);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .mat-code {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .mat-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-main);
+            word-wrap: break-word;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .data-item {
+            background: #f9fafb;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .data-item.full-width {
+            grid-column: span 2;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+
+        .d-label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .d-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .data-item.full-width .d-value {
+            color: var(--primary);
+            font-size: 22px;
+        }
+
+        /* Modal Styling (Upload Section) */
+        .modal-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 100;
             align-items: center;
-            z-index: 1000;
+            justify-content: center;
+            backdrop-filter: blur(3px);
         }
 
-        .modal-content {
+        .modal {
             background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            text-align: center;
+            padding: 30px;
+            border-radius: 12px;
             width: 90%;
             max-width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
             position: relative;
-            animation: slideIn 0.3s ease-out;
         }
 
-        @keyframes slideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .modal h2 {
+            margin-top: 0;
+            color: var(--text-main);
+            font-size: 18px;
+            margin-bottom: 20px;
         }
 
         .close-modal {
             position: absolute;
-            top: 10px; right: 15px;
-            font-size: 1.5rem;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
             cursor: pointer;
-            color: var(--text-muted);
+            color: var(--text-light);
         }
 
         .upload-area {
-            border: 2px dashed var(--primary);
-            padding: 2rem;
-            border-radius: 10px;
-            margin-top: 15px;
+            border: 2px dashed #cbd5e1;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 8px;
             cursor: pointer;
+            background: #f8fafc;
             transition: background 0.3s;
         }
 
         .upload-area:hover {
-            background: #EEF2FF;
+            background: #f1f5f9;
         }
 
         .upload-area i {
-            font-size: 3rem;
+            font-size: 40px;
             color: var(--primary);
             margin-bottom: 10px;
         }
@@ -151,158 +243,88 @@
             display: none;
         }
 
-        /* Card Container Styles */
-        main {
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-left: 5px solid var(--primary);
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #E5E7EB;
-            padding-bottom: 10px;
-        }
-
-        .item-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .item-code {
-            font-size: 0.85rem;
-            background: var(--bg-color);
-            padding: 4px 8px;
-            border-radius: 5px;
-            color: var(--text-muted);
-        }
-
-        .card-body {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .stat {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .stat-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .val-in { color: var(--success); }
-        .val-out { color: var(--danger); }
-
-        .card-footer {
-            background: #F9FAFB;
-            padding: 10px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-        }
-
-        .balance-val {
-            font-size: 1.3rem;
-            color: var(--primary);
-        }
-
-        .no-data {
-            grid-column: 1 / -1;
+        .empty-state {
             text-align: center;
-            color: var(--text-muted);
-            margin-top: 50px;
-            font-size: 1.2rem;
+            padding: 50px 20px;
+            color: var(--text-light);
+            grid-column: 1 / -1;
+        }
+        
+        .empty-state i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: #cbd5e1;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header & Navigation -->
+    <!-- Header Section -->
     <header>
-        <div class="logo">
-            <i class="fas fa-boxes"></i> Bin Card Updater
-        </div>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search by Item Name or Code...">
-            <i class="fas fa-search"></i>
-        </div>
-        <button class="settings-btn" id="settingsBtn" title="Settings / Upload">
+        <h1><i class="fas fa-boxes-stacked"></i> Bin Card Manager</h1>
+        <button class="settings-btn" onclick="openModal()" title="Upload File Settings">
             <i class="fas fa-cog"></i>
         </button>
     </header>
 
-    <!-- Settings / Upload Modal -->
-    <div id="settingsModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" id="closeModal">&times;</span>
-            <h2>Settings</h2>
-            <p style="color: gray; font-size: 0.9rem; margin-top: 5px;">Update Bin Cards Data</p>
-            
-            <label for="fileInput">
-                <div class="upload-area">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <h3>Upload Excel File</h3>
-                    <p style="font-size: 0.8rem; margin-top: 10px;">Select .xlsx or .xls file</p>
-                </div>
-            </label>
-            <input type="file" id="fileInput" accept=".xlsx, .xls">
+    <!-- Search Section -->
+    <div class="search-container">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search by Material Code or Name..." onkeyup="filterCards()">
         </div>
     </div>
 
-    <!-- Cards Display Area -->
-    <main id="cardContainer">
-        <div class="no-data">
-            <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 10px; color: #cbd5e1;"></i>
-            <p>Please click the settings icon (⚙️) and upload an Excel file to view Bin Cards.</p>
+    <!-- Cards Container -->
+    <div class="cards-grid" id="cardContainer">
+        <!-- Cards will be generated here by JavaScript -->
+    </div>
+
+    <!-- Settings / Upload Modal -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <h2><i class="fas fa-file-excel"></i> Upload Data File</h2>
+            <p style="font-size: 13px; color: gray; margin-bottom: 15px;">Upload your Excel (.xlsx) file to update Bin Card details.</p>
+            
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p style="margin:0; font-weight: 500;">Click to select file</p>
+                <input type="file" id="fileInput" accept=".xlsx, .xls, .csv">
+            </div>
+            <p id="uploadStatus" style="text-align:center; margin-top:15px; font-size:14px; color:green; font-weight:bold; display:none;">
+                <i class="fas fa-check-circle"></i> File Data Saved Successfully!
+            </p>
         </div>
-    </main>
+    </div>
 
     <!-- JavaScript Logic -->
     <script>
         let binCardData = [];
 
-        // Modal Controls
-        const modal = document.getElementById('settingsModal');
-        const settingsBtn = document.getElementById('settingsBtn');
-        const closeModal = document.getElementById('closeModal');
-        const fileInput = document.getElementById('fileInput');
+        // App ආරම්භයේදී Local Storage එකේ දත්ත තිබේදැයි බැලීම
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem('binCardData');
+            if (savedData) {
+                binCardData = JSON.parse(savedData);
+                renderCards(binCardData);
+            } else {
+                showEmptyState();
+            }
+        });
 
-        settingsBtn.onclick = () => modal.style.display = 'flex';
-        closeModal.onclick = () => modal.style.display = 'none';
-        window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; }
+        // Modal Open & Close Functions
+        function openModal() {
+            document.getElementById('uploadModal').style.display = 'flex';
+            document.getElementById('uploadStatus').style.display = 'none';
+        }
 
-        // File Upload and Excel Parsing
-        fileInput.addEventListener('change', (e) => {
+        function closeModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+        }
+
+        // File Upload හා Data කියවීම
+        document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -310,76 +332,110 @@
             reader.onload = function(e) {
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, {type: 'array'});
+                
+                // පළමු Sheet එක ලබාගැනීම
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
                 
-                // Convert Excel to JSON
-                binCardData = XLSX.utils.sheet_to_json(worksheet);
+                // Sheet එක JSON බවට පරිවර්තනය කිරීම
+                const json = XLSX.utils.sheet_to_json(worksheet, {defval: 0});
                 
+                // දත්ත Format කිරීම සහ අවශ්‍ය Column පමණක් ලබාගැනීම
+                binCardData = json.map(row => {
+                    // Excel Sheet එකේ Column නම් වෙනස් වුවහොත් මෙතැනින් හදාගන්න.
+                    // උදාහරණයක් ලෙස හිස්තැන් (spaces) ඉවත් කර පරීක්ෂා කිරීම සුදුසුය.
+                    return {
+                        matCode: row["Material Code"] || row["Material_Code"] || row["Code"] || "N/A",
+                        matName: row["Material Name"] || row["Material_Name"] || row["Name"] || "Unknown Material",
+                        receipt: row["Receipt"] || 0,
+                        issues: row["Issues"] || 0,
+                        returnQty: row["Return"] || 0,
+                        closingStock: row["Useable Material Total Closing Stock"] || row["Total Closing Stock"] || row["Closing Stock"] || 0
+                    };
+                });
+
+                // දත්ත Local Storage හි Save කිරීම (Refresh කලත් මැකෙන්නේ නැත)
+                localStorage.setItem('binCardData', JSON.stringify(binCardData));
+
+                // Success Message පෙන්වීම
+                document.getElementById('uploadStatus').style.display = 'block';
+                
+                // UI එක Update කිරීම
                 renderCards(binCardData);
-                modal.style.display = 'none'; // Close modal after upload
                 
-                // Clear input to allow uploading the same file again if updated
-                fileInput.value = ""; 
+                // තත්පර 1.5 කට පසු Modal එක වැසීම
+                setTimeout(closeModal, 1500);
             };
             reader.readAsArrayBuffer(file);
         });
 
-        // Search Filter Logic
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredData = binCardData.filter(item => {
-                const itemName = (item['Item Name'] || item['ItemName'] || '').toString().toLowerCase();
-                const itemCode = (item['Item Code'] || item['ItemCode'] || '').toString().toLowerCase();
-                return itemName.includes(searchTerm) || itemCode.includes(searchTerm);
-            });
-            renderCards(filteredData);
-        });
-
-        // Render Cards Function
+        // UI Card සෑදීමේ Function එක
         function renderCards(data) {
             const container = document.getElementById('cardContainer');
-            container.innerHTML = '';
+            container.innerHTML = ''; // පැරණි දත්ත මකා දැමීම
 
             if (data.length === 0) {
-                container.innerHTML = '<div class="no-data"><p>No items found.</p></div>';
+                showEmptyState();
                 return;
             }
 
             data.forEach(item => {
-                // Formatting data values (Handling different column names)
-                const name = item['Item Name'] || item['ItemName'] || 'Unknown Item';
-                const code = item['Item Code'] || item['ItemCode'] || 'N/A';
-                const received = item['In'] || item['Received'] || 0;
-                const issued = item['Out'] || item['Issued'] || 0;
-                const balance = item['Balance'] || item['Qty'] || 0;
-
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
                     <div class="card-header">
-                        <div class="item-name">${name}</div>
-                        <div class="item-code">${code}</div>
+                        <div class="mat-code"><i class="fas fa-barcode"></i> ${item.matCode}</div>
+                        <div class="mat-name">${item.matName}</div>
                     </div>
-                    <div class="card-body">
-                        <div class="stat">
-                            <span class="stat-label">Received (IN)</span>
-                            <span class="stat-value val-in">+${received}</span>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <span class="d-label">Receipt</span>
+                            <span class="d-value">${item.receipt}</span>
                         </div>
-                        <div class="stat">
-                            <span class="stat-label">Issued (OUT)</span>
-                            <span class="stat-value val-out">-${issued}</span>
+                        <div class="data-item">
+                            <span class="d-label">Issues</span>
+                            <span class="d-value">${item.issues}</span>
                         </div>
-                    </div>
-                    <div class="card-footer">
-                        <span>Current Balance</span>
-                        <span class="balance-val">${balance}</span>
+                        <div class="data-item">
+                            <span class="d-label">Return</span>
+                            <span class="d-value">${item.returnQty}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="d-label">Closing Stock (Total)</span>
+                            <span class="d-value">${item.closingStock}</span>
+                        </div>
+                        <div class="data-item full-width">
+                            <span class="d-label">Useable Material Total Closing Stock</span>
+                            <span class="d-value">${item.closingStock}</span>
+                        </div>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
-    </script>
 
+        // හිස් අවස්ථාවේදී පෙන්වන UI
+        function showEmptyState() {
+            document.getElementById('cardContainer').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <h2>No Data Available</h2>
+                    <p>Please click the settings gear icon to upload your Bin Card Excel file.</p>
+                </div>
+            `;
+        }
+
+        // Search/Filter Function
+        function filterCards() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filteredData = binCardData.filter(item => {
+                return (
+                    item.matCode.toString().toLowerCase().includes(query) ||
+                    item.matName.toString().toLowerCase().includes(query)
+                );
+            });
+            renderCards(filteredData);
+        }
+    </script>
 </body>
 </html>
