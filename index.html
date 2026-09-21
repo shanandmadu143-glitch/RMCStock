@@ -1,358 +1,385 @@
 <!DOCTYPE html>
 <html lang="si">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Stock Dashboard | High Performance</title>
-  
-  <!-- XLSX Library -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <!-- jsPDF & AutoTable Libraries for PDF export -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bin Card Manager</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- SheetJS for Excel processing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --success: #10B981;
+            --danger: #EF4444;
+        }
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="style.css">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 20px;
+            position: relative;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .search-container i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .settings-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .settings-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px; right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary);
+            padding: 2rem;
+            border-radius: 10px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .upload-area:hover {
+            background: #EEF2FF;
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Card Container Styles */
+        main {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid var(--primary);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #E5E7EB;
+            padding-bottom: 10px;
+        }
+
+        .item-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .item-code {
+            font-size: 0.85rem;
+            background: var(--bg-color);
+            padding: 4px 8px;
+            border-radius: 5px;
+            color: var(--text-muted);
+        }
+
+        .card-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .val-in { color: var(--success); }
+        .val-out { color: var(--danger); }
+
+        .card-footer {
+            background: #F9FAFB;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .balance-val {
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+
+        .no-data {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 50px;
+            font-size: 1.2rem;
+        }
+    </style>
 </head>
 <body>
-<div class="container animate-fade-in">
-  <!-- Header Block -->
-  <div class="header-block">
-    <button class="btn-icon-header ripple" onclick="openSettings()" title="Settings & Preferences" type="button">
-      <i class="fa-solid fa-gear" style="color: #60a5fa;"></i>
-    </button>
 
-    <div class="brand-title">
-      <div class="brand-name-wrapper">
-        <span class="main-brand-text">Stock</span>
-        <span class="sub-badge-counting">Dashboard</span>
-      </div>
-    </div>
-
-    <button class="btn-icon-header ripple" onclick="openTodayUploadedModal()" title="Updated Live Details" type="button">
-      <i class="fa-solid fa-cloud-arrow-up" style="color: #34d399;"></i>
-    </button>
-  </div>
-
-  <div class="card">
-    
-    <!-- Top Mode Indicator Badge & Action Icons -->
-    <div class="mode-badge-wrapper">
-      <button class="btn-icon-excel ripple" onclick="openExportModal('excel')" title="Download Excel & Shift Stock" id="btnExcel" type="button">
-        <i class="fa-solid fa-file-excel"></i>
-      </button>
-
-      <span id="countingModeBadge" class="counting-mode-badge badge-daily">Daily Stocks</span>
-
-      <button class="btn-icon-share ripple" onclick="openExportModal('share')" title="Share File" id="btnShare" type="button">
-        <i class="fa-solid fa-share-nodes"></i>
-      </button>
-    </div>
-
-    <!-- Added z-index:10 to prevent search dropdown hiding behind selected badge -->
-    <div class="form-group" style="position: relative; z-index: 10;">
-      <label id="lblSearch"><i class="fa-solid fa-magnifying-glass"></i> Search by Name or Code:</label>
-      <div class="input-glow-wrapper search-input-container">
-        <input type="text" id="searchInput" placeholder="Type Code or Name to filter..." autocomplete="off">
-        <button type="button" id="clearSearchBtn" class="clear-search-btn" title="Clear Search" onclick="clearSearchInput()">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div id="searchResults" class="search-results" style="display:none;"></div>
-    </div>
-
-    <div id="selectedBadge" class="selected-badge animate-slide-down" title="Click to view full details">
-      <div style="font-weight:700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-circle-check" style="color: var(--primary); font-size: 1.1rem;"></i>
-        <span><span id="dispCode"></span> - <span id="dispName"></span></span>
-      </div>
-      <div style="font-size: 0.85rem; opacity: 0.9; padding-left: 24px;">
-        UOM: <strong id="dispUom"></strong> &nbsp;|&nbsp; Closing Stock: <strong id="dispClosing"></strong>
-      </div>
-    </div>
-
-    <div class="form-grid">
-      <div class="form-group" style="margin-bottom:0;">
-        <label id="lblSection"><i class="fa-solid fa-layer-group"></i> Select Section:</label>
-        <select id="sectionSelect">
-          <option value="F" id="optReceipt" selected>Receipt</option>
-          <option value="G" id="optIssues">Issues</option>
-          <option value="H" id="optReturn">Return</option>
-          <option value="I" id="optSslI">Received to SSL</option>
-          <option value="J" id="optSslJ">Sent to SSL</option>
-          <option value="L" id="optRejectionL">Rejection</option>
-        </select>
-      </div>
-      <div class="form-group" style="margin-bottom:0;">
-        <label id="lblAmount"><i class="fa-solid fa-calculator"></i> Enter Amount:</label>
-        <div class="input-glow-wrapper">
-          <input type="number" id="inputAmount" min="0" step="any" placeholder="0.00" inputmode="decimal">
+    <!-- Header & Navigation -->
+    <header>
+        <div class="logo">
+            <i class="fas fa-boxes"></i> Bin Card Updater
         </div>
-      </div>
-    </div>
-
-    <!-- UI Icon Action Buttons Row -->
-    <div class="action-buttons-row">
-      <button class="btn-action-icon btn-save-icon ripple" onclick="addSingleSectionData()" id="btnSave" type="button" title="Save Data / දත්ත සුරකින්න">
-        <i class="fa-solid fa-floppy-disk"></i>
-        <span class="icon-btn-label" id="txtSaveBtnLabel">Save</span>
-      </button>
-
-      <button class="btn-action-icon btn-bincard-icon ripple" onclick="openBinCardUpdateView()" id="btnBinCardView" type="button" title="Bin Card Update View / බින් කාඩ් පෙනුම">
-        <i class="fa-solid fa-clipboard-list"></i>
-        <span class="icon-btn-label" id="txtBinCardBtnLabel">Bin Card</span>
-      </button>
-    </div>
-
-  </div>
-
-  <div class="footer-note" id="lblFooter">
-    Created By <span>Yomal Lakshan</span>
-  </div>
-</div>
-
-<div id="toastContainer"></div>
-
-<!-- Loading Overlay -->
-<div id="loadingOverlay" class="loading-overlay" style="display:none;">
-  <div class="loading-box">
-    <div class="spinner"></div>
-    <div id="loadingText" style="font-weight: 600; font-size: 0.95rem; color: var(--text-dark);">Processing...</div>
-  </div>
-</div>
-
-<!-- Bin Card Update View Modal -->
-<div id="binCardUpdateModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-clipboard-list" style="color:var(--success);"></i> Bin Card Update View</h3>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <!-- PDF Download Button -->
-        <button class="btn ripple" onclick="downloadBinCardPDF()" style="padding: 6px 14px; background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;" type="button" title="Download Report as PDF">
-          <i class="fa-solid fa-file-pdf"></i> PDF
-        </button>
-        <button class="close-btn ripple" onclick="closeBinCardUpdateView()" type="button">&times;</button>
-      </div>
-    </div>
-
-    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;">
-      <p style="font-size: 0.88rem; color: var(--text-muted);">යාවත්කාලීන වූ දත්ත පමණක් පෙන්වයි. විස්තර බැලීමට අදාල අයිතමය මත Click කරන්න:</p>
-      <input type="text" id="binCardSearchInput" placeholder="Search by Code, Material Name, Section or Amount..." autocomplete="off" style="width: 100%;">
-    </div>
-
-    <!-- Card Container for Bin Card Details -->
-    <div class="checklist-container" id="binCardCardsContainer"></div>
-  </div>
-</div>
-
-<!-- Updated Live Modal -->
-<div id="todayUploadedModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="txtUpdatedLiveTitle"><i class="fa-solid fa-cloud-arrow-up" style="color:var(--success);"></i> Updated Live Details</h3>
-      <button class="close-btn ripple" onclick="closeTodayUploadedModal()" type="button">&times;</button>
-    </div>
-
-    <div style="margin-bottom: 14px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;">
-      <input type="text" id="todayModalSearchInput" placeholder="Filter updated items by name or code..." autocomplete="off" style="width: 100%;">
-    </div>
-
-    <div class="checklist-container" id="todayCardsContainer"></div>
-  </div>
-</div>
-
-<!-- Export Format & Options Modal -->
-<div id="exportModal" class="modal">
-  <div class="modal-content modal-small">
-    <div class="modal-header">
-      <h3 id="txtExportTitle"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Download & Export</h3>
-      <button class="close-btn ripple" onclick="closeExportModal()" type="button">&times;</button>
-    </div>
-    <div class="modal-body-scroll">
-      <p style="margin-bottom:12px; font-size:0.9rem; color:var(--text-muted);">ඔබට අවශ්‍ය Format සහ ගොනුවේ තොරතුරු සකසන්න:</p>
-      
-      <div class="form-group">
-        <label><i class="fa-solid fa-file-code"></i> Format:</label>
-        <select id="exportFormatSelect" onchange="updateDefaultFileName()">
-          <option value="xlsx">Excel Workbook (.xlsx)</option>
-          <option value="csv">CSV File (.csv)</option>
-          <option value="txt">Text File (.txt)</option>
-        </select>
-      </div>
-
-      <div class="form-group" style="margin-top: 14px;">
-        <label><i class="fa-solid fa-pen-to-square"></i> File Name (ගොනුවේ නම):</label>
-        <div class="input-glow-wrapper">
-          <input type="text" id="exportFileNameInput" placeholder="Stock_Summary_YYYY-MM-DD">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search by Item Name or Code...">
+            <i class="fas fa-search"></i>
         </div>
-      </div>
+        <button class="settings-btn" id="settingsBtn" title="Settings / Upload">
+            <i class="fas fa-cog"></i>
+        </button>
+    </header>
 
-      <div class="form-group" style="margin-top: 15px;">
-        <label><i class="fa-solid fa-toggle-on"></i> Options:</label>
-        <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
-          <input type="checkbox" id="chkShiftStock" class="custom-checkbox" checked>
-          <label for="chkShiftStock" style="text-transform:none; margin:0; cursor:pointer; font-size:0.88rem;">Shift Stock to Opening (Reset Daily Data)</label>
+    <!-- Settings / Upload Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h2>Settings</h2>
+            <p style="color: gray; font-size: 0.9rem; margin-top: 5px;">Update Bin Cards Data</p>
+            
+            <label for="fileInput">
+                <div class="upload-area">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Upload Excel File</h3>
+                    <p style="font-size: 0.8rem; margin-top: 10px;">Select .xlsx or .xls file</p>
+                </div>
+            </label>
+            <input type="file" id="fileInput" accept=".xlsx, .xls">
         </div>
-      </div>
-
-      <div class="btn-row" style="margin-top: 24px;">
-        <button type="button" class="btn btn-primary ripple" id="btnConfirmExport" onclick="processExportAction()">
-          <i class="fa-solid fa-paper-plane"></i> Continue / Process Action
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Material Detail Modal (Beautiful UI Popup) -->
-<div id="itemDetailModal" class="modal" style="z-index: 1050;">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Material Details</h3>
-      <button class="close-btn ripple" onclick="closeItemDetailModal()" type="button">&times;</button>
-    </div>
-    <div class="detail-card-grid" style="overflow-y: auto;">
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-barcode"></i> Material Code</div>
-        <div class="detail-value" id="detCode">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-tag"></i> Unit of Measure (UOM)</div>
-        <div class="detail-value" id="detUom">-</div>
-      </div>
-      <div class="detail-item-box full-width">
-        <div class="detail-label"><i class="fa-solid fa-box"></i> Material Name</div>
-        <div class="detail-value" id="detName" style="color:var(--primary);">-</div>
-      </div>
-      <div class="detail-item-box">
-        <div class="detail-label"><i class="fa-solid fa-warehouse"></i> Opening Stock</div>
-        <div class="detail-value" id="detOp">-</div>
-      </div>
-      
-      <div class="detail-item-box" id="boxReceipt">
-        <div class="detail-label"><i class="fa-solid fa-arrow-down" style="color:var(--success);"></i> Receipt (F)</div>
-        <div class="detail-value" id="detReceipt" style="color:var(--success);">-</div>
-      </div>
-      <div class="detail-item-box" id="boxIssues">
-        <div class="detail-label"><i class="fa-solid fa-arrow-up" style="color:var(--danger);"></i> Issues (G)</div>
-        <div class="detail-value" id="detIssues" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box" id="boxReturn">
-        <div class="detail-label"><i class="fa-solid fa-rotate-left" style="color:var(--warning);"></i> Return (H)</div>
-        <div class="detail-value" id="detReturn" style="color:var(--warning);">-</div>
-      </div>
-      <div class="detail-item-box" id="boxSslI">
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--success);"></i> Received to SSL</div>
-        <div class="detail-value" id="detSslI" style="color:var(--success);">-</div>
-      </div>
-      <div class="detail-item-box" id="boxSslJ">
-        <div class="detail-label"><i class="fa-solid fa-arrow-right-from-bracket" style="color:var(--danger);"></i> Sent to SSL</div>
-        <div class="detail-value" id="detSslJ" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box" id="boxRejection">
-        <div class="detail-label"><i class="fa-solid fa-ban" style="color:var(--danger);"></i> Rejection</div>
-        <div class="detail-value" id="detRejectionL" style="color:var(--danger);">-</div>
-      </div>
-      <div class="detail-item-box full-width" style="background: var(--primary-light); border-color: var(--primary);">
-        <div class="detail-label"><i class="fa-solid fa-calculator"></i> Closing Stock</div>
-        <div class="detail-value" id="detClosing" style="font-size: 1.3rem; color:var(--primary);">-</div>
-      </div>
-    </div>
-    
-    <!-- Footer for Item Clear Action -->
-    <div class="modal-footer" style="margin-top: 15px; display: flex; justify-content: flex-end; border-top: 1px solid var(--border-color); padding-top: 15px;">
-      <button class="btn ripple" style="background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem;" onclick="clearSelectedItem()" id="btnClearItem" type="button">
-        <i class="fa-solid fa-eraser"></i> <span id="txtClearBtnLabel">Clear Updates</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Settings Modal -->
-<div id="settingsModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="txtSettingsTitle"><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Settings & Preferences</h3>
-      <button class="close-btn ripple" onclick="closeSettings()" type="button">&times;</button>
     </div>
 
-    <div class="modal-body-scroll">
-      <div class="setting-option">
-        <label id="lblLanguage"><i class="fa-solid fa-language" style="color:var(--primary);"></i> Select Language / භාෂාව / மொழி:</label>
-        <select id="langSelect" onchange="changeLanguage(this.value)">
-          <option value="si">සිංහල (Sinhala)</option>
-          <option value="en">English</option>
-        </select>
-      </div>
-
-      <div class="setting-option">
-        <label id="lblTheme"><i class="fa-solid fa-palette" style="color:var(--warning);"></i> Choose Theme:</label>
-        <select id="themeSelect" onchange="changeTheme(this.value)">
-          <option value="light">Light Theme (Default)</option>
-          <option value="dark">Dark Theme</option>
-          <option value="blue">Slate Blue Theme</option>
-        </select>
-      </div>
-
-      <div class="setting-option">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <label id="lblRestore" style="margin-bottom: 0;"><i class="fa-solid fa-file-import" style="color:var(--success);"></i> Restore Excel (.xlsx) File:</label>
-          <button class="btn ripple" onclick="openRestoreHelpModal()" type="button" style="padding: 5px 10px; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
-            <i class="fa-solid fa-circle-question"></i> Help / උදව්
-          </button>
+    <!-- Cards Display Area -->
+    <main id="cardContainer">
+        <div class="no-data">
+            <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 10px; color: #cbd5e1;"></i>
+            <p>Please click the settings icon (⚙️) and upload an Excel file to view Bin Cards.</p>
         </div>
-        <p id="descRestore">පෙර Save කරන ලද Excel File එකක් මගින් දත්ත යාවත්කාලීන කරගන්න.</p>
-        <input type="file" id="xlsxFileInput" accept=".xlsx, .xls" style="margin-bottom: 12px;">
-        <button class="btn ripple" style="width:100%; padding: 12px; background:var(--success); color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="restoreFromXLSX()" id="btnRestore" type="button">
-          <i class="fa-solid fa-upload"></i> Restore Excel Data
-        </button>
-      </div>
+    </main>
 
-      <div class="setting-option">
-        <label id="lblBackup"><i class="fa-solid fa-file-export" style="color:var(--primary);"></i> Export Excel Backup:</label>
-        <p id="descBackup">වත්මන් දත්ත වල සුරක්ෂිත Backup එකක් ලබාගන්න.</p>
-        <button class="btn btn-secondary ripple" style="width:100%; padding: 12px; background:#475569; color:white; border:none; border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="downloadXLSXBackup()" id="btnBackup" type="button">
-          <i class="fa-solid fa-download"></i> Download Backup File
-        </button>
-      </div>
+    <!-- JavaScript Logic -->
+    <script>
+        let binCardData = [];
 
-      <div class="setting-option" style="margin-bottom: 10px;">
-        <label id="lblReset"><i class="fa-solid fa-rotate-left" style="color:var(--danger);"></i> Reset to Default Data:</label>
-        <p id="descReset">මුල් Default දත්ත ලබා ගැනීමට මෙම පද්ධතිය Reset කරන්න.</p>
-        <button class="btn ripple" style="width:100%; padding: 12px; background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); border-radius:var(--radius-md); font-weight:600; cursor:pointer;" onclick="resetToDefault()" id="btnReset" type="button">
-          <i class="fa-solid fa-trash-can"></i> Reset All Data
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+        // Modal Controls
+        const modal = document.getElementById('settingsModal');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const closeModal = document.getElementById('closeModal');
+        const fileInput = document.getElementById('fileInput');
 
-<!-- Restore Help Modal -->
-<div id="restoreHelpModal" class="modal">
-  <div class="modal-content modal-small">
-    <div class="modal-header">
-      <h3 id="helpModalTitle"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Excel Restore Help</h3>
-      <button class="close-btn ripple" onclick="closeRestoreHelpModal()" type="button">&times;</button>
-    </div>
+        settingsBtn.onclick = () => modal.style.display = 'flex';
+        closeModal.onclick = () => modal.style.display = 'none';
+        window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; }
 
-    <div class="modal-body-scroll">
-      <div class="form-group" style="margin-bottom: 16px;">
-        <label id="helpSelectLabel"><i class="fa-solid fa-list"></i> මාතෘකාව තෝරන්න:</label>
-        <select id="helpTopicSelect" onchange="switchHelpTopic(this.value)">
-          <option value="fileType">1. Upload කළ යුත්තේ මොන වගේ Excel File එකක්ද?</option>
-          <option value="howToDo">2. Excel File එකක් Upload කර Restore කරන්නේ කෙසේද?</option>
-          <option value="appFeatures">3. Web App එක භාවිතයෙන් කළ හැකි දේවල් මොනවාද?</option>
-        </select>
-      </div>
+        // File Upload and Excel Parsing
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
-      <div id="helpContentBox" style="background: var(--bg-main); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-size: 0.92rem; line-height: 1.6; color: var(--text-dark);">
-      </div>
-    </div>
-  </div>
-</div>
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // Convert Excel to JSON
+                binCardData = XLSX.utils.sheet_to_json(worksheet);
+                
+                renderCards(binCardData);
+                modal.style.display = 'none'; // Close modal after upload
+                
+                // Clear input to allow uploading the same file again if updated
+                fileInput.value = ""; 
+            };
+            reader.readAsArrayBuffer(file);
+        });
 
-<script src="script.js"></script>
+        // Search Filter Logic
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredData = binCardData.filter(item => {
+                const itemName = (item['Item Name'] || item['ItemName'] || '').toString().toLowerCase();
+                const itemCode = (item['Item Code'] || item['ItemCode'] || '').toString().toLowerCase();
+                return itemName.includes(searchTerm) || itemCode.includes(searchTerm);
+            });
+            renderCards(filteredData);
+        });
+
+        // Render Cards Function
+        function renderCards(data) {
+            const container = document.getElementById('cardContainer');
+            container.innerHTML = '';
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="no-data"><p>No items found.</p></div>';
+                return;
+            }
+
+            data.forEach(item => {
+                // Formatting data values (Handling different column names)
+                const name = item['Item Name'] || item['ItemName'] || 'Unknown Item';
+                const code = item['Item Code'] || item['ItemCode'] || 'N/A';
+                const received = item['In'] || item['Received'] || 0;
+                const issued = item['Out'] || item['Issued'] || 0;
+                const balance = item['Balance'] || item['Qty'] || 0;
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="item-name">${name}</div>
+                        <div class="item-code">${code}</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="stat">
+                            <span class="stat-label">Received (IN)</span>
+                            <span class="stat-value val-in">+${received}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Issued (OUT)</span>
+                            <span class="stat-value val-out">-${issued}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <span>Current Balance</span>
+                        <span class="balance-val">${balance}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+
 </body>
 </html>
