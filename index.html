@@ -217,7 +217,6 @@
 
     <!-- JavaScript Logic -->
     <script>
-        // Use Strict Mode for safer execution
         "use strict";
 
         let binCardData = [];
@@ -327,7 +326,7 @@
         }
 
         function formatBytes(bytes) {
-            if (bytes === 0) return '0 Bytes';
+            if (!bytes || bytes === 0) return '0 Bytes';
             const k = 1024, sizes = ['Bytes', 'KB', 'MB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
@@ -339,8 +338,6 @@
             if (typeof val === 'number') return isNaN(val) ? 0 : val;
             
             let str = String(val).trim().replace(/,/g, '');
-            
-            // Handle accounting negative format (100) -> -100
             if (str.startsWith('(') && str.endsWith(')')) {
                 str = '-' + str.substring(1, str.length - 1);
             }
@@ -353,72 +350,94 @@
             return 0;
         }
 
-        // DYNAMIC COLUMN MAPPING
+        // SMART & DYNAMIC COLUMN MAPPING
         function processWorksheet(worksheet) {
             const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+            if (!rawData || rawData.length === 0) return [];
+
             let parsedItems = [];
-            
             let headerRowIndex = -1;
             let colMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
 
-            // Find Header Row dynamically
+            const codeKeywords = ["code", "matcode", "item code", "material code", "item no", "part no", "කේතය", "කේත", "අංකය", "id", "no."];
+            const nameKeywords = ["description", "name", "item name", "material name", "item", "material", "විස්තරය", "විස්තර", "නම", "භාණ්ඩය", "ද්‍රව්‍ය"];
+            const receiptKeywords = ["receipt", "receipts", "in", "received", "qty in", "ලැබීම්", "ලැබුණු", "ඇතුලත්"];
+            const issueKeywords = ["issue", "issues", "out", "issued", "qty out", "නිකුත්", "නිකුතු", "පිටතට"];
+            const returnKeywords = ["return", "returns", "returned", "ආපසු"];
+            const closingKeywords = ["balance", "closing", "stock", "closing stock", "bal", "qty", "quantity", "total stock", "ශේෂය", "තොගය", "ප්‍රමාණය"];
+
+            // Find Header Row dynamically from first 30 rows
             for (let i = 0; i < Math.min(30, rawData.length); i++) {
                 let row = rawData[i];
-                if(!row || row.length === 0) continue;
+                if (!row || row.length === 0) continue;
 
-                let foundCount = 0;
                 let tempMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
+                let matches = 0;
 
                 row.forEach((cell, index) => {
                     let text = String(cell).toLowerCase().trim();
                     if (!text) return;
 
-                    if (text === "item code" || text === "code" || text.includes("කේත")) { tempMap.code = index; foundCount++; }
-                    else if (text === "description" || text === "name" || text === "item name" || text.includes("විස්තර")) { tempMap.name = index; foundCount++; }
-                    else if (text === "receipt" || text === "in" || text === "receipts" || text.includes("ලැබීම්")) { tempMap.receipt = index; foundCount++; }
-                    else if (text === "issue" || text === "out" || text === "issues" || text.includes("නිකුත්")) { tempMap.issue = index; foundCount++; }
-                    else if (text === "return" || text === "returns" || text.includes("ආපසු")) { tempMap.returnQty = index; foundCount++; }
-                    else if (text === "balance" || text === "closing" || text === "stock" || text.includes("ශේෂය")) { tempMap.closing = index; foundCount++; }
+                    if (tempMap.code === -1 && codeKeywords.some(k => text.includes(k))) { tempMap.code = index; matches++; }
+                    else if (tempMap.name === -1 && nameKeywords.some(k => text.includes(k))) { tempMap.name = index; matches++; }
+                    else if (tempMap.receipt === -1 && receiptKeywords.some(k => text.includes(k))) { tempMap.receipt = index; matches++; }
+                    else if (tempMap.issue === -1 && issueKeywords.some(k => text.includes(k))) { tempMap.issue = index; matches++; }
+                    else if (tempMap.returnQty === -1 && returnKeywords.some(k => text.includes(k))) { tempMap.returnQty = index; matches++; }
+                    else if (tempMap.closing === -1 && closingKeywords.some(k => text.includes(k))) { tempMap.closing = index; matches++; }
                 });
 
-                if (foundCount >= 3) {
+                if (matches >= 2) {
                     headerRowIndex = i;
                     colMap = tempMap;
                     break;
                 }
             }
 
+            // Fallback smart assignment if no explicit header row was detected
             if (headerRowIndex === -1) {
-                colMap = { code: 1, name: 2, receipt: 5, issue: 6, returnQty: 7, closing: 10 };
-                headerRowIndex = 0; 
+                for (let i = 0; i < Math.min(10, rawData.length); i++) {
+                    if (rawData[i] && rawData[i].length > 0) {
+                        const colCount = rawData[i].length;
+                        headerRowIndex = i - 1;
+                        if (colCount === 1) { colMap = { code: 0, name: 0, receipt: -1, issue: -1, returnQty: -1, closing: -1 }; }
+                        else if (colCount === 2) { colMap = { code: 0, name: 1, receipt: -1, issue: -1, returnQty: -1, closing: -1 }; }
+                        else if (colCount === 3) { colMap = { code: 0, name: 1, receipt: -1, issue: -1, returnQty: -1, closing: 2 }; }
+                        else if (colCount === 4) { colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: -1, closing: -1 }; }
+                        else if (colCount === 5) { colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: -1, closing: 4 }; }
+                        else { colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: 4, closing: 5 }; }
+                        break;
+                    }
+                }
             }
 
-            for (let i = headerRowIndex + 1; i < rawData.length; i++) {
+            const startIdx = Math.max(0, headerRowIndex + 1);
+
+            for (let i = startIdx; i < rawData.length; i++) {
                 let row = rawData[i];
                 if (!row || row.length === 0) continue;
 
-                let code = colMap.code !== -1 ? String(row[colMap.code] || "").trim() : "";
-                let name = colMap.name !== -1 ? String(row[colMap.name] || "").trim() : "";
+                let code = colMap.code !== -1 && row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : "";
+                let name = colMap.name !== -1 && row[colMap.name] !== undefined ? String(row[colMap.name]).trim() : "";
 
-                // Fix: Exclude exact matches for totals to avoid skipping valid items like "Total Care Soap"
                 let cLow = code.toLowerCase();
                 let nLow = name.toLowerCase();
-                if (cLow === "total" || nLow === "total" || cLow === "grand total" || nLow === "grand total") continue;
-                if (!code && !name) continue; 
+
+                // Skip header re-read or total rows
+                if (cLow === "total" || nLow === "total" || cLow === "grand total" || nLow === "grand total" || cLow === "එකතුව" || nLow === "එකතුව") continue;
+                if (codeKeywords.includes(cLow) || nameKeywords.includes(nLow)) continue;
+                if (!code && !name) continue;
 
                 let receiptNum = parseNum(colMap.receipt !== -1 ? row[colMap.receipt] : 0);
                 let issuesNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
                 let returnNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
                 let closingNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
 
-                if (receiptNum === 0 && issuesNum === 0 && returnNum === 0 && closingNum === 0) continue;
-
                 parsedItems.push({
-                    matCode: code || `ITEM-${i}`, 
+                    matCode: code || `ITEM-${i}`,
                     matName: name || "Unknown Material",
-                    receipt: receiptNum.toLocaleString('en-US'), 
+                    receipt: receiptNum.toLocaleString('en-US'),
                     issues: issuesNum.toLocaleString('en-US'),
-                    returnQty: returnNum.toLocaleString('en-US'), 
+                    returnQty: returnNum.toLocaleString('en-US'),
                     closingStock: closingNum.toLocaleString('en-US')
                 });
             }
@@ -429,7 +448,6 @@
         document.getElementById('fileInput').addEventListener('change', function(e) {
             if (e.target.files && e.target.files.length > 0) {
                 handleFileUpload(e.target.files[0]);
-                // Reset file input value to allow re-uploading the same file
                 this.value = '';
             }
         });
@@ -635,7 +653,6 @@
                 return; 
             }
             
-            // Give a tiny timeout so UI doesn't freeze immediately if generating a large PDF
             setTimeout(() => {
                 try {
                     const { jsPDF } = window.jspdf; 
