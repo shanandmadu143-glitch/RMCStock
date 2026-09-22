@@ -47,7 +47,6 @@
             color: white;
             padding: 12px 24px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             position: sticky;
@@ -67,6 +66,7 @@
         .header-actions {
             display: flex;
             gap: 10px;
+            margin-left: auto; /* Title එක hide වුවත් buttons දකුණු පසටම තබා ගැනීමට */
         }
 
         .btn {
@@ -443,9 +443,10 @@
 
     <!-- Header Section -->
     <header>
-        <h1>Bin Card</h1>
+        <!-- Title වලට ID එකක් ලබාදී ඇත -->
+        <h1 id="appTitle">Bin Card</h1> 
         <div class="header-actions">
-            <!-- New Download PDF Button -->
+            <!-- Download PDF Button -->
             <button class="btn btn-pdf" id="btnDownloadPdf" onclick="downloadPDF()" style="display:none;" title="Download Data as PDF">
                 <i class="fas fa-file-pdf"></i> <span>Download PDF</span>
             </button>
@@ -548,6 +549,14 @@
             loadStoredData();
         });
 
+        // App Title Hide/Show Function
+        function toggleAppTitle(show) {
+            const title = document.getElementById('appTitle');
+            if(title) {
+                title.style.display = show ? 'flex' : 'none';
+            }
+        }
+
         // Safe HTML Sanitizer (Fixes XSS)
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
@@ -574,15 +583,20 @@
                         fileMetaData = JSON.parse(savedMeta);
                         updateFileInfoUI(fileMetaData);
                     }
-                    // Show Action buttons
+                    
+                    // Show Action buttons and Hide Title
                     document.getElementById('btnClearData').style.display = 'inline-flex';
                     document.getElementById('btnDownloadPdf').style.display = 'inline-flex';
+                    toggleAppTitle(false);
+
                 } catch (e) {
                     console.error("Error loading local storage data", e);
                     showEmptyState();
+                    toggleAppTitle(true);
                 }
             } else {
                 showEmptyState();
+                toggleAppTitle(true);
             }
         }
 
@@ -850,9 +864,10 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('clearSearchBtn').style.display = 'none';
             
-            // Show Action buttons
+            // Show Action buttons and Hide Title
             document.getElementById('btnClearData').style.display = 'inline-flex';
             document.getElementById('btnDownloadPdf').style.display = 'inline-flex';
+            toggleAppTitle(false);
 
             renderCards(true);
 
@@ -999,9 +1014,10 @@
                 filteredData = [];
                 fileMetaData = null;
                 
-                // Hide action buttons
+                // Hide action buttons and Show Title again
                 document.getElementById('btnClearData').style.display = 'none';
                 document.getElementById('btnDownloadPdf').style.display = 'none';
+                toggleAppTitle(true);
                 
                 document.getElementById('modalFileInfo').style.display = 'none';
                 showEmptyState();
