@@ -432,6 +432,13 @@
                 let returnNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
                 let closingNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
 
+                // =========================================================================================
+                // සියලුම දත්ත 0 නම් හෝ අගයක් නොමැති නම් මෙම අයිතමය hide කිරීම (පෙන්නුම් කිරීමෙන් ඉවත් කිරීම)
+                // =========================================================================================
+                if (receiptNum === 0 && issuesNum === 0 && returnNum === 0 && closingNum === 0) {
+                    continue; 
+                }
+
                 parsedItems.push({
                     matCode: code || `ITEM-${i}`,
                     matName: name || "Unknown Material",
