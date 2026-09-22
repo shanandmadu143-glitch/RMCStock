@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bin Card Manager Pro</title>
+    <title>Bin Card</title>
     <!-- SheetJS for reading Excel Files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- jsPDF and AutoTable for PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -19,6 +22,8 @@
             --danger: #dc2626;
             --success: #16a34a;
             --border: #e2e8f0;
+            --pdf-btn: #e11d48;
+            --pdf-btn-hover: #be123c;
         }
 
         * {
@@ -84,6 +89,14 @@
 
         .btn-primary:hover {
             background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-pdf {
+            background: var(--pdf-btn);
+        }
+
+        .btn-pdf:hover {
+            background: var(--pdf-btn-hover);
         }
 
         .btn-danger {
@@ -430,8 +443,13 @@
 
     <!-- Header Section -->
     <header>
-        <h1><i class="fas fa-boxes-stacked"></i> Bin Card Manager</h1>
+        <h1>Bin Card</h1>
         <div class="header-actions">
+            <!-- New Download PDF Button -->
+            <button class="btn btn-pdf" id="btnDownloadPdf" onclick="downloadPDF()" style="display:none;" title="Download Data as PDF">
+                <i class="fas fa-file-pdf"></i> <span>Download PDF</span>
+            </button>
+
             <button class="btn btn-primary" onclick="openModal()">
                 <i class="fas fa-cloud-upload-alt"></i> <span>Upload Excel File</span>
             </button>
@@ -556,7 +574,9 @@
                         fileMetaData = JSON.parse(savedMeta);
                         updateFileInfoUI(fileMetaData);
                     }
+                    // Show Action buttons
                     document.getElementById('btnClearData').style.display = 'inline-flex';
+                    document.getElementById('btnDownloadPdf').style.display = 'inline-flex';
                 } catch (e) {
                     console.error("Error loading local storage data", e);
                     showEmptyState();
@@ -829,7 +849,10 @@
             updateFileInfoUI(fileMetaData);
             document.getElementById('searchInput').value = '';
             document.getElementById('clearSearchBtn').style.display = 'none';
+            
+            // Show Action buttons
             document.getElementById('btnClearData').style.display = 'inline-flex';
+            document.getElementById('btnDownloadPdf').style.display = 'inline-flex';
 
             renderCards(true);
 
@@ -975,10 +998,103 @@
                 binCardData = [];
                 filteredData = [];
                 fileMetaData = null;
+                
+                // Hide action buttons
                 document.getElementById('btnClearData').style.display = 'none';
+                document.getElementById('btnDownloadPdf').style.display = 'none';
+                
                 document.getElementById('modalFileInfo').style.display = 'none';
                 showEmptyState();
             }
+        }
+
+        // Download PDF Function
+        function downloadPDF() {
+            if (!filteredData || filteredData.length === 0) {
+                alert("No data available to download!");
+                return;
+            }
+
+            // Destructure jsPDF from window object
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+
+            // Add Header Info
+            doc.setFontSize(18);
+            doc.setTextColor(37, 99, 235); // matches var(--primary)
+            doc.text("Bin Card Stock Report", 40, 40);
+
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139); // matches var(--text-light)
+            
+            let dateText = `Generated Date: ${new Date().toLocaleString()}`;
+            let fileNameText = fileMetaData ? `Source File: ${fileMetaData.name}` : '';
+            let totalItemsText = `Total Items: ${filteredData.length}`;
+            
+            doc.text(dateText, 40, 60);
+            if(fileNameText) doc.text(fileNameText, 40, 75);
+            doc.text(totalItemsText, 40, 90);
+
+            // Setup Table Columns
+            const tableColumns = ["Material Code", "Material Name", "Receipts", "Issues", "Returns", "Closing Stock"];
+            const tableRows = [];
+
+            // Add filtered data to rows
+            filteredData.forEach(item => {
+                const rowData = [
+                    item.matCode,
+                    item.matName,
+                    item.receipt,
+                    item.issues,
+                    item.returnQty,
+                    item.closingStock
+                ];
+                tableRows.push(rowData);
+            });
+
+            // Generate Table using AutoTable plugin with Beautiful UI styling
+            doc.autoTable({
+                head: [tableColumns],
+                body: tableRows,
+                startY: 105,
+                theme: 'grid',
+                styles: {
+                    font: 'helvetica',
+                    fontSize: 9,
+                    cellPadding: 6,
+                    textColor: [15, 23, 42] // --text-main
+                },
+                headStyles: {
+                    fillColor: [37, 99, 235], // --primary
+                    textColor: 255,
+                    fontStyle: 'bold',
+                    halign: 'center'
+                },
+                alternateRowStyles: {
+                    fillColor: [248, 250, 252] // --bg-color
+                },
+                columnStyles: {
+                    0: { fontStyle: 'bold', cellWidth: 80 }, // Mat Code
+                    1: { cellWidth: 'auto' }, // Mat Name
+                    2: { halign: 'center', cellWidth: 50 }, // Receipts
+                    3: { halign: 'center', cellWidth: 50 }, // Issues
+                    4: { halign: 'center', cellWidth: 50 }, // Returns
+                    5: { halign: 'center', fontStyle: 'bold', textColor: [22, 163, 74], cellWidth: 70 } // Closing Stock (--success green)
+                },
+                margin: { top: 40, left: 40, right: 40, bottom: 40 },
+                didDrawPage: function (data) {
+                    // Footer with Page Numbers
+                    let str = 'Page ' + doc.internal.getNumberOfPages();
+                    doc.setFontSize(8);
+                    doc.setTextColor(150);
+                    let pageSize = doc.internal.pageSize;
+                    let pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+                    doc.text(str, data.settings.margin.left, pageHeight - 20);
+                }
+            });
+
+            // Save PDF
+            doc.save("Bin_Card_Report.pdf");
         }
     </script>
 </body>
