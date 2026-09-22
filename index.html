@@ -43,253 +43,57 @@
             overflow-x: hidden;
         }
 
-        /* =========================================
-           SPLASH SCREEN STYLES (NEW)
-           ========================================= */
+        /* SPLASH SCREEN STYLES */
         #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+            z-index: 9999; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; color: white; transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
         }
+        #splash-screen.fade-out { opacity: 0; visibility: hidden; }
+        .splash-content { text-align: center; animation: slideUpFade 1s ease-out forwards; }
+        .splash-icon { font-size: 60px; color: #3b82f6; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5)); animation: pulseIcon 2s infinite; }
+        .splash-title { font-size: 36px; font-weight: 700; margin-bottom: 15px; letter-spacing: 1px; }
+        .splash-desc { font-size: 16px; color: #94a3b8; max-width: 500px; line-height: 1.6; margin-bottom: 40px; padding: 0 20px; }
+        
+        .loader { position: relative; width: 60px; height: 60px; margin: 0 auto; }
+        .loader:before, .loader:after { content: ""; position: absolute; border-radius: 50%; border: 4px solid transparent; }
+        .loader:before { top: 0; left: 0; right: 0; bottom: 0; border-top-color: #3b82f6; border-bottom-color: #3b82f6; animation: spin 1.5s linear infinite; }
+        .loader:after { top: 10px; left: 10px; right: 10px; bottom: 10px; border-left-color: #10b981; border-right-color: #10b981; animation: spin 1s linear infinite reverse; }
+        
+        .splash-footer { position: absolute; bottom: 30px; font-size: 14px; color: #64748b; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; animation: fadeIn 2s ease-out forwards; animation-delay: 1s; opacity: 0; }
+        .splash-footer span { color: #3b82f6; font-weight: 700; }
 
-        #splash-screen.fade-out {
-            opacity: 0;
-            visibility: hidden;
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideUpFade { 0% { transform: translateY(30px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        @keyframes pulseIcon { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
 
-        .splash-content {
-            text-align: center;
-            animation: slideUpFade 1s ease-out forwards;
-        }
+        /* MAIN APP STYLES */
+        header { background-color: var(--primary); color: white; padding: 12px 24px; display: flex; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 10; }
+        header h1 { font-size: 20px; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        .header-actions { display: flex; gap: 10px; margin-left: auto; }
+        
+        .btn { border: none; color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease; font-weight: 500; }
+        .btn-primary { background: rgba(255, 255, 255, 0.2); } .btn-primary:hover { background: rgba(255, 255, 255, 0.3); }
+        .btn-pdf { background: var(--pdf-btn); } .btn-pdf:hover { background: var(--pdf-btn-hover); }
+        .btn-danger { background: #ef4444; } .btn-danger:hover { background: var(--danger); }
 
-        .splash-icon {
-            font-size: 60px;
-            color: #3b82f6;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5));
-            animation: pulseIcon 2s infinite;
-        }
-
-        .splash-title {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            letter-spacing: 1px;
-        }
-
-        .splash-desc {
-            font-size: 16px;
-            color: #94a3b8;
-            max-width: 500px;
-            line-height: 1.6;
-            margin-bottom: 40px;
-            padding: 0 20px;
-        }
-
-        /* Beautiful Loader */
-        .loader {
-            position: relative;
-            width: 60px;
-            height: 60px;
-            margin: 0 auto;
-        }
-
-        .loader:before, .loader:after {
-            content: "";
-            position: absolute;
-            border-radius: 50%;
-            border: 4px solid transparent;
-        }
-
-        .loader:before {
-            top: 0; left: 0; right: 0; bottom: 0;
-            border-top-color: #3b82f6;
-            border-bottom-color: #3b82f6;
-            animation: spin 1.5s linear infinite;
-        }
-
-        .loader:after {
-            top: 10px; left: 10px; right: 10px; bottom: 10px;
-            border-left-color: #10b981;
-            border-right-color: #10b981;
-            animation: spin 1s linear infinite reverse;
-        }
-
-        .splash-footer {
-            position: absolute;
-            bottom: 30px;
-            font-size: 14px;
-            color: #64748b;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            font-weight: 500;
-            animation: fadeIn 2s ease-out forwards;
-            animation-delay: 1s;
-            opacity: 0;
-        }
-
-        .splash-footer span {
-            color: #3b82f6;
-            font-weight: 700;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes slideUpFade {
-            0% { transform: translateY(30px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-
-        @keyframes pulseIcon {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-
-        /* =========================================
-           MAIN APP STYLES
-           ========================================= */
-        header {
-            background-color: var(--primary);
-            color: white;
-            padding: 12px 24px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        header h1 {
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-            margin-left: auto;
-        }
-
-        .btn {
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
-
-        .btn-primary { background: rgba(255, 255, 255, 0.2); }
-        .btn-primary:hover { background: rgba(255, 255, 255, 0.3); }
-        .btn-pdf { background: var(--pdf-btn); }
-        .btn-pdf:hover { background: var(--pdf-btn-hover); }
-        .btn-danger { background: #ef4444; }
-        .btn-danger:hover { background: var(--danger); }
-
-        .file-info-bar {
-            background: #ffffff;
-            border-bottom: 1px solid var(--border);
-            padding: 10px 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            font-size: 13px;
-            color: var(--text-light);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-        }
-
+        .file-info-bar { background: #ffffff; border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; font-size: 13px; color: var(--text-light); box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
         .file-info-item { display: flex; align-items: center; gap: 6px; }
         .file-info-item strong { color: var(--text-main); }
 
-        .search-container {
-            padding: 20px 20px 10px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .search-box {
-            position: relative;
-            width: 100%;
-            max-width: 650px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 45px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            font-size: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        .search-box input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-        }
-
-        .search-box i.search-icon {
-            position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light);
-        }
-
-        .search-box i.clear-icon {
-            position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-            color: var(--text-light); cursor: pointer; display: none; padding: 4px;
-        }
-
+        .search-container { padding: 20px 20px 10px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .search-box { position: relative; width: 100%; max-width: 650px; }
+        .search-box input { width: 100%; padding: 12px 45px; border-radius: 30px; border: 1px solid var(--border); font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); outline: none; transition: all 0.2s; }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+        .search-box i.search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
+        .search-box i.clear-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light); cursor: pointer; display: none; padding: 4px; }
         .search-box i.clear-icon:hover { color: var(--danger); }
         .results-count { font-size: 13px; color: var(--text-light); font-weight: 500; }
 
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-            gap: 20px;
-            padding: 10px 20px 20px 20px;
-            max-width: 1400px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        .card {
-            background: var(--card-bg); border-radius: 12px; padding: 18px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border); border-top: 4px solid var(--primary);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; padding: 10px 20px 20px 20px; max-width: 1400px; width: 100%; margin: 0 auto; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 18px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); border-top: 4px solid var(--primary); transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
         .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08); }
         .card-header { margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
         .mat-code { font-size: 12px; color: var(--primary); font-weight: 700; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -302,23 +106,12 @@
         .data-item.full-width .d-value { color: var(--primary); font-size: 18px; }
 
         .load-more-container { text-align: center; padding: 10px 20px 40px 20px; }
-        .btn-load-more {
-            background: var(--primary); color: white; padding: 10px 24px;
-            border-radius: 25px; border: none; font-size: 14px; font-weight: 600;
-            cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background 0.2s;
-        }
+        .btn-load-more { background: var(--primary); color: white; padding: 10px 24px; border-radius: 25px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background 0.2s; }
         .btn-load-more:hover { background: var(--primary-hover); }
 
         /* Modal */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.6); z-index: 100;
-            align-items: center; justify-content: center; backdrop-filter: blur(4px);
-        }
-        .modal {
-            background: white; padding: 25px; border-radius: 14px; width: 90%; max-width: 480px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); position: relative;
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal { background: white; padding: 25px; border-radius: 14px; width: 90%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); position: relative; }
         .modal h2 { margin-top: 0; color: var(--text-main); font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         .close-modal { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-light); padding: 5px; }
         .close-modal:hover { color: var(--text-main); }
@@ -343,9 +136,7 @@
 </head>
 <body>
 
-    <!-- =========================================
-         SPLASH SCREEN (NEW)
-         ========================================= -->
+    <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="splash-content">
             <i class="fas fa-boxes splash-icon"></i>
@@ -356,9 +147,7 @@
         <div class="splash-footer">Created By <span>Yomal Lakshan</span></div>
     </div>
 
-    <!-- =========================================
-         MAIN APPLICATION UI
-         ========================================= -->
+    <!-- MAIN APP UI -->
     <header>
         <h1 id="appTitle"><i class="fas fa-boxes"></i> Bin Card</h1> 
         <div class="header-actions">
@@ -439,23 +228,15 @@
         const PAGE_SIZE = 60;
         let currentPage = 1;
 
-        // =========================================
-        // SPLASH SCREEN LOGIC (6 Seconds Timer)
-        // =========================================
+        // SPLASH SCREEN LOGIC
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 splash.classList.add('fade-out');
-                // Remove from DOM completely after transition ends
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                }, 800); 
-            }, 6000); // 6 Seconds
+                setTimeout(() => { splash.style.display = 'none'; }, 800); 
+            }, 3000); // Changed to 3 Seconds for better UX
         });
 
-        // =========================================
-        // MAIN APP LOGIC
-        // =========================================
         document.addEventListener('DOMContentLoaded', () => {
             setupDragAndDrop();
             setupKeyboardShortcuts();
@@ -464,10 +245,7 @@
 
         function toggleAppTitle(show) {
             const title = document.getElementById('appTitle');
-            if(title) {
-                // Keep the icon if you want, or hide the whole text
-                title.style.display = show ? 'flex' : 'none';
-            }
+            if(title) { title.style.display = show ? 'flex' : 'none'; }
         }
 
         function escapeHtml(str) {
@@ -551,78 +329,107 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
+        // IMPROVED NUMBER PARSING LOGIC
         function parseNum(val) {
             if (val === undefined || val === null || val === '') return 0;
             if (typeof val === 'number') return isNaN(val) ? 0 : val;
-            let str = String(val).trim();
-            if (str.startsWith('(') && str.endsWith(')')) str = '-' + str.substring(1, str.length - 1);
-            const parsed = parseFloat(str.replace(/,/g, '').trim());
-            return isNaN(parsed) ? 0 : parsed;
+            
+            // Clean string (remove spaces, commas)
+            let str = String(val).trim().replace(/,/g, '');
+            
+            // Handle accounting negative format (100) -> -100
+            if (str.startsWith('(') && str.endsWith(')')) {
+                str = '-' + str.substring(1, str.length - 1);
+            }
+            
+            // Extract only numbers and minus signs
+            const extractedNum = str.match(/-?\d+(\.\d+)?/);
+            if (extractedNum) {
+                const parsed = parseFloat(extractedNum[0]);
+                return isNaN(parsed) ? 0 : parsed;
+            }
+            return 0;
         }
 
-        function getSmartValue(row, possibleKeys, defaultVal = "") {
-            const keys = Object.keys(row);
-            for (let key of keys) {
-                const cleanKey = key.trim().toLowerCase();
-                for (let pKey of possibleKeys) {
-                    const cleanPKey = pKey.toLowerCase();
-                    if (cleanPKey.length === 1) {
-                        if (cleanKey === cleanPKey) {
-                            const val = row[key];
-                            return (val !== undefined && val !== null) ? val : defaultVal;
-                        }
-                    } else if (cleanKey.includes(cleanPKey)) {
-                        const val = row[key];
-                        return (val !== undefined && val !== null) ? val : defaultVal;
-                    }
+        // ==============================================================
+        // NEW IMPROVED PROCESS WORKSHEET LOGIC (DYNAMIC COLUMN MAPPING)
+        // ==============================================================
+        function processWorksheet(worksheet) {
+            // Get raw 2D array data from sheet (array of arrays)
+            const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+            let parsedItems = [];
+            
+            let headerRowIndex = -1;
+            let colMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
+
+            // 1. DYNAMICALLY FIND THE HEADER ROW
+            // Check top 20 rows to find which row contains table headings
+            for (let i = 0; i < Math.min(20, rawData.length); i++) {
+                let row = rawData[i];
+                if(!row || row.length === 0) continue;
+
+                let foundCount = 0;
+                let tempMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
+
+                row.forEach((cell, index) => {
+                    let text = String(cell).toLowerCase().trim();
+                    if (!text) return;
+
+                    // Keyword matching for columns
+                    if (text === "item code" || text === "code" || text.includes("කේත")) { tempMap.code = index; foundCount++; }
+                    else if (text === "description" || text === "name" || text === "item name" || text.includes("විස්තර")) { tempMap.name = index; foundCount++; }
+                    else if (text === "receipt" || text === "in" || text === "receipts" || text.includes("ලැබීම්")) { tempMap.receipt = index; foundCount++; }
+                    else if (text === "issue" || text === "out" || text === "issues" || text.includes("නිකුත්")) { tempMap.issue = index; foundCount++; }
+                    else if (text === "return" || text === "returns" || text.includes("ආපසු")) { tempMap.returnQty = index; foundCount++; }
+                    else if (text === "balance" || text === "closing" || text === "stock" || text.includes("ශේෂය")) { tempMap.closing = index; foundCount++; }
+                });
+
+                // If we found at least 3 recognizable headers, assume this is the header row
+                if (foundCount >= 3) {
+                    headerRowIndex = i;
+                    colMap = tempMap;
+                    break;
                 }
             }
-            return defaultVal;
-        }
 
-        function processWorksheet(worksheet) {
-            const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: "A", defval: "" });
-            let parsedItems = [];
-            rawRows.forEach((row, index) => {
-                let code = row["B"] !== undefined ? String(row["B"]).trim() : "";
-                let name = row["C"] !== undefined ? String(row["C"]).trim() : "";
-                if (!code && !name) return;
-                const lowerCode = code.toLowerCase(), lowerName = name.toLowerCase();
-                if (lowerCode.includes("code") || lowerCode.includes("කේත") || 
-                    lowerName.includes("name") || lowerName.includes("description") || lowerName.includes("විස්තර")) return;
+            // Fallback: If headers are completely missing/different, assume standard format (A,B,C...)
+            if (headerRowIndex === -1) {
+                // A=0, B=1, C=2 ... F=5, G=6, H=7, K=10 (Based on original logic)
+                colMap = { code: 1, name: 2, receipt: 5, issue: 6, returnQty: 7, closing: 10 };
+                headerRowIndex = 0; 
+            }
 
-                let receiptNum = parseNum(row["F"]), issuesNum = parseNum(row["G"]), 
-                    returnNum = parseNum(row["H"]), closingNum = parseNum(row["K"]);
-                if (receiptNum === 0 && issuesNum === 0 && returnNum === 0) return;
+            // 2. EXTRACT DATA BELOW HEADER ROW
+            for (let i = headerRowIndex + 1; i < rawData.length; i++) {
+                let row = rawData[i];
+                if (!row || row.length === 0) continue;
+
+                // Safely get data based on mapped indices
+                let code = colMap.code !== -1 ? String(row[colMap.code] || "").trim() : "";
+                let name = colMap.name !== -1 ? String(row[colMap.name] || "").trim() : "";
+
+                // Skip summary/total rows
+                if (code.toLowerCase().includes("total") || name.toLowerCase().includes("total")) continue;
+                if (!code && !name) continue; // Skip completely empty rows
+
+                let receiptNum = parseNum(colMap.receipt !== -1 ? row[colMap.receipt] : 0);
+                let issuesNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
+                let returnNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
+                let closingNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
+
+                // Skip if there is no stock activity or balance at all
+                if (receiptNum === 0 && issuesNum === 0 && returnNum === 0 && closingNum === 0) continue;
 
                 parsedItems.push({
-                    matCode: code || `ITEM-${index + 1}`, matName: name || "Unknown Material",
-                    receipt: receiptNum.toLocaleString(), issues: issuesNum.toLocaleString(),
-                    returnQty: returnNum.toLocaleString(), closingStock: closingNum.toLocaleString()
-                });
-            });
-
-            if (parsedItems.length === 0) {
-                const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-                rawJson.forEach((row, index) => {
-                    let code = String(getSmartValue(row, ["code", "කේතය", "item code"], "")).trim();
-                    let name = String(getSmartValue(row, ["name", "description", "විස්තර"], "")).trim();
-                    if (!code && !name) return;
-
-                    let receiptNum = parseNum(getSmartValue(row, ["receipt", "in", "ලැබීම්"], 0));
-                    let issuesNum = parseNum(getSmartValue(row, ["issue", "out", "නිකුත්"], 0));
-                    let returnNum = parseNum(getSmartValue(row, ["return", "ආපසු"], 0));
-                    let closingNum = parseNum(getSmartValue(row, ["closing", "stock", "balance", "ශේෂය"], 0));
-
-                    if (receiptNum === 0 && issuesNum === 0 && returnNum === 0) return;
-
-                    parsedItems.push({
-                        matCode: code || `ITEM-${index + 1}`, matName: name || "Unknown Material",
-                        receipt: receiptNum.toLocaleString(), issues: issuesNum.toLocaleString(),
-                        returnQty: returnNum.toLocaleString(), closingStock: closingNum.toLocaleString()
-                    });
+                    matCode: code || `ITEM-${i}`, 
+                    matName: name || "Unknown Material",
+                    receipt: receiptNum.toLocaleString(), 
+                    issues: issuesNum.toLocaleString(),
+                    returnQty: returnNum.toLocaleString(), 
+                    closingStock: closingNum.toLocaleString()
                 });
             }
+
             return parsedItems;
         }
 
@@ -678,7 +485,7 @@
             binCardData = processWorksheet(worksheet);
 
             if (!binCardData || binCardData.length === 0) {
-                statusEl.innerText = "No active items found in this sheet.";
+                statusEl.innerText = "No active items found in this sheet. Please check the Excel format.";
                 statusEl.className = 'status-message status-error';
                 statusEl.style.display = 'block';
                 return;
