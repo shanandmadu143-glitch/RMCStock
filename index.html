@@ -27,11 +27,7 @@
             --pdf-btn-hover: #be123c;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -71,7 +67,7 @@
 
         /* MAIN APP STYLES */
         header { background-color: var(--primary); color: white; padding: 12px 24px; display: flex; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 10; }
-        header h1 { font-size: 20px; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        header h1 { font-size: 20px; display: flex; align-items: center; gap: 10px; font-weight: 600; margin: 0; }
         .header-actions { display: flex; gap: 10px; margin-left: auto; }
         
         .btn { border: none; color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease; font-weight: 500; }
@@ -152,10 +148,10 @@
         <h1 id="appTitle"><i class="fas fa-boxes"></i> Bin Card</h1> 
         <div class="header-actions">
             <button class="btn btn-pdf" id="btnDownloadPdf" onclick="downloadPDF()" style="display:none;" title="Download Data as PDF">
-                <i class="fas fa-file-pdf"></i> <span>Export PDF</span>
+                <i class="fas fa-file-pdf"></i> <span class="hide-mobile">Export PDF</span>
             </button>
             <button class="btn btn-primary" onclick="openModal()">
-                <i class="fas fa-cloud-upload-alt"></i> <span>Upload Excel</span>
+                <i class="fas fa-cloud-upload-alt"></i> <span class="hide-mobile">Upload Excel</span>
             </button>
             <button class="btn btn-danger" id="btnClearData" onclick="clearStoredData()" style="display:none;" title="Clear Data">
                 <i class="fas fa-trash-alt"></i>
@@ -221,6 +217,9 @@
 
     <!-- JavaScript Logic -->
     <script>
+        // Use Strict Mode for safer execution
+        "use strict";
+
         let binCardData = [];
         let filteredData = [];
         let fileMetaData = null;
@@ -232,9 +231,11 @@
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
-                splash.classList.add('fade-out');
-                setTimeout(() => { splash.style.display = 'none'; }, 800); 
-            }, 3000); // Changed to 3 Seconds for better UX
+                if (splash) {
+                    splash.classList.add('fade-out');
+                    setTimeout(() => { splash.style.display = 'none'; }, 800); 
+                }
+            }, 2500); 
         });
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -245,9 +246,10 @@
 
         function toggleAppTitle(show) {
             const title = document.getElementById('appTitle');
-            if(title) { title.style.display = show ? 'flex' : 'none'; }
+            if (title) { title.style.display = show ? 'flex' : 'none'; }
         }
 
+        // XSS Prevention Function
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -298,15 +300,17 @@
                 dropArea.addEventListener(eventName, preventDefaults, false);
             });
             function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+            
             ['dragenter', 'dragover'].forEach(eventName => {
                 dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
             });
             ['dragleave', 'drop'].forEach(eventName => {
                 dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
             });
+            
             dropArea.addEventListener('drop', (e) => {
                 const dt = e.dataTransfer;
-                if (dt.files.length > 0) {
+                if (dt.files && dt.files.length > 0) {
                     document.getElementById('fileInput').files = dt.files;
                     handleFileUpload(dt.files[0]);
                 }
@@ -334,7 +338,6 @@
             if (val === undefined || val === null || val === '') return 0;
             if (typeof val === 'number') return isNaN(val) ? 0 : val;
             
-            // Clean string (remove spaces, commas)
             let str = String(val).trim().replace(/,/g, '');
             
             // Handle accounting negative format (100) -> -100
@@ -342,7 +345,6 @@
                 str = '-' + str.substring(1, str.length - 1);
             }
             
-            // Extract only numbers and minus signs
             const extractedNum = str.match(/-?\d+(\.\d+)?/);
             if (extractedNum) {
                 const parsed = parseFloat(extractedNum[0]);
@@ -351,20 +353,16 @@
             return 0;
         }
 
-        // ==============================================================
-        // NEW IMPROVED PROCESS WORKSHEET LOGIC (DYNAMIC COLUMN MAPPING)
-        // ==============================================================
+        // DYNAMIC COLUMN MAPPING
         function processWorksheet(worksheet) {
-            // Get raw 2D array data from sheet (array of arrays)
             const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
             let parsedItems = [];
             
             let headerRowIndex = -1;
             let colMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
 
-            // 1. DYNAMICALLY FIND THE HEADER ROW
-            // Check top 20 rows to find which row contains table headings
-            for (let i = 0; i < Math.min(20, rawData.length); i++) {
+            // Find Header Row dynamically
+            for (let i = 0; i < Math.min(30, rawData.length); i++) {
                 let row = rawData[i];
                 if(!row || row.length === 0) continue;
 
@@ -375,7 +373,6 @@
                     let text = String(cell).toLowerCase().trim();
                     if (!text) return;
 
-                    // Keyword matching for columns
                     if (text === "item code" || text === "code" || text.includes("කේත")) { tempMap.code = index; foundCount++; }
                     else if (text === "description" || text === "name" || text === "item name" || text.includes("විස්තර")) { tempMap.name = index; foundCount++; }
                     else if (text === "receipt" || text === "in" || text === "receipts" || text.includes("ලැබීම්")) { tempMap.receipt = index; foundCount++; }
@@ -384,7 +381,6 @@
                     else if (text === "balance" || text === "closing" || text === "stock" || text.includes("ශේෂය")) { tempMap.closing = index; foundCount++; }
                 });
 
-                // If we found at least 3 recognizable headers, assume this is the header row
                 if (foundCount >= 3) {
                     headerRowIndex = i;
                     colMap = tempMap;
@@ -392,41 +388,38 @@
                 }
             }
 
-            // Fallback: If headers are completely missing/different, assume standard format (A,B,C...)
             if (headerRowIndex === -1) {
-                // A=0, B=1, C=2 ... F=5, G=6, H=7, K=10 (Based on original logic)
                 colMap = { code: 1, name: 2, receipt: 5, issue: 6, returnQty: 7, closing: 10 };
                 headerRowIndex = 0; 
             }
 
-            // 2. EXTRACT DATA BELOW HEADER ROW
             for (let i = headerRowIndex + 1; i < rawData.length; i++) {
                 let row = rawData[i];
                 if (!row || row.length === 0) continue;
 
-                // Safely get data based on mapped indices
                 let code = colMap.code !== -1 ? String(row[colMap.code] || "").trim() : "";
                 let name = colMap.name !== -1 ? String(row[colMap.name] || "").trim() : "";
 
-                // Skip summary/total rows
-                if (code.toLowerCase().includes("total") || name.toLowerCase().includes("total")) continue;
-                if (!code && !name) continue; // Skip completely empty rows
+                // Fix: Exclude exact matches for totals to avoid skipping valid items like "Total Care Soap"
+                let cLow = code.toLowerCase();
+                let nLow = name.toLowerCase();
+                if (cLow === "total" || nLow === "total" || cLow === "grand total" || nLow === "grand total") continue;
+                if (!code && !name) continue; 
 
                 let receiptNum = parseNum(colMap.receipt !== -1 ? row[colMap.receipt] : 0);
                 let issuesNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
                 let returnNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
                 let closingNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
 
-                // Skip if there is no stock activity or balance at all
                 if (receiptNum === 0 && issuesNum === 0 && returnNum === 0 && closingNum === 0) continue;
 
                 parsedItems.push({
                     matCode: code || `ITEM-${i}`, 
                     matName: name || "Unknown Material",
-                    receipt: receiptNum.toLocaleString(), 
-                    issues: issuesNum.toLocaleString(),
-                    returnQty: returnNum.toLocaleString(), 
-                    closingStock: closingNum.toLocaleString()
+                    receipt: receiptNum.toLocaleString('en-US'), 
+                    issues: issuesNum.toLocaleString('en-US'),
+                    returnQty: returnNum.toLocaleString('en-US'), 
+                    closingStock: closingNum.toLocaleString('en-US')
                 });
             }
 
@@ -434,7 +427,11 @@
         }
 
         document.getElementById('fileInput').addEventListener('change', function(e) {
-            if (e.target.files.length > 0) handleFileUpload(e.target.files[0]);
+            if (e.target.files && e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+                // Reset file input value to allow re-uploading the same file
+                this.value = '';
+            }
         });
 
         function handleFileUpload(file) {
@@ -467,10 +464,15 @@
                     statusEl.innerText = `Error reading file: ${error.message}`;
                     statusEl.className = 'status-message status-error';
                     statusEl.style.display = 'block';
-                } finally {
-                    document.getElementById('fileInput').value = '';
                 }
             };
+            
+            reader.onerror = function() {
+                statusEl.innerText = "Error reading the file. Please try again.";
+                statusEl.className = 'status-message status-error';
+                statusEl.style.display = 'block';
+            };
+
             reader.readAsArrayBuffer(file);
         }
 
@@ -482,6 +484,14 @@
         function parseAndLoadSheet(sheetName, fileObj = null) {
             const statusEl = document.getElementById('uploadStatus');
             const worksheet = currentWorkbook.Sheets[sheetName];
+            
+            if (!worksheet) {
+                statusEl.innerText = "Error reading sheet data.";
+                statusEl.className = 'status-message status-error';
+                statusEl.style.display = 'block';
+                return;
+            }
+
             binCardData = processWorksheet(worksheet);
 
             if (!binCardData || binCardData.length === 0) {
@@ -498,7 +508,10 @@
             try {
                 localStorage.setItem('binCardData', JSON.stringify(binCardData));
                 localStorage.setItem('binCardMeta', JSON.stringify(fileMetaData));
-            } catch (e) {}
+            } catch (e) {
+                console.warn("LocalStorage Quota Exceeded", e);
+                alert("Alert: Your file is very large. Data has been loaded for viewing but may not be saved upon refreshing the page due to browser storage limits.");
+            }
 
             filteredData = binCardData;
             updateFileInfoUI(fileMetaData);
@@ -617,33 +630,63 @@
         }
 
         function downloadPDF() {
-            if (!filteredData || filteredData.length === 0) { alert("No data available to download!"); return; }
-            const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'pt', 'a4');
+            if (!filteredData || filteredData.length === 0) { 
+                alert("No data available to download!"); 
+                return; 
+            }
             
-            doc.setFontSize(18); doc.setTextColor(37, 99, 235);
-            doc.text("Bin Card Stock Report", 40, 40);
-            
-            doc.setFontSize(10); doc.setTextColor(100, 116, 139);
-            doc.text(`Generated Date: ${new Date().toLocaleString()}`, 40, 60);
-            if(fileMetaData) doc.text(`Source File: ${fileMetaData.name}`, 40, 75);
-            doc.text(`Total Items: ${filteredData.length}`, 40, 90);
+            // Give a tiny timeout so UI doesn't freeze immediately if generating a large PDF
+            setTimeout(() => {
+                try {
+                    const { jsPDF } = window.jspdf; 
+                    const doc = new jsPDF('p', 'pt', 'a4');
+                    
+                    doc.setFontSize(18); doc.setTextColor(37, 99, 235);
+                    doc.text("Bin Card Stock Report", 40, 40);
+                    
+                    doc.setFontSize(10); doc.setTextColor(100, 116, 139);
+                    doc.text(`Generated Date: ${new Date().toLocaleString()}`, 40, 60);
+                    if(fileMetaData) doc.text(`Source File: ${fileMetaData.name}`, 40, 75);
+                    doc.text(`Total Items: ${filteredData.length}`, 40, 90);
 
-            const tableRows = filteredData.map(item => [item.matCode, item.matName, item.receipt, item.issues, item.returnQty, item.closingStock]);
+                    const tableRows = filteredData.map(item => [
+                        item.matCode, 
+                        item.matName, 
+                        item.receipt, 
+                        item.issues, 
+                        item.returnQty, 
+                        item.closingStock
+                    ]);
 
-            doc.autoTable({
-                head: [["Material Code", "Material Name", "Receipts", "Issues", "Returns", "Closing Stock"]],
-                body: tableRows, startY: 105, theme: 'grid',
-                styles: { font: 'helvetica', fontSize: 9, cellPadding: 6, textColor: [15, 23, 42] },
-                headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold', halign: 'center' },
-                alternateRowStyles: { fillColor: [248, 250, 252] },
-                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 80 }, 1: { cellWidth: 'auto' }, 2: { halign: 'center', cellWidth: 50 }, 3: { halign: 'center', cellWidth: 50 }, 4: { halign: 'center', cellWidth: 50 }, 5: { halign: 'center', fontStyle: 'bold', textColor: [22, 163, 74], cellWidth: 70 } },
-                margin: { top: 40, left: 40, right: 40, bottom: 40 },
-                didDrawPage: function (data) {
-                    doc.setFontSize(8); doc.setTextColor(150);
-                    doc.text('Page ' + doc.internal.getNumberOfPages(), data.settings.margin.left, doc.internal.pageSize.getHeight() - 20);
+                    doc.autoTable({
+                        head: [["Code", "Material Name", "Receipts", "Issues", "Returns", "Closing Stock"]],
+                        body: tableRows, 
+                        startY: 105, 
+                        theme: 'grid',
+                        styles: { font: 'helvetica', fontSize: 9, cellPadding: 5, textColor: [15, 23, 42] },
+                        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold', halign: 'center' },
+                        alternateRowStyles: { fillColor: [248, 250, 252] },
+                        columnStyles: { 
+                            0: { fontStyle: 'bold', cellWidth: 70 }, 
+                            1: { cellWidth: 'auto' }, 
+                            2: { halign: 'center', cellWidth: 50 }, 
+                            3: { halign: 'center', cellWidth: 50 }, 
+                            4: { halign: 'center', cellWidth: 50 }, 
+                            5: { halign: 'center', fontStyle: 'bold', textColor: [22, 163, 74], cellWidth: 70 } 
+                        },
+                        margin: { top: 40, left: 40, right: 40, bottom: 40 },
+                        didDrawPage: function (data) {
+                            doc.setFontSize(8); doc.setTextColor(150);
+                            doc.text('Page ' + doc.internal.getNumberOfPages(), data.settings.margin.left, doc.internal.pageSize.getHeight() - 20);
+                        }
+                    });
+                    
+                    doc.save("Bin_Card_Report.pdf");
+                } catch (error) {
+                    console.error("PDF Generation failed:", error);
+                    alert("Error occurred while generating PDF.");
                 }
-            });
-            doc.save("Bin_Card_Report.pdf");
+            }, 100);
         }
     </script>
 </body>
