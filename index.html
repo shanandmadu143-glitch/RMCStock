@@ -2,832 +2,279 @@
 <html lang="si">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Bin Card Manager</title>
-    <!-- SheetJS for reading Excel Files -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- jsPDF and AutoTable for PDF Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>HTML.codes - Live Web Editor</title>
     
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-        /* THEMES CONFIGURATION */
-        body.theme-default {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --secondary: #0ea5e9;
-            --bg-color: #f1f5f9;
-            --text-main: #0f172a;
-            --text-light: #64748b;
-            --card-bg: #ffffff;
-            --border: #e2e8f0;
-        }
-        body.theme-emerald {
-            --primary: #059669;
-            --primary-hover: #047857;
-            --secondary: #10b981;
-            --bg-color: #ecfdf5;
-            --text-main: #064e3b;
-            --text-light: #047857;
-            --card-bg: #ffffff;
-            --border: #a7f3d0;
-        }
-        body.theme-sunset {
-            --primary: #ea580c;
-            --primary-hover: #c2410c;
-            --secondary: #f59e0b;
-            --bg-color: #fff7ed;
-            --text-main: #7c2d12;
-            --text-light: #9a3412;
-            --card-bg: #ffffff;
-            --border: #fed7aa;
-        }
-        body.theme-dark {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --secondary: #38bdf8;
-            --bg-color: #0f172a;
-            --text-main: #f8fafc;
-            --text-light: #94a3b8;
-            --card-bg: #1e293b;
-            --border: #334155;
-        }
-        body.theme-purple {
-            --primary: #9333ea;
-            --primary-hover: #7e22ce;
-            --secondary: #c084fc;
-            --bg-color: #f3e8ff;
-            --text-main: #581c87;
-            --text-light: #7e22ce;
-            --card-bg: #ffffff;
-            --border: #e9d5ff;
-        }
-
-        :root {
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-            --pdf-btn: #e11d48;
-            --pdf-btn-hover: #be123c;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* SPLASH SCREEN STYLES (6 Seconds Professional Intro) */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(135deg, #090d16 0%, #111827 50%, #1e1b4b 100%);
-            z-index: 9999; display: flex; flex-direction: column; justify-content: center;
-            align-items: center; color: white; transition: opacity 0.8s ease, visibility 0.8s ease;
-            padding: 20px; text-align: center;
-        }
-        #splash-screen.fade-out { opacity: 0; visibility: hidden; }
-        
-        .splash-content {
-            max-width: 600px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            animation: fadeInScale 1s ease-out;
-        }
-
-        .splash-icon {
-            font-size: 64px;
-            color: var(--secondary);
-            margin-bottom: 20px;
-            background: rgba(14, 165, 233, 0.1);
-            padding: 25px;
-            border-radius: 50%;
-            box-shadow: 0 0 30px rgba(14, 165, 233, 0.3);
-            animation: pulseIcon 2s infinite ease-in-out;
-        }
-
-        .splash-title {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
-            background: linear-gradient(to right, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .splash-desc {
-            font-size: 15px;
-            color: #94a3b8;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        .splash-progress-container {
-            width: 240px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
-
-        .splash-progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #0ea5e9, #6366f1);
-            border-radius: 10px;
-            transition: width 0.1s linear;
-        }
-
-        .splash-footer {
-            position: absolute;
-            bottom: 25px;
-            font-size: 13px;
-            color: #64748b;
-            letter-spacing: 1px;
-            font-weight: 500;
-        }
-        .splash-footer span {
-            color: #38bdf8;
-            font-weight: 600;
-        }
-        
-        @keyframes fadeInScale {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes pulseIcon { 
-            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(14, 165, 233, 0.2); } 
-            50% { transform: scale(1.08); box-shadow: 0 0 35px rgba(14, 165, 233, 0.4); } 
-        }
-
-        /* HEADER */
-        header {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            color: var(--text-main);
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: var(--shadow-sm);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border-bottom: 1px solid var(--border);
-        }
-        header h1 { font-size: 22px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        .header-actions { display: flex; gap: 12px; }
-        
-        .btn {
-            border: none; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600;
-            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;
-        }
-        .btn-primary { background: var(--primary); color: white; box-shadow: var(--shadow-sm); }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-        .btn-pdf { background: var(--pdf-btn); color: white; }
-        .btn-pdf:hover { background: var(--pdf-btn-hover); }
-        .btn-danger { background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); }
-        .btn-danger:hover { background: var(--danger); color: white; }
-
-        /* DASHBOARD STATS */
-        .dashboard-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 25px;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-        }
-        .stat-card {
-            background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm);
-            display: flex; align-items: center; gap: 15px; border: 1px solid var(--border);
-            transition: transform 0.2s;
-        }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .icon-blue { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
-        .stat-info h4 { font-size: 13px; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
-        .stat-info h2 { font-size: 24px; font-weight: 700; color: var(--text-main); }
-
-        /* CONTROLS (SEARCH) */
-        .controls-bar {
-            display: flex; flex-wrap: wrap; gap: 15px; padding: 0 25px 15px 25px; max-width: 1400px; margin: 0 auto; width: 100%;
-        }
-        .search-box { flex: 1; min-width: 300px; position: relative; }
-        .search-box input {
-            width: 100%; padding: 14px 45px; border-radius: 10px; border: 1px solid var(--border);
-            font-size: 15px; outline: none; transition: all 0.3s; box-shadow: var(--shadow-sm);
-            background: var(--card-bg); color: var(--text-main);
-        }
-        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
-        .search-box i.fa-search { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
-
-        /* CARDS GRID */
-        .cards-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;
-            padding: 10px 25px 30px 25px; max-width: 1400px; width: 100%; margin: 0 auto; flex: 1;
-        }
-        .card {
-            background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border); transition: all 0.3s ease; position: relative;
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
-        
-        .badge {
-            position: absolute; top: 15px; right: 15px; padding: 4px 10px; border-radius: 20px;
-            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .badge-success { background: #d1fae5; color: #065f46; }
-        .badge-warning { background: #fef3c7; color: #92400e; }
-        .badge-danger { background: #fee2e2; color: #991b1b; }
-
-        .card-header { margin-bottom: 15px; padding-right: 80px; }
-        .mat-code { font-size: 12px; color: var(--text-light); font-weight: 600; margin-bottom: 5px; }
-        .mat-name { font-size: 16px; font-weight: 700; color: var(--text-main); line-height: 1.4; }
-        
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .data-item { text-align: center; background: rgba(0,0,0,0.02); padding: 10px 5px; border-radius: 8px; border: 1px solid var(--border); }
-        .d-label { display: block; font-size: 11px; color: var(--text-light); font-weight: 600; margin-bottom: 4px; }
-        .d-value { font-size: 15px; font-weight: 700; color: var(--text-main); }
-        
-        .stock-total {
-            background: rgba(14, 165, 233, 0.08); padding: 12px; border-radius: 8px; text-align: center;
-            border: 1px dashed var(--secondary); display: flex; justify-content: space-between; align-items: center;
-        }
-        .stock-total .d-label { margin: 0; color: var(--primary); font-size: 13px; }
-        .stock-total .d-value { color: var(--primary); font-size: 20px; }
-
-        .load-more-container { text-align: center; padding: 20px; margin-bottom: 20px; }
-
-        /* FLOATING SETTINGS BUTTON & FOOTER */
-        .fab-settings {
-            position: fixed; bottom: 25px; right: 25px; width: 50px; height: 50px;
-            background: var(--primary); color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 20px;
-            box-shadow: var(--shadow-lg); cursor: pointer; z-index: 95; border: none;
-            transition: transform 0.3s, background 0.3s;
-        }
-        .fab-settings:hover { transform: scale(1.1) rotate(45deg); background: var(--primary-hover); }
-
-        footer {
-            text-align: center; padding: 15px; font-size: 13px; color: var(--text-light);
-            border-top: 1px solid var(--border); background: var(--card-bg); margin-top: auto;
-            font-weight: 600; letter-spacing: 0.5px;
-        }
-
-        /* MODAL */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.7); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px);
-        }
-        .modal { background: var(--card-bg); color: var(--text-main); padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; box-shadow: var(--shadow-lg); position: relative; animation: slideIn 0.3s ease; border: 1px solid var(--border); }
-        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal h2 { margin-top: 0; color: var(--text-main); font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .close-modal { position: absolute; top: 20px; right: 20px; background: var(--bg-color); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: var(--text-main); transition: 0.2s; }
-        .close-modal:hover { background: #e2e8f0; color: var(--danger); }
-
-        .upload-area {
-            border: 2px dashed var(--border); padding: 40px 20px; text-align: center; border-radius: 12px;
-            cursor: pointer; background: var(--bg-color); transition: all 0.3s; margin-top: 20px;
-        }
-        .upload-area:hover, .upload-area.dragover { background: rgba(79, 70, 229, 0.05); border-color: var(--primary); }
-        .upload-area i { font-size: 48px; color: var(--secondary); margin-bottom: 15px; }
-        #fileInput { display: none; }
-
-        .status-message { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 600; display: none; padding: 12px; border-radius: 8px; }
-        .status-success { color: #065f46; background: #d1fae5; border: 1px solid #34d399; }
-        .status-error { color: #991b1b; background: #fee2e2; border: 1px solid #f87171; }
-
-        /* THEME OPTIONS GRID */
-        .theme-options {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-top: 15px;
-        }
-        .theme-btn {
-            padding: 12px 8px; border-radius: 8px; border: 2px solid var(--border);
-            cursor: pointer; text-align: center; font-size: 12px; font-weight: 600; transition: 0.2s;
-        }
-        .theme-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-
-        .empty-state { text-align: center; padding: 80px 20px; color: var(--text-light); grid-column: 1 / -1; }
-        .empty-state img { width: 120px; opacity: 0.5; margin-bottom: 20px; }
-        .empty-state h2 { color: var(--text-main); margin-bottom: 10px; }
-
-        @media (max-width: 600px) {
-            .hide-mobile { display: none; }
-            .btn { padding: 10px; }
-            header { padding: 15px; }
-            .dashboard-stats { padding: 15px; }
-            .controls-bar { padding: 0 15px 15px 15px; }
-            .cards-grid { padding: 10px 15px 30px 15px; }
-        }
-    </style>
+    <!-- External Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Link CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Link JS -->
+    <script src="script.js" defer></script>
 </head>
-<body class="theme-default">
+<body>
 
-    <!-- 6 SECONDS PROFESSIONAL SPLASH SCREEN -->
-    <div id="splash-screen">
-        <div class="splash-content">
-            <i class="fas fa-boxes splash-icon"></i>
-            <h1 class="splash-title">Advanced Bin Card Manager</h1>
-            <p class="splash-desc">
-                Welcome to the professional inventory control system. Easily upload Excel spreadsheets, track stock receipts, issues, returns, and export detailed PDF reports in seconds.
+    <!-- Hidden File Input for Legacy Open Fallback -->
+    <input type="file" id="file-input" accept=".html,.htm,.css,.js,.txt" style="display: none;" multiple>
+
+    <!-- Animated Splash Screen -->
+    <div id="splash-screen" class="splash-overlay">
+        <div class="splash-card">
+            <div class="splash-badge">V2.0 LIVE WEB EDITOR</div>
+            <h1 class="splash-title">HTML.<span>codes</span></h1>
+            <p class="splash-description">
+                HTML, CSS සහ JavaScript කේත සජීවීව ලියා පරීක්ෂණ කිරීමට සහ නිර්මාණය කිරීමට සැකසුණු modern web editor එකකි.
             </p>
-            <div class="splash-progress-container">
-                <div class="splash-progress-bar" id="splashProgressBar"></div>
+            
+            <div class="splash-features">
+                <div class="feature-chip">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#89b4fa" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Live Preview
+                </div>
+                <div class="feature-chip">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f38ba8" stroke-width="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg> 5+ IDE Themes
+                </div>
+                <div class="feature-chip">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a6e22e" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Auto Direct Save
+                </div>
+                <div class="feature-chip">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bd93f9" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Instant Export
+                </div>
             </div>
-        </div>
-        <div class="splash-footer">
-            Create By <span>Yomal Lakshan</span>
+
+            <div class="loader-box">
+                <div class="loader-status-bar">
+                    <span id="splash-status">System Initializing...</span>
+                    <span id="splash-percent">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+            </div>
+
+            <button id="skip-splash-btn" class="skip-btn">
+                Editor එකට යන්න
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+
+            <div class="splash-footer">
+                Created by <span>Yomal Lakshan</span>
+            </div>
         </div>
     </div>
 
-    <!-- HEADER -->
+    <!-- Main Application Header -->
     <header>
-        <h1><i class="fas fa-cubes"></i> Bin Card</h1> 
-        <div class="header-actions">
-            <button class="btn btn-pdf" id="btnDownloadPdf" onclick="downloadPDF()" style="display:none;" title="Export as PDF">
-                <i class="fas fa-file-pdf"></i> <span class="hide-mobile">Export PDF</span>
+        <div class="logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#89b4fa" stroke-width="2.5"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            HTML.<span>codes</span>
+        </div>
+        <div class="view-switcher">
+            <button id="btn-code" class="active">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                Code
             </button>
-            <button class="btn btn-primary" onclick="openModal()">
-                <i class="fas fa-upload"></i> <span class="hide-mobile">Upload Excel</span>
-            </button>
-            <button class="btn btn-danger" id="btnClearData" onclick="clearStoredData()" style="display:none;" title="Clear Data">
-                <i class="fas fa-trash-alt"></i>
+            <button id="btn-preview">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Live Preview
             </button>
         </div>
     </header>
 
-    <!-- DASHBOARD STATS -->
-    <div class="dashboard-stats" id="dashboardStats" style="display: none;">
-        <div class="stat-card">
-            <div class="stat-icon icon-blue"><i class="fas fa-box-open"></i></div>
-            <div class="stat-info">
-                <h4>Total Items</h4>
-                <h2 id="statTotalItems">0</h2>
+    <!-- Main Workspace -->
+    <main id="main-area">
+        <div id="editor-container">
+            <div class="tab-header">
+                <div class="code-tabs">
+                    <button class="tab-btn active" data-target="html-code">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f38ba8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        HTML
+                    </button>
+                    <button class="tab-btn" data-target="css-code">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#89b4fa" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                        CSS
+                    </button>
+                    <button class="tab-btn" data-target="js-code">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f9e2af" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                        JS
+                    </button>
+                </div>
+                
+                <div class="action-btns">
+                    <button id="btn-open-file" class="icon-btn" title="Open File (.html, .css, .js)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><polyline points="9 14 12 11 15 14"></polyline></svg>
+                    </button>
+                    <button id="btn-save-file" class="icon-btn" title="Save Active File (Ctrl+S)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    </button>
+                    <button id="btn-settings" class="icon-btn" title="Settings & Tools">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="editor-wrapper">
+                <textarea id="html-code" class="code-area active" placeholder="<!-- මෙතන HTML කේතය ලියන්න -->" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+                <textarea id="css-code" class="code-area" placeholder="/* මෙතන CSS කේතය ලියන්න */" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+                <textarea id="js-code" class="code-area" placeholder="// මෙතන JavaScript කේතය ලියන්න" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+
+                <!-- Floating Delete Popup Icon (Bottom Right) -->
+                <button id="btn-floating-delete" class="floating-delete-btn" title="කේතය මකා දමන්න (Delete)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
             </div>
         </div>
-    </div>
 
-    <!-- CONTROLS (SEARCH ONLY) -->
-    <div class="controls-bar" id="controlsBar" style="display: none;">
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Search by Material Code or Name..." oninput="handleSearch()">
+        <div id="preview-container">
+            <iframe id="live-output" sandbox="allow-scripts allow-modals allow-same-origin allow-forms"></iframe>
         </div>
-    </div>
+    </main>
 
-    <!-- CARDS GRID -->
-    <div class="cards-grid" id="cardContainer">
-        <!-- Cards generated dynamically -->
-    </div>
-
-    <div class="load-more-container" id="loadMoreContainer" style="display: none;">
-        <button class="btn btn-primary" onclick="loadMoreCards()">Load More Items</button>
-    </div>
-
-    <!-- FLOATING SETTINGS BUTTON -->
-    <button class="fab-settings" onclick="openSettingsModal()" title="Settings & Themes">
-        <i class="fas fa-cog"></i>
-    </button>
-
-    <!-- FOOTER BANNER -->
-    <footer>
-        Create By Yomal Lakshan
+    <!-- App Footer Banner -->
+    <footer class="footer-banner">
+        <div class="author-tag">Created by <span>Yomal Lakshan</span></div>
+        <div class="editor-status" id="editor-status">Lines: 1 | Chars: 0</div>
     </footer>
 
-    <!-- UPLOAD MODAL -->
-    <div class="modal-overlay" id="uploadModal">
-        <div class="modal">
-            <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
-            <h2>Upload Bin Card Data</h2>
-            <p style="font-size: 14px; color: var(--text-light);">Select an Excel (.xlsx, .xls) or CSV file to update your inventory.</p>
-            
-            <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <p style="font-weight: 600; font-size: 16px; margin-bottom: 5px;">Click or Drag & Drop File</p>
-                <span style="font-size: 13px; color: var(--text-light);">Supports .xlsx, .xls, .csv</span>
-                <input type="file" id="fileInput" accept=".xlsx, .xls, .csv">
-            </div>
-            
-            <p id="uploadStatus" class="status-message"></p>
+    <!-- Custom Alert / Confirm Modal UI -->
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modal-icon" class="modal-icon"></div>
+            <div id="modal-message" class="modal-message">Message text here</div>
+            <div id="modal-buttons" class="modal-buttons"></div>
         </div>
     </div>
 
-    <!-- SETTINGS & THEMES MODAL -->
-    <div class="modal-overlay" id="settingsModal">
-        <div class="modal">
-            <button class="close-modal" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
-            <h2><i class="fas fa-cog"></i> සැකසුම් සහ තේමා (Settings)</h2>
-            <p style="font-size: 14px; color: var(--text-light); margin-bottom: 15px;">ඔබට ගැළපෙන දෘශ්‍ය තේමාව (Theme) පහතින් තෝරාගන්න:</p>
-            
-            <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">තේමා තෝරන්න (Themes):</div>
-            <div class="theme-options">
-                <div class="theme-btn" onclick="setTheme('default')" style="background: #4f46e5; color: white;">Default</div>
-                <div class="theme-btn" onclick="setTheme('emerald')" style="background: #059669; color: white;">Emerald</div>
-                <div class="theme-btn" onclick="setTheme('sunset')" style="background: #ea580c; color: white;">Sunset</div>
-                <div class="theme-btn" onclick="setTheme('dark')" style="background: #1e293b; color: white; border: 1px solid #475569;">Dark</div>
-                <div class="theme-btn" onclick="setTheme('purple')" style="background: #9333ea; color: white;">Purple</div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        "use strict";
-
-        let binCardData = [];
-        let filteredData = [];
-        const PAGE_SIZE = 50;
-        let currentPage = 1;
-
-        // --- 6 SECONDS PROFESSIONAL SPLASH SCREEN ANIMATION ---
-        window.addEventListener('load', () => {
-            const progressBar = document.getElementById('splashProgressBar');
-            const splashScreen = document.getElementById('splash-screen');
-            const totalDuration = 6000; // Exactly 6 seconds
-            const intervalTime = 50;
-            let elapsed = 0;
-
-            const timer = setInterval(() => {
-                elapsed += intervalTime;
-                const percentage = Math.min((elapsed / totalDuration) * 100, 100);
-                if (progressBar) {
-                    progressBar.style.width = percentage + '%';
-                }
-
-                if (elapsed >= totalDuration) {
-                    clearInterval(timer);
-                    splashScreen.classList.add('fade-out');
-                    setTimeout(() => { 
-                        splashScreen.style.display = 'none'; 
-                    }, 800);
-                }
-            }, intervalTime);
-        });
-
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('binCardTheme') || 'default';
-            setTheme(savedTheme, false);
-            setupDragAndDrop();
-            loadStoredData();
-        });
-
-        // --- THEME HANDLER ---
-        function setTheme(themeName, save = true) {
-            document.body.className = `theme-${themeName}`;
-            if (save) {
-                localStorage.setItem('binCardTheme', themeName);
-                closeSettingsModal();
-            }
-        }
-
-        // --- SETTINGS MODAL HANDLERS ---
-        function openSettingsModal() {
-            document.getElementById('settingsModal').style.display = 'flex';
-        }
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').style.display = 'none';
-        }
-
-        // --- XSS PROTECTION ---
-        function escapeHtml(str) {
-            if (str === null || str === undefined) return '';
-            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
-
-        // --- NUMBER PARSING ---
-        function parseNum(val) {
-            if (val === undefined || val === null || val === '') return 0;
-            if (typeof val === 'number') return isNaN(val) ? 0 : val;
-            let str = String(val).trim().replace(/,/g, '');
-            if (str.startsWith('(') && str.endsWith(')')) str = '-' + str.substring(1, str.length - 1);
-            const parsed = parseFloat(str);
-            return isNaN(parsed) ? 0 : parsed;
-        }
-
-        // --- FORMATTING FOR UI ---
-        function formatNumber(num) {
-            return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
-        }
-
-        // --- LOCAL STORAGE HANDLING ---
-        function loadStoredData() {
-            const savedData = localStorage.getItem('advBinCardData');
-            if (savedData) {
-                try {
-                    binCardData = JSON.parse(savedData);
-                    filteredData = [...binCardData];
-                    updateDashboardStats();
-                    toggleUIElements(true);
-                    renderCards(true);
-                } catch (e) {
-                    console.error("Data parse error", e);
-                    showEmptyState();
-                }
-            } else {
-                showEmptyState();
-            }
-        }
-
-        function toggleUIElements(hasData) {
-            document.getElementById('dashboardStats').style.display = hasData ? 'grid' : 'none';
-            document.getElementById('controlsBar').style.display = hasData ? 'flex' : 'none';
-            document.getElementById('btnClearData').style.display = hasData ? 'inline-flex' : 'none';
-            document.getElementById('btnDownloadPdf').style.display = hasData ? 'inline-flex' : 'none';
-        }
-
-        // --- DASHBOARD CALCULATIONS ---
-        function updateDashboardStats() {
-            if (!binCardData.length) return;
-            const totalItems = binCardData.length;
-            document.getElementById('statTotalItems').innerText = formatNumber(totalItems);
-        }
-
-        // --- MODAL & FILE UPLOAD ---
-        function openModal() {
-            document.getElementById('uploadModal').style.display = 'flex';
-            document.getElementById('uploadStatus').style.display = 'none';
-        }
-        function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
-
-        function setupDragAndDrop() {
-            const dropArea = document.getElementById('dropArea');
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
-            ['dragenter', 'dragover'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.add('dragover')));
-            ['dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.remove('dragover')));
-            dropArea.addEventListener('drop', e => {
-                if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]);
-            });
-            document.getElementById('fileInput').addEventListener('change', e => {
-                if (e.target.files.length) handleFileUpload(e.target.files[0]);
-                e.target.value = '';
-            });
-        }
-
-        function handleFileUpload(file) {
-            const statusEl = document.getElementById('uploadStatus');
-            statusEl.style.display = 'block';
-            statusEl.className = 'status-message';
-            statusEl.innerText = "Processing file... Please wait.";
-
-            const reader = new FileReader();
-            reader.onload = e => {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    processExcelData(firstSheet);
-                } catch (error) {
-                    statusEl.innerText = `Error: ${error.message}`;
-                    statusEl.className = 'status-message status-error';
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        // --- DATA PROCESSING LOGIC ---
-        function processExcelData(worksheet) {
-            const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-            const statusEl = document.getElementById('uploadStatus');
-            
-            if (!rawData.length) {
-                statusEl.innerText = "Excel file is empty."; statusEl.className = 'status-message status-error'; return;
-            }
-
-            let parsedItems = [];
-            let headerRowIndex = -1;
-            let colMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
-
-            const keywords = {
-                code: ["code", "matcode", "item code", "id", "කේතය"],
-                name: ["description", "name", "item name", "විස්තරය"],
-                receipt: ["receipt", "in", "received", "ලැබීම්"],
-                issue: ["issue", "out", "issued", "නිකුත්"],
-                returnQty: ["return", "ආපසු"],
-                closing: ["balance", "closing", "stock", "ශේෂය"]
-            };
-
-            for (let i = 0; i < Math.min(30, rawData.length); i++) {
-                let row = rawData[i];
-                let tempMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
-                let matches = 0;
-
-                row.forEach((cell, idx) => {
-                    let text = String(cell).toLowerCase().trim();
-                    if (!text) return;
-                    for (let key in keywords) {
-                        if (tempMap[key] === -1 && keywords[key].some(k => text.includes(k))) {
-                            tempMap[key] = idx; matches++; break;
-                        }
-                    }
-                });
-                if (matches >= 2) { headerRowIndex = i; colMap = tempMap; break; }
-            }
-
-            if (headerRowIndex === -1) {
-                headerRowIndex = 0;
-                colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: 4, closing: 5 };
-            }
-
-            for (let i = headerRowIndex + 1; i < rawData.length; i++) {
-                let row = rawData[i];
-                if (!row || !row.length) continue;
-
-                let code = colMap.code !== -1 ? String(row[colMap.code]).trim() : `ITM-${i}`;
-                let name = colMap.name !== -1 ? String(row[colMap.name]).trim() : "Unknown Item";
-                
-                if(!code && !name) continue;
-                let cLow = code.toLowerCase(), nLow = name.toLowerCase();
-                if (cLow.includes("total") || nLow.includes("total")) continue;
-
-                let rNum = parseNum(row[colMap.receipt]);
-                let iNum = parseNum(row[colMap.issue]);
-                let retNum = parseNum(row[colMap.returnQty]);
-                let cNum = parseNum(row[colMap.closing]);
-
-                if (rNum === 0 && iNum === 0 && retNum === 0) continue;
-
-                parsedItems.push({
-                    matCode: code, matName: name, receipt: rNum, issues: iNum, returnQty: retNum, closingStock: cNum
-                });
-            }
-
-            if (!parsedItems.length) {
-                statusEl.innerText = "No valid data found in file."; statusEl.className = 'status-message status-error'; return;
-            }
-
-            binCardData = parsedItems;
-            
-            try {
-                localStorage.setItem('advBinCardData', JSON.stringify(binCardData));
-            } catch (e) {
-                alert("File is very large. It will be loaded, but might not save after refresh.");
-            }
-
-            filteredData = [...binCardData];
-            document.getElementById('searchInput').value = '';
-            
-            updateDashboardStats();
-            toggleUIElements(true);
-            renderCards(true);
-
-            statusEl.innerText = 'File loaded successfully!';
-            statusEl.className = 'status-message status-success';
-            setTimeout(closeModal, 1000);
-        }
-
-        // --- SEARCH LOGIC ---
-        function handleSearch() {
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
-
-            if (query === '') {
-                filteredData = [...binCardData];
-            } else {
-                filteredData = binCardData.filter(item => 
-                    item.matCode.toLowerCase().includes(query) || item.matName.toLowerCase().includes(query)
-                );
-            }
-
-            renderCards(true);
-        }
-
-        // --- RENDERING UI ---
-        function renderCards(resetPage = false) {
-            const container = document.getElementById('cardContainer');
-            const loadMoreBtn = document.getElementById('loadMoreContainer');
-
-            if (resetPage) { currentPage = 1; container.innerHTML = ''; }
-
-            if (!filteredData.length) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-search" style="font-size: 50px; color: #cbd5e1; margin-bottom: 20px;"></i>
-                        <h2>No Items Found</h2>
-                        <p>Try adjusting your search query.</p>
-                    </div>`;
-                loadMoreBtn.style.display = 'none';
-                return;
-            }
-
-            const startIdx = (currentPage - 1) * PAGE_SIZE;
-            const endIdx = Math.min(startIdx + PAGE_SIZE, filteredData.length);
-            const items = filteredData.slice(startIdx, endIdx);
-            const fragment = document.createDocumentFragment();
-
-            items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                
-                let badgeHTML = '';
-                if (item.closingStock <= 0) badgeHTML = '<span class="badge badge-danger">Out of Stock</span>';
-                else if (item.closingStock < 10) badgeHTML = '<span class="badge badge-warning">Low Stock</span>';
-                else badgeHTML = '<span class="badge badge-success">In Stock</span>';
-
-                card.innerHTML = `
-                    ${badgeHTML}
-                    <div class="card-header">
-                        <div class="mat-code"><i class="fas fa-barcode"></i> ${escapeHtml(item.matCode)}</div>
-                        <div class="mat-name">${escapeHtml(item.matName)}</div>
-                    </div>
-                    <div class="data-grid">
-                        <div class="data-item"><span class="d-label">In</span><span class="d-value text-green">${formatNumber(item.receipt)}</span></div>
-                        <div class="data-item"><span class="d-label">Out</span><span class="d-value text-red">${formatNumber(item.issues)}</span></div>
-                        <div class="data-item"><span class="d-label">Return</span><span class="d-value">${formatNumber(item.returnQty)}</span></div>
-                    </div>
-                    <div class="stock-total">
-                        <span class="d-label">Closing Stock</span>
-                        <span class="d-value">${formatNumber(item.closingStock)}</span>
-                    </div>
-                `;
-                fragment.appendChild(card);
-            });
-
-            container.appendChild(fragment);
-            loadMoreBtn.style.display = endIdx < filteredData.length ? 'block' : 'none';
-        }
-
-        function loadMoreCards() { currentPage++; renderCards(false); }
-
-        function showEmptyState() {
-            toggleUIElements(false);
-            document.getElementById('cardContainer').innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-folder-open" style="font-size: 60px; color: #cbd5e1; margin-bottom: 20px;"></i>
-                    <h2>No Data Available</h2>
-                    <p>Click the "Upload Excel" button to import your Bin Card data.</p>
+    <!-- Download Options Modal UI -->
+    <div id="download-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#89b4fa" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Project Download
                 </div>
-            `;
-        }
+                <button class="modal-close-btn" id="close-download-modal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="download-options">
+                <div class="download-card" id="dl-bundle">
+                    <div class="download-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    </div>
+                    <div>
+                        <div class="download-card-title">Full Project (.html)</div>
+                        <div class="download-card-desc">HTML, CSS, JS සියල්ල එකට bundled index.html ලෙස.</div>
+                    </div>
+                </div>
+                <div class="download-card" id="dl-html">
+                    <div class="download-card-icon" style="color: #f38ba8; background: rgba(243, 139, 168, 0.15);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                    </div>
+                    <div>
+                        <div class="download-card-title">HTML File Only</div>
+                        <div class="download-card-desc">තනි HTML Code එක පමණක් index.html ලෙස.</div>
+                    </div>
+                </div>
+                <div class="download-card" id="dl-css">
+                    <div class="download-card-icon" style="color: #89b4fa; background: rgba(137, 180, 250, 0.15);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                    </div>
+                    <div>
+                        <div class="download-card-title">CSS File Only</div>
+                        <div class="download-card-desc">CSS Stylesheet එක පමණක් style.css ලෙස.</div>
+                    </div>
+                </div>
+                <div class="download-card" id="dl-js">
+                    <div class="download-card-icon" style="color: #f9e2af; background: rgba(249, 226, 175, 0.15);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    </div>
+                    <div>
+                        <div class="download-card-title">JavaScript File Only</div>
+                        <div class="download-card-desc">JS Script එක පමණක් script.js ලෙස.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        function clearStoredData() {
-            if (confirm("Clear all data from the application?")) {
-                localStorage.removeItem('advBinCardData');
-                binCardData = []; filteredData = [];
-                showEmptyState();
-            }
-        }
+    <!-- Settings Modal UI -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#89b4fa" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    Editor Settings & Tools
+                </div>
+                <button class="modal-close-btn" id="close-settings-modal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
 
-        // --- PDF GENERATION ---
-        function downloadPDF() {
-            if (!filteredData.length) return alert("No data to download!");
+            <!-- Quick Action Tools inside Settings -->
+            <div class="setting-group">
+                <span class="setting-label">Quick Actions / මෙවලම්</span>
+                <div class="settings-tools-grid">
+                    <button id="modal-btn-copy" class="settings-tool-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        Copy Code
+                    </button>
+                    <button id="modal-btn-download" class="settings-tool-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download
+                    </button>
+                    <button id="modal-btn-fullscreen" class="settings-tool-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                        Fullscreen
+                    </button>
+                </div>
+            </div>
             
-            try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'pt', 'a4');
-                
-                doc.setFontSize(16); doc.setTextColor(79, 70, 229);
-                doc.text("Inventory Bin Card Report", 40, 40);
-                
-                doc.setFontSize(10); doc.setTextColor(100, 116, 139);
-                doc.text(`Generated Date: ${new Date().toLocaleString()}`, 40, 60);
-                doc.text(`Showing: ${filteredData.length} items`, 40, 75);
+            <div class="setting-group">
+                <span class="setting-label">IDE Theme Select</span>
+                <div class="theme-grid">
+                    <div class="theme-card active" data-theme="default">
+                        <span>Catppuccin Dark</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="theme-card" data-theme="light">
+                        <span>Light Theme</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="theme-card" data-theme="monokai">
+                        <span>Monokai</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="theme-card" data-theme="dracula">
+                        <span>Dracula</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="theme-card" data-theme="github">
+                        <span>GitHub Dark</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                </div>
+            </div>
 
-                const tableRows = filteredData.map(item => [
-                    item.matCode, 
-                    item.matName, 
-                    formatNumber(item.receipt), 
-                    formatNumber(item.issues), 
-                    formatNumber(item.returnQty), 
-                    formatNumber(item.closingStock)
-                ]);
+            <div class="setting-group">
+                <span class="setting-label">Code Font Size</span>
+                <select id="font-size-select" class="select-input">
+                    <option value="12">Small (12px)</option>
+                    <option value="14" selected>Normal (14px)</option>
+                    <option value="16">Large (16px)</option>
+                    <option value="18">X-Large (18px)</option>
+                    <option value="20">Huge (20px)</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-                doc.autoTable({
-                    head: [["Code", "Item Name", "Receipts", "Issues", "Returns", "Closing Stock"]],
-                    body: tableRows, 
-                    startY: 90, 
-                    theme: 'grid',
-                    styles: { fontSize: 8, cellPadding: 4 },
-                    headStyles: { fillColor: [79, 70, 229], textColor: 255 },
-                    columnStyles: { 
-                        0: { fontStyle: 'bold', cellWidth: 60 },
-                        2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 
-                        5: { halign: 'right', fontStyle: 'bold', textColor: [10, 185, 129] }
-                    },
-                    margin: { top: 40, bottom: 40 }
-                });
-                
-                doc.save("BinCard_Report.pdf");
-            } catch (e) {
-                console.error(e); alert("Error generating PDF.");
-            }
-        }
-    </script>
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="toast-notification">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#89b4fa" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span id="toast-text">Text copied!</span>
+    </div>
+
 </body>
 </html>
