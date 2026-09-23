@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bin Card Manager</title>
+    <title>Advanced Bin Card Manager</title>
     <!-- SheetJS for reading Excel Files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- jsPDF and AutoTable for PDF Generation -->
@@ -13,145 +13,360 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f8fafc;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        /* THEMES CONFIGURATION */
+        body.theme-default {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #0ea5e9;
+            --bg-color: #f1f5f9;
             --text-main: #0f172a;
             --text-light: #64748b;
             --card-bg: #ffffff;
-            --danger: #dc2626;
-            --success: #16a34a;
             --border: #e2e8f0;
-            --pdf-btn: #e11d48;
-            --pdf-btn-hover: #be123c;
+        }
+        body.theme-emerald {
+            --primary: #059669;
+            --primary-hover: #047857;
+            --secondary: #10b981;
+            --bg-color: #ecfdf5;
+            --text-main: #064e3b;
+            --text-light: #047857;
+            --card-bg: #ffffff;
+            --border: #a7f3d0;
+        }
+        body.theme-sunset {
+            --primary: #ea580c;
+            --primary-hover: #c2410c;
+            --secondary: #f59e0b;
+            --bg-color: #fff7ed;
+            --text-main: #7c2d12;
+            --text-light: #9a3412;
+            --card-bg: #ffffff;
+            --border: #fed7aa;
+        }
+        body.theme-dark {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #38bdf8;
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-light: #94a3b8;
+            --card-bg: #1e293b;
+            --border: #334155;
+        }
+        body.theme-purple {
+            --primary: #9333ea;
+            --primary-hover: #7e22ce;
+            --secondary: #c084fc;
+            --bg-color: #f3e8ff;
+            --text-main: #581c87;
+            --text-light: #7e22ce;
+            --card-bg: #ffffff;
+            --border: #e9d5ff;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --pdf-btn: #e11d48;
+            --pdf-btn-hover: #be123c;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        /* SPLASH SCREEN STYLES */
+        /* SPLASH SCREEN STYLES (6 Seconds Professional Intro) */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            background: linear-gradient(135deg, #090d16 0%, #111827 50%, #1e1b4b 100%);
             z-index: 9999; display: flex; flex-direction: column; justify-content: center;
-            align-items: center; color: white; transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+            align-items: center; color: white; transition: opacity 0.8s ease, visibility 0.8s ease;
+            padding: 20px; text-align: center;
         }
         #splash-screen.fade-out { opacity: 0; visibility: hidden; }
-        .splash-content { text-align: center; animation: slideUpFade 1s ease-out forwards; }
-        .splash-icon { font-size: 60px; color: #3b82f6; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5)); animation: pulseIcon 2s infinite; }
-        .splash-title { font-size: 36px; font-weight: 700; margin-bottom: 15px; letter-spacing: 1px; }
-        .splash-desc { font-size: 16px; color: #94a3b8; max-width: 500px; line-height: 1.6; margin-bottom: 40px; padding: 0 20px; }
         
-        .loader { position: relative; width: 60px; height: 60px; margin: 0 auto; }
-        .loader:before, .loader:after { content: ""; position: absolute; border-radius: 50%; border: 4px solid transparent; }
-        .loader:before { top: 0; left: 0; right: 0; bottom: 0; border-top-color: #3b82f6; border-bottom-color: #3b82f6; animation: spin 1.5s linear infinite; }
-        .loader:after { top: 10px; left: 10px; right: 10px; bottom: 10px; border-left-color: #10b981; border-right-color: #10b981; animation: spin 1s linear infinite reverse; }
+        .splash-content {
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeInScale 1s ease-out;
+        }
+
+        .splash-icon {
+            font-size: 64px;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            background: rgba(14, 165, 233, 0.1);
+            padding: 25px;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.3);
+            animation: pulseIcon 2s infinite ease-in-out;
+        }
+
+        .splash-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .splash-desc {
+            font-size: 15px;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .splash-progress-container {
+            width: 240px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .splash-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #0ea5e9, #6366f1);
+            border-radius: 10px;
+            transition: width 0.1s linear;
+        }
+
+        .splash-footer {
+            position: absolute;
+            bottom: 25px;
+            font-size: 13px;
+            color: #64748b;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        .splash-footer span {
+            color: #38bdf8;
+            font-weight: 600;
+        }
         
-        .splash-footer { position: absolute; bottom: 30px; font-size: 14px; color: #64748b; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; animation: fadeIn 2s ease-out forwards; animation-delay: 1s; opacity: 0; }
-        .splash-footer span { color: #3b82f6; font-weight: 700; }
+        @keyframes fadeInScale {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes pulseIcon { 
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(14, 165, 233, 0.2); } 
+            50% { transform: scale(1.08); box-shadow: 0 0 35px rgba(14, 165, 233, 0.4); } 
+        }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes slideUpFade { 0% { transform: translateY(30px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        @keyframes pulseIcon { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
-
-        /* MAIN APP STYLES */
-        header { background-color: var(--primary); color: white; padding: 12px 24px; display: flex; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 10; }
-        header h1 { font-size: 20px; display: flex; align-items: center; gap: 10px; font-weight: 600; margin: 0; }
-        .header-actions { display: flex; gap: 10px; margin-left: auto; }
+        /* HEADER */
+        header {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            color: var(--text-main);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid var(--border);
+        }
+        header h1 { font-size: 22px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .header-actions { display: flex; gap: 12px; }
         
-        .btn { border: none; color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease; font-weight: 500; }
-        .btn-primary { background: rgba(255, 255, 255, 0.2); } .btn-primary:hover { background: rgba(255, 255, 255, 0.3); }
-        .btn-pdf { background: var(--pdf-btn); } .btn-pdf:hover { background: var(--pdf-btn-hover); }
-        .btn-danger { background: #ef4444; } .btn-danger:hover { background: var(--danger); }
+        .btn {
+            border: none; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+        }
+        .btn-primary { background: var(--primary); color: white; box-shadow: var(--shadow-sm); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .btn-pdf { background: var(--pdf-btn); color: white; }
+        .btn-pdf:hover { background: var(--pdf-btn-hover); }
+        .btn-danger { background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); }
+        .btn-danger:hover { background: var(--danger); color: white; }
 
-        .file-info-bar { background: #ffffff; border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; font-size: 13px; color: var(--text-light); box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-        .file-info-item { display: flex; align-items: center; gap: 6px; }
-        .file-info-item strong { color: var(--text-main); }
+        /* DASHBOARD STATS */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .stat-card {
+            background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm);
+            display: flex; align-items: center; gap: 15px; border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .icon-blue { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .stat-info h4 { font-size: 13px; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
+        .stat-info h2 { font-size: 24px; font-weight: 700; color: var(--text-main); }
 
-        .search-container { padding: 20px 20px 10px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .search-box { position: relative; width: 100%; max-width: 650px; }
-        .search-box input { width: 100%; padding: 12px 45px; border-radius: 30px; border: 1px solid var(--border); font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); outline: none; transition: all 0.2s; }
-        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
-        .search-box i.search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
-        .search-box i.clear-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light); cursor: pointer; display: none; padding: 4px; }
-        .search-box i.clear-icon:hover { color: var(--danger); }
-        .results-count { font-size: 13px; color: var(--text-light); font-weight: 500; }
+        /* CONTROLS (SEARCH) */
+        .controls-bar {
+            display: flex; flex-wrap: wrap; gap: 15px; padding: 0 25px 15px 25px; max-width: 1400px; margin: 0 auto; width: 100%;
+        }
+        .search-box { flex: 1; min-width: 300px; position: relative; }
+        .search-box input {
+            width: 100%; padding: 14px 45px; border-radius: 10px; border: 1px solid var(--border);
+            font-size: 15px; outline: none; transition: all 0.3s; box-shadow: var(--shadow-sm);
+            background: var(--card-bg); color: var(--text-main);
+        }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
+        .search-box i.fa-search { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
 
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; padding: 10px 20px 20px 20px; max-width: 1400px; width: 100%; margin: 0 auto; }
-        .card { background: var(--card-bg); border-radius: 12px; padding: 18px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); border-top: 4px solid var(--primary); transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08); }
-        .card-header { margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        .mat-code { font-size: 12px; color: var(--primary); font-weight: 700; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .mat-name { font-size: 16px; font-weight: 600; color: var(--text-main); word-wrap: break-word; line-height: 1.35; }
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .data-item { background: #f8fafc; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid #f1f5f9; }
-        .data-item.full-width { grid-column: span 2; background: #eff6ff; border: 1px solid #bfdbfe; margin-top: 4px; }
-        .d-label { display: block; font-size: 11px; color: var(--text-light); margin-bottom: 2px; font-weight: 500; text-transform: uppercase; }
+        /* CARDS GRID */
+        .cards-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;
+            padding: 10px 25px 30px 25px; max-width: 1400px; width: 100%; margin: 0 auto; flex: 1;
+        }
+        .card {
+            background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border); transition: all 0.3s ease; position: relative;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+        
+        .badge {
+            position: absolute; top: 15px; right: 15px; padding: 4px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+
+        .card-header { margin-bottom: 15px; padding-right: 80px; }
+        .mat-code { font-size: 12px; color: var(--text-light); font-weight: 600; margin-bottom: 5px; }
+        .mat-name { font-size: 16px; font-weight: 700; color: var(--text-main); line-height: 1.4; }
+        
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .data-item { text-align: center; background: rgba(0,0,0,0.02); padding: 10px 5px; border-radius: 8px; border: 1px solid var(--border); }
+        .d-label { display: block; font-size: 11px; color: var(--text-light); font-weight: 600; margin-bottom: 4px; }
         .d-value { font-size: 15px; font-weight: 700; color: var(--text-main); }
-        .data-item.full-width .d-value { color: var(--primary); font-size: 18px; }
+        
+        .stock-total {
+            background: rgba(14, 165, 233, 0.08); padding: 12px; border-radius: 8px; text-align: center;
+            border: 1px dashed var(--secondary); display: flex; justify-content: space-between; align-items: center;
+        }
+        .stock-total .d-label { margin: 0; color: var(--primary); font-size: 13px; }
+        .stock-total .d-value { color: var(--primary); font-size: 20px; }
 
-        .load-more-container { text-align: center; padding: 10px 20px 40px 20px; }
-        .btn-load-more { background: var(--primary); color: white; padding: 10px 24px; border-radius: 25px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background 0.2s; }
-        .btn-load-more:hover { background: var(--primary-hover); }
+        .load-more-container { text-align: center; padding: 20px; margin-bottom: 20px; }
 
-        /* Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal { background: white; padding: 25px; border-radius: 14px; width: 90%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); position: relative; }
-        .modal h2 { margin-top: 0; color: var(--text-main); font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .close-modal { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-light); padding: 5px; }
-        .close-modal:hover { color: var(--text-main); }
+        /* FLOATING SETTINGS BUTTON & FOOTER */
+        .fab-settings {
+            position: fixed; bottom: 25px; right: 25px; width: 50px; height: 50px;
+            background: var(--primary); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+            box-shadow: var(--shadow-lg); cursor: pointer; z-index: 95; border: none;
+            transition: transform 0.3s, background 0.3s;
+        }
+        .fab-settings:hover { transform: scale(1.1) rotate(45deg); background: var(--primary-hover); }
 
-        .upload-area { border: 2px dashed #cbd5e1; padding: 28px 20px; text-align: center; border-radius: 10px; cursor: pointer; background: #f8fafc; transition: all 0.2s; }
-        .upload-area:hover, .upload-area.dragover { background: #eff6ff; border-color: var(--primary); }
-        .upload-area i { font-size: 38px; color: var(--primary); margin-bottom: 8px; }
+        footer {
+            text-align: center; padding: 15px; font-size: 13px; color: var(--text-light);
+            border-top: 1px solid var(--border); background: var(--card-bg); margin-top: auto;
+            font-weight: 600; letter-spacing: 0.5px;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.7); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .modal { background: var(--card-bg); color: var(--text-main); padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; box-shadow: var(--shadow-lg); position: relative; animation: slideIn 0.3s ease; border: 1px solid var(--border); }
+        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal h2 { margin-top: 0; color: var(--text-main); font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .close-modal { position: absolute; top: 20px; right: 20px; background: var(--bg-color); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: var(--text-main); transition: 0.2s; }
+        .close-modal:hover { background: #e2e8f0; color: var(--danger); }
+
+        .upload-area {
+            border: 2px dashed var(--border); padding: 40px 20px; text-align: center; border-radius: 12px;
+            cursor: pointer; background: var(--bg-color); transition: all 0.3s; margin-top: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover { background: rgba(79, 70, 229, 0.05); border-color: var(--primary); }
+        .upload-area i { font-size: 48px; color: var(--secondary); margin-bottom: 15px; }
         #fileInput { display: none; }
-        .sheet-select-container { margin-top: 15px; display: none; }
-        .sheet-select-container select { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 14px; margin-top: 5px; }
-        
-        .active-file-card { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 15px; margin-top: 15px; font-size: 13px; line-height: 1.5; }
-        .active-file-card h4 { margin: 0 0 6px 0; color: var(--success); display: flex; align-items: center; gap: 6px; font-size: 14px; }
-        
-        .status-message { text-align: center; margin-top: 15px; font-size: 13px; font-weight: 600; display: none; padding: 8px; border-radius: 6px; }
-        .status-success { color: var(--success); background: #f0fdf4; }
-        .status-error { color: var(--danger); background: #fef2f2; }
 
-        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-light); grid-column: 1 / -1; }
-        .empty-state i { font-size: 54px; margin-bottom: 15px; color: #cbd5e1; }
+        .status-message { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 600; display: none; padding: 12px; border-radius: 8px; }
+        .status-success { color: #065f46; background: #d1fae5; border: 1px solid #34d399; }
+        .status-error { color: #991b1b; background: #fee2e2; border: 1px solid #f87171; }
+
+        /* THEME OPTIONS GRID */
+        .theme-options {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-top: 15px;
+        }
+        .theme-btn {
+            padding: 12px 8px; border-radius: 8px; border: 2px solid var(--border);
+            cursor: pointer; text-align: center; font-size: 12px; font-weight: 600; transition: 0.2s;
+        }
+        .theme-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+
+        .empty-state { text-align: center; padding: 80px 20px; color: var(--text-light); grid-column: 1 / -1; }
+        .empty-state img { width: 120px; opacity: 0.5; margin-bottom: 20px; }
+        .empty-state h2 { color: var(--text-main); margin-bottom: 10px; }
+
+        @media (max-width: 600px) {
+            .hide-mobile { display: none; }
+            .btn { padding: 10px; }
+            header { padding: 15px; }
+            .dashboard-stats { padding: 15px; }
+            .controls-bar { padding: 0 15px 15px 15px; }
+            .cards-grid { padding: 10px 15px 30px 15px; }
+        }
     </style>
 </head>
-<body>
+<body class="theme-default">
 
-    <!-- SPLASH SCREEN -->
+    <!-- 6 SECONDS PROFESSIONAL SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="splash-content">
             <i class="fas fa-boxes splash-icon"></i>
-            <h1 class="splash-title">Bin Card Manager</h1>
-            <p class="splash-desc">A powerful, smart, and efficient way to view, filter, and export your inventory bin card data seamlessly.</p>
-            <div class="loader"></div>
+            <h1 class="splash-title">Advanced Bin Card Manager</h1>
+            <p class="splash-desc">
+                Welcome to the professional inventory control system. Easily upload Excel spreadsheets, track stock receipts, issues, returns, and export detailed PDF reports in seconds.
+            </p>
+            <div class="splash-progress-container">
+                <div class="splash-progress-bar" id="splashProgressBar"></div>
+            </div>
         </div>
-        <div class="splash-footer">Created By <span>Yomal Lakshan</span></div>
+        <div class="splash-footer">
+            Create By <span>Yomal Lakshan</span>
+        </div>
     </div>
 
-    <!-- MAIN APP UI -->
+    <!-- HEADER -->
     <header>
-        <h1 id="appTitle"><i class="fas fa-boxes"></i> Bin Card</h1> 
+        <h1><i class="fas fa-cubes"></i> Bin Card</h1> 
         <div class="header-actions">
-            <button class="btn btn-pdf" id="btnDownloadPdf" onclick="downloadPDF()" style="display:none;" title="Download Data as PDF">
+            <button class="btn btn-pdf" id="btnDownloadPdf" onclick="downloadPDF()" style="display:none;" title="Export as PDF">
                 <i class="fas fa-file-pdf"></i> <span class="hide-mobile">Export PDF</span>
             </button>
             <button class="btn btn-primary" onclick="openModal()">
-                <i class="fas fa-cloud-upload-alt"></i> <span class="hide-mobile">Upload Excel</span>
+                <i class="fas fa-upload"></i> <span class="hide-mobile">Upload Excel</span>
             </button>
             <button class="btn btn-danger" id="btnClearData" onclick="clearStoredData()" style="display:none;" title="Clear Data">
                 <i class="fas fa-trash-alt"></i>
@@ -159,559 +374,459 @@
         </div>
     </header>
 
-    <div class="file-info-bar" id="fileInfoBar" style="display: none;">
-        <div class="file-info-item"><i class="fas fa-file-excel" style="color: #16a34a;"></i> <span>File: <strong id="infoFileName">-</strong></span></div>
-        <div class="file-info-item"><i class="fas fa-cubes" style="color: var(--primary);"></i> <span>Total Active Items: <strong id="infoTotalItems">0</strong></span></div>
-        <div class="file-info-item"><i class="fas fa-clock"></i> <span>Updated: <strong id="infoUploadTime">-</strong></span></div>
-    </div>
-
-    <div class="search-container">
-        <div class="search-box">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="searchInput" placeholder="Search by Material Code or Name..." oninput="handleSearch()">
-            <i class="fas fa-times clear-icon" id="clearSearchBtn" onclick="clearSearch()"></i>
+    <!-- DASHBOARD STATS -->
+    <div class="dashboard-stats" id="dashboardStats" style="display: none;">
+        <div class="stat-card">
+            <div class="stat-icon icon-blue"><i class="fas fa-box-open"></i></div>
+            <div class="stat-info">
+                <h4>Total Items</h4>
+                <h2 id="statTotalItems">0</h2>
+            </div>
         </div>
-        <div class="results-count" id="resultsCount"></div>
     </div>
 
+    <!-- CONTROLS (SEARCH ONLY) -->
+    <div class="controls-bar" id="controlsBar" style="display: none;">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search by Material Code or Name..." oninput="handleSearch()">
+        </div>
+    </div>
+
+    <!-- CARDS GRID -->
     <div class="cards-grid" id="cardContainer">
         <!-- Cards generated dynamically -->
     </div>
 
     <div class="load-more-container" id="loadMoreContainer" style="display: none;">
-        <button class="btn-load-more" onclick="loadMoreCards()">Load More Items</button>
+        <button class="btn btn-primary" onclick="loadMoreCards()">Load More Items</button>
     </div>
 
-    <!-- Upload Modal -->
+    <!-- FLOATING SETTINGS BUTTON -->
+    <button class="fab-settings" onclick="openSettingsModal()" title="Settings & Themes">
+        <i class="fas fa-cog"></i>
+    </button>
+
+    <!-- FOOTER BANNER -->
+    <footer>
+        Create By Yomal Lakshan
+    </footer>
+
+    <!-- UPLOAD MODAL -->
     <div class="modal-overlay" id="uploadModal">
         <div class="modal">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
-            <h2><i class="fas fa-file-excel" style="color: #16a34a;"></i> Upload Bin Card File</h2>
-            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">
-                Upload your Excel (.xlsx, .xls, .csv) file to view updated Bin Card stock details.
-            </p>
+            <h2>Upload Bin Card Data</h2>
+            <p style="font-size: 14px; color: var(--text-light);">Select an Excel (.xlsx, .xls) or CSV file to update your inventory.</p>
             
             <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
                 <i class="fas fa-cloud-upload-alt"></i>
-                <p style="margin:0; font-weight: 600;">Click or Drag & Drop File Here</p>
-                <span style="font-size: 12px; color: var(--text-light);">Supports .xlsx, .xls, .csv</span>
+                <p style="font-weight: 600; font-size: 16px; margin-bottom: 5px;">Click or Drag & Drop File</p>
+                <span style="font-size: 13px; color: var(--text-light);">Supports .xlsx, .xls, .csv</span>
                 <input type="file" id="fileInput" accept=".xlsx, .xls, .csv">
-            </div>
-
-            <div class="sheet-select-container" id="sheetSelectContainer">
-                <label for="sheetSelect" style="font-size: 12px; font-weight:600; color:var(--text-light);">Select Sheet:</label>
-                <select id="sheetSelect" onchange="handleSheetChange()"></select>
-            </div>
-
-            <div id="modalFileInfo" class="active-file-card" style="display: none;">
-                <h4><i class="fas fa-check-circle"></i> Currently Loaded File</h4>
-                <div><strong>Name:</strong> <span id="mFileName">-</span></div>
-                <div><strong>Size:</strong> <span id="mFileSize">-</span></div>
-                <div><strong>Active Records:</strong> <span id="mFileRows">0</span> items</div>
-                <div><strong>Last Upload:</strong> <span id="mFileTime">-</span></div>
             </div>
             
             <p id="uploadStatus" class="status-message"></p>
         </div>
     </div>
 
-    <!-- JavaScript Logic -->
+    <!-- SETTINGS & THEMES MODAL -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <button class="close-modal" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
+            <h2><i class="fas fa-cog"></i> සැකසුම් සහ තේමා (Settings)</h2>
+            <p style="font-size: 14px; color: var(--text-light); margin-bottom: 15px;">ඔබට ගැළපෙන දෘශ්‍ය තේමාව (Theme) පහතින් තෝරාගන්න:</p>
+            
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">තේමා තෝරන්න (Themes):</div>
+            <div class="theme-options">
+                <div class="theme-btn" onclick="setTheme('default')" style="background: #4f46e5; color: white;">Default</div>
+                <div class="theme-btn" onclick="setTheme('emerald')" style="background: #059669; color: white;">Emerald</div>
+                <div class="theme-btn" onclick="setTheme('sunset')" style="background: #ea580c; color: white;">Sunset</div>
+                <div class="theme-btn" onclick="setTheme('dark')" style="background: #1e293b; color: white; border: 1px solid #475569;">Dark</div>
+                <div class="theme-btn" onclick="setTheme('purple')" style="background: #9333ea; color: white;">Purple</div>
+            </div>
+        </div>
+    </div>
+
     <script>
         "use strict";
 
         let binCardData = [];
         let filteredData = [];
-        let fileMetaData = null;
-        let currentWorkbook = null;
-        const PAGE_SIZE = 60;
+        const PAGE_SIZE = 50;
         let currentPage = 1;
 
-        // SPLASH SCREEN LOGIC
+        // --- 6 SECONDS PROFESSIONAL SPLASH SCREEN ANIMATION ---
         window.addEventListener('load', () => {
-            setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                if (splash) {
-                    splash.classList.add('fade-out');
-                    setTimeout(() => { splash.style.display = 'none'; }, 800); 
+            const progressBar = document.getElementById('splashProgressBar');
+            const splashScreen = document.getElementById('splash-screen');
+            const totalDuration = 6000; // Exactly 6 seconds
+            const intervalTime = 50;
+            let elapsed = 0;
+
+            const timer = setInterval(() => {
+                elapsed += intervalTime;
+                const percentage = Math.min((elapsed / totalDuration) * 100, 100);
+                if (progressBar) {
+                    progressBar.style.width = percentage + '%';
                 }
-            }, 2500); 
+
+                if (elapsed >= totalDuration) {
+                    clearInterval(timer);
+                    splashScreen.classList.add('fade-out');
+                    setTimeout(() => { 
+                        splashScreen.style.display = 'none'; 
+                    }, 800);
+                }
+            }, intervalTime);
         });
 
+        // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('binCardTheme') || 'default';
+            setTheme(savedTheme, false);
             setupDragAndDrop();
-            setupKeyboardShortcuts();
             loadStoredData();
         });
 
-        function toggleAppTitle(show) {
-            const title = document.getElementById('appTitle');
-            if (title) { title.style.display = show ? 'flex' : 'none'; }
+        // --- THEME HANDLER ---
+        function setTheme(themeName, save = true) {
+            document.body.className = `theme-${themeName}`;
+            if (save) {
+                localStorage.setItem('binCardTheme', themeName);
+                closeSettingsModal();
+            }
         }
 
-        // XSS Prevention Function
+        // --- SETTINGS MODAL HANDLERS ---
+        function openSettingsModal() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        // --- XSS PROTECTION ---
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        function loadStoredData() {
-            const savedData = localStorage.getItem('binCardData');
-            const savedMeta = localStorage.getItem('binCardMeta');
+        // --- NUMBER PARSING ---
+        function parseNum(val) {
+            if (val === undefined || val === null || val === '') return 0;
+            if (typeof val === 'number') return isNaN(val) ? 0 : val;
+            let str = String(val).trim().replace(/,/g, '');
+            if (str.startsWith('(') && str.endsWith(')')) str = '-' + str.substring(1, str.length - 1);
+            const parsed = parseFloat(str);
+            return isNaN(parsed) ? 0 : parsed;
+        }
 
+        // --- FORMATTING FOR UI ---
+        function formatNumber(num) {
+            return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
+        }
+
+        // --- LOCAL STORAGE HANDLING ---
+        function loadStoredData() {
+            const savedData = localStorage.getItem('advBinCardData');
             if (savedData) {
                 try {
                     binCardData = JSON.parse(savedData);
-                    filteredData = binCardData;
+                    filteredData = [...binCardData];
+                    updateDashboardStats();
+                    toggleUIElements(true);
                     renderCards(true);
-                    
-                    if (savedMeta) {
-                        fileMetaData = JSON.parse(savedMeta);
-                        updateFileInfoUI(fileMetaData);
-                    }
-                    
-                    document.getElementById('btnClearData').style.display = 'inline-flex';
-                    document.getElementById('btnDownloadPdf').style.display = 'inline-flex';
-                    toggleAppTitle(false);
-
                 } catch (e) {
-                    console.error("Error loading local storage data", e);
+                    console.error("Data parse error", e);
                     showEmptyState();
-                    toggleAppTitle(true);
                 }
             } else {
                 showEmptyState();
-                toggleAppTitle(true);
             }
         }
 
-        function setupKeyboardShortcuts() {
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeModal();
-            });
-            document.getElementById('uploadModal').addEventListener('click', function(e) {
-                if (e.target === this) closeModal();
-            });
+        function toggleUIElements(hasData) {
+            document.getElementById('dashboardStats').style.display = hasData ? 'grid' : 'none';
+            document.getElementById('controlsBar').style.display = hasData ? 'flex' : 'none';
+            document.getElementById('btnClearData').style.display = hasData ? 'inline-flex' : 'none';
+            document.getElementById('btnDownloadPdf').style.display = hasData ? 'inline-flex' : 'none';
         }
 
-        function setupDragAndDrop() {
-            const dropArea = document.getElementById('dropArea');
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-            function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
-            });
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
-            });
-            
-            dropArea.addEventListener('drop', (e) => {
-                const dt = e.dataTransfer;
-                if (dt.files && dt.files.length > 0) {
-                    document.getElementById('fileInput').files = dt.files;
-                    handleFileUpload(dt.files[0]);
-                }
-            });
+        // --- DASHBOARD CALCULATIONS ---
+        function updateDashboardStats() {
+            if (!binCardData.length) return;
+            const totalItems = binCardData.length;
+            document.getElementById('statTotalItems').innerText = formatNumber(totalItems);
         }
 
+        // --- MODAL & FILE UPLOAD ---
         function openModal() {
             document.getElementById('uploadModal').style.display = 'flex';
             document.getElementById('uploadStatus').style.display = 'none';
         }
+        function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
 
-        function closeModal() {
-            document.getElementById('uploadModal').style.display = 'none';
+        function setupDragAndDrop() {
+            const dropArea = document.getElementById('dropArea');
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
+            ['dragenter', 'dragover'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.add('dragover')));
+            ['dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.remove('dragover')));
+            dropArea.addEventListener('drop', e => {
+                if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]);
+            });
+            document.getElementById('fileInput').addEventListener('change', e => {
+                if (e.target.files.length) handleFileUpload(e.target.files[0]);
+                e.target.value = '';
+            });
         }
 
-        function formatBytes(bytes) {
-            if (!bytes || bytes === 0) return '0 Bytes';
-            const k = 1024, sizes = ['Bytes', 'KB', 'MB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        function handleFileUpload(file) {
+            const statusEl = document.getElementById('uploadStatus');
+            statusEl.style.display = 'block';
+            statusEl.className = 'status-message';
+            statusEl.innerText = "Processing file... Please wait.";
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    processExcelData(firstSheet);
+                } catch (error) {
+                    statusEl.innerText = `Error: ${error.message}`;
+                    statusEl.className = 'status-message status-error';
+                }
+            };
+            reader.readAsArrayBuffer(file);
         }
 
-        // IMPROVED NUMBER PARSING LOGIC
-        function parseNum(val) {
-            if (val === undefined || val === null || val === '') return 0;
-            if (typeof val === 'number') return isNaN(val) ? 0 : val;
-            
-            let str = String(val).trim().replace(/,/g, '');
-            if (str.startsWith('(') && str.endsWith(')')) {
-                str = '-' + str.substring(1, str.length - 1);
-            }
-            
-            const extractedNum = str.match(/-?\d+(\.\d+)?/);
-            if (extractedNum) {
-                const parsed = parseFloat(extractedNum[0]);
-                return isNaN(parsed) ? 0 : parsed;
-            }
-            return 0;
-        }
-
-        // SMART & DYNAMIC COLUMN MAPPING
-        function processWorksheet(worksheet) {
+        // --- DATA PROCESSING LOGIC ---
+        function processExcelData(worksheet) {
             const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-            if (!rawData || rawData.length === 0) return [];
+            const statusEl = document.getElementById('uploadStatus');
+            
+            if (!rawData.length) {
+                statusEl.innerText = "Excel file is empty."; statusEl.className = 'status-message status-error'; return;
+            }
 
             let parsedItems = [];
             let headerRowIndex = -1;
             let colMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
 
-            const codeKeywords = ["code", "matcode", "item code", "material code", "item no", "part no", "කේතය", "කේත", "අංකය", "id", "no."];
-            const nameKeywords = ["description", "name", "item name", "material name", "item", "material", "විස්තරය", "විස්තර", "නම", "භාණ්ඩය", "ද්‍රව්‍ය"];
-            const receiptKeywords = ["receipt", "receipts", "in", "received", "qty in", "ලැබීම්", "ලැබුණු", "ඇතුලත්"];
-            const issueKeywords = ["issue", "issues", "out", "issued", "qty out", "නිකුත්", "නිකුතු", "පිටතට"];
-            const returnKeywords = ["return", "returns", "returned", "ආපසු"];
-            const closingKeywords = ["balance", "closing", "stock", "closing stock", "bal", "qty", "quantity", "total stock", "ශේෂය", "තොගය", "ප්‍රමාණය"];
+            const keywords = {
+                code: ["code", "matcode", "item code", "id", "කේතය"],
+                name: ["description", "name", "item name", "විස්තරය"],
+                receipt: ["receipt", "in", "received", "ලැබීම්"],
+                issue: ["issue", "out", "issued", "නිකුත්"],
+                returnQty: ["return", "ආපසු"],
+                closing: ["balance", "closing", "stock", "ශේෂය"]
+            };
 
-            // Find Header Row dynamically from first 30 rows
             for (let i = 0; i < Math.min(30, rawData.length); i++) {
                 let row = rawData[i];
-                if (!row || row.length === 0) continue;
-
                 let tempMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
                 let matches = 0;
 
-                row.forEach((cell, index) => {
+                row.forEach((cell, idx) => {
                     let text = String(cell).toLowerCase().trim();
                     if (!text) return;
-
-                    if (tempMap.code === -1 && codeKeywords.some(k => text.includes(k))) { tempMap.code = index; matches++; }
-                    else if (tempMap.name === -1 && nameKeywords.some(k => text.includes(k))) { tempMap.name = index; matches++; }
-                    else if (tempMap.receipt === -1 && receiptKeywords.some(k => text.includes(k))) { tempMap.receipt = index; matches++; }
-                    else if (tempMap.issue === -1 && issueKeywords.some(k => text.includes(k))) { tempMap.issue = index; matches++; }
-                    else if (tempMap.returnQty === -1 && returnKeywords.some(k => text.includes(k))) { tempMap.returnQty = index; matches++; }
-                    else if (tempMap.closing === -1 && closingKeywords.some(k => text.includes(k))) { tempMap.closing = index; matches++; }
-                });
-
-                if (matches >= 2) {
-                    headerRowIndex = i;
-                    colMap = tempMap;
-                    break;
-                }
-            }
-
-            // Fallback smart assignment if no explicit header row was detected
-            if (headerRowIndex === -1) {
-                for (let i = 0; i < Math.min(10, rawData.length); i++) {
-                    if (rawData[i] && rawData[i].length > 0) {
-                        const colCount = rawData[i].length;
-                        headerRowIndex = i - 1;
-                        if (colCount === 1) { colMap = { code: 0, name: 0, receipt: -1, issue: -1, returnQty: -1, closing: -1 }; }
-                        else if (colCount === 2) { colMap = { code: 0, name: 1, receipt: -1, issue: -1, returnQty: -1, closing: -1 }; }
-                        else if (colCount === 3) { colMap = { code: 0, name: 1, receipt: -1, issue: -1, returnQty: -1, closing: 2 }; }
-                        else if (colCount === 4) { colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: -1, closing: -1 }; }
-                        else if (colCount === 5) { colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: -1, closing: 4 }; }
-                        else { colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: 4, closing: 5 }; }
-                        break;
+                    for (let key in keywords) {
+                        if (tempMap[key] === -1 && keywords[key].some(k => text.includes(k))) {
+                            tempMap[key] = idx; matches++; break;
+                        }
                     }
-                }
+                });
+                if (matches >= 2) { headerRowIndex = i; colMap = tempMap; break; }
             }
 
-            const startIdx = Math.max(0, headerRowIndex + 1);
+            if (headerRowIndex === -1) {
+                headerRowIndex = 0;
+                colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: 4, closing: 5 };
+            }
 
-            for (let i = startIdx; i < rawData.length; i++) {
+            for (let i = headerRowIndex + 1; i < rawData.length; i++) {
                 let row = rawData[i];
-                if (!row || row.length === 0) continue;
+                if (!row || !row.length) continue;
 
-                let code = colMap.code !== -1 && row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : "";
-                let name = colMap.name !== -1 && row[colMap.name] !== undefined ? String(row[colMap.name]).trim() : "";
+                let code = colMap.code !== -1 ? String(row[colMap.code]).trim() : `ITM-${i}`;
+                let name = colMap.name !== -1 ? String(row[colMap.name]).trim() : "Unknown Item";
+                
+                if(!code && !name) continue;
+                let cLow = code.toLowerCase(), nLow = name.toLowerCase();
+                if (cLow.includes("total") || nLow.includes("total")) continue;
 
-                let cLow = code.toLowerCase();
-                let nLow = name.toLowerCase();
+                let rNum = parseNum(row[colMap.receipt]);
+                let iNum = parseNum(row[colMap.issue]);
+                let retNum = parseNum(row[colMap.returnQty]);
+                let cNum = parseNum(row[colMap.closing]);
 
-                // Skip header re-read or total rows
-                if (cLow === "total" || nLow === "total" || cLow === "grand total" || nLow === "grand total" || cLow === "එකතුව" || nLow === "එකතුව") continue;
-                if (codeKeywords.includes(cLow) || nameKeywords.includes(nLow)) continue;
-                if (!code && !name) continue;
-
-                let receiptNum = parseNum(colMap.receipt !== -1 ? row[colMap.receipt] : 0);
-                let issuesNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
-                let returnNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
-                let closingNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
-
-                // =========================================================================================
-                // Receipts, Issues, Returns යන තුනේම අගයන් 0 නම් හෝ හිස් නම් එම item card එක hide කිරීම
-                // (Closing Stock එකක් තිබුණත්, ඉහත තුනම 0 නම් එය පෙන්වන්නේ නැත)
-                // =========================================================================================
-                if (receiptNum === 0 && issuesNum === 0 && returnNum === 0) {
-                    continue; 
-                }
+                if (rNum === 0 && iNum === 0 && retNum === 0) continue;
 
                 parsedItems.push({
-                    matCode: code || `ITEM-${i}`,
-                    matName: name || "Unknown Material",
-                    receipt: receiptNum.toLocaleString('en-US'),
-                    issues: issuesNum.toLocaleString('en-US'),
-                    returnQty: returnNum.toLocaleString('en-US'),
-                    closingStock: closingNum.toLocaleString('en-US')
+                    matCode: code, matName: name, receipt: rNum, issues: iNum, returnQty: retNum, closingStock: cNum
                 });
             }
 
-            return parsedItems;
-        }
-
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            if (e.target.files && e.target.files.length > 0) {
-                handleFileUpload(e.target.files[0]);
-                this.value = '';
-            }
-        });
-
-        function handleFileUpload(file) {
-            const statusEl = document.getElementById('uploadStatus');
-            if (!file) return;
-            const reader = new FileReader();
-            
-            reader.onload = function(event) {
-                try {
-                    const data = new Uint8Array(event.target.result);
-                    currentWorkbook = XLSX.read(data, { type: 'array' });
-                    
-                    const sheetSelect = document.getElementById('sheetSelect');
-                    const sheetContainer = document.getElementById('sheetSelectContainer');
-                    sheetSelect.innerHTML = '';
-
-                    if (currentWorkbook.SheetNames.length > 1) {
-                        currentWorkbook.SheetNames.forEach(sheetName => {
-                            const option = document.createElement('option');
-                            option.value = sheetName; option.innerText = sheetName;
-                            sheetSelect.appendChild(option);
-                        });
-                        sheetContainer.style.display = 'block';
-                    } else {
-                        sheetContainer.style.display = 'none';
-                    }
-
-                    parseAndLoadSheet(currentWorkbook.SheetNames[0], file);
-                } catch (error) {
-                    statusEl.innerText = `Error reading file: ${error.message}`;
-                    statusEl.className = 'status-message status-error';
-                    statusEl.style.display = 'block';
-                }
-            };
-            
-            reader.onerror = function() {
-                statusEl.innerText = "Error reading the file. Please try again.";
-                statusEl.className = 'status-message status-error';
-                statusEl.style.display = 'block';
-            };
-
-            reader.readAsArrayBuffer(file);
-        }
-
-        function handleSheetChange() {
-            const selectedSheet = document.getElementById('sheetSelect').value;
-            if (currentWorkbook) parseAndLoadSheet(selectedSheet);
-        }
-
-        function parseAndLoadSheet(sheetName, fileObj = null) {
-            const statusEl = document.getElementById('uploadStatus');
-            const worksheet = currentWorkbook.Sheets[sheetName];
-            
-            if (!worksheet) {
-                statusEl.innerText = "Error reading sheet data.";
-                statusEl.className = 'status-message status-error';
-                statusEl.style.display = 'block';
-                return;
+            if (!parsedItems.length) {
+                statusEl.innerText = "No valid data found in file."; statusEl.className = 'status-message status-error'; return;
             }
 
-            binCardData = processWorksheet(worksheet);
-
-            if (!binCardData || binCardData.length === 0) {
-                statusEl.innerText = "No active items found in this sheet. Please check the Excel format.";
-                statusEl.className = 'status-message status-error';
-                statusEl.style.display = 'block';
-                return;
-            }
-
-            const fileName = fileObj ? fileObj.name : (fileMetaData ? fileMetaData.name : 'Data File');
-            const fileSize = fileObj ? formatBytes(fileObj.size) : (fileMetaData ? fileMetaData.size : '-');
-            fileMetaData = { name: fileName, size: fileSize, totalRows: binCardData.length, uploadTime: new Date().toLocaleString() };
-
+            binCardData = parsedItems;
+            
             try {
-                localStorage.setItem('binCardData', JSON.stringify(binCardData));
-                localStorage.setItem('binCardMeta', JSON.stringify(fileMetaData));
+                localStorage.setItem('advBinCardData', JSON.stringify(binCardData));
             } catch (e) {
-                console.warn("LocalStorage Quota Exceeded", e);
-                alert("Alert: Your file is very large. Data has been loaded for viewing but may not be saved upon refreshing the page due to browser storage limits.");
+                alert("File is very large. It will be loaded, but might not save after refresh.");
             }
 
-            filteredData = binCardData;
-            updateFileInfoUI(fileMetaData);
+            filteredData = [...binCardData];
             document.getElementById('searchInput').value = '';
-            document.getElementById('clearSearchBtn').style.display = 'none';
             
-            document.getElementById('btnClearData').style.display = 'inline-flex';
-            document.getElementById('btnDownloadPdf').style.display = 'inline-flex';
-            toggleAppTitle(false);
+            updateDashboardStats();
+            toggleUIElements(true);
+            renderCards(true);
+
+            statusEl.innerText = 'File loaded successfully!';
+            statusEl.className = 'status-message status-success';
+            setTimeout(closeModal, 1000);
+        }
+
+        // --- SEARCH LOGIC ---
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            if (query === '') {
+                filteredData = [...binCardData];
+            } else {
+                filteredData = binCardData.filter(item => 
+                    item.matCode.toLowerCase().includes(query) || item.matName.toLowerCase().includes(query)
+                );
+            }
 
             renderCards(true);
-            statusEl.innerText = 'File uploaded & active items updated successfully!';
-            statusEl.className = 'status-message status-success';
-            statusEl.style.display = 'block';
-            setTimeout(closeModal, 1500);
         }
 
-        function updateFileInfoUI(meta) {
-            if (!meta) return;
-            document.getElementById('fileInfoBar').style.display = 'flex';
-            document.getElementById('infoFileName').innerText = meta.name;
-            document.getElementById('infoTotalItems').innerText = meta.totalRows;
-            document.getElementById('infoUploadTime').innerText = meta.uploadTime;
-
-            document.getElementById('modalFileInfo').style.display = 'block';
-            document.getElementById('mFileName').innerText = meta.name;
-            document.getElementById('mFileSize').innerText = meta.size;
-            document.getElementById('mFileRows').innerText = meta.totalRows;
-            document.getElementById('mFileTime').innerText = meta.uploadTime;
-        }
-
+        // --- RENDERING UI ---
         function renderCards(resetPage = false) {
             const container = document.getElementById('cardContainer');
-            const resultsCount = document.getElementById('resultsCount');
             const loadMoreBtn = document.getElementById('loadMoreContainer');
 
             if (resetPage) { currentPage = 1; container.innerHTML = ''; }
 
-            if (!filteredData || filteredData.length === 0) {
-                showEmptyState(); resultsCount.innerText = ''; loadMoreBtn.style.display = 'none'; return;
+            if (!filteredData.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search" style="font-size: 50px; color: #cbd5e1; margin-bottom: 20px;"></i>
+                        <h2>No Items Found</h2>
+                        <p>Try adjusting your search query.</p>
+                    </div>`;
+                loadMoreBtn.style.display = 'none';
+                return;
             }
 
-            document.getElementById('fileInfoBar').style.display = 'flex';
-            const startIndex = (currentPage - 1) * PAGE_SIZE;
-            const endIndex = Math.min(startIndex + PAGE_SIZE, filteredData.length);
-            const itemsToRender = filteredData.slice(startIndex, endIndex);
+            const startIdx = (currentPage - 1) * PAGE_SIZE;
+            const endIdx = Math.min(startIdx + PAGE_SIZE, filteredData.length);
+            const items = filteredData.slice(startIdx, endIdx);
             const fragment = document.createDocumentFragment();
 
-            itemsToRender.forEach(item => {
+            items.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'card';
+                
+                let badgeHTML = '';
+                if (item.closingStock <= 0) badgeHTML = '<span class="badge badge-danger">Out of Stock</span>';
+                else if (item.closingStock < 10) badgeHTML = '<span class="badge badge-warning">Low Stock</span>';
+                else badgeHTML = '<span class="badge badge-success">In Stock</span>';
+
                 card.innerHTML = `
+                    ${badgeHTML}
                     <div class="card-header">
                         <div class="mat-code"><i class="fas fa-barcode"></i> ${escapeHtml(item.matCode)}</div>
                         <div class="mat-name">${escapeHtml(item.matName)}</div>
                     </div>
                     <div class="data-grid">
-                        <div class="data-item"><span class="d-label">Receipts</span><span class="d-value">${escapeHtml(item.receipt)}</span></div>
-                        <div class="data-item"><span class="d-label">Issues</span><span class="d-value">${escapeHtml(item.issues)}</span></div>
-                        <div class="data-item"><span class="d-label">Returns</span><span class="d-value">${escapeHtml(item.returnQty)}</span></div>
-                        <div class="data-item full-width"><span class="d-label">Total Closing Stock</span><span class="d-value">${escapeHtml(item.closingStock)}</span></div>
+                        <div class="data-item"><span class="d-label">In</span><span class="d-value text-green">${formatNumber(item.receipt)}</span></div>
+                        <div class="data-item"><span class="d-label">Out</span><span class="d-value text-red">${formatNumber(item.issues)}</span></div>
+                        <div class="data-item"><span class="d-label">Return</span><span class="d-value">${formatNumber(item.returnQty)}</span></div>
+                    </div>
+                    <div class="stock-total">
+                        <span class="d-label">Closing Stock</span>
+                        <span class="d-value">${formatNumber(item.closingStock)}</span>
                     </div>
                 `;
                 fragment.appendChild(card);
             });
 
             container.appendChild(fragment);
-            resultsCount.innerText = `Showing ${endIndex} of ${filteredData.length} items`;
-            loadMoreBtn.style.display = endIndex < filteredData.length ? 'block' : 'none';
+            loadMoreBtn.style.display = endIdx < filteredData.length ? 'block' : 'none';
         }
 
         function loadMoreCards() { currentPage++; renderCards(false); }
 
         function showEmptyState() {
-            document.getElementById('fileInfoBar').style.display = 'none';
+            toggleUIElements(false);
             document.getElementById('cardContainer').innerHTML = `
                 <div class="empty-state">
-                    <i class="fas fa-folder-open"></i>
-                    <h2>No Active Data Available</h2>
-                    <p>Click on <strong>"Upload Excel"</strong> button above to load your Bin Card data.</p>
+                    <i class="fas fa-folder-open" style="font-size: 60px; color: #cbd5e1; margin-bottom: 20px;"></i>
+                    <h2>No Data Available</h2>
+                    <p>Click the "Upload Excel" button to import your Bin Card data.</p>
                 </div>
             `;
-            document.getElementById('resultsCount').innerText = '';
         }
-
-        function handleSearch() {
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
-            document.getElementById('clearSearchBtn').style.display = query.length > 0 ? 'block' : 'none';
-
-            if (query === '') {
-                filteredData = binCardData;
-            } else {
-                filteredData = binCardData.filter(item => 
-                    String(item.matCode || '').toLowerCase().includes(query) || 
-                    String(item.matName || '').toLowerCase().includes(query)
-                );
-            }
-            renderCards(true);
-        }
-
-        function clearSearch() { document.getElementById('searchInput').value = ''; handleSearch(); }
 
         function clearStoredData() {
-            if (confirm("Are you sure you want to clear all stored Bin Card data?")) {
-                localStorage.removeItem('binCardData');
-                localStorage.removeItem('binCardMeta');
-                binCardData = []; filteredData = []; fileMetaData = null;
-                
-                document.getElementById('btnClearData').style.display = 'none';
-                document.getElementById('btnDownloadPdf').style.display = 'none';
-                toggleAppTitle(true);
-                
-                document.getElementById('modalFileInfo').style.display = 'none';
+            if (confirm("Clear all data from the application?")) {
+                localStorage.removeItem('advBinCardData');
+                binCardData = []; filteredData = [];
                 showEmptyState();
             }
         }
 
+        // --- PDF GENERATION ---
         function downloadPDF() {
-            if (!filteredData || filteredData.length === 0) { 
-                alert("No data available to download!"); 
-                return; 
-            }
+            if (!filteredData.length) return alert("No data to download!");
             
-            setTimeout(() => {
-                try {
-                    const { jsPDF } = window.jspdf; 
-                    const doc = new jsPDF('p', 'pt', 'a4');
-                    
-                    doc.setFontSize(18); doc.setTextColor(37, 99, 235);
-                    doc.text("Bin Card Stock Report", 40, 40);
-                    
-                    doc.setFontSize(10); doc.setTextColor(100, 116, 139);
-                    doc.text(`Generated Date: ${new Date().toLocaleString()}`, 40, 60);
-                    if(fileMetaData) doc.text(`Source File: ${fileMetaData.name}`, 40, 75);
-                    doc.text(`Total Items: ${filteredData.length}`, 40, 90);
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'pt', 'a4');
+                
+                doc.setFontSize(16); doc.setTextColor(79, 70, 229);
+                doc.text("Inventory Bin Card Report", 40, 40);
+                
+                doc.setFontSize(10); doc.setTextColor(100, 116, 139);
+                doc.text(`Generated Date: ${new Date().toLocaleString()}`, 40, 60);
+                doc.text(`Showing: ${filteredData.length} items`, 40, 75);
 
-                    const tableRows = filteredData.map(item => [
-                        item.matCode, 
-                        item.matName, 
-                        item.receipt, 
-                        item.issues, 
-                        item.returnQty, 
-                        item.closingStock
-                    ]);
+                const tableRows = filteredData.map(item => [
+                    item.matCode, 
+                    item.matName, 
+                    formatNumber(item.receipt), 
+                    formatNumber(item.issues), 
+                    formatNumber(item.returnQty), 
+                    formatNumber(item.closingStock)
+                ]);
 
-                    doc.autoTable({
-                        head: [["Code", "Material Name", "Receipts", "Issues", "Returns", "Closing Stock"]],
-                        body: tableRows, 
-                        startY: 105, 
-                        theme: 'grid',
-                        styles: { font: 'helvetica', fontSize: 9, cellPadding: 5, textColor: [15, 23, 42] },
-                        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold', halign: 'center' },
-                        alternateRowStyles: { fillColor: [248, 250, 252] },
-                        columnStyles: { 
-                            0: { fontStyle: 'bold', cellWidth: 70 }, 
-                            1: { cellWidth: 'auto' }, 
-                            2: { halign: 'center', cellWidth: 50 }, 
-                            3: { halign: 'center', cellWidth: 50 }, 
-                            4: { halign: 'center', cellWidth: 50 }, 
-                            5: { halign: 'center', fontStyle: 'bold', textColor: [22, 163, 74], cellWidth: 70 } 
-                        },
-                        margin: { top: 40, left: 40, right: 40, bottom: 40 },
-                        didDrawPage: function (data) {
-                            doc.setFontSize(8); doc.setTextColor(150);
-                            doc.text('Page ' + doc.internal.getNumberOfPages(), data.settings.margin.left, doc.internal.pageSize.getHeight() - 20);
-                        }
-                    });
-                    
-                    doc.save("Bin_Card_Report.pdf");
-                } catch (error) {
-                    console.error("PDF Generation failed:", error);
-                    alert("Error occurred while generating PDF.");
-                }
-            }, 100);
+                doc.autoTable({
+                    head: [["Code", "Item Name", "Receipts", "Issues", "Returns", "Closing Stock"]],
+                    body: tableRows, 
+                    startY: 90, 
+                    theme: 'grid',
+                    styles: { fontSize: 8, cellPadding: 4 },
+                    headStyles: { fillColor: [79, 70, 229], textColor: 255 },
+                    columnStyles: { 
+                        0: { fontStyle: 'bold', cellWidth: 60 },
+                        2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 
+                        5: { halign: 'right', fontStyle: 'bold', textColor: [10, 185, 129] }
+                    },
+                    margin: { top: 40, bottom: 40 }
+                });
+                
+                doc.save("BinCard_Report.pdf");
+            } catch (e) {
+                console.error(e); alert("Error generating PDF.");
+            }
         }
     </script>
 </body>
