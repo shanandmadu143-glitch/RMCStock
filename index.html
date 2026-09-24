@@ -24,6 +24,7 @@
             --text-main: #0f172a;
             --text-light: #64748b;
             --card-bg: #ffffff;
+            --data-bg: rgba(0, 0, 0, 0.03);
             --border: #e2e8f0;
         }
         body.theme-emerald {
@@ -34,6 +35,7 @@
             --text-main: #064e3b;
             --text-light: #047857;
             --card-bg: #ffffff;
+            --data-bg: rgba(0, 0, 0, 0.03);
             --border: #a7f3d0;
         }
         body.theme-sunset {
@@ -44,6 +46,7 @@
             --text-main: #7c2d12;
             --text-light: #9a3412;
             --card-bg: #ffffff;
+            --data-bg: rgba(0, 0, 0, 0.03);
             --border: #fed7aa;
         }
         body.theme-dark {
@@ -54,6 +57,7 @@
             --text-main: #f8fafc;
             --text-light: #94a3b8;
             --card-bg: #1e293b;
+            --data-bg: rgba(255, 255, 255, 0.05);
             --border: #334155;
         }
         body.theme-purple {
@@ -64,6 +68,7 @@
             --text-main: #581c87;
             --text-light: #7e22ce;
             --card-bg: #ffffff;
+            --data-bg: rgba(0, 0, 0, 0.03);
             --border: #e9d5ff;
         }
 
@@ -194,7 +199,7 @@
 
         /* DASHBOARD STATS */
         .dashboard-stats {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px; padding: 25px; max-width: 1400px; margin: 0 auto; width: 100%;
         }
         .stat-card {
@@ -202,10 +207,13 @@
             display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); transition: transform 0.2s;
         }
         .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
         .icon-blue { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
-        .stat-info h4 { font-size: 13px; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
-        .stat-info h2 { font-size: 24px; font-weight: 700; color: var(--text-main); }
+        .icon-green { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .icon-red { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .icon-purple { background: rgba(147, 51, 234, 0.1); color: #9333ea; }
+        .stat-info h4 { font-size: 12px; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
+        .stat-info h2 { font-size: 22px; font-weight: 700; color: var(--text-main); }
 
         /* CONTROLS (SEARCH) */
         .controls-bar { display: flex; flex-wrap: wrap; gap: 15px; padding: 0 25px 15px 25px; max-width: 1400px; margin: 0 auto; width: 100%; }
@@ -243,8 +251,8 @@
         .mat-name { font-size: 16px; font-weight: 700; color: var(--text-main); line-height: 1.4; }
         
         .data-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .data-item { text-align: center; background: rgba(0,0,0,0.02); padding: 10px 5px; border-radius: 8px; border: 1px solid var(--border); }
-        .d-label { display: block; font-size: 11px; color: var(--text-light); font-weight: 600; margin-bottom: 4px; }
+        .data-item { text-align: center; background: var(--data-bg); padding: 10px 5px; border-radius: 8px; border: 1px solid var(--border); }
+        .d-label { display: block; font-size: 11px; color: var(--text-light); font-weight: 600; margin-bottom: 4px; line-height: 1.2; word-break: break-word; }
         .d-value { font-size: 15px; font-weight: 700; color: var(--text-main); }
         
         .stock-total {
@@ -366,6 +374,27 @@
                 <h2 id="statTotalItems">0</h2>
             </div>
         </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-green"><i class="fas fa-arrow-down"></i></div>
+            <div class="stat-info">
+                <h4>Total In (Received)</h4>
+                <h2 id="statTotalReceived">0</h2>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-red"><i class="fas fa-arrow-up"></i></div>
+            <div class="stat-info">
+                <h4>Total Out (Issues)</h4>
+                <h2 id="statTotalIssues">0</h2>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-purple"><i class="fas fa-warehouse"></i></div>
+            <div class="stat-info">
+                <h4>Total Closing Stock</h4>
+                <h2 id="statTotalStock">0</h2>
+            </div>
+        </div>
     </div>
 
     <!-- CONTROLS (SEARCH) -->
@@ -454,6 +483,7 @@
         // --- TOAST NOTIFICATION SYSTEM ---
         function showToast(message, type = 'success', title = '') {
             const container = document.getElementById('toast-container');
+            if (!container) return;
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             
@@ -527,6 +557,15 @@
             setTheme(savedTheme, false);
             setupDragAndDrop();
             loadStoredData();
+
+            // Backdrop click to close modals
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal-overlay')) {
+                    closeModal();
+                    closeSettingsModal();
+                    closeConfirmModal(false);
+                }
+            });
         });
 
         // --- THEME HANDLER ---
@@ -567,11 +606,23 @@
             const savedData = localStorage.getItem('advBinCardData');
             if (savedData) {
                 try {
-                    binCardData = JSON.parse(savedData);
+                    const parsed = JSON.parse(savedData);
+                    // Filter items: Hide if receipt (In), issues (Out), AND returnQty (Return) are all 0
+                    binCardData = parsed.filter(item => {
+                        const r = parseNum(item.receipt);
+                        const i = parseNum(item.issues);
+                        const ret = parseNum(item.returnQty);
+                        return !(r === 0 && i === 0 && ret === 0);
+                    });
+
                     filteredData = [...binCardData];
-                    updateDashboardStats();
-                    toggleUIElements(true);
-                    renderCards(true);
+                    if (binCardData.length > 0) {
+                        updateDashboardStats();
+                        toggleUIElements(true);
+                        renderCards(true);
+                    } else {
+                        showEmptyState();
+                    }
                 } catch (e) {
                     console.error("Data parse error", e);
                     showEmptyState();
@@ -589,8 +640,21 @@
         }
 
         function updateDashboardStats() {
-            if (!binCardData.length) return;
             document.getElementById('statTotalItems').innerText = formatNumber(binCardData.length);
+            
+            const totalRec = binCardData.reduce((sum, item) => sum + parseNum(item.receipt), 0);
+            const totalIss = binCardData.reduce((sum, item) => sum + parseNum(item.issues), 0);
+            const totalStock = binCardData.reduce((sum, item) => sum + parseNum(item.closingStock), 0);
+
+            if (document.getElementById('statTotalReceived')) {
+                document.getElementById('statTotalReceived').innerText = formatNumber(totalRec);
+            }
+            if (document.getElementById('statTotalIssues')) {
+                document.getElementById('statTotalIssues').innerText = formatNumber(totalIss);
+            }
+            if (document.getElementById('statTotalStock')) {
+                document.getElementById('statTotalStock').innerText = formatNumber(totalStock);
+            }
         }
 
         // --- UPLOAD & DRAG & DROP ---
@@ -646,29 +710,37 @@
             let colMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
 
             const keywords = {
-                code: ["code", "matcode", "item code", "id", "කේතය"],
-                name: ["description", "name", "item name", "විස්තරය"],
-                receipt: ["receipt", "in", "received", "ලැබීම්"],
-                issue: ["issue", "out", "issued", "නිකුත්"],
-                returnQty: ["return", "ආපසු"],
-                closing: ["balance", "closing", "stock", "ශේෂය"]
+                code: [/code/i, /matcode/i, /item code/i, /කේතය/i, /\bid\b/i],
+                name: [/description/i, /item name/i, /material name/i, /details/i, /විස්තරය/i, /\bname\b/i],
+                receipt: [/received/i, /receipt/i, /\bin\b/i, /qty in/i, /ලැබීම්/i, /rec\b/i],
+                issue: [/issued/i, /issue/i, /\bout\b/i, /qty out/i, /නිකුත්/i],
+                returnQty: [/return/i, /ආපසු/i, /ret\b/i],
+                closing: [/balance/i, /closing/i, /stock/i, /ශේෂය/i, /bal\b/i]
             };
 
             for (let i = 0; i < Math.min(30, rawData.length); i++) {
                 let row = rawData[i];
+                if (!Array.isArray(row)) continue;
                 let tempMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
                 let matches = 0;
 
                 row.forEach((cell, idx) => {
-                    let text = String(cell).toLowerCase().trim();
+                    let text = String(cell).trim();
                     if (!text) return;
                     for (let key in keywords) {
-                        if (tempMap[key] === -1 && keywords[key].some(k => text.includes(k))) {
-                            tempMap[key] = idx; matches++; break;
+                        if (tempMap[key] === -1 && keywords[key].some(rx => rx.test(text))) {
+                            tempMap[key] = idx;
+                            matches++;
+                            break;
                         }
                     }
                 });
-                if (matches >= 2) { headerRowIndex = i; colMap = tempMap; break; }
+
+                if (matches >= 2) {
+                    headerRowIndex = i;
+                    colMap = tempMap;
+                    break;
+                }
             }
 
             if (headerRowIndex === -1) {
@@ -680,26 +752,36 @@
                 let row = rawData[i];
                 if (!row || !row.length) continue;
 
-                let code = colMap.code !== -1 ? String(row[colMap.code]).trim() : `ITM-${i}`;
-                let name = colMap.name !== -1 ? String(row[colMap.name]).trim() : "Unknown Item";
+                let code = colMap.code !== -1 && row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : `ITM-${i}`;
+                let name = colMap.name !== -1 && row[colMap.name] !== undefined ? String(row[colMap.name]).trim() : "";
                 
                 if (!code && !name) continue;
                 if (code.toLowerCase().includes("total") || name.toLowerCase().includes("total")) continue;
 
-                let rNum = parseNum(row[colMap.receipt]);
-                let iNum = parseNum(row[colMap.issue]);
-                let retNum = parseNum(row[colMap.returnQty]);
-                let cNum = parseNum(row[colMap.closing]);
+                let rNum = parseNum(colMap.receipt !== -1 ? row[colMap.receipt] : 0);
+                let iNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
+                let retNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
+                let cNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
 
-                if (rNum === 0 && iNum === 0 && retNum === 0 && cNum === 0) continue;
+                // --- HIDE CARD IF IN, OUT, RETURN ARE ALL 0 OR EMPTY ---
+                if (rNum === 0 && iNum === 0 && retNum === 0) {
+                    continue;
+                }
+
+                if (!name) name = code;
 
                 parsedItems.push({
-                    matCode: code, matName: name, receipt: rNum, issues: iNum, returnQty: retNum, closingStock: cNum
+                    matCode: code,
+                    matName: name,
+                    receipt: rNum,
+                    issues: iNum,
+                    returnQty: retNum,
+                    closingStock: cNum
                 });
             }
 
             if (!parsedItems.length) {
-                showToast("ගොනුව තුළ වලංගු දත්ත හමු නොවීය.", "error", "දත්ත දෝෂයකි");
+                showToast("ගොනුව තුළ වලංගු දත්ත හමු නොවීය (In, Out, Return සියල්ල 0 නොවන දත්ත පමණක් පෙන්වයි).", "error", "දත්ත දෝෂයකි");
                 return;
             }
 
@@ -778,8 +860,8 @@
                         <div class="mat-name">${escapeHtml(item.matName)}</div>
                     </div>
                     <div class="data-grid">
-                        <div class="data-item"><span class="d-label">In</span><span class="d-value text-green">${formatNumber(item.receipt)}</span></div>
-                        <div class="data-item"><span class="d-label">Out</span><span class="d-value text-red">${formatNumber(item.issues)}</span></div>
+                        <div class="data-item"><span class="d-label">In (Received)</span><span class="d-value text-green">${formatNumber(item.receipt)}</span></div>
+                        <div class="data-item"><span class="d-label">Out (Issues)</span><span class="d-value text-red">${formatNumber(item.issues)}</span></div>
                         <div class="data-item"><span class="d-label">Return</span><span class="d-value">${formatNumber(item.returnQty)}</span></div>
                     </div>
                     <div class="stock-total">
@@ -855,14 +937,15 @@
                 ]);
 
                 doc.autoTable({
-                    head: [["Code", "Item Name", "Receipts", "Issues", "Returns", "Closing Stock"]],
+                    head: [["Code", "Item Name", "In (Received)", "Out (Issues)", "Returns", "Closing Stock"]],
                     body: tableRows, 
                     startY: 90, 
                     theme: 'grid',
                     styles: { fontSize: 8, cellPadding: 4 },
                     headStyles: { fillColor: [79, 70, 229], textColor: 255 },
                     columnStyles: { 
-                        0: { fontStyle: 'bold', cellWidth: 60 },
+                        0: { fontStyle: 'bold', cellWidth: 70 },
+                        1: { cellWidth: 140 },
                         2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 
                         5: { halign: 'right', fontStyle: 'bold', textColor: [16, 185, 129] }
                     },
