@@ -12,6 +12,12 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- START.IO ADS SDK INTEGRATION -->
+    <script>
+        window.startioAppId = "208327750";
+    </script>
+    <script src="https://cdn.startapp.com/web/v1/startapp.js" async></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -479,6 +485,63 @@
         const PAGE_SIZE = 50;
         let currentPage = 1;
         let confirmCallback = null;
+        const STARTIO_APP_ID = "208327750";
+
+        // --- START.IO REWARDED VIDEO AD TRIGGER ---
+        function triggerStartIoRewardedAd(onComplete) {
+            let handled = false;
+            
+            function done() {
+                if (!handled) {
+                    handled = true;
+                    if (typeof onComplete === 'function') onComplete();
+                }
+            }
+
+            // Timeout safety fallback (If ad fails to load or internet issue within 4 seconds, continue gracefully)
+            const fallbackTimer = setTimeout(() => {
+                console.log("Start.io Ad timeout / fallback triggered.");
+                done();
+            }, 4000);
+
+            try {
+                // 1. Mobile App / Cordova Plugin environment check
+                if (window.startapp && typeof window.startapp.showRewardedAd === 'function') {
+                    window.startapp.showRewardedAd(
+                        function() { clearTimeout(fallbackTimer); done(); },
+                        function(err) { console.error("Ad error:", err); clearTimeout(fallbackTimer); done(); }
+                    );
+                    return;
+                }
+
+                // 2. Start.io Web SDK Check
+                if (window.StartApp && typeof window.StartApp.showRewardedAd === 'function') {
+                    window.StartApp.showRewardedAd({
+                        appId: STARTIO_APP_ID,
+                        onReward: function() { clearTimeout(fallbackTimer); done(); },
+                        onClose: function() { clearTimeout(fallbackTimer); done(); },
+                        onError: function(err) { console.error("Start.io Error:", err); clearTimeout(fallbackTimer); done(); }
+                    });
+                    return;
+                }
+
+                // 3. Alternative StartIO Web API Check
+                if (window.startio && typeof window.startio.showRewarded === 'function') {
+                    window.startio.showRewarded()
+                        .then(() => { clearTimeout(fallbackTimer); done(); })
+                        .catch((e) => { console.error(e); clearTimeout(fallbackTimer); done(); });
+                    return;
+                }
+
+                // Fallback if SDK is not ready yet
+                clearTimeout(fallbackTimer);
+                done();
+            } catch (e) {
+                console.error("Ad exception:", e);
+                clearTimeout(fallbackTimer);
+                done();
+            }
+        }
 
         // --- TOAST NOTIFICATION SYSTEM ---
         function showToast(message, type = 'success', title = '') {
@@ -682,18 +745,21 @@
         function handleFileUpload(file) {
             showToast("ගොනුව සකස් කරමින් පවතී... කරුණාකර රැඳී සිටින්න.", "info", "ක්‍රියාවලියක් සිදු වේ");
 
-            const reader = new FileReader();
-            reader.onload = e => {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    processExcelData(firstSheet);
-                } catch (error) {
-                    showToast(`දෝෂයක් ඇති විය: ${error.message}`, "error", "උඩුගත කිරීම අසාර්ථකයි");
-                }
-            };
-            reader.readAsArrayBuffer(file);
+            // --- Trigger Rewarded Video Ad on Upload ---
+            triggerStartIoRewardedAd(() => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        processExcelData(firstSheet);
+                    } catch (error) {
+                        showToast(`දෝෂයක් ඇති විය: ${error.message}`, "error", "උඩුගත කිරීම අසාර්ථකයි");
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            });
         }
 
         // --- EXCEL DATA PARSING ---
