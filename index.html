@@ -150,7 +150,7 @@
             to { width: 0%; }
         }
 
-        /* SPLASH SCREEN (6 SECONDS) */
+        /* SPLASH SCREEN */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(135deg, #090d16 0%, #111827 50%, #1e1b4b 100%);
@@ -221,7 +221,7 @@
         .stat-info h4 { font-size: 12px; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
         .stat-info h2 { font-size: 22px; font-weight: 700; color: var(--text-main); }
 
-        /* CONTROLS (SEARCH) */
+        /* CONTROLS */
         .controls-bar { display: flex; flex-wrap: wrap; gap: 15px; padding: 0 25px 15px 25px; max-width: 1400px; margin: 0 auto; width: 100%; }
         .search-box { flex: 1; min-width: 300px; position: relative; }
         .search-box input {
@@ -270,7 +270,7 @@
 
         .load-more-container { text-align: center; padding: 20px; margin-bottom: 20px; }
 
-        /* FLOATING SETTINGS BUTTON & FOOTER */
+        /* FLOATING BUTTON & FOOTER */
         .fab-settings {
             position: fixed; bottom: 25px; right: 25px; width: 50px; height: 50px;
             background: var(--primary); color: white; border-radius: 50%;
@@ -286,7 +286,7 @@
             font-weight: 600; letter-spacing: 0.5px;
         }
 
-        /* MODAL */
+        /* MODALS */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15, 23, 42, 0.7); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px);
@@ -312,7 +312,6 @@
         .upload-area i { font-size: 48px; color: var(--secondary); margin-bottom: 15px; }
         #fileInput { display: none; }
 
-        /* THEME OPTIONS GRID */
         .theme-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-top: 15px; }
         .theme-btn {
             padding: 12px 8px; border-radius: 8px; border: 2px solid var(--border);
@@ -335,10 +334,10 @@
 </head>
 <body class="theme-default">
 
-    <!-- TOAST NOTIFICATION CONTAINER -->
+    <!-- TOAST NOTIFICATION -->
     <div id="toast-container"></div>
 
-    <!-- 6 SECONDS SPLASH SCREEN -->
+    <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="splash-content">
             <i class="fas fa-boxes splash-icon"></i>
@@ -350,12 +349,9 @@
                 <div class="splash-progress-bar" id="splashProgressBar"></div>
             </div>
         </div>
-        <div class="splash-footer">
-            Created By <span>Yomal Lakshan</span>
-        </div>
+        <div class="splash-footer">Created By <span>Yomal Lakshan</span></div>
     </div>
 
-    <!-- HEADER -->
     <header>
         <h1><i class="fas fa-cubes"></i> Bin Card</h1> 
         <div class="header-actions">
@@ -371,39 +367,25 @@
         </div>
     </header>
 
-    <!-- DASHBOARD STATS -->
     <div class="dashboard-stats" id="dashboardStats" style="display: none;">
         <div class="stat-card">
             <div class="stat-icon icon-blue"><i class="fas fa-box-open"></i></div>
-            <div class="stat-info">
-                <h4>Total Items</h4>
-                <h2 id="statTotalItems">0</h2>
-            </div>
+            <div class="stat-info"><h4>Total Items</h4><h2 id="statTotalItems">0</h2></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon icon-green"><i class="fas fa-arrow-down"></i></div>
-            <div class="stat-info">
-                <h4>Total In (Received)</h4>
-                <h2 id="statTotalReceived">0</h2>
-            </div>
+            <div class="stat-info"><h4>Total In (Received)</h4><h2 id="statTotalReceived">0</h2></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon icon-red"><i class="fas fa-arrow-up"></i></div>
-            <div class="stat-info">
-                <h4>Total Out (Issues)</h4>
-                <h2 id="statTotalIssues">0</h2>
-            </div>
+            <div class="stat-info"><h4>Total Out (Issues)</h4><h2 id="statTotalIssues">0</h2></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon icon-purple"><i class="fas fa-warehouse"></i></div>
-            <div class="stat-info">
-                <h4>Total Closing Stock</h4>
-                <h2 id="statTotalStock">0</h2>
-            </div>
+            <div class="stat-info"><h4>Total Closing Stock</h4><h2 id="statTotalStock">0</h2></div>
         </div>
     </div>
 
-    <!-- CONTROLS (SEARCH) -->
     <div class="controls-bar" id="controlsBar" style="display: none;">
         <div class="search-box">
             <i class="fas fa-search"></i>
@@ -411,22 +393,17 @@
         </div>
     </div>
 
-    <!-- CARDS GRID -->
     <div class="cards-grid" id="cardContainer"></div>
 
     <div class="load-more-container" id="loadMoreContainer" style="display: none;">
         <button class="btn btn-primary" onclick="loadMoreCards()">Load More Items</button>
     </div>
 
-    <!-- FLOATING SETTINGS BUTTON -->
     <button class="fab-settings" onclick="openSettingsModal()" title="Settings & Themes">
         <i class="fas fa-cog"></i>
     </button>
 
-    <!-- FOOTER -->
-    <footer>
-        Created By Yomal Lakshan
-    </footer>
+    <footer>Created By Yomal Lakshan</footer>
 
     <!-- UPLOAD MODAL -->
     <div class="modal-overlay" id="uploadModal">
@@ -434,7 +411,6 @@
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <h2>Upload Bin Card Data</h2>
             <p style="font-size: 14px; color: var(--text-light);">Select an Excel (.xlsx, .xls) or CSV file to update your inventory.</p>
-            
             <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p style="font-weight: 600; font-size: 16px; margin-bottom: 5px;">Click or Drag & Drop File</p>
@@ -444,14 +420,12 @@
         </div>
     </div>
 
-    <!-- SETTINGS & THEMES MODAL -->
+    <!-- SETTINGS MODAL -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
             <button class="close-modal" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
-            <h2><i class="fas fa-cog"></i> සැකසුම් සහ තේමා (Settings)</h2>
+            <h2><i class="fas fa-cog"></i> සැකසුම් සහ තේමා</h2>
             <p style="font-size: 14px; color: var(--text-light); margin-bottom: 15px;">ඔබට ගැළපෙන දෘශ්‍ය තේමාව (Theme) පහතින් තෝරාගන්න:</p>
-            
-            <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">තේමා තෝරන්න (Themes):</div>
             <div class="theme-options">
                 <div class="theme-btn" onclick="setTheme('default')" style="background: #4f46e5; color: white;">Default</div>
                 <div class="theme-btn" onclick="setTheme('emerald')" style="background: #059669; color: white;">Emerald</div>
@@ -462,12 +436,10 @@
         </div>
     </div>
 
-    <!-- CUSTOM CONFIRMATION MODAL -->
+    <!-- CONFIRM MODAL -->
     <div class="modal-overlay" id="confirmModal">
         <div class="modal" style="max-width: 400px; text-align: center;">
-            <div style="font-size: 45px; color: var(--warning); margin-bottom: 15px;">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
+            <div style="font-size: 45px; color: var(--warning); margin-bottom: 15px;"><i class="fas fa-exclamation-triangle"></i></div>
             <h3 id="confirmTitle" style="font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text-main);">තහවුරු කිරීම</h3>
             <p id="confirmMessage" style="font-size: 14px; color: var(--text-light); margin-bottom: 25px; line-height: 1.5;">මෙම ක්‍රියාව සිදු කිරීමට ඔබට අවශ්‍ය බව විශ්වාසද?</p>
             <div style="display: flex; gap: 10px; justify-content: center;">
@@ -485,27 +457,41 @@
         const PAGE_SIZE = 50;
         let currentPage = 1;
         let confirmCallback = null;
-        const STARTIO_APP_ID = "208327750";
 
-        // --- START.IO REWARDED VIDEO AD TRIGGER ---
+        // --- FIXED START.IO ADS LOGIC ---
+        // Ad load fail වුවහොත් app එක හිර නොවීමට fallback timer එකක් යොදා ඇත.
         function triggerStartIoRewardedAd(onComplete) {
-            let handled = false;
+            let adHandled = false;
             
             function done() {
-                if (!handled) {
-                    handled = true;
+                if (!adHandled) {
+                    adHandled = true;
                     if (typeof onComplete === 'function') onComplete();
                 }
             }
 
-            // Timeout safety fallback (If ad fails to load or internet issue within 4 seconds, continue gracefully)
+            // තත්පර 3 කට පසුවත් Ad එක load නොවුණහොත් ස්වයංක්‍රීයව File එක Upload වීම සිදුවේ
             const fallbackTimer = setTimeout(() => {
-                console.log("Start.io Ad timeout / fallback triggered.");
                 done();
-            }, 4000);
+            }, 3000);
 
             try {
-                // 1. Mobile App / Cordova Plugin environment check
+                // 1. For App Builders (Kodular / Thunkable / Android Webview JS Bridges)
+                if (typeof StartAppInterface !== 'undefined' && typeof StartAppInterface.showRewarded === 'function') {
+                    StartAppInterface.showRewarded();
+                    clearTimeout(fallbackTimer);
+                    done(); // Continues background logic
+                    return;
+                }
+                
+                if (typeof Android !== 'undefined' && typeof Android.showRewardedAd === 'function') {
+                    Android.showRewardedAd();
+                    clearTimeout(fallbackTimer);
+                    done();
+                    return;
+                }
+
+                // 2. Start.io Web SDK Checks
                 if (window.startapp && typeof window.startapp.showRewardedAd === 'function') {
                     window.startapp.showRewardedAd(
                         function() { clearTimeout(fallbackTimer); done(); },
@@ -514,10 +500,8 @@
                     return;
                 }
 
-                // 2. Start.io Web SDK Check
                 if (window.StartApp && typeof window.StartApp.showRewardedAd === 'function') {
                     window.StartApp.showRewardedAd({
-                        appId: STARTIO_APP_ID,
                         onReward: function() { clearTimeout(fallbackTimer); done(); },
                         onClose: function() { clearTimeout(fallbackTimer); done(); },
                         onError: function(err) { console.error("Start.io Error:", err); clearTimeout(fallbackTimer); done(); }
@@ -525,15 +509,7 @@
                     return;
                 }
 
-                // 3. Alternative StartIO Web API Check
-                if (window.startio && typeof window.startio.showRewarded === 'function') {
-                    window.startio.showRewarded()
-                        .then(() => { clearTimeout(fallbackTimer); done(); })
-                        .catch((e) => { console.error(e); clearTimeout(fallbackTimer); done(); });
-                    return;
-                }
-
-                // Fallback if SDK is not ready yet
+                // 3. Fallback
                 clearTimeout(fallbackTimer);
                 done();
             } catch (e) {
@@ -543,7 +519,7 @@
             }
         }
 
-        // --- TOAST NOTIFICATION SYSTEM ---
+        // --- TOAST NOTIFICATIONS ---
         function showToast(message, type = 'success', title = '') {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -568,14 +544,13 @@
             `;
 
             container.appendChild(toast);
-
             setTimeout(() => {
                 toast.classList.add('fade-out');
                 setTimeout(() => toast.remove(), 350);
             }, 3800);
         }
 
-        // --- CONFIRM MODAL SYSTEM ---
+        // --- CONFIRM MODAL ---
         function showConfirmModal(title, message, onConfirm) {
             document.getElementById('confirmTitle').innerText = title;
             document.getElementById('confirmMessage').innerText = message;
@@ -585,13 +560,11 @@
 
         function closeConfirmModal(result) {
             document.getElementById('confirmModal').style.display = 'none';
-            if (result && typeof confirmCallback === 'function') {
-                confirmCallback();
-            }
+            if (result && typeof confirmCallback === 'function') confirmCallback();
             confirmCallback = null;
         }
 
-        // --- SPLASH SCREEN ANIMATION (6 SECONDS) ---
+        // --- SPLASH SCREEN ---
         window.addEventListener('load', () => {
             const progressBar = document.getElementById('splashProgressBar');
             const splashScreen = document.getElementById('splash-screen');
@@ -614,14 +587,12 @@
             }, intervalTime);
         });
 
-        // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('binCardTheme') || 'default';
             setTheme(savedTheme, false);
             setupDragAndDrop();
             loadStoredData();
 
-            // Backdrop click to close modals
             window.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal-overlay')) {
                     closeModal();
@@ -631,7 +602,6 @@
             });
         });
 
-        // --- THEME HANDLER ---
         function setTheme(themeName, save = true) {
             document.body.className = `theme-${themeName}`;
             if (save) {
@@ -643,14 +613,14 @@
 
         function openSettingsModal() { document.getElementById('settingsModal').style.display = 'flex'; }
         function closeSettingsModal() { document.getElementById('settingsModal').style.display = 'none'; }
+        function openModal() { document.getElementById('uploadModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
 
-        // --- XSS PROTECTION ---
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // --- NUMBER PARSING ---
         function parseNum(val) {
             if (val === undefined || val === null || val === '') return 0;
             if (typeof val === 'number') return isNaN(val) ? 0 : val;
@@ -664,13 +634,12 @@
             return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
         }
 
-        // --- LOCAL STORAGE ---
+        // --- LOCAL STORAGE HANDLING ---
         function loadStoredData() {
             const savedData = localStorage.getItem('advBinCardData');
             if (savedData) {
                 try {
                     const parsed = JSON.parse(savedData);
-                    // Filter items: Hide if receipt (In), issues (Out), AND returnQty (Return) are all 0
                     binCardData = parsed.filter(item => {
                         const r = parseNum(item.receipt);
                         const i = parseNum(item.issues);
@@ -704,48 +673,40 @@
 
         function updateDashboardStats() {
             document.getElementById('statTotalItems').innerText = formatNumber(binCardData.length);
-            
             const totalRec = binCardData.reduce((sum, item) => sum + parseNum(item.receipt), 0);
             const totalIss = binCardData.reduce((sum, item) => sum + parseNum(item.issues), 0);
             const totalStock = binCardData.reduce((sum, item) => sum + parseNum(item.closingStock), 0);
 
-            if (document.getElementById('statTotalReceived')) {
-                document.getElementById('statTotalReceived').innerText = formatNumber(totalRec);
-            }
-            if (document.getElementById('statTotalIssues')) {
-                document.getElementById('statTotalIssues').innerText = formatNumber(totalIss);
-            }
-            if (document.getElementById('statTotalStock')) {
-                document.getElementById('statTotalStock').innerText = formatNumber(totalStock);
-            }
+            if (document.getElementById('statTotalReceived')) document.getElementById('statTotalReceived').innerText = formatNumber(totalRec);
+            if (document.getElementById('statTotalIssues')) document.getElementById('statTotalIssues').innerText = formatNumber(totalIss);
+            if (document.getElementById('statTotalStock')) document.getElementById('statTotalStock').innerText = formatNumber(totalStock);
         }
 
-        // --- UPLOAD & DRAG & DROP ---
-        function openModal() { document.getElementById('uploadModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
-
+        // --- DRAG & DROP AND FILE HANDLING ---
         function setupDragAndDrop() {
             const dropArea = document.getElementById('dropArea');
             if (!dropArea) return;
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
             ['dragenter', 'dragover'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.add('dragover')));
             ['dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.remove('dragover')));
+            
             dropArea.addEventListener('drop', e => {
                 if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]);
             });
+            
             const fileInput = document.getElementById('fileInput');
             if (fileInput) {
                 fileInput.addEventListener('change', e => {
                     if (e.target.files.length) handleFileUpload(e.target.files[0]);
-                    e.target.value = '';
+                    e.target.value = ''; // Reset input to allow re-uploading same file
                 });
             }
         }
 
         function handleFileUpload(file) {
-            showToast("ගොනුව සකස් කරමින් පවතී... කරුණාකර රැඳී සිටින්න.", "info", "ක්‍රියාවලියක් සිදු වේ");
+            showToast("ගොනුව සකස් කරමින් පවතී... කරුණාකර රැඳී සිටින්න.", "info", "සකසමින් පවතී");
 
-            // --- Trigger Rewarded Video Ad on Upload ---
+            // Execute Start.io Ad Before File Processing
             triggerStartIoRewardedAd(() => {
                 const reader = new FileReader();
                 reader.onload = e => {
@@ -762,7 +723,6 @@
             });
         }
 
-        // --- EXCEL DATA PARSING ---
         function processExcelData(worksheet) {
             const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
             
@@ -829,11 +789,7 @@
                 let retNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
                 let cNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
 
-                // --- HIDE CARD IF IN, OUT, RETURN ARE ALL 0 OR EMPTY ---
-                if (rNum === 0 && iNum === 0 && retNum === 0) {
-                    continue;
-                }
-
+                if (rNum === 0 && iNum === 0 && retNum === 0) continue;
                 if (!name) name = code;
 
                 parsedItems.push({
@@ -854,8 +810,9 @@
             binCardData = parsedItems;
             try {
                 localStorage.setItem('advBinCardData', JSON.stringify(binCardData));
+                showToast('භාණ්ඩ දත්ත සාර්ථකව උඩුගත කරන ලදී!', 'success', 'සාර්ථකයි!');
             } catch (e) {
-                showToast("ගොනුව ඉතා විශාලයි, බ්‍රව්සරයේ ඉඩ මදි වීමට ඉඩ ඇත.", "warning", "අවවාදයයි");
+                showToast("Excel ගොනුව ඉතා විශාලයි, බ්‍රව්සරයේ මතකය (Storage) ප්‍රමාණවත් නොවේ.", "warning", "Storage Error");
             }
 
             filteredData = [...binCardData];
@@ -865,12 +822,10 @@
             updateDashboardStats();
             toggleUIElements(true);
             renderCards(true);
-
-            showToast('භාණ්ඩ දත්ත සාර්ථකව උඩුගත කරන ලදී!', 'success', 'සාර්ථකයි!');
             closeModal();
         }
 
-        // --- SEARCH ---
+        // --- SEARCH & RENDERING ---
         function handleSearch() {
             const searchInput = document.getElementById('searchInput');
             if (!searchInput) return;
@@ -886,7 +841,6 @@
             renderCards(true);
         }
 
-        // --- RENDERING ---
         function renderCards(resetPage = false) {
             const container = document.getElementById('cardContainer');
             const loadMoreBtn = document.getElementById('loadMoreContainer');
@@ -960,7 +914,6 @@
             }
         }
 
-        // --- CLEAR DATA ---
         function confirmClearData() {
             showConfirmModal(
                 "දත්ත මකා දැමීම තහවුරු කරන්න",
@@ -975,7 +928,6 @@
             );
         }
 
-        // --- PDF GENERATION ---
         function downloadPDF() {
             if (!filteredData.length) {
                 showToast("බාගත කිරීමට කිසිදු දත්තයක් නොමැත!", "warning", "අවවාදයයි");
