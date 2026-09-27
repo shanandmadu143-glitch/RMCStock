@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Bin Card Manager</title>
+    <title>Advanced Bin Card Manager with Start.io Ads</title>
     <!-- SheetJS for reading Excel Files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- jsPDF and AutoTable for PDF Generation -->
@@ -12,409 +12,202 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- START.IO ADS SDK INTEGRATION -->
-    <script>
-        window.startioAppId = "208327750";
-    </script>
-    <script src="https://cdn.startapp.com/web/v1/startapp.js" async></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
         /* THEMES CONFIGURATION */
         body.theme-default {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --secondary: #0ea5e9;
-            --bg-color: #f1f5f9;
-            --text-main: #0f172a;
-            --text-light: #64748b;
-            --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03);
-            --border: #e2e8f0;
+            --primary: #4f46e5; --primary-hover: #4338ca; --secondary: #0ea5e9; --bg-color: #f1f5f9;
+            --text-main: #0f172a; --text-light: #64748b; --card-bg: #ffffff;
+            --data-bg: rgba(0, 0, 0, 0.03); --border: #e2e8f0;
         }
         body.theme-emerald {
-            --primary: #059669;
-            --primary-hover: #047857;
-            --secondary: #10b981;
-            --bg-color: #ecfdf5;
-            --text-main: #064e3b;
-            --text-light: #047857;
-            --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03);
-            --border: #a7f3d0;
+            --primary: #059669; --primary-hover: #047857; --secondary: #10b981; --bg-color: #ecfdf5;
+            --text-main: #064e3b; --text-light: #047857; --card-bg: #ffffff;
+            --data-bg: rgba(0, 0, 0, 0.03); --border: #a7f3d0;
         }
         body.theme-sunset {
-            --primary: #ea580c;
-            --primary-hover: #c2410c;
-            --secondary: #f59e0b;
-            --bg-color: #fff7ed;
-            --text-main: #7c2d12;
-            --text-light: #9a3412;
-            --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03);
-            --border: #fed7aa;
+            --primary: #ea580c; --primary-hover: #c2410c; --secondary: #f59e0b; --bg-color: #fff7ed;
+            --text-main: #7c2d12; --text-light: #9a3412; --card-bg: #ffffff;
+            --data-bg: rgba(0, 0, 0, 0.03); --border: #fed7aa;
         }
         body.theme-dark {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --secondary: #38bdf8;
-            --bg-color: #0f172a;
-            --text-main: #f8fafc;
-            --text-light: #94a3b8;
-            --card-bg: #1e293b;
-            --data-bg: rgba(255, 255, 255, 0.05);
-            --border: #334155;
+            --primary: #6366f1; --primary-hover: #4f46e5; --secondary: #38bdf8; --bg-color: #0f172a;
+            --text-main: #f8fafc; --text-light: #94a3b8; --card-bg: #1e293b;
+            --data-bg: rgba(255, 255, 255, 0.05); --border: #334155;
         }
         body.theme-purple {
-            --primary: #9333ea;
-            --primary-hover: #7e22ce;
-            --secondary: #c084fc;
-            --bg-color: #f3e8ff;
-            --text-main: #581c87;
-            --text-light: #7e22ce;
-            --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03);
-            --border: #e9d5ff;
+            --primary: #9333ea; --primary-hover: #7e22ce; --secondary: #c084fc; --bg-color: #f3e8ff;
+            --text-main: #581c87; --text-light: #7e22ce; --card-bg: #ffffff;
+            --data-bg: rgba(0, 0, 0, 0.03); --border: #e9d5ff;
         }
 
         :root {
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-            --pdf-btn: #e11d48;
-            --pdf-btn-hover: #be123c;
+            --danger: #ef4444; --warning: #f59e0b; --success: #10b981;
+            --pdf-btn: #e11d48; --pdf-btn-hover: #be123c;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; transition: background-color 0.3s, color 0.3s; }
+        .text-green { color: var(--success) !important; } .text-red { color: var(--danger) !important; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .text-green { color: var(--success) !important; }
-        .text-red { color: var(--danger) !important; }
-
-        /* TOAST NOTIFICATION CONTAINER */
-        #toast-container {
-            position: fixed; top: 25px; right: 25px; z-index: 10000;
-            display: flex; flex-direction: column; gap: 12px; max-width: 380px; width: 100%;
-            pointer-events: none;
-        }
-        .toast {
-            background: var(--card-bg); color: var(--text-main); padding: 16px 20px;
-            border-radius: 12px; box-shadow: var(--shadow-lg); border: 1px solid var(--border);
-            display: flex; align-items: flex-start; gap: 14px; pointer-events: auto;
-            animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            position: relative; overflow: hidden; backdrop-filter: blur(10px);
-        }
-        .toast.fade-out { animation: slideOutRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        /* TOAST NOTIFICATION */
+        #toast-container { position: fixed; top: 25px; right: 25px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; max-width: 380px; width: 100%; pointer-events: none; }
+        .toast { background: var(--card-bg); color: var(--text-main); padding: 16px 20px; border-radius: 12px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); display: flex; align-items: flex-start; gap: 14px; pointer-events: auto; animation: slideInRight 0.35s forwards; position: relative; overflow: hidden; }
+        .toast.fade-out { animation: slideOutRight 0.35s forwards; }
         .toast-icon { font-size: 22px; margin-top: 1px; }
-        .toast.success .toast-icon { color: var(--success); }
-        .toast.error .toast-icon { color: var(--danger); }
-        .toast.warning .toast-icon { color: var(--warning); }
-        .toast.info .toast-icon { color: var(--secondary); }
-        
-        .toast-content h5 { font-size: 14px; font-weight: 700; margin-bottom: 2px; color: var(--text-main); }
+        .toast.success .toast-icon { color: var(--success); } .toast.error .toast-icon { color: var(--danger); }
+        .toast.warning .toast-icon { color: var(--warning); } .toast.info .toast-icon { color: var(--secondary); }
+        .toast-content h5 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
         .toast-content p { font-size: 13px; color: var(--text-light); line-height: 1.4; }
-        
-        .toast-progress {
-            position: absolute; bottom: 0; left: 0; height: 3px; width: 100%;
-            background: rgba(0,0,0,0.05);
-        }
+        .toast-progress { position: absolute; bottom: 0; left: 0; height: 3px; width: 100%; background: rgba(0,0,0,0.05); }
         .toast-progress-bar { height: 100%; width: 100%; animation: shrinkBar 4s linear forwards; }
         .toast.success .toast-progress-bar { background: var(--success); }
-        .toast.error .toast-progress-bar { background: var(--danger); }
-        .toast.warning .toast-progress-bar { background: var(--warning); }
-        .toast.info .toast-progress-bar { background: var(--secondary); }
-
-        @keyframes slideInRight {
-            from { transform: translateX(110%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(110%); opacity: 0; }
-        }
-        @keyframes shrinkBar {
-            from { width: 100%; }
-            to { width: 0%; }
-        }
+        @keyframes slideInRight { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(110%); opacity: 0; } }
+        @keyframes shrinkBar { from { width: 100%; } to { width: 0%; } }
 
         /* SPLASH SCREEN */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(135deg, #090d16 0%, #111827 50%, #1e1b4b 100%);
-            z-index: 9999; display: flex; flex-direction: column; justify-content: center;
-            align-items: center; color: white; transition: opacity 0.8s ease, visibility 0.8s ease;
-            padding: 20px; text-align: center;
-        }
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #090d16 0%, #111827 50%, #1e1b4b 100%); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; transition: opacity 0.8s ease, visibility 0.8s ease; padding: 20px; text-align: center; }
         #splash-screen.fade-out { opacity: 0; visibility: hidden; }
-        
-        .splash-content {
-            max-width: 600px; display: flex; flex-direction: column; align-items: center;
-            animation: fadeInScale 1s ease-out;
-        }
-        .splash-icon {
-            font-size: 64px; color: var(--secondary); margin-bottom: 20px;
-            background: rgba(14, 165, 233, 0.1); padding: 25px; border-radius: 50%;
-            box-shadow: 0 0 30px rgba(14, 165, 233, 0.3); animation: pulseIcon 2s infinite ease-in-out;
-        }
-        .splash-title {
-            font-size: 32px; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px;
-            background: linear-gradient(to right, #38bdf8, #818cf8);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .splash-desc { font-size: 15px; color: #94a3b8; line-height: 1.6; margin-bottom: 30px; }
-        .splash-progress-container { width: 240px; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 30px; }
+        .splash-content { max-width: 600px; display: flex; flex-direction: column; align-items: center; animation: fadeInScale 1s ease-out; }
+        .splash-icon { font-size: 64px; color: var(--secondary); margin-bottom: 20px; background: rgba(14, 165, 233, 0.1); padding: 25px; border-radius: 50%; box-shadow: 0 0 30px rgba(14, 165, 233, 0.3); animation: pulseIcon 2s infinite ease-in-out; }
+        .splash-title { font-size: 32px; font-weight: 700; margin-bottom: 12px; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .splash-progress-container { width: 240px; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; margin-top: 30px; }
         .splash-progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #0ea5e9, #6366f1); border-radius: 10px; transition: width 0.1s linear; }
-        .splash-footer { position: absolute; bottom: 25px; font-size: 13px; color: #64748b; letter-spacing: 1px; font-weight: 500; }
-        .splash-footer span { color: #38bdf8; font-weight: 600; }
-        
         @keyframes fadeInScale { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes pulseIcon { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(14, 165, 233, 0.2); } 50% { transform: scale(1.08); box-shadow: 0 0 35px rgba(14, 165, 233, 0.4); } }
 
-        /* HEADER */
-        header {
-            background: var(--card-bg); backdrop-filter: blur(10px); color: var(--text-main);
-            padding: 15px 25px; display: flex; align-items: center; justify-content: space-between;
-            box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border);
+        /* ADVERTISEMENT MODAL UI (Start.io Web Fallback) */
+        #adModal {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000000; z-index: 10005; display: none; 
+            flex-direction: column; justify-content: center; align-items: center; color: white;
         }
+        #adTimer { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; }
+        .ad-content { text-align: center; max-width: 400px; padding: 20px; }
+        .ad-content i { font-size: 80px; color: var(--secondary); margin-bottom: 20px; animation: pulseIcon 1.5s infinite; }
+        .ad-content h2 { margin-bottom: 15px; font-size: 24px; }
+        .ad-content p { color: #cbd5e1; font-size: 14px; line-height: 1.5; margin-bottom: 30px; }
+        #closeAdBtn { display: none; background: var(--success); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        #closeAdBtn:hover { background: #059669; transform: scale(1.05); }
+
+        /* HEADER & LAYOUT */
+        header { background: var(--card-bg); padding: 15px 25px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
         header h1 { font-size: 22px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         .header-actions { display: flex; gap: 12px; }
-        
-        .btn {
-            border: none; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600;
-            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;
-        }
-        .btn-primary { background: var(--primary); color: white; box-shadow: var(--shadow-sm); }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-        .btn-pdf { background: var(--pdf-btn); color: white; }
-        .btn-pdf:hover { background: var(--pdf-btn-hover); }
-        .btn-danger { background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); }
-        .btn-danger:hover { background: var(--danger); color: white; }
+        .btn { border: none; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease; }
+        .btn-primary { background: var(--primary); color: white; } .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-pdf { background: var(--pdf-btn); color: white; } .btn-pdf:hover { background: var(--pdf-btn-hover); }
+        .btn-danger { background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); } .btn-danger:hover { background: var(--danger); color: white; }
 
-        /* DASHBOARD STATS */
-        .dashboard-stats {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px; padding: 25px; max-width: 1400px; margin: 0 auto; width: 100%;
-        }
-        .stat-card {
-            background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm);
-            display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); transition: transform 0.2s;
-        }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding: 25px; max-width: 1400px; margin: 0 auto; width: 100%; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); }
         .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-        .icon-blue { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
-        .icon-green { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .icon-red { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .icon-purple { background: rgba(147, 51, 234, 0.1); color: #9333ea; }
-        .stat-info h4 { font-size: 12px; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
-        .stat-info h2 { font-size: 22px; font-weight: 700; color: var(--text-main); }
+        .icon-blue { background: rgba(79, 70, 229, 0.1); color: var(--primary); } .icon-green { background: rgba(16, 185, 129, 0.1); color: var(--success); } .icon-red { background: rgba(239, 68, 68, 0.1); color: var(--danger); } .icon-purple { background: rgba(147, 51, 234, 0.1); color: #9333ea; }
+        .stat-info h4 { font-size: 12px; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-bottom: 5px; } .stat-info h2 { font-size: 22px; font-weight: 700; }
 
-        /* CONTROLS */
-        .controls-bar { display: flex; flex-wrap: wrap; gap: 15px; padding: 0 25px 15px 25px; max-width: 1400px; margin: 0 auto; width: 100%; }
-        .search-box { flex: 1; min-width: 300px; position: relative; }
-        .search-box input {
-            width: 100%; padding: 14px 45px; border-radius: 10px; border: 1px solid var(--border);
-            font-size: 15px; outline: none; transition: all 0.3s; box-shadow: var(--shadow-sm);
-            background: var(--card-bg); color: var(--text-main);
-        }
-        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
-        .search-box i.fa-search { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
+        .controls-bar { display: flex; gap: 15px; padding: 0 25px 15px; max-width: 1400px; margin: 0 auto; }
+        .search-box { flex: 1; position: relative; }
+        .search-box input { width: 100%; padding: 14px 45px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-main); outline: none; }
+        .search-box i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
 
-        /* CARDS GRID */
-        .cards-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;
-            padding: 10px 25px 30px 25px; max-width: 1400px; width: 100%; margin: 0 auto; flex: 1;
-        }
-        .card {
-            background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border); transition: all 0.3s ease; position: relative;
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
-        
-        .badge {
-            position: absolute; top: 15px; right: 15px; padding: 4px 10px; border-radius: 20px;
-            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .badge-success { background: #d1fae5; color: #065f46; }
-        .badge-warning { background: #fef3c7; color: #92400e; }
-        .badge-danger { background: #fee2e2; color: #991b1b; }
-
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 10px 25px 30px; max-width: 1400px; margin: 0 auto; flex: 1; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid var(--border); position: relative; display: flex; flex-direction: column; }
+        .badge { position: absolute; top: 15px; right: 15px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .badge-success { background: #d1fae5; color: #065f46; } .badge-warning { background: #fef3c7; color: #92400e; } .badge-danger { background: #fee2e2; color: #991b1b; }
         .card-header { margin-bottom: 15px; padding-right: 80px; }
-        .mat-code { font-size: 12px; color: var(--text-light); font-weight: 600; margin-bottom: 5px; }
-        .mat-name { font-size: 16px; font-weight: 700; color: var(--text-main); line-height: 1.4; }
+        .mat-code { font-size: 12px; color: var(--text-light); font-weight: 600; margin-bottom: 5px; } .mat-name { font-size: 16px; font-weight: 700; }
         
         .data-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .data-item { text-align: center; background: var(--data-bg); padding: 10px 5px; border-radius: 8px; border: 1px solid var(--border); }
-        .d-label { display: block; font-size: 11px; color: var(--text-light); font-weight: 600; margin-bottom: 4px; line-height: 1.2; word-break: break-word; }
-        .d-value { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .d-label { display: block; font-size: 11px; color: var(--text-light); font-weight: 600; margin-bottom: 4px; } .d-value { font-size: 15px; font-weight: 700; }
         
-        .stock-total {
-            background: rgba(14, 165, 233, 0.08); padding: 12px; border-radius: 8px; text-align: center;
-            border: 1px dashed var(--secondary); display: flex; justify-content: space-between; align-items: center;
-        }
-        .stock-total .d-label { margin: 0; color: var(--primary); font-size: 13px; }
-        .stock-total .d-value { color: var(--primary); font-size: 20px; }
+        .stock-total { background: rgba(14, 165, 233, 0.08); padding: 12px; border-radius: 8px; text-align: center; border: 1px dashed var(--secondary); display: flex; justify-content: space-between; align-items: center; }
+        .stock-total .d-label { margin: 0; color: var(--primary); font-size: 13px; } .stock-total .d-value { color: var(--primary); font-size: 20px; }
 
-        .load-more-container { text-align: center; padding: 20px; margin-bottom: 20px; }
-
-        /* FLOATING BUTTON & FOOTER */
-        .fab-settings {
-            position: fixed; bottom: 25px; right: 25px; width: 50px; height: 50px;
-            background: var(--primary); color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 20px;
-            box-shadow: var(--shadow-lg); cursor: pointer; z-index: 95; border: none;
-            transition: transform 0.3s, background 0.3s;
-        }
-        .fab-settings:hover { transform: scale(1.1) rotate(45deg); background: var(--primary-hover); }
-
-        footer {
-            text-align: center; padding: 15px; font-size: 13px; color: var(--text-light);
-            border-top: 1px solid var(--border); background: var(--card-bg); margin-top: auto;
-            font-weight: 600; letter-spacing: 0.5px;
-        }
-
+        .fab-settings { position: fixed; bottom: 25px; right: 25px; width: 50px; height: 50px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: var(--shadow-lg); cursor: pointer; z-index: 95; border: none; }
+        
         /* MODALS */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.7); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px);
-            animation: fadeInModal 0.25s ease;
-        }
-        @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
-
-        .modal {
-            background: var(--card-bg); color: var(--text-main); padding: 30px; border-radius: 16px;
-            width: 90%; max-width: 500px; box-shadow: var(--shadow-lg); position: relative;
-            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid var(--border);
-        }
-        @keyframes slideIn { from { transform: translateY(20px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-        .modal h2 { margin-top: 0; color: var(--text-main); font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .close-modal { position: absolute; top: 20px; right: 20px; background: var(--bg-color); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: var(--text-main); transition: 0.2s; }
-        .close-modal:hover { background: #e2e8f0; color: var(--danger); }
-
-        .upload-area {
-            border: 2px dashed var(--border); padding: 40px 20px; text-align: center; border-radius: 12px;
-            cursor: pointer; background: var(--bg-color); transition: all 0.3s; margin-top: 20px;
-        }
-        .upload-area:hover, .upload-area.dragover { background: rgba(79, 70, 229, 0.05); border-color: var(--primary); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.7); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal { background: var(--card-bg); padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; position: relative; border: 1px solid var(--border); }
+        .close-modal { position: absolute; top: 20px; right: 20px; background: var(--bg-color); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: var(--text-main); }
+        .upload-area { border: 2px dashed var(--border); padding: 40px 20px; text-align: center; border-radius: 12px; cursor: pointer; background: var(--bg-color); margin-top: 20px; }
+        .upload-area:hover { background: rgba(79, 70, 229, 0.05); border-color: var(--primary); }
         .upload-area i { font-size: 48px; color: var(--secondary); margin-bottom: 15px; }
-        #fileInput { display: none; }
-
-        .theme-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-top: 15px; }
-        .theme-btn {
-            padding: 12px 8px; border-radius: 8px; border: 2px solid var(--border);
-            cursor: pointer; text-align: center; font-size: 12px; font-weight: 600; transition: 0.2s;
-        }
-        .theme-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-
+        
         .empty-state { text-align: center; padding: 80px 20px; color: var(--text-light); grid-column: 1 / -1; }
-        .empty-state h2 { color: var(--text-main); margin-bottom: 10px; }
-
-        @media (max-width: 600px) {
-            .hide-mobile { display: none; }
-            .btn { padding: 10px; }
-            header { padding: 15px; }
-            .dashboard-stats { padding: 15px; }
-            .controls-bar { padding: 0 15px 15px 15px; }
-            .cards-grid { padding: 10px 15px 30px 15px; }
-        }
+        .theme-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-top: 15px; }
+        .theme-btn { padding: 12px 8px; border-radius: 8px; border: 2px solid var(--border); cursor: pointer; text-align: center; font-size: 12px; font-weight: 600; }
+        #fileInput { display: none; }
+        
+        @media (max-width: 600px) { .hide-mobile { display: none; } .cards-grid { padding: 10px 15px; } }
     </style>
 </head>
 <body class="theme-default">
 
-    <!-- TOAST NOTIFICATION -->
+    <!-- TOAST SYSTEM -->
     <div id="toast-container"></div>
 
-    <!-- SPLASH SCREEN -->
+    <!-- STARTUP SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="splash-content">
             <i class="fas fa-boxes splash-icon"></i>
             <h1 class="splash-title">Advanced Bin Card Manager</h1>
-            <p class="splash-desc">
-                Welcome to the professional inventory control system. Easily upload Excel spreadsheets, track stock receipts, issues, returns, and export detailed PDF reports in seconds.
-            </p>
-            <div class="splash-progress-container">
-                <div class="splash-progress-bar" id="splashProgressBar"></div>
-            </div>
+            <p style="color: #94a3b8;">Welcome to the professional inventory control system.</p>
+            <div class="splash-progress-container"><div class="splash-progress-bar" id="splashProgressBar"></div></div>
         </div>
-        <div class="splash-footer">Created By <span>Yomal Lakshan</span></div>
     </div>
 
+    <!-- START.IO AD MODAL (SIMULATION FOR WEB) -->
+    <div id="adModal">
+        <div id="adTimer">Reward in 5s</div>
+        <div class="ad-content">
+            <i class="fas fa-play-circle"></i>
+            <h2>Start.io Advertisement</h2>
+            <p><strong>App ID: 208327750</strong><br><br>මෙය Web Browser එක මත Video Ads Test කිරීමට ඇති ආකෘතියකි. ඔබගේ Android App එක හරහා මෙය run කරන විට සැබෑ Start.io Video Ad එක දර්ශනය වනු ඇත.</p>
+            <button id="closeAdBtn" onclick="closeAdAndReward()">Close Ad & Get Reward</button>
+        </div>
+    </div>
+
+    <!-- HEADER -->
     <header>
         <h1><i class="fas fa-cubes"></i> Bin Card</h1> 
         <div class="header-actions">
-            <button class="btn btn-pdf" id="btnDownloadPdf" onclick="downloadPDF()" style="display:none;" title="Export as PDF">
-                <i class="fas fa-file-pdf"></i> <span class="hide-mobile">Export PDF</span>
-            </button>
-            <button class="btn btn-primary" onclick="openModal()">
-                <i class="fas fa-upload"></i> <span class="hide-mobile">Upload Excel</span>
-            </button>
-            <button class="btn btn-danger" id="btnClearData" onclick="confirmClearData()" style="display:none;" title="Clear Data">
-                <i class="fas fa-trash-alt"></i>
-            </button>
+            <button class="btn btn-pdf" id="btnDownloadPdf" onclick="downloadPDF()" style="display:none;" title="Export as PDF"><i class="fas fa-file-pdf"></i> <span class="hide-mobile">Export PDF</span></button>
+            <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-upload"></i> <span class="hide-mobile">Upload Excel</span></button>
+            <button class="btn btn-danger" id="btnClearData" onclick="confirmClearData()" style="display:none;"><i class="fas fa-trash-alt"></i></button>
         </div>
     </header>
 
+    <!-- STATS -->
     <div class="dashboard-stats" id="dashboardStats" style="display: none;">
-        <div class="stat-card">
-            <div class="stat-icon icon-blue"><i class="fas fa-box-open"></i></div>
-            <div class="stat-info"><h4>Total Items</h4><h2 id="statTotalItems">0</h2></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-green"><i class="fas fa-arrow-down"></i></div>
-            <div class="stat-info"><h4>Total In (Received)</h4><h2 id="statTotalReceived">0</h2></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-red"><i class="fas fa-arrow-up"></i></div>
-            <div class="stat-info"><h4>Total Out (Issues)</h4><h2 id="statTotalIssues">0</h2></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon icon-purple"><i class="fas fa-warehouse"></i></div>
-            <div class="stat-info"><h4>Total Closing Stock</h4><h2 id="statTotalStock">0</h2></div>
-        </div>
+        <div class="stat-card"><div class="stat-icon icon-blue"><i class="fas fa-box-open"></i></div><div class="stat-info"><h4>Total Items</h4><h2 id="statTotalItems">0</h2></div></div>
+        <div class="stat-card"><div class="stat-icon icon-green"><i class="fas fa-arrow-down"></i></div><div class="stat-info"><h4>Total In</h4><h2 id="statTotalReceived">0</h2></div></div>
+        <div class="stat-card"><div class="stat-icon icon-red"><i class="fas fa-arrow-up"></i></div><div class="stat-info"><h4>Total Out</h4><h2 id="statTotalIssues">0</h2></div></div>
+        <div class="stat-card"><div class="stat-icon icon-purple"><i class="fas fa-warehouse"></i></div><div class="stat-info"><h4>Closing Stock</h4><h2 id="statTotalStock">0</h2></div></div>
     </div>
 
+    <!-- CONTROLS -->
     <div class="controls-bar" id="controlsBar" style="display: none;">
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Search by Material Code or Name..." oninput="handleSearch()">
-        </div>
+        <div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search by Material Code or Name..." oninput="handleSearch()"></div>
     </div>
 
     <div class="cards-grid" id="cardContainer"></div>
 
-    <div class="load-more-container" id="loadMoreContainer" style="display: none;">
-        <button class="btn btn-primary" onclick="loadMoreCards()">Load More Items</button>
-    </div>
-
-    <button class="fab-settings" onclick="openSettingsModal()" title="Settings & Themes">
-        <i class="fas fa-cog"></i>
-    </button>
-
-    <footer>Created By Yomal Lakshan</footer>
+    <button class="fab-settings" onclick="openSettingsModal()"><i class="fas fa-cog"></i></button>
 
     <!-- UPLOAD MODAL -->
     <div class="modal-overlay" id="uploadModal">
         <div class="modal">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <h2>Upload Bin Card Data</h2>
-            <p style="font-size: 14px; color: var(--text-light);">Select an Excel (.xlsx, .xls) or CSV file to update your inventory.</p>
             <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
                 <i class="fas fa-cloud-upload-alt"></i>
-                <p style="font-weight: 600; font-size: 16px; margin-bottom: 5px;">Click or Drag & Drop File</p>
-                <span style="font-size: 13px; color: var(--text-light);">Supports .xlsx, .xls, .csv</span>
+                <p style="font-weight: 600; font-size: 16px;">Click or Drag & Drop File</p>
                 <input type="file" id="fileInput" accept=".xlsx, .xls, .csv">
             </div>
         </div>
@@ -424,558 +217,233 @@
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
             <button class="close-modal" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
-            <h2><i class="fas fa-cog"></i> සැකසුම් සහ තේමා</h2>
-            <p style="font-size: 14px; color: var(--text-light); margin-bottom: 15px;">ඔබට ගැළපෙන දෘශ්‍ය තේමාව (Theme) පහතින් තෝරාගන්න:</p>
+            <h2><i class="fas fa-cog"></i> තේමා (Settings)</h2>
             <div class="theme-options">
                 <div class="theme-btn" onclick="setTheme('default')" style="background: #4f46e5; color: white;">Default</div>
                 <div class="theme-btn" onclick="setTheme('emerald')" style="background: #059669; color: white;">Emerald</div>
                 <div class="theme-btn" onclick="setTheme('sunset')" style="background: #ea580c; color: white;">Sunset</div>
-                <div class="theme-btn" onclick="setTheme('dark')" style="background: #1e293b; color: white; border: 1px solid #475569;">Dark</div>
-                <div class="theme-btn" onclick="setTheme('purple')" style="background: #9333ea; color: white;">Purple</div>
+                <div class="theme-btn" onclick="setTheme('dark')" style="background: #1e293b; color: white;">Dark</div>
             </div>
         </div>
     </div>
 
     <!-- CONFIRM MODAL -->
     <div class="modal-overlay" id="confirmModal">
-        <div class="modal" style="max-width: 400px; text-align: center;">
-            <div style="font-size: 45px; color: var(--warning); margin-bottom: 15px;"><i class="fas fa-exclamation-triangle"></i></div>
-            <h3 id="confirmTitle" style="font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text-main);">තහවුරු කිරීම</h3>
-            <p id="confirmMessage" style="font-size: 14px; color: var(--text-light); margin-bottom: 25px; line-height: 1.5;">මෙම ක්‍රියාව සිදු කිරීමට ඔබට අවශ්‍ය බව විශ්වාසද?</p>
+        <div class="modal" style="text-align: center;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 45px; color: var(--warning); margin-bottom: 15px;"></i>
+            <h3 id="confirmTitle" style="font-size: 18px; margin-bottom: 10px;">තහවුරු කිරීම</h3>
+            <p id="confirmMessage" style="font-size: 14px; color: var(--text-light); margin-bottom: 25px;">මෙම ක්‍රියාව සිදු කිරීමට අවශ්‍යද?</p>
             <div style="display: flex; gap: 10px; justify-content: center;">
-                <button class="btn" style="background: var(--border); color: var(--text-main);" onclick="closeConfirmModal(false)">අවලංගු කරන්න</button>
-                <button class="btn btn-danger" id="confirmYesBtn" onclick="closeConfirmModal(true)">මකා දමන්න</button>
+                <button class="btn" style="background: var(--border); color: var(--text-main);" onclick="closeConfirmModal(false)">Cancel</button>
+                <button class="btn btn-danger" onclick="closeConfirmModal(true)">Delete</button>
             </div>
         </div>
     </div>
 
     <script>
         "use strict";
-
-        let binCardData = [];
-        let filteredData = [];
+        let binCardData = [], filteredData = [], currentPage = 1, confirmCallback = null, rewardCallback = null, adInterval = null;
         const PAGE_SIZE = 50;
-        let currentPage = 1;
-        let confirmCallback = null;
-
-        // --- FIXED START.IO ADS LOGIC ---
-        // Ad load fail වුවහොත් app එක හිර නොවීමට fallback timer එකක් යොදා ඇත.
-        function triggerStartIoRewardedAd(onComplete) {
-            let adHandled = false;
-            
-            function done() {
-                if (!adHandled) {
-                    adHandled = true;
-                    if (typeof onComplete === 'function') onComplete();
-                }
-            }
-
-            // තත්පර 3 කට පසුවත් Ad එක load නොවුණහොත් ස්වයංක්‍රීයව File එක Upload වීම සිදුවේ
-            const fallbackTimer = setTimeout(() => {
-                done();
-            }, 3000);
-
-            try {
-                // 1. For App Builders (Kodular / Thunkable / Android Webview JS Bridges)
-                if (typeof StartAppInterface !== 'undefined' && typeof StartAppInterface.showRewarded === 'function') {
-                    StartAppInterface.showRewarded();
-                    clearTimeout(fallbackTimer);
-                    done(); // Continues background logic
-                    return;
-                }
-                
-                if (typeof Android !== 'undefined' && typeof Android.showRewardedAd === 'function') {
-                    Android.showRewardedAd();
-                    clearTimeout(fallbackTimer);
-                    done();
-                    return;
-                }
-
-                // 2. Start.io Web SDK Checks
-                if (window.startapp && typeof window.startapp.showRewardedAd === 'function') {
-                    window.startapp.showRewardedAd(
-                        function() { clearTimeout(fallbackTimer); done(); },
-                        function(err) { console.error("Ad error:", err); clearTimeout(fallbackTimer); done(); }
-                    );
-                    return;
-                }
-
-                if (window.StartApp && typeof window.StartApp.showRewardedAd === 'function') {
-                    window.StartApp.showRewardedAd({
-                        onReward: function() { clearTimeout(fallbackTimer); done(); },
-                        onClose: function() { clearTimeout(fallbackTimer); done(); },
-                        onError: function(err) { console.error("Start.io Error:", err); clearTimeout(fallbackTimer); done(); }
-                    });
-                    return;
-                }
-
-                // 3. Fallback
-                clearTimeout(fallbackTimer);
-                done();
-            } catch (e) {
-                console.error("Ad exception:", e);
-                clearTimeout(fallbackTimer);
-                done();
-            }
-        }
 
         // --- TOAST NOTIFICATIONS ---
-        function showToast(message, type = 'success', title = '') {
+        function showToast(message, type = 'success', title = 'සාර්ථකයි!') {
             const container = document.getElementById('toast-container');
-            if (!container) return;
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            
-            let iconClass = 'fas fa-check-circle';
-            let defaultTitle = 'සාර්ථකයි!';
-            if (type === 'error') { iconClass = 'fas fa-exclamation-circle'; defaultTitle = 'දෝෂයකි!'; }
-            else if (type === 'warning') { iconClass = 'fas fa-exclamation-triangle'; defaultTitle = 'අවවාදයයි!'; }
-            else if (type === 'info') { iconClass = 'fas fa-info-circle'; defaultTitle = 'තොරතුරු'; }
-
-            if (!title) title = defaultTitle;
-
-            toast.innerHTML = `
-                <div class="toast-icon"><i class="${iconClass}"></i></div>
-                <div class="toast-content" style="flex: 1;">
-                    <h5>${escapeHtml(title)}</h5>
-                    <p>${escapeHtml(message)}</p>
-                </div>
-                <div class="toast-progress"><div class="toast-progress-bar"></div></div>
-            `;
-
+            let iconClass = type === 'error' ? 'fa-exclamation-circle' : type === 'warning' ? 'fa-exclamation-triangle' : type === 'info' ? 'fa-info-circle' : 'fa-check-circle';
+            toast.innerHTML = `<div class="toast-icon"><i class="fas ${iconClass}"></i></div><div class="toast-content" style="flex: 1;"><h5>${title}</h5><p>${message}</p></div><div class="toast-progress"><div class="toast-progress-bar"></div></div>`;
             container.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.add('fade-out');
-                setTimeout(() => toast.remove(), 350);
-            }, 3800);
-        }
-
-        // --- CONFIRM MODAL ---
-        function showConfirmModal(title, message, onConfirm) {
-            document.getElementById('confirmTitle').innerText = title;
-            document.getElementById('confirmMessage').innerText = message;
-            confirmCallback = onConfirm;
-            document.getElementById('confirmModal').style.display = 'flex';
-        }
-
-        function closeConfirmModal(result) {
-            document.getElementById('confirmModal').style.display = 'none';
-            if (result && typeof confirmCallback === 'function') confirmCallback();
-            confirmCallback = null;
+            setTimeout(() => { toast.classList.add('fade-out'); setTimeout(() => toast.remove(), 350); }, 3800);
         }
 
         // --- SPLASH SCREEN ---
         window.addEventListener('load', () => {
-            const progressBar = document.getElementById('splashProgressBar');
-            const splashScreen = document.getElementById('splash-screen');
-            const totalDuration = 6000;
-            const intervalTime = 50;
             let elapsed = 0;
-
             const timer = setInterval(() => {
-                elapsed += intervalTime;
-                const percentage = Math.min((elapsed / totalDuration) * 100, 100);
-                if (progressBar) progressBar.style.width = percentage + '%';
-
-                if (elapsed >= totalDuration) {
+                elapsed += 50;
+                document.getElementById('splashProgressBar').style.width = Math.min((elapsed / 6000) * 100, 100) + '%';
+                if (elapsed >= 6000) {
                     clearInterval(timer);
-                    if (splashScreen) {
-                        splashScreen.classList.add('fade-out');
-                        setTimeout(() => { splashScreen.style.display = 'none'; }, 800);
-                    }
+                    document.getElementById('splash-screen').classList.add('fade-out');
+                    setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 800);
                 }
-            }, intervalTime);
+            }, 50);
         });
 
+        // --- INIT & THEMES ---
         document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('binCardTheme') || 'default';
-            setTheme(savedTheme, false);
-            setupDragAndDrop();
-            loadStoredData();
-
-            window.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal-overlay')) {
-                    closeModal();
-                    closeSettingsModal();
-                    closeConfirmModal(false);
-                }
-            });
+            setTheme(localStorage.getItem('binCardTheme') || 'default', false);
+            setupDragAndDrop(); loadStoredData();
+            window.addEventListener('click', e => { if (e.target.classList.contains('modal-overlay')) { closeModal(); closeSettingsModal(); closeConfirmModal(false); } });
         });
-
         function setTheme(themeName, save = true) {
             document.body.className = `theme-${themeName}`;
-            if (save) {
-                localStorage.setItem('binCardTheme', themeName);
-                closeSettingsModal();
-                showToast(`තේමාව '${themeName}' ලෙස වෙනස් කරන ලදී.`, 'success', 'තේමා වෙනස් විය');
-            }
+            if (save) { localStorage.setItem('binCardTheme', themeName); closeSettingsModal(); showToast(`තේමාව '${themeName}' ලෙස වෙනස් විය.`, 'success'); }
         }
-
         function openSettingsModal() { document.getElementById('settingsModal').style.display = 'flex'; }
         function closeSettingsModal() { document.getElementById('settingsModal').style.display = 'none'; }
         function openModal() { document.getElementById('uploadModal').style.display = 'flex'; }
         function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
+        function escapeHtml(str) { return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+        function parseNum(val) { let str = String(val||'').trim().replace(/,/g, ''); if(str.startsWith('(')&&str.endsWith(')')) str='-'+str.slice(1,-1); const p = parseFloat(str); return isNaN(p)?0:p; }
+        function formatNumber(num) { return num.toLocaleString('en-US', { maximumFractionDigits: 2 }); }
 
-        function escapeHtml(str) {
-            if (str === null || str === undefined) return '';
-            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
+        // --- REWARD VIDEO AD SYSTEM ---
+        function showRewardVideoAd(callback) {
+            rewardCallback = callback;
+            
+            // 1. Android Bridge Check (If you use WebView, this triggers the Real Start.io Ad)
+            if (typeof Android !== 'undefined' && typeof Android.showRewardVideo === 'function') {
+                window.onRewardVideoCompleted = function() {
+                    if (rewardCallback) rewardCallback();
+                    rewardCallback = null;
+                };
+                Android.showRewardVideo("208327750"); // Calling App Native Method
+                return;
+            }
 
-        function parseNum(val) {
-            if (val === undefined || val === null || val === '') return 0;
-            if (typeof val === 'number') return isNaN(val) ? 0 : val;
-            let str = String(val).trim().replace(/,/g, '');
-            if (str.startsWith('(') && str.endsWith(')')) str = '-' + str.substring(1, str.length - 1);
-            const parsed = parseFloat(str);
-            return isNaN(parsed) ? 0 : parsed;
-        }
+            // 2. Web Browser Simulation (Fallback)
+            document.getElementById('adModal').style.display = 'flex';
+            let timeLeft = 5;
+            document.getElementById('adTimer').innerText = `Reward in ${timeLeft}s`;
+            document.getElementById('closeAdBtn').style.display = 'none';
 
-        function formatNumber(num) {
-            return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
-        }
-
-        // --- LOCAL STORAGE HANDLING ---
-        function loadStoredData() {
-            const savedData = localStorage.getItem('advBinCardData');
-            if (savedData) {
-                try {
-                    const parsed = JSON.parse(savedData);
-                    binCardData = parsed.filter(item => {
-                        const r = parseNum(item.receipt);
-                        const i = parseNum(item.issues);
-                        const ret = parseNum(item.returnQty);
-                        return !(r === 0 && i === 0 && ret === 0);
-                    });
-
-                    filteredData = [...binCardData];
-                    if (binCardData.length > 0) {
-                        updateDashboardStats();
-                        toggleUIElements(true);
-                        renderCards(true);
-                    } else {
-                        showEmptyState();
-                    }
-                } catch (e) {
-                    console.error("Data parse error", e);
-                    showEmptyState();
+            adInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    document.getElementById('adTimer').innerText = `Reward in ${timeLeft}s`;
+                } else {
+                    clearInterval(adInterval);
+                    document.getElementById('adTimer').innerText = "Reward Granted!";
+                    document.getElementById('closeAdBtn').style.display = 'inline-block';
                 }
-            } else {
-                showEmptyState();
+            }, 1000);
+        }
+
+        function closeAdAndReward() {
+            document.getElementById('adModal').style.display = 'none';
+            if (rewardCallback) {
+                rewardCallback(); // Execute file processing
+                rewardCallback = null;
             }
         }
 
-        function toggleUIElements(hasData) {
-            document.getElementById('dashboardStats').style.display = hasData ? 'grid' : 'none';
-            document.getElementById('controlsBar').style.display = hasData ? 'flex' : 'none';
-            document.getElementById('btnClearData').style.display = hasData ? 'inline-flex' : 'none';
-            document.getElementById('btnDownloadPdf').style.display = hasData ? 'inline-flex' : 'none';
-        }
-
-        function updateDashboardStats() {
-            document.getElementById('statTotalItems').innerText = formatNumber(binCardData.length);
-            const totalRec = binCardData.reduce((sum, item) => sum + parseNum(item.receipt), 0);
-            const totalIss = binCardData.reduce((sum, item) => sum + parseNum(item.issues), 0);
-            const totalStock = binCardData.reduce((sum, item) => sum + parseNum(item.closingStock), 0);
-
-            if (document.getElementById('statTotalReceived')) document.getElementById('statTotalReceived').innerText = formatNumber(totalRec);
-            if (document.getElementById('statTotalIssues')) document.getElementById('statTotalIssues').innerText = formatNumber(totalIss);
-            if (document.getElementById('statTotalStock')) document.getElementById('statTotalStock').innerText = formatNumber(totalStock);
-        }
-
-        // --- DRAG & DROP AND FILE HANDLING ---
+        // --- FILE UPLOAD (Modified for Ads) ---
         function setupDragAndDrop() {
-            const dropArea = document.getElementById('dropArea');
-            if (!dropArea) return;
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
-            ['dragenter', 'dragover'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.add('dragover')));
-            ['dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.remove('dragover')));
-            
-            dropArea.addEventListener('drop', e => {
-                if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]);
-            });
-            
-            const fileInput = document.getElementById('fileInput');
-            if (fileInput) {
-                fileInput.addEventListener('change', e => {
-                    if (e.target.files.length) handleFileUpload(e.target.files[0]);
-                    e.target.value = ''; // Reset input to allow re-uploading same file
-                });
-            }
+            const da = document.getElementById('dropArea'), fi = document.getElementById('fileInput');
+            if(!da) return;
+            da.addEventListener('click', () => fi.click());
+            fi.addEventListener('change', e => { if (e.target.files.length) handleFileUpload(e.target.files[0]); e.target.value = ''; });
         }
 
         function handleFileUpload(file) {
-            showToast("ගොනුව සකස් කරමින් පවතී... කරුණාකර රැඳී සිටින්න.", "info", "සකසමින් පවතී");
+            closeModal(); // Hide upload modal first
+            showToast("තත්පර 1 කින් Reward Video එක ආරම්භ වේ...", "info", "කරුණාකර රැඳී සිටින්න");
 
-            // Execute Start.io Ad Before File Processing
-            triggerStartIoRewardedAd(() => {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                        processExcelData(firstSheet);
-                    } catch (error) {
-                        showToast(`දෝෂයක් ඇති විය: ${error.message}`, "error", "උඩුගත කිරීම අසාර්ථකයි");
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            });
-        }
-
-        function processExcelData(worksheet) {
-            const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-            
-            if (!rawData.length) {
-                showToast("Excel ගොනුව හිස්ය.", "error", "හිස් දත්ත ගොනුවකි");
-                return;
-            }
-
-            let parsedItems = [];
-            let headerRowIndex = -1;
-            let colMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
-
-            const keywords = {
-                code: [/code/i, /matcode/i, /item code/i, /කේතය/i, /\bid\b/i],
-                name: [/description/i, /item name/i, /material name/i, /details/i, /විස්තරය/i, /\bname\b/i],
-                receipt: [/received/i, /receipt/i, /\bin\b/i, /qty in/i, /ලැබීම්/i, /rec\b/i],
-                issue: [/issued/i, /issue/i, /\bout\b/i, /qty out/i, /නිකුත්/i],
-                returnQty: [/return/i, /ආපසු/i, /ret\b/i],
-                closing: [/balance/i, /closing/i, /stock/i, /ශේෂය/i, /bal\b/i]
-            };
-
-            for (let i = 0; i < Math.min(30, rawData.length); i++) {
-                let row = rawData[i];
-                if (!Array.isArray(row)) continue;
-                let tempMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
-                let matches = 0;
-
-                row.forEach((cell, idx) => {
-                    let text = String(cell).trim();
-                    if (!text) return;
-                    for (let key in keywords) {
-                        if (tempMap[key] === -1 && keywords[key].some(rx => rx.test(text))) {
-                            tempMap[key] = idx;
-                            matches++;
-                            break;
+            // 1 SECOND DELAY BEFORE REWARD VIDEO
+            setTimeout(() => {
+                showRewardVideoAd(() => {
+                    // This callback runs AFTER the ad is closed
+                    showToast("Video Ad එක සම්පූර්ණයි. ගොනුව සකසමින් පවතී...", "success", "Reward Granted!");
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        try {
+                            const data = new Uint8Array(e.target.result);
+                            const wb = XLSX.read(data, { type: 'array' });
+                            processExcelData(wb.Sheets[wb.SheetNames[0]]);
+                        } catch (err) {
+                            showToast(`දෝෂයක්: ${err.message}`, "error", "අසාර්ථකයි");
                         }
-                    }
+                    };
+                    reader.readAsArrayBuffer(file);
                 });
+            }, 1000); // 1000ms = 1 Second Delay
+        }
 
-                if (matches >= 2) {
-                    headerRowIndex = i;
-                    colMap = tempMap;
-                    break;
-                }
-            }
-
-            if (headerRowIndex === -1) {
-                headerRowIndex = 0;
-                colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: 4, closing: 5 };
-            }
-
-            for (let i = headerRowIndex + 1; i < rawData.length; i++) {
-                let row = rawData[i];
-                if (!row || !row.length) continue;
-
-                let code = colMap.code !== -1 && row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : `ITM-${i}`;
-                let name = colMap.name !== -1 && row[colMap.name] !== undefined ? String(row[colMap.name]).trim() : "";
-                
-                if (!code && !name) continue;
-                if (code.toLowerCase().includes("total") || name.toLowerCase().includes("total")) continue;
-
-                let rNum = parseNum(colMap.receipt !== -1 ? row[colMap.receipt] : 0);
-                let iNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
-                let retNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
-                let cNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
-
-                if (rNum === 0 && iNum === 0 && retNum === 0) continue;
-                if (!name) name = code;
-
-                parsedItems.push({
-                    matCode: code,
-                    matName: name,
-                    receipt: rNum,
-                    issues: iNum,
-                    returnQty: retNum,
-                    closingStock: cNum
-                });
-            }
-
-            if (!parsedItems.length) {
-                showToast("ගොනුව තුළ වලංගු දත්ත හමු නොවීය (In, Out, Return සියල්ල 0 නොවන දත්ත පමණක් පෙන්වයි).", "error", "දත්ත දෝෂයකි");
-                return;
-            }
-
-            binCardData = parsedItems;
-            try {
-                localStorage.setItem('advBinCardData', JSON.stringify(binCardData));
-                showToast('භාණ්ඩ දත්ත සාර්ථකව උඩුගත කරන ලදී!', 'success', 'සාර්ථකයි!');
-            } catch (e) {
-                showToast("Excel ගොනුව ඉතා විශාලයි, බ්‍රව්සරයේ මතකය (Storage) ප්‍රමාණවත් නොවේ.", "warning", "Storage Error");
-            }
-
-            filteredData = [...binCardData];
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) searchInput.value = '';
+        function processExcelData(ws) {
+            const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+            let items = [], hIdx = -1, map = { c: -1, n: -1, r: -1, i: -1, ret: -1, cl: -1 };
+            const kw = { c: [/code/i,/id\b/i], n: [/name/i,/desc/i], r: [/receipt/i,/in\b/i,/rec\b/i], i: [/issue/i,/out\b/i], ret: [/return/i,/ret\b/i], cl: [/closing/i,/bal/i,/stock/i] };
             
-            updateDashboardStats();
-            toggleUIElements(true);
-            renderCards(true);
-            closeModal();
+            for(let i=0; i<Math.min(30, raw.length); i++){
+                let r=raw[i], m=0, tMap={ c:-1, n:-1, r:-1, i:-1, ret:-1, cl:-1 };
+                if(!Array.isArray(r)) continue;
+                r.forEach((cell, idx) => {
+                    let txt = String(cell).trim(); if(!txt) return;
+                    for(let k in kw) if(tMap[k]===-1 && kw[k].some(rx=>rx.test(txt))) { tMap[k]=idx; m++; break; }
+                });
+                if(m>=2) { hIdx=i; map=tMap; break; }
+            }
+            if(hIdx===-1) { hIdx=0; map={ c:0, n:1, r:2, i:3, ret:4, cl:5 }; }
+
+            for(let i=hIdx+1; i<raw.length; i++) {
+                let r = raw[i]; if(!r || !r.length) continue;
+                let code = map.c!==-1 && r[map.c] ? String(r[map.c]).trim() : `ITM-${i}`;
+                let name = map.n!==-1 && r[map.n] ? String(r[map.n]).trim() : code;
+                if(!code && !name) continue;
+                let rec = parseNum(r[map.r]), iss = parseNum(r[map.i]), ret = parseNum(r[map.ret]), cl = parseNum(r[map.cl]);
+                if(rec===0 && iss===0 && ret===0) continue;
+                items.push({ matCode: code, matName: name, receipt: rec, issues: iss, returnQty: ret, closingStock: cl });
+            }
+            if(!items.length) return showToast("වලංගු දත්ත හමු නොවීය.", "error");
+            
+            binCardData = items; filteredData = [...binCardData];
+            localStorage.setItem('advBinCardData', JSON.stringify(binCardData));
+            updateUI(); showToast("දත්ත සාර්ථකව උඩුගත විය!", "success");
         }
 
-        // --- SEARCH & RENDERING ---
-        function handleSearch() {
-            const searchInput = document.getElementById('searchInput');
-            if (!searchInput) return;
-            const query = searchInput.value.toLowerCase().trim();
-
-            if (query === '') {
-                filteredData = [...binCardData];
-            } else {
-                filteredData = binCardData.filter(item => 
-                    item.matCode.toLowerCase().includes(query) || item.matName.toLowerCase().includes(query)
-                );
-            }
-            renderCards(true);
+        // --- CORE UI FUNCTIONS ---
+        function loadStoredData() {
+            try {
+                let s = localStorage.getItem('advBinCardData');
+                if(s) { binCardData = JSON.parse(s).filter(i=>!(parseNum(i.receipt)===0 && parseNum(i.issues)===0 && parseNum(i.returnQty)===0)); filteredData = [...binCardData]; updateUI(); }
+                else showEmptyState();
+            } catch(e) { showEmptyState(); }
         }
-
-        function renderCards(resetPage = false) {
-            const container = document.getElementById('cardContainer');
-            const loadMoreBtn = document.getElementById('loadMoreContainer');
-            if (!container) return;
-
-            if (resetPage) { currentPage = 1; container.innerHTML = ''; }
-
-            if (!filteredData.length) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-search" style="font-size: 50px; color: #cbd5e1; margin-bottom: 20px;"></i>
-                        <h2>භාණ්ඩ හමු නොවීය</h2>
-                        <p>ඔබ සෙවූ නම හෝ කේතය පරීක්ෂා කරන්න.</p>
-                    </div>`;
-                if (loadMoreBtn) loadMoreBtn.style.display = 'none';
-                return;
-            }
-
-            const startIdx = (currentPage - 1) * PAGE_SIZE;
-            const endIdx = Math.min(startIdx + PAGE_SIZE, filteredData.length);
-            const items = filteredData.slice(startIdx, endIdx);
-            const fragment = document.createDocumentFragment();
-
-            items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                
-                let badgeHTML = '';
-                if (item.closingStock <= 0) badgeHTML = '<span class="badge badge-danger">Out of Stock</span>';
-                else if (item.closingStock < 10) badgeHTML = '<span class="badge badge-warning">Low Stock</span>';
-                else badgeHTML = '<span class="badge badge-success">In Stock</span>';
-
-                card.innerHTML = `
-                    ${badgeHTML}
-                    <div class="card-header">
-                        <div class="mat-code"><i class="fas fa-barcode"></i> ${escapeHtml(item.matCode)}</div>
-                        <div class="mat-name">${escapeHtml(item.matName)}</div>
-                    </div>
-                    <div class="data-grid">
-                        <div class="data-item"><span class="d-label">In (Received)</span><span class="d-value text-green">${formatNumber(item.receipt)}</span></div>
-                        <div class="data-item"><span class="d-label">Out (Issues)</span><span class="d-value text-red">${formatNumber(item.issues)}</span></div>
-                        <div class="data-item"><span class="d-label">Return</span><span class="d-value">${formatNumber(item.returnQty)}</span></div>
-                    </div>
-                    <div class="stock-total">
-                        <span class="d-label">Closing Stock</span>
-                        <span class="d-value">${formatNumber(item.closingStock)}</span>
-                    </div>
-                `;
-                fragment.appendChild(card);
-            });
-
-            container.appendChild(fragment);
-            if (loadMoreBtn) {
-                loadMoreBtn.style.display = endIdx < filteredData.length ? 'block' : 'none';
-            }
+        function updateUI() {
+            if(!binCardData.length) return showEmptyState();
+            document.getElementById('dashboardStats').style.display='grid'; document.getElementById('controlsBar').style.display='flex';
+            document.getElementById('btnClearData').style.display='inline-flex'; document.getElementById('btnDownloadPdf').style.display='inline-flex';
+            document.getElementById('statTotalItems').innerText = formatNumber(binCardData.length);
+            document.getElementById('statTotalReceived').innerText = formatNumber(binCardData.reduce((s,i)=>s+parseNum(i.receipt),0));
+            document.getElementById('statTotalIssues').innerText = formatNumber(binCardData.reduce((s,i)=>s+parseNum(i.issues),0));
+            document.getElementById('statTotalStock').innerText = formatNumber(binCardData.reduce((s,i)=>s+parseNum(i.closingStock),0));
+            renderCards();
         }
-
-        function loadMoreCards() { currentPage++; renderCards(false); }
-
         function showEmptyState() {
-            toggleUIElements(false);
-            const container = document.getElementById('cardContainer');
-            if (container) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-folder-open" style="font-size: 60px; color: #cbd5e1; margin-bottom: 20px;"></i>
-                        <h2>දත්ත නොමැත</h2>
-                        <p>ඔබගේ Bin Card දත්ත ඇතුළත් කිරීමට "Upload Excel" ඔබන්න.</p>
-                    </div>
-                `;
-            }
+            document.getElementById('dashboardStats').style.display='none'; document.getElementById('controlsBar').style.display='none';
+            document.getElementById('btnClearData').style.display='none'; document.getElementById('btnDownloadPdf').style.display='none';
+            document.getElementById('cardContainer').innerHTML = `<div class="empty-state"><i class="fas fa-folder-open" style="font-size:60px;margin-bottom:20px;"></i><h2>දත්ත නොමැත</h2><p>Upload Excel ඔබන්න.</p></div>`;
+        }
+        function handleSearch() {
+            const q = document.getElementById('searchInput').value.toLowerCase().trim();
+            filteredData = q ? binCardData.filter(i=>i.matCode.toLowerCase().includes(q) || i.matName.toLowerCase().includes(q)) : [...binCardData];
+            renderCards();
+        }
+        function renderCards() {
+            const cont = document.getElementById('cardContainer'); cont.innerHTML = '';
+            if(!filteredData.length) return cont.innerHTML = `<div class="empty-state"><h2>භාණ්ඩ හමු නොවීය</h2></div>`;
+            const frag = document.createDocumentFragment();
+            filteredData.forEach(i => {
+                const c = document.createElement('div'); c.className = 'card';
+                let b = i.closingStock<=0 ? '<span class="badge badge-danger">Out of Stock</span>' : (i.closingStock<10 ? '<span class="badge badge-warning">Low Stock</span>' : '<span class="badge badge-success">In Stock</span>');
+                c.innerHTML = `${b}<div class="card-header"><div class="mat-code"><i class="fas fa-barcode"></i> ${escapeHtml(i.matCode)}</div><div class="mat-name">${escapeHtml(i.matName)}</div></div><div class="data-grid"><div class="data-item"><span class="d-label">In</span><span class="d-value text-green">${formatNumber(i.receipt)}</span></div><div class="data-item"><span class="d-label">Out</span><span class="d-value text-red">${formatNumber(i.issues)}</span></div><div class="data-item"><span class="d-label">Return</span><span class="d-value">${formatNumber(i.returnQty)}</span></div></div><div class="stock-total"><span class="d-label">Closing Stock</span><span class="d-value">${formatNumber(i.closingStock)}</span></div>`;
+                frag.appendChild(c);
+            });
+            cont.appendChild(frag);
         }
 
-        function confirmClearData() {
-            showConfirmModal(
-                "දත්ත මකා දැමීම තහවුරු කරන්න",
-                "ඔබට ගබඩා කර ඇති සියලුම දත්ත ඉවත් කිරීමට අවශ්‍ය බව විශ්වාසද? මෙම ක්‍රියාව ආපසු හැරවිය නොහැක.",
-                () => {
-                    localStorage.removeItem('advBinCardData');
-                    binCardData = []; 
-                    filteredData = [];
-                    showEmptyState();
-                    showToast("සියලු දත්ත සාර්ථකව ඉවත් කරන ලදී.", "success", "මකා දමන ලදී");
-                }
-            );
-        }
-
+        // --- DELETE & PDF ---
+        function showConfirmModal(t, m, cb) { document.getElementById('confirmTitle').innerText=t; document.getElementById('confirmMessage').innerText=m; confirmCallback=cb; document.getElementById('confirmModal').style.display='flex'; }
+        function closeConfirmModal(res) { document.getElementById('confirmModal').style.display='none'; if(res && confirmCallback) confirmCallback(); confirmCallback=null; }
+        function confirmClearData() { showConfirmModal("දත්ත මැකීම", "සියලු දත්ත ඉවත් කිරීමට අවශ්‍යද?", () => { localStorage.removeItem('advBinCardData'); binCardData=[]; filteredData=[]; showEmptyState(); showToast("දත්ත ඉවත් කරන ලදී."); }); }
+        
         function downloadPDF() {
-            if (!filteredData.length) {
-                showToast("බාගත කිරීමට කිසිදු දත්තයක් නොමැත!", "warning", "අවවාදයයි");
-                return;
-            }
-            
-            try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'pt', 'a4');
-                
-                doc.setFontSize(16); doc.setTextColor(79, 70, 229);
-                doc.text("Inventory Bin Card Report", 40, 40);
-                
-                doc.setFontSize(10); doc.setTextColor(100, 116, 139);
-                doc.text(`Generated Date: ${new Date().toLocaleString()}`, 40, 60);
-                doc.text(`Showing: ${filteredData.length} items`, 40, 75);
-
-                const tableRows = filteredData.map(item => [
-                    item.matCode, 
-                    item.matName, 
-                    formatNumber(item.receipt), 
-                    formatNumber(item.issues), 
-                    formatNumber(item.returnQty), 
-                    formatNumber(item.closingStock)
-                ]);
-
-                doc.autoTable({
-                    head: [["Code", "Item Name", "In (Received)", "Out (Issues)", "Returns", "Closing Stock"]],
-                    body: tableRows, 
-                    startY: 90, 
-                    theme: 'grid',
-                    styles: { fontSize: 8, cellPadding: 4 },
-                    headStyles: { fillColor: [79, 70, 229], textColor: 255 },
-                    columnStyles: { 
-                        0: { fontStyle: 'bold', cellWidth: 70 },
-                        1: { cellWidth: 140 },
-                        2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 
-                        5: { halign: 'right', fontStyle: 'bold', textColor: [16, 185, 129] }
-                    },
-                    margin: { top: 40, bottom: 40 }
-                });
-                
-                doc.save("BinCard_Report.pdf");
-                showToast("PDF වාර්තාව සාර්ථකව බාගත කරන ලදී!", "success", "සාර්ථකයි!");
-            } catch (e) {
-                console.error(e); 
-                showToast("PDF සකස් කිරීමේදී දෝෂයක් ඇති විය.", "error", "දෝෂයකි");
-            }
+            if(!filteredData.length) return;
+            const doc = new window.jspdf.jsPDF('p', 'pt', 'a4');
+            doc.setFontSize(16); doc.text("Inventory Bin Card Report", 40, 40); doc.setFontSize(10); doc.text(`Date: ${new Date().toLocaleString()}`, 40, 60);
+            doc.autoTable({ head: [["Code", "Item Name", "In", "Out", "Returns", "Closing"]], body: filteredData.map(i=>[i.matCode, i.matName, formatNumber(i.receipt), formatNumber(i.issues), formatNumber(i.returnQty), formatNumber(i.closingStock)]), startY: 80, theme: 'grid' });
+            doc.save("BinCard_Report.pdf"); showToast("PDF භාගත විය!", "success");
         }
     </script>
 </body>
