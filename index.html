@@ -16,32 +16,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
         /* THEMES CONFIGURATION */
-        body.theme-default {
-            --primary: #4f46e5; --primary-hover: #4338ca; --secondary: #0ea5e9; --bg-color: #f1f5f9;
-            --text-main: #0f172a; --text-light: #64748b; --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03); --border: #e2e8f0;
-        }
-        body.theme-emerald {
-            --primary: #059669; --primary-hover: #047857; --secondary: #10b981; --bg-color: #ecfdf5;
-            --text-main: #064e3b; --text-light: #047857; --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03); --border: #a7f3d0;
-        }
-        body.theme-sunset {
-            --primary: #ea580c; --primary-hover: #c2410c; --secondary: #f59e0b; --bg-color: #fff7ed;
-            --text-main: #7c2d12; --text-light: #9a3412; --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03); --border: #fed7aa;
-        }
-        body.theme-dark {
-            --primary: #6366f1; --primary-hover: #4f46e5; --secondary: #38bdf8; --bg-color: #0f172a;
-            --text-main: #f8fafc; --text-light: #94a3b8; --card-bg: #1e293b;
-            --data-bg: rgba(255, 255, 255, 0.05); --border: #334155;
-        }
-        body.theme-purple {
-            --primary: #9333ea; --primary-hover: #7e22ce; --secondary: #c084fc; --bg-color: #f3e8ff;
-            --text-main: #581c87; --text-light: #7e22ce; --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03); --border: #e9d5ff;
-        }
-
+        body.theme-default { --primary: #4f46e5; --primary-hover: #4338ca; --secondary: #0ea5e9; --bg-color: #f1f5f9; --text-main: #0f172a; --text-light: #64748b; --card-bg: #ffffff; --data-bg: rgba(0, 0, 0, 0.03); --border: #e2e8f0; }
+        body.theme-emerald { --primary: #059669; --primary-hover: #047857; --secondary: #10b981; --bg-color: #ecfdf5; --text-main: #064e3b; --text-light: #047857; --card-bg: #ffffff; --data-bg: rgba(0, 0, 0, 0.03); --border: #a7f3d0; }
+        body.theme-sunset { --primary: #ea580c; --primary-hover: #c2410c; --secondary: #f59e0b; --bg-color: #fff7ed; --text-main: #7c2d12; --text-light: #9a3412; --card-bg: #ffffff; --data-bg: rgba(0, 0, 0, 0.03); --border: #fed7aa; }
+        body.theme-dark { --primary: #6366f1; --primary-hover: #4f46e5; --secondary: #38bdf8; --bg-color: #0f172a; --text-main: #f8fafc; --text-light: #94a3b8; --card-bg: #1e293b; --data-bg: rgba(255, 255, 255, 0.05); --border: #334155; }
+        
         :root {
             --danger: #ef4444; --warning: #f59e0b; --success: #10b981;
             --pdf-btn: #e11d48; --pdf-btn-hover: #be123c;
@@ -81,7 +60,7 @@
         @keyframes fadeInScale { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes pulseIcon { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(14, 165, 233, 0.2); } 50% { transform: scale(1.08); box-shadow: 0 0 35px rgba(14, 165, 233, 0.4); } }
 
-        /* ADVERTISEMENT MODAL UI (Start.io Web Fallback) */
+        /* ADVERTISEMENT MODAL UI */
         #adModal {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #000000; z-index: 10005; display: none; 
@@ -294,11 +273,21 @@
             
             // 1. Android Bridge Check (If you use WebView, this triggers the Real Start.io Ad)
             if (typeof Android !== 'undefined' && typeof Android.showRewardVideo === 'function') {
+                
+                // ඇන්ඩ්‍රොයිඩ් ඇප් එකෙන් Ad එක සම්පූර්ණ කළ පසු මෙම function එක call කරනු ඇත.
                 window.onRewardVideoCompleted = function() {
                     if (rewardCallback) rewardCallback();
                     rewardCallback = null;
                 };
-                Android.showRewardVideo("208327750"); // Calling App Native Method
+
+                // Ad එක load වීමට අපොහොසත් වුවහොත් (No Fill/Network Error)
+                window.onRewardVideoFailed = function() {
+                    showToast("Ad එක load වීමට අපොහොසත් විය. ඉදිරියට යමින් පවතී...", "warning");
+                    if (rewardCallback) rewardCallback();
+                    rewardCallback = null;
+                };
+
+                Android.showRewardVideo("208327750"); 
                 return;
             }
 
@@ -307,6 +296,11 @@
             let timeLeft = 5;
             document.getElementById('adTimer').innerText = `Reward in ${timeLeft}s`;
             document.getElementById('closeAdBtn').style.display = 'none';
+
+            // දෝෂය නිවැරදි කිරීම: කලින් timer එකක් ධාවනය වේ නම් එය නවත්වන්න
+            if (adInterval) {
+                clearInterval(adInterval);
+            }
 
             adInterval = setInterval(() => {
                 timeLeft--;
@@ -328,36 +322,47 @@
             }
         }
 
-        // --- FILE UPLOAD (Modified for Ads) ---
+        // --- FILE UPLOAD (Fixed Memory Bug) ---
         function setupDragAndDrop() {
             const da = document.getElementById('dropArea'), fi = document.getElementById('fileInput');
             if(!da) return;
             da.addEventListener('click', () => fi.click());
-            fi.addEventListener('change', e => { if (e.target.files.length) handleFileUpload(e.target.files[0]); e.target.value = ''; });
+            fi.addEventListener('change', e => { 
+                if (e.target.files.length) {
+                    handleFileUpload(e.target.files[0]); 
+                }
+                e.target.value = ''; // අලුත් file එක select කිරීමට ඉඩ සලසයි
+            });
         }
 
         function handleFileUpload(file) {
             closeModal(); // Hide upload modal first
             showToast("තත්පර 1 කින් Reward Video එක ආරම්භ වේ...", "info", "කරුණාකර රැඳී සිටින්න");
 
-            // 1 SECOND DELAY BEFORE REWARD VIDEO
-            setTimeout(() => {
-                showRewardVideoAd(() => {
-                    // This callback runs AFTER the ad is closed
-                    showToast("Video Ad එක සම්පූර්ණයි. ගොනුව සකසමින් පවතී...", "success", "Reward Granted!");
-                    const reader = new FileReader();
-                    reader.onload = e => {
+            // දෝෂය නිවැරදි කිරීම: Ad එක play වීමට පෙර file එක මතකයට කියවා අවසන් කිරීම
+            const reader = new FileReader();
+            
+            reader.onload = e => {
+                const data = new Uint8Array(e.target.result); // File එක memory එකට ගනී
+                
+                setTimeout(() => {
+                    showRewardVideoAd(() => {
+                        showToast("Video Ad එක සම්පූර්ණයි. ගොනුව සකසමින් පවතී...", "success", "Reward Granted!");
                         try {
-                            const data = new Uint8Array(e.target.result);
                             const wb = XLSX.read(data, { type: 'array' });
                             processExcelData(wb.Sheets[wb.SheetNames[0]]);
                         } catch (err) {
                             showToast(`දෝෂයක්: ${err.message}`, "error", "අසාර්ථකයි");
                         }
-                    };
-                    reader.readAsArrayBuffer(file);
-                });
-            }, 1000); // 1000ms = 1 Second Delay
+                    });
+                }, 1000);
+            };
+
+            reader.onerror = () => {
+                showToast("ගොනුව කියවීමට නොහැකි විය.", "error", "අසාර්ථකයි");
+            };
+
+            reader.readAsArrayBuffer(file); // මෙතනින් file එක read කිරීම ආරම්භ කරයි
         }
 
         function processExcelData(ws) {
@@ -448,4 +453,3 @@
     </script>
 </body>
 </html>
-
