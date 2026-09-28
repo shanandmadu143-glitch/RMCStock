@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NovaBrowser - Google Powered</title>
+    <title>NovaBrowser - Universal Web App</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -40,7 +40,6 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* Top Browser Header */
         .browser-header {
             background-color: var(--nav-bg);
             border-bottom: 1px solid var(--border-color);
@@ -50,7 +49,6 @@
             gap: 8px;
         }
 
-        /* Tabs Bar */
         .tabs-bar {
             display: flex;
             gap: 5px;
@@ -102,7 +100,6 @@
             background: var(--border-color);
         }
 
-        /* Navigation Controls Bar */
         .nav-bar {
             display: flex;
             align-items: center;
@@ -128,7 +125,6 @@
             color: var(--accent-color);
         }
 
-        /* Address Bar */
         .address-bar {
             flex: 1;
             display: flex;
@@ -163,7 +159,6 @@
             font-size: 13px;
         }
 
-        /* Viewport Container */
         .viewport-container {
             flex: 1;
             position: relative;
@@ -181,7 +176,50 @@
             display: block;
         }
 
-        /* Google-style Custom Homepage */
+        /* External Warning Fallback Box (For websites that block iframe loading) */
+        .external-fallback {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .external-fallback.active {
+            display: flex;
+        }
+        .external-fallback h2 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+        .external-fallback p {
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 20px;
+            max-width: 500px;
+        }
+        .open-external-btn {
+            background: var(--accent-color);
+            color: #ffffff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .open-external-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Homepage View */
         .homepage {
             position: absolute;
             top: 0;
@@ -203,7 +241,6 @@
             letter-spacing: -2px;
             margin-bottom: 25px;
         }
-
         .google-logo .g1 { color: #4285F4; }
         .google-logo .g2 { color: #EA4335; }
         .google-logo .g3 { color: #FBBC05; }
@@ -224,11 +261,9 @@
             gap: 10px;
             margin-bottom: 20px;
         }
-
         .home-search-box:focus-within {
             border-color: var(--accent-color);
         }
-
         .home-search-input {
             flex: 1;
             background: transparent;
@@ -237,54 +272,26 @@
             color: var(--text-color);
             font-size: 16px;
         }
-
-        .quick-shortcuts {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 10px;
-        }
-
-        .shortcut-chip {
-            background: var(--nav-bg);
-            border: 1px solid var(--border-color);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            color: var(--text-color);
-            text-decoration: none;
-        }
-        .shortcut-chip:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
     </style>
 </head>
 <body>
 
-    <!-- Browser Header -->
     <div class="browser-header">
-        <!-- Tabs Bar -->
         <div class="tabs-bar" id="tabsBar"></div>
-
-        <!-- Navigation Bar -->
         <div class="nav-bar">
             <button class="nav-btn" onclick="goBack()">←</button>
             <button class="nav-btn" onclick="goForward()">→</button>
             <button class="nav-btn" onclick="reloadPage()">⟳</button>
             
             <div class="address-bar">
-                <span>🔍</span>
-                <input type="text" id="addressInput" class="address-input" placeholder="Search Google or enter a URL..." onkeypress="handleAddressInput(event)">
+                <span>🌐</span>
+                <input type="text" id="addressInput" class="address-input" placeholder="Search Google or enter a website URL..." onkeypress="handleAddressInput(event)">
             </div>
 
             <button class="theme-btn" onclick="toggleTheme()">☀️ / 🌙</button>
         </div>
     </div>
 
-    <!-- Viewport Container -->
     <div class="viewport-container" id="viewportContainer"></div>
 
     <script>
@@ -360,7 +367,7 @@
 
             tabs.forEach(tab => {
                 if (tab.url === "") {
-                    // Show Google Style Homepage inside the App
+                    // Homepage
                     const homeDiv = document.createElement('div');
                     homeDiv.className = `homepage ${tab.id === activeTabId ? '' : 'hidden'}`;
                     if (tab.id !== activeTabId) homeDiv.style.display = 'none';
@@ -371,28 +378,42 @@
                         </div>
                         <div class="home-search-box">
                             <span>🔍</span>
-                            <input type="text" id="homeSearchInput_${tab.id}" class="home-search-input" placeholder="Search Google or type a URL" onkeypress="handleHomeSearch(event, '${tab.id}')">
-                        </div>
-                        <div class="quick-shortcuts">
-                            <a class="shortcut-chip" onclick="loadUrlInActiveTab('https://en.wikipedia.org')">Wikipedia</a>
-                            <a class="shortcut-chip" onclick="loadUrlInActiveTab('https://github.com')">GitHub</a>
-                            <a class="shortcut-chip" onclick="loadUrlInActiveTab('https://news.ycombinator.com')">Hacker News</a>
+                            <input type="text" id="homeSearchInput_${tab.id}" class="home-search-input" placeholder="Search Google or type any website URL" onkeypress="handleHomeSearch(event, '${tab.id}')">
                         </div>
                     `;
                     container.appendChild(homeDiv);
                 } else {
-                    // Show Website / Google Search Results in Iframe
-                    const iframe = document.createElement('iframe');
-                    iframe.className = `browser-iframe ${tab.id === activeTabId ? 'active' : ''}`;
-                    
+                    // Check if it's a direct URL or a search query
                     let targetUrl = tab.url;
-                    // If the user inputs a search keyword instead of a web URL, redirecting directly to Google Search URL
                     if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-                        targetUrl = `https://www.google.com/search?igu=1&q=${encodeURIComponent(targetUrl)}`;
+                        if (targetUrl.includes('.') && !targetUrl.includes(' ')) {
+                            targetUrl = 'https://' + targetUrl;
+                        } else {
+                            targetUrl = `https://www.google.com/search?igu=1&q=${encodeURIComponent(targetUrl)}`;
+                        }
                     }
 
-                    iframe.src = targetUrl;
-                    container.appendChild(iframe);
+                    // Special handling for sites that block embedding (like pornhub, youtube, etc.)
+                    const restrictedSites = ['pornhub.com', 'youtube.com', 'facebook.com', 'instagram.com'];
+                    const isRestricted = restrictedSites.some(site => targetUrl.includes(site));
+
+                    if (isRestricted) {
+                        const fallbackDiv = document.createElement('div');
+                        fallbackDiv.className = `external-fallback ${tab.id === activeTabId ? 'active' : ''}`;
+                        if (tab.id !== activeTabId) fallbackDiv.style.display = 'none';
+
+                        fallbackDiv.innerHTML = `
+                            <h2>External Website Protection</h2>
+                            <p>This website (<b>${targetUrl}</b>) blocks loading inside browser frames for security reasons. You can open it securely in a new browser window/tab.</p>
+                            <a href="${targetUrl}" target="_blank" class="open-external-btn">Open Website Directly ↗</a>
+                        `;
+                        container.appendChild(fallbackDiv);
+                    } else {
+                        const iframe = document.createElement('iframe');
+                        iframe.className = `browser-iframe ${tab.id === activeTabId ? 'active' : ''}`;
+                        iframe.src = targetUrl;
+                        container.appendChild(iframe);
+                    }
                 }
             });
         }
@@ -433,7 +454,7 @@
             if (body.getAttribute('data-theme') === 'light') {
                 body.removeAttribute('data-theme');
             } else {
-                body.setAttribute('data-theme', 'light');
+                body.removeAttribute('data-theme', 'light');
             }
         }
 
