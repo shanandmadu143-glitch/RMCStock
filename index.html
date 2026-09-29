@@ -60,7 +60,6 @@
 
         .text-green { color: var(--success) !important; }
         .text-red { color: var(--danger) !important; }
-        .text-blue { color: var(--secondary) !important; }
 
         /* TOAST NOTIFICATION CONTAINER */
         #toast-container {
@@ -187,7 +186,7 @@
 
         /* CARDS GRID */
         .cards-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;
             padding: 10px 25px 30px 25px; max-width: 1400px; width: 100%; margin: 0 auto; flex: 1;
         }
         .card {
@@ -209,10 +208,10 @@
         .mat-code { font-size: 12px; color: var(--text-light); font-weight: 600; margin-bottom: 5px; }
         .mat-name { font-size: 16px; font-weight: 700; color: var(--text-main); line-height: 1.4; }
         
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .data-item { text-align: center; background: var(--data-bg); padding: 10px 5px; border-radius: 8px; border: 1px solid var(--border); }
         .d-label { display: block; font-size: 11px; color: var(--text-light); font-weight: 600; margin-bottom: 4px; line-height: 1.2; word-break: break-word; }
-        .d-value { font-size: 14px; font-weight: 700; color: var(--text-main); }
+        .d-value { font-size: 15px; font-weight: 700; color: var(--text-main); }
         
         .stock-total {
             background: rgba(14, 165, 233, 0.08); padding: 12px; border-radius: 8px; text-align: center;
@@ -478,6 +477,7 @@
         let currentPage = 1;
         let confirmCallback = null;
         
+        // Track current active file
         let currentFileId = null;
 
         // --- INDEXEDDB SETUP FOR MULTIPLE FILES ---
@@ -491,9 +491,11 @@
                 
                 request.onupgradeneeded = (event) => {
                     const database = event.target.result;
+                    // Store 1: Metadata (ID, Filename, Timestamp)
                     if (!database.objectStoreNames.contains('metadata')) {
                         database.createObjectStore('metadata', { keyPath: "id", autoIncrement: true });
                     }
+                    // Store 2: Actual Inventory Data corresponding to the ID
                     if (!database.objectStoreNames.contains('datasets')) {
                         database.createObjectStore('datasets', { keyPath: "id" });
                     }
@@ -508,6 +510,7 @@
             });
         }
 
+        // Save new file to DB
         function saveUploadToDB(filename, dataArray) {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction(['metadata', 'datasets'], "readwrite");
@@ -527,6 +530,7 @@
             });
         }
 
+        // Get all uploaded files (Metadata only)
         function getAllHistory() {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction(['metadata'], "readonly");
@@ -534,6 +538,7 @@
                 const request = store.getAll();
 
                 request.onsuccess = () => {
+                    // Sort descending by timestamp
                     const result = request.result || [];
                     result.sort((a, b) => b.timestamp - a.timestamp);
                     resolve(result);
@@ -542,6 +547,7 @@
             });
         }
 
+        // Load specific dataset by ID
         function loadDatasetFromDB(id) {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction(['datasets'], "readonly");
@@ -553,6 +559,7 @@
             });
         }
 
+        // Delete specific file from DB
         function deleteFileFromDB(id) {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction(['metadata', 'datasets'], "readwrite");
@@ -651,8 +658,11 @@
         async function initializeApp() {
             const history = await getAllHistory();
             if (history.length > 0) {
+                // Try to load the last viewed file or the most recent one
                 const savedIdStr = localStorage.getItem('activeBinCardFileId');
                 let targetId = savedIdStr ? parseInt(savedIdStr) : history[0].id;
+                
+                // Ensure targetId exists in history
                 const targetMeta = history.find(h => h.id === targetId) || history[0];
                 await loadFileIntoView(targetMeta.id, targetMeta.filename);
             } else {
@@ -775,7 +785,7 @@
                             binCardData = []; filteredData = [];
                             showEmptyState();
                         }
-                        loadHistoryUI(); 
+                        loadHistoryUI(); // Refresh modal list
                     } catch (e) {
                         showToast("මකා දැමීමේදී දෝෂයක්.", "error");
                     }
@@ -789,7 +799,8 @@
             confirmDeleteHistoryItem(currentFileId, filename);
         }
 
-        // --- FILE UPLOAD & PROPER CALCULATION MATH ---
+
+        // --- FILE UPLOAD PROCESSING ---
         function setupDragAndDrop() {
             const dropArea = document.getElementById('dropArea');
             if (!dropArea) return;
@@ -828,28 +839,27 @@
             const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
             if (!rawData.length) { showToast("Excel ගොනුව හිස්ය.", "error"); return; }
 
+            let parsedItems = [];
             let headerRowIndex = -1;
-            let colMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
+            let colMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
 
-            // Expanded keywords logic for accuracy
             const keywords = {
-                code: [/code/i, /matcode/i, /item code/i, /කේතය/i, /item no/i, /\bid\b/i, /Item_Code/i],
-                name: [/description/i, /item name/i, /material name/i, /details/i, /විස්තරය/i, /\bname\b/i, /Item_Name/i],
-                opening: [/opening/i, /open balance/i, /ආරම්භක/i, /op\b/i, /bf/i, /b\/f/i, /balance b\/f/i],
-                receipt: [/received/i, /receipt/i, /\bin\b/i, /qty in/i, /ලැබීම්/i, /rec\b/i, /addition/i],
-                issue: [/issued/i, /issue/i, /\bout\b/i, /qty out/i, /නිකුත්/i, /deduct/i],
+                code: [/code/i, /matcode/i, /item code/i, /කේතය/i, /\bid\b/i],
+                name: [/description/i, /item name/i, /material name/i, /details/i, /විස්තරය/i, /\bname\b/i],
+                receipt: [/received/i, /receipt/i, /\bin\b/i, /qty in/i, /ලැබීම්/i, /rec\b/i],
+                issue: [/issued/i, /issue/i, /\bout\b/i, /qty out/i, /නිකුත්/i],
                 returnQty: [/return/i, /ආපසු/i, /ret\b/i],
-                closing: [/balance/i, /closing/i, /stock/i, /ශේෂය/i, /bal\b/i, /qty/i, /quantity/i]
+                closing: [/balance/i, /closing/i, /stock/i, /ශේෂය/i, /bal\b/i]
             };
 
             for (let i = 0; i < Math.min(30, rawData.length); i++) {
                 let row = rawData[i];
                 if (!Array.isArray(row)) continue;
-                let tempMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
+                let tempMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
                 let matches = 0;
 
                 row.forEach((cell, idx) => {
-                    let text = String(cell).trim().toLowerCase();
+                    let text = String(cell).trim();
                     if (!text) return;
                     for (let key in keywords) {
                         if (tempMap[key] === -1 && keywords[key].some(rx => rx.test(text))) {
@@ -860,76 +870,69 @@
                 if (matches >= 2) { headerRowIndex = i; colMap = tempMap; break; }
             }
 
-            if (headerRowIndex === -1) headerRowIndex = 0; 
+            if (headerRowIndex === -1) {
+                headerRowIndex = 0; colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: 4, closing: 5 };
+            }
 
-            // NEW LOGIC: Map the data by item code to sum up duplicates properly
-            let itemMap = {};
+            // නිවැරදි සමීකරණ (Equations) සහිතව දත්ත Aggregate කිරීමට Map එකක් යොදාගැනීම
+            let itemsMap = new Map();
 
             for (let i = headerRowIndex + 1; i < rawData.length; i++) {
                 let row = rawData[i];
                 if (!row || !row.length) continue;
 
-                let code = colMap.code !== -1 && row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : "";
+                let code = colMap.code !== -1 && row[colMap.code] !== undefined ? String(row[colMap.code]).trim() : `ITM-${i}`;
                 let name = colMap.name !== -1 && row[colMap.name] !== undefined ? String(row[colMap.name]).trim() : "";
-
+                
                 if (!code && !name) continue;
                 if (code.toLowerCase().includes("total") || name.toLowerCase().includes("total")) continue;
 
-                if (!code) code = name; // Fallback to name if code is missing
-                if (!name) name = code; // Fallback to code if name is missing
-
-                let oNum = parseNum(colMap.opening !== -1 ? row[colMap.opening] : 0);
                 let rNum = parseNum(colMap.receipt !== -1 ? row[colMap.receipt] : 0);
                 let iNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
                 let retNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
-                let cNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
+                
+                // Excel හි Closing අගයක් නිශ්චිතව ඇත්දැයි බැලීම
+                let hasClosingVal = colMap.closing !== -1 && row[colMap.closing] !== undefined && String(row[colMap.closing]).trim() !== "";
+                let cNum = hasClosingVal ? parseNum(row[colMap.closing]) : 0;
 
-                if (!itemMap[code]) {
-                    itemMap[code] = { 
+                // පේළිය සම්පූර්ණයෙන්ම හිස් නම් මඟහැරීම
+                if (rNum === 0 && iNum === 0 && retNum === 0 && cNum === 0) continue;
+                if (!name) name = code;
+
+                // IndexedDB සඳහා අවශ්‍ය මූලික සමීකරණය (Equation): (ලැබීම් + ආපසු) - නිකුත් කිරීම්
+                let calculatedClosing = (rNum + retNum) - iNum;
+
+                if (itemsMap.has(code)) {
+                    let existing = itemsMap.get(code);
+                    existing.receipt += rNum;
+                    existing.issues += iNum;
+                    existing.returnQty += retNum;
+                    // සමීකරණය භාවිතයෙන් නව ශේෂය (Closing Stock) නිවැරදිව යාවත්කාලීන කිරීම
+                    existing.closingStock += calculatedClosing;
+                } else {
+                    // Excel හි ශේෂයක් ලබා දී ඇත්නම් එය පළමු අගය ලෙස ගනී, නැත්නම් සමීකරණයෙන් ශේෂය ගණනය කරයි
+                    let initialClosing = hasClosingVal ? cNum : calculatedClosing;
+                    
+                    itemsMap.set(code, { 
                         matCode: code, 
                         matName: name, 
-                        opening: 0, 
-                        receipt: 0, 
-                        issues: 0, 
-                        returnQty: 0,
-                        explicitClosing: null 
-                    };
-                }
-
-                let item = itemMap[code];
-                item.opening += oNum;
-                item.receipt += rNum;
-                item.issues += iNum;
-                item.returnQty += retNum;
-
-                // Capture the explicit closing balance if it exists in the row
-                if (colMap.closing !== -1 && row[colMap.closing] !== undefined && row[colMap.closing] !== "") {
-                    item.explicitClosing = cNum;
+                        receipt: rNum, 
+                        issues: iNum, 
+                        returnQty: retNum, 
+                        closingStock: initialClosing 
+                    });
                 }
             }
 
-            let parsedItems = Object.values(itemMap).map(item => {
-                // *** PROPER CLOSING STOCK EQUATION ***
-                // Closing Stock = Opening Balance + Receipts + Returns - Issues
-                let calculatedStock = item.opening + item.receipt + item.returnQty - item.issues;
-
-                // Logic to handle direct stock sheets (no IN/OUT, just direct stock)
-                if (item.opening === 0 && item.receipt === 0 && item.issues === 0 && item.returnQty === 0 && item.explicitClosing !== null) {
-                    item.closingStock = item.explicitClosing;
-                } else {
-                    item.closingStock = calculatedStock;
-                }
-                
-                delete item.explicitClosing; // Remove temp data
-                return item;
-            });
+            // Map එක මඟින් නිවැරදි කරන ලද අවසන් දත්ත ගොන්න (array) සකස් කිරීම
+            parsedItems = Array.from(itemsMap.values());
 
             if (!parsedItems.length) {
                 showToast("ගොනුව තුළ වලංගු දත්ත හමු නොවීය.", "error"); return;
             }
 
             try {
-                // Data successfully structured & mathematical values applied, saving to DB
+                // සමීකරණ වලින් සකස් කරගත් නිවැරදි දත්ත පමණක් IndexedDB එකට ලබා දීම
                 const result = await saveUploadToDB(filename, parsedItems);
                 await loadFileIntoView(result.id, result.filename);
                 showToast('භාණ්ඩ දත්ත සාර්ථකව උඩුගත කරන ලදී!', 'success');
@@ -1001,10 +1004,9 @@
                         <div class="mat-name">${escapeHtml(item.matName)}</div>
                     </div>
                     <div class="data-grid">
-                        <div class="data-item"><span class="d-label">Open</span><span class="d-value text-blue">${formatNumber(item.opening)}</span></div>
-                        <div class="data-item"><span class="d-label">In (+)</span><span class="d-value text-green">${formatNumber(item.receipt)}</span></div>
-                        <div class="data-item"><span class="d-label">Out (-)</span><span class="d-value text-red">${formatNumber(item.issues)}</span></div>
-                        <div class="data-item"><span class="d-label">Return (+)</span><span class="d-value">${formatNumber(item.returnQty)}</span></div>
+                        <div class="data-item"><span class="d-label">In (Rec)</span><span class="d-value text-green">${formatNumber(item.receipt)}</span></div>
+                        <div class="data-item"><span class="d-label">Out (Iss)</span><span class="d-value text-red">${formatNumber(item.issues)}</span></div>
+                        <div class="data-item"><span class="d-label">Return</span><span class="d-value">${formatNumber(item.returnQty)}</span></div>
                     </div>
                     <div class="stock-total"><span class="d-label">Closing Stock</span><span class="d-value">${formatNumber(item.closingStock)}</span></div>
                 `;
@@ -1049,17 +1051,17 @@
                 doc.text(`Showing: ${filteredData.length} items`, 40, 85);
 
                 const tableRows = filteredData.map(item => [
-                    item.matCode, item.matName, formatNumber(item.opening), formatNumber(item.receipt), formatNumber(item.issues), formatNumber(item.returnQty), formatNumber(item.closingStock)
+                    item.matCode, item.matName, formatNumber(item.receipt), formatNumber(item.issues), formatNumber(item.returnQty), formatNumber(item.closingStock)
                 ]);
 
                 doc.autoTable({
-                    head: [["Code", "Item Name", "Open", "In (+)", "Out (-)", "Ret (+)", "Closing"]],
+                    head: [["Code", "Item Name", "In (Rec)", "Out (Iss)", "Returns", "Closing Stock"]],
                     body: tableRows, startY: 100, theme: 'grid', styles: { fontSize: 8, cellPadding: 4 },
                     headStyles: { fillColor: [79, 70, 229], textColor: 255 },
                     columnStyles: { 
-                        0: { fontStyle: 'bold', cellWidth: 60 }, 1: { cellWidth: 120 },
-                        2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' },
-                        6: { halign: 'right', fontStyle: 'bold', textColor: [16, 185, 129] }
+                        0: { fontStyle: 'bold', cellWidth: 70 }, 1: { cellWidth: 140 },
+                        2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 
+                        5: { halign: 'right', fontStyle: 'bold', textColor: [16, 185, 129] }
                     },
                     margin: { top: 40, bottom: 40 }
                 });
