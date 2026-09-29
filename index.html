@@ -168,7 +168,7 @@
         .stat-info h4 { font-size: 12px; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
         .stat-info h2 { font-size: 22px; font-weight: 700; color: var(--text-main); }
 
-        /* CONTROLS & FILE INFO */
+        /* CONTROLS (SEARCH) & FILE INFO */
         .controls-bar { display: flex; flex-wrap: wrap; gap: 15px; padding: 0 25px 15px 25px; max-width: 1400px; margin: 0 auto; width: 100%; align-items: center; }
         .search-box { flex: 1; min-width: 300px; position: relative; }
         .search-box input {
@@ -844,23 +844,21 @@
 
             let parsedItems = [];
             let headerRowIndex = -1;
-            let colMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
+            let colMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1 };
 
-            // Comprehensive keywords for matching columns in Sinhala and English
             const keywords = {
-                code: [/code/i, /matcode/i, /item code/i, /කේතය/i, /\bid\b/i, /item no/i, /part no/i, /අංකය/i],
-                name: [/description/i, /item name/i, /material name/i, /details/i, /විස්තරය/i, /\bname\b/i, /භාණ්ඩය/i, /විස්තර/i],
-                opening: [/opening/i, /open\b/i, /b\/f/i, /bf\b/i, /beginning/i, /මුල් ශේෂය/i, /පෙර ශේෂය/i, /prev/i, /initial/i],
-                receipt: [/received/i, /receipt/i, /\bin\b/i, /qty in/i, /ලැබීම්/i, /rec\b/i, /purchase/i, /inward/i, /ගැනුම්/i],
-                issue: [/issued/i, /issue/i, /\bout\b/i, /qty out/i, /නිකුත්/i, /iss\b/i, /outward/i, /sales/i],
-                returnQty: [/return/i, /ආපසු/i, /ret\b/i, /rejection/i],
-                closing: [/closing\s*stock/i, /\bclosing\b/i, /\bbalance\b/i, /\bstock\b/i, /ශේෂය/i, /අවසාන ශේෂය/i, /bal\b/i, /on hand/i, /current stock/i]
+                code: [/code/i, /matcode/i, /item code/i, /කේතය/i, /\bid\b/i],
+                name: [/description/i, /item name/i, /material name/i, /details/i, /විස්තරය/i, /\bname\b/i],
+                opening: [/opening/i, /open\b/i, /b\/f/i, /beginning/i, /මුල් ශේෂය/i, /prev/i],
+                receipt: [/received/i, /receipt/i, /\bin\b/i, /qty in/i, /ලැබීම්/i, /rec\b/i],
+                issue: [/issued/i, /issue/i, /\bout\b/i, /qty out/i, /නිකුත්/i],
+                returnQty: [/return/i, /ආපසු/i, /ret\b/i]
             };
 
             for (let i = 0; i < Math.min(30, rawData.length); i++) {
                 let row = rawData[i];
                 if (!Array.isArray(row)) continue;
-                let tempMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
+                let tempMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1 };
                 let matches = 0;
 
                 row.forEach((cell, idx) => {
@@ -876,7 +874,7 @@
             }
 
             if (headerRowIndex === -1) {
-                headerRowIndex = 0; colMap = { code: 0, name: 1, opening: -1, receipt: 2, issue: 3, returnQty: 4, closing: 5 };
+                headerRowIndex = 0; colMap = { code: 0, name: 1, opening: -1, receipt: 2, issue: 3, returnQty: 4 };
             }
 
             for (let i = headerRowIndex + 1; i < rawData.length; i++) {
@@ -897,7 +895,7 @@
                 if (rNum === 0 && iNum === 0 && retNum === 0 && openNum === 0) continue;
                 if (!name) name = code;
 
-                // --- ROBUST CLOSING STOCK CALCULATION & CORRECTION ---
+                // --- AUTOMATIC CORRECT CLOSING STOCK CALCULATION ---
                 // Formula: Opening Stock + Receipts - Issues + Returns
                 let calculatedClosingStock = openNum + rNum - iNum + retNum;
 
