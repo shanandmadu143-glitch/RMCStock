@@ -17,67 +17,34 @@
 
         /* THEMES CONFIGURATION */
         body.theme-default {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --secondary: #0ea5e9;
-            --bg-color: #f1f5f9;
-            --text-main: #0f172a;
-            --text-light: #64748b;
-            --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03);
-            --border: #e2e8f0;
+            --primary: #4f46e5; --primary-hover: #4338ca; --secondary: #0ea5e9;
+            --bg-color: #f1f5f9; --text-main: #0f172a; --text-light: #64748b;
+            --card-bg: #ffffff; --data-bg: rgba(0, 0, 0, 0.03); --border: #e2e8f0;
         }
         body.theme-emerald {
-            --primary: #059669;
-            --primary-hover: #047857;
-            --secondary: #10b981;
-            --bg-color: #ecfdf5;
-            --text-main: #064e3b;
-            --text-light: #047857;
-            --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03);
-            --border: #a7f3d0;
+            --primary: #059669; --primary-hover: #047857; --secondary: #10b981;
+            --bg-color: #ecfdf5; --text-main: #064e3b; --text-light: #047857;
+            --card-bg: #ffffff; --data-bg: rgba(0, 0, 0, 0.03); --border: #a7f3d0;
         }
         body.theme-sunset {
-            --primary: #ea580c;
-            --primary-hover: #c2410c;
-            --secondary: #f59e0b;
-            --bg-color: #fff7ed;
-            --text-main: #7c2d12;
-            --text-light: #9a3412;
-            --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03);
-            --border: #fed7aa;
+            --primary: #ea580c; --primary-hover: #c2410c; --secondary: #f59e0b;
+            --bg-color: #fff7ed; --text-main: #7c2d12; --text-light: #9a3412;
+            --card-bg: #ffffff; --data-bg: rgba(0, 0, 0, 0.03); --border: #fed7aa;
         }
         body.theme-dark {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --secondary: #38bdf8;
-            --bg-color: #0f172a;
-            --text-main: #f8fafc;
-            --text-light: #94a3b8;
-            --card-bg: #1e293b;
-            --data-bg: rgba(255, 255, 255, 0.05);
-            --border: #334155;
+            --primary: #6366f1; --primary-hover: #4f46e5; --secondary: #38bdf8;
+            --bg-color: #0f172a; --text-main: #f8fafc; --text-light: #94a3b8;
+            --card-bg: #1e293b; --data-bg: rgba(255, 255, 255, 0.05); --border: #334155;
         }
         body.theme-purple {
-            --primary: #9333ea;
-            --primary-hover: #7e22ce;
-            --secondary: #c084fc;
-            --bg-color: #f3e8ff;
-            --text-main: #581c87;
-            --text-light: #7e22ce;
-            --card-bg: #ffffff;
-            --data-bg: rgba(0, 0, 0, 0.03);
-            --border: #e9d5ff;
+            --primary: #9333ea; --primary-hover: #7e22ce; --secondary: #c084fc;
+            --bg-color: #f3e8ff; --text-main: #581c87; --text-light: #7e22ce;
+            --card-bg: #ffffff; --data-bg: rgba(0, 0, 0, 0.03); --border: #e9d5ff;
         }
 
         :root {
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-            --pdf-btn: #e11d48;
-            --pdf-btn-hover: #be123c;
+            --danger: #ef4444; --warning: #f59e0b; --success: #10b981;
+            --pdf-btn: #e11d48; --pdf-btn-hover: #be123c;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -86,13 +53,9 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-color); color: var(--text-main);
+            display: flex; flex-direction: column; min-height: 100vh;
+            overflow-x: hidden; transition: background-color 0.3s, color 0.3s;
         }
 
         .text-green { color: var(--success) !important; }
@@ -131,20 +94,11 @@
         .toast.warning .toast-progress-bar { background: var(--warning); }
         .toast.info .toast-progress-bar { background: var(--secondary); }
 
-        @keyframes slideInRight {
-            from { transform: translateX(110%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(110%); opacity: 0; }
-        }
-        @keyframes shrinkBar {
-            from { width: 100%; }
-            to { width: 0%; }
-        }
+        @keyframes slideInRight { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(110%); opacity: 0; } }
+        @keyframes shrinkBar { from { width: 100%; } to { width: 0%; } }
 
-        /* SPLASH SCREEN (6 SECONDS) */
+        /* SPLASH SCREEN */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(135deg, #090d16 0%, #111827 50%, #1e1b4b 100%);
@@ -154,10 +108,7 @@
         }
         #splash-screen.fade-out { opacity: 0; visibility: hidden; }
         
-        .splash-content {
-            max-width: 600px; display: flex; flex-direction: column; align-items: center;
-            animation: fadeInScale 1s ease-out;
-        }
+        .splash-content { max-width: 600px; display: flex; flex-direction: column; align-items: center; animation: fadeInScale 1s ease-out; }
         .splash-icon {
             font-size: 64px; color: var(--secondary); margin-bottom: 20px;
             background: rgba(14, 165, 233, 0.1); padding: 25px; border-radius: 50%;
@@ -165,13 +116,12 @@
         }
         .splash-title {
             font-size: 32px; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px;
-            background: linear-gradient(to right, #38bdf8, #818cf8);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .splash-desc { font-size: 15px; color: #94a3b8; line-height: 1.6; margin-bottom: 30px; }
         .splash-progress-container { width: 240px; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 30px; }
         .splash-progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #0ea5e9, #6366f1); border-radius: 10px; transition: width 0.1s linear; }
-        .splash-footer { position: absolute; bottom: 25px; font-size: 13px; color: #64748b; letter-spacing: 1px; font-weight: 500; }
+        .splash-footer { position: absolute; bottom: 25px; font-size: 13px; color: #64748b; font-weight: 500; }
         .splash-footer span { color: #38bdf8; font-weight: 600; }
         
         @keyframes fadeInScale { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -192,6 +142,8 @@
         }
         .btn-primary { background: var(--primary); color: white; box-shadow: var(--shadow-sm); }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .btn-secondary { background: var(--secondary); color: white; box-shadow: var(--shadow-sm); }
+        .btn-secondary:hover { background: #0284c7; transform: translateY(-1px); }
         .btn-pdf { background: var(--pdf-btn); color: white; }
         .btn-pdf:hover { background: var(--pdf-btn-hover); }
         .btn-danger { background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); }
@@ -215,8 +167,8 @@
         .stat-info h4 { font-size: 12px; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
         .stat-info h2 { font-size: 22px; font-weight: 700; color: var(--text-main); }
 
-        /* CONTROLS (SEARCH) */
-        .controls-bar { display: flex; flex-wrap: wrap; gap: 15px; padding: 0 25px 15px 25px; max-width: 1400px; margin: 0 auto; width: 100%; }
+        /* CONTROLS (SEARCH) & FILE INFO */
+        .controls-bar { display: flex; flex-wrap: wrap; gap: 15px; padding: 0 25px 15px 25px; max-width: 1400px; margin: 0 auto; width: 100%; align-items: center; }
         .search-box { flex: 1; min-width: 300px; position: relative; }
         .search-box input {
             width: 100%; padding: 14px 45px; border-radius: 10px; border: 1px solid var(--border);
@@ -225,6 +177,12 @@
         }
         .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
         .search-box i.fa-search { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
+        
+        .active-file-badge {
+            background: rgba(14, 165, 233, 0.1); color: var(--secondary); padding: 10px 15px;
+            border-radius: 8px; font-size: 13px; font-weight: 600; border: 1px dashed var(--secondary);
+            display: flex; align-items: center; gap: 8px;
+        }
 
         /* CARDS GRID */
         .cards-grid {
@@ -280,7 +238,7 @@
             font-weight: 600; letter-spacing: 0.5px;
         }
 
-        /* MODAL */
+        /* MODALS */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15, 23, 42, 0.7); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px);
@@ -294,6 +252,7 @@
             animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid var(--border);
         }
         @keyframes slideIn { from { transform: translateY(20px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        
         .modal h2 { margin-top: 0; color: var(--text-main); font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         .close-modal { position: absolute; top: 20px; right: 20px; background: var(--bg-color); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: var(--text-main); transition: 0.2s; }
         .close-modal:hover { background: #e2e8f0; color: var(--danger); }
@@ -305,6 +264,23 @@
         .upload-area:hover, .upload-area.dragover { background: rgba(79, 70, 229, 0.05); border-color: var(--primary); }
         .upload-area i { font-size: 48px; color: var(--secondary); margin-bottom: 15px; }
         #fileInput { display: none; }
+
+        /* HISTORY LIST CSS */
+        .history-list { margin-top: 20px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .history-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; border: 1px solid var(--border); border-radius: 10px;
+            margin-bottom: 12px; background: var(--bg-color); transition: all 0.2s;
+        }
+        .history-item:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); }
+        .history-item.active-history { border-color: var(--success); background: rgba(16, 185, 129, 0.05); }
+        
+        .history-info { flex: 1; }
+        .history-info h4 { margin: 0; font-size: 15px; color: var(--text-main); margin-bottom: 5px; font-weight: 600; }
+        .history-info p { margin: 0; font-size: 12px; color: var(--text-light); }
+        
+        .history-actions { display: flex; gap: 8px; }
+        .history-actions .btn { padding: 8px 12px; font-size: 12px; }
 
         /* THEME OPTIONS GRID */
         .theme-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-top: 15px; }
@@ -324,6 +300,8 @@
             .dashboard-stats { padding: 15px; }
             .controls-bar { padding: 0 15px 15px 15px; }
             .cards-grid { padding: 10px 15px 30px 15px; }
+            .history-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .history-actions { width: 100%; justify-content: flex-end; }
         }
     </style>
 </head>
@@ -332,13 +310,13 @@
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container"></div>
 
-    <!-- 6 SECONDS SPLASH SCREEN -->
+    <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="splash-content">
             <i class="fas fa-boxes splash-icon"></i>
             <h1 class="splash-title">Advanced Bin Card Manager</h1>
             <p class="splash-desc">
-                Welcome to the professional inventory control system. Easily upload Excel spreadsheets, track stock receipts, issues, returns, and export detailed PDF reports in seconds.
+                Welcome to the professional inventory control system. Easily upload Excel spreadsheets, track stock receipts, issues, returns, and manage file history.
             </p>
             <div class="splash-progress-container">
                 <div class="splash-progress-bar" id="splashProgressBar"></div>
@@ -353,13 +331,16 @@
     <header>
         <h1><i class="fas fa-cubes"></i> Bin Card</h1> 
         <div class="header-actions">
+            <button class="btn btn-secondary" onclick="openHistoryModal()" title="View Upload History">
+                <i class="fas fa-history"></i> <span class="hide-mobile">History</span>
+            </button>
             <button class="btn btn-pdf" id="btnDownloadPdf" onclick="downloadPDF()" style="display:none;" title="Export as PDF">
-                <i class="fas fa-file-pdf"></i> <span class="hide-mobile">Export PDF</span>
+                <i class="fas fa-file-pdf"></i> <span class="hide-mobile">Export</span>
             </button>
             <button class="btn btn-primary" onclick="openModal()">
                 <i class="fas fa-upload"></i> <span class="hide-mobile">Upload Excel</span>
             </button>
-            <button class="btn btn-danger" id="btnClearData" onclick="confirmClearData()" style="display:none;" title="Clear Data">
+            <button class="btn btn-danger" id="btnClearData" onclick="confirmDeleteCurrentFile()" style="display:none;" title="Delete Current File">
                 <i class="fas fa-trash-alt"></i>
             </button>
         </div>
@@ -397,11 +378,14 @@
         </div>
     </div>
 
-    <!-- CONTROLS (SEARCH) -->
+    <!-- CONTROLS (SEARCH & BADGE) -->
     <div class="controls-bar" id="controlsBar" style="display: none;">
         <div class="search-box">
             <i class="fas fa-search"></i>
             <input type="text" id="searchInput" placeholder="Search by Material Code or Name..." oninput="handleSearch()">
+        </div>
+        <div class="active-file-badge" id="activeFileBadge" style="display: none;">
+            <i class="fas fa-file-excel"></i> <span id="activeFileName">Current File</span>
         </div>
     </div>
 
@@ -438,11 +422,24 @@
         </div>
     </div>
 
+    <!-- HISTORY MODAL -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal" style="max-width: 600px;">
+            <button class="close-modal" onclick="closeHistoryModal()"><i class="fas fa-times"></i></button>
+            <h2><i class="fas fa-history"></i> පෙර උඩුගත කළ ගොනු</h2>
+            <p style="font-size: 14px; color: var(--text-light);">ඔබ කලින් පද්ධතියට ඇතුළත් කළ ගොනු පහතින් තෝරා නැවත බැලිය හැක.</p>
+            
+            <div class="history-list" id="historyListContainer">
+                <!-- History Items Will Load Here -->
+            </div>
+        </div>
+    </div>
+
     <!-- SETTINGS & THEMES MODAL -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
             <button class="close-modal" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
-            <h2><i class="fas fa-cog"></i> සැකසුම් සහ තේමා (Settings)</h2>
+            <h2><i class="fas fa-cog"></i> සැකසුම් (Settings)</h2>
             <p style="font-size: 14px; color: var(--text-light); margin-bottom: 15px;">ඔබට ගැළපෙන දෘශ්‍ය තේමාව (Theme) පහතින් තෝරාගන්න:</p>
             
             <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">තේමා තෝරන්න (Themes):</div>
@@ -479,11 +476,13 @@
         const PAGE_SIZE = 50;
         let currentPage = 1;
         let confirmCallback = null;
+        
+        // Track current active file
+        let currentFileId = null;
 
-        // --- INDEXEDDB SETUP ---
-        const DB_NAME = 'BinCardDB';
+        // --- INDEXEDDB SETUP FOR MULTIPLE FILES ---
+        const DB_NAME = 'BinCardHistoryDB';
         const DB_VERSION = 1;
-        const STORE_NAME = 'inventoryItems';
         let db;
 
         function initDB() {
@@ -492,8 +491,13 @@
                 
                 request.onupgradeneeded = (event) => {
                     const database = event.target.result;
-                    if (!database.objectStoreNames.contains(STORE_NAME)) {
-                        database.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+                    // Store 1: Metadata (ID, Filename, Timestamp)
+                    if (!database.objectStoreNames.contains('metadata')) {
+                        database.createObjectStore('metadata', { keyPath: "id", autoIncrement: true });
+                    }
+                    // Store 2: Actual Inventory Data corresponding to the ID
+                    if (!database.objectStoreNames.contains('datasets')) {
+                        database.createObjectStore('datasets', { keyPath: "id" });
                     }
                 };
 
@@ -502,47 +506,68 @@
                     resolve(db);
                 };
 
-                request.onerror = (event) => {
-                    reject("IndexedDB error: " + event.target.error);
-                };
+                request.onerror = (event) => reject("IndexedDB error: " + event.target.error);
             });
         }
 
-        function saveToDB(dataArray) {
+        // Save new file to DB
+        function saveUploadToDB(filename, dataArray) {
             return new Promise((resolve, reject) => {
-                const transaction = db.transaction([STORE_NAME], "readwrite");
-                const store = transaction.objectStore(STORE_NAME);
+                const transaction = db.transaction(['metadata', 'datasets'], "readwrite");
+                const metaStore = transaction.objectStore('metadata');
+                const dataStore = transaction.objectStore('datasets');
                 
-                store.clear(); // Clear existing data before adding new data
-                
-                dataArray.forEach(item => {
-                    store.add(item);
-                });
+                const metaRecord = { filename: filename, timestamp: Date.now() };
+                const addMetaReq = metaStore.add(metaRecord);
 
-                transaction.oncomplete = () => resolve();
+                addMetaReq.onsuccess = (e) => {
+                    const newId = e.target.result;
+                    dataStore.add({ id: newId, data: dataArray });
+                    resolve({ id: newId, filename });
+                };
+                
                 transaction.onerror = (event) => reject(event.target.error);
             });
         }
 
-        function loadFromDB() {
+        // Get all uploaded files (Metadata only)
+        function getAllHistory() {
             return new Promise((resolve, reject) => {
-                const transaction = db.transaction([STORE_NAME], "readonly");
-                const store = transaction.objectStore(STORE_NAME);
+                const transaction = db.transaction(['metadata'], "readonly");
+                const store = transaction.objectStore('metadata');
                 const request = store.getAll();
 
-                request.onsuccess = () => resolve(request.result || []);
+                request.onsuccess = () => {
+                    // Sort descending by timestamp
+                    const result = request.result || [];
+                    result.sort((a, b) => b.timestamp - a.timestamp);
+                    resolve(result);
+                };
                 request.onerror = (event) => reject(event.target.error);
             });
         }
 
-        function clearDB() {
+        // Load specific dataset by ID
+        function loadDatasetFromDB(id) {
             return new Promise((resolve, reject) => {
-                const transaction = db.transaction([STORE_NAME], "readwrite");
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.clear();
+                const transaction = db.transaction(['datasets'], "readonly");
+                const store = transaction.objectStore('datasets');
+                const request = store.get(id);
 
-                request.onsuccess = () => resolve();
+                request.onsuccess = () => resolve(request.result ? request.result.data : null);
                 request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        // Delete specific file from DB
+        function deleteFileFromDB(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['metadata', 'datasets'], "readwrite");
+                transaction.objectStore('metadata').delete(id);
+                transaction.objectStore('datasets').delete(id);
+                
+                transaction.oncomplete = () => resolve();
+                transaction.onerror = (event) => reject(event.target.error);
             });
         }
 
@@ -569,13 +594,8 @@
                 </div>
                 <div class="toast-progress"><div class="toast-progress-bar"></div></div>
             `;
-
             container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.add('fade-out');
-                setTimeout(() => toast.remove(), 350);
-            }, 3800);
+            setTimeout(() => { toast.classList.add('fade-out'); setTimeout(() => toast.remove(), 350); }, 3800);
         }
 
         // --- CONFIRM MODAL SYSTEM ---
@@ -588,13 +608,11 @@
 
         function closeConfirmModal(result) {
             document.getElementById('confirmModal').style.display = 'none';
-            if (result && typeof confirmCallback === 'function') {
-                confirmCallback();
-            }
+            if (result && typeof confirmCallback === 'function') confirmCallback();
             confirmCallback = null;
         }
 
-        // --- SPLASH SCREEN ANIMATION (6 SECONDS) ---
+        // --- SPLASH SCREEN ANIMATION ---
         window.addEventListener('load', () => {
             const progressBar = document.getElementById('splashProgressBar');
             const splashScreen = document.getElementById('splash-screen');
@@ -604,9 +622,7 @@
 
             const timer = setInterval(() => {
                 elapsed += intervalTime;
-                const percentage = Math.min((elapsed / totalDuration) * 100, 100);
-                if (progressBar) progressBar.style.width = percentage + '%';
-
+                if (progressBar) progressBar.style.width = Math.min((elapsed / totalDuration) * 100, 100) + '%';
                 if (elapsed >= totalDuration) {
                     clearInterval(timer);
                     if (splashScreen) {
@@ -625,22 +641,34 @@
 
             try {
                 await initDB();
-                await loadStoredData();
+                await initializeApp();
             } catch (error) {
                 console.error("Database Error:", error);
                 showToast("දත්ත සමුදාය ආරම්භ කිරීමේදී දෝෂයක්!", "error");
                 showEmptyState();
             }
 
-            // Backdrop click to close modals
             window.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal-overlay')) {
-                    closeModal();
-                    closeSettingsModal();
-                    closeConfirmModal(false);
+                    closeModal(); closeSettingsModal(); closeConfirmModal(false); closeHistoryModal();
                 }
             });
         });
+
+        async function initializeApp() {
+            const history = await getAllHistory();
+            if (history.length > 0) {
+                // Try to load the last viewed file or the most recent one
+                const savedIdStr = localStorage.getItem('activeBinCardFileId');
+                let targetId = savedIdStr ? parseInt(savedIdStr) : history[0].id;
+                
+                // Ensure targetId exists in history
+                const targetMeta = history.find(h => h.id === targetId) || history[0];
+                await loadFileIntoView(targetMeta.id, targetMeta.filename);
+            } else {
+                showEmptyState();
+            }
+        }
 
         // --- THEME HANDLER ---
         function setTheme(themeName, save = true) {
@@ -654,14 +682,17 @@
 
         function openSettingsModal() { document.getElementById('settingsModal').style.display = 'flex'; }
         function closeSettingsModal() { document.getElementById('settingsModal').style.display = 'none'; }
+        function openModal() { document.getElementById('uploadModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
+        function openHistoryModal() { loadHistoryUI(); document.getElementById('historyModal').style.display = 'flex'; }
+        function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
 
-        // --- XSS PROTECTION ---
+        // --- XSS PROTECTION & UTILS ---
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // --- NUMBER PARSING ---
         function parseNum(val) {
             if (val === undefined || val === null || val === '') return 0;
             if (typeof val === 'number') return isNaN(val) ? 0 : val;
@@ -671,67 +702,105 @@
             return isNaN(parsed) ? 0 : parsed;
         }
 
-        function formatNumber(num) {
-            return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
+        function formatNumber(num) { return num.toLocaleString('en-US', { maximumFractionDigits: 2 }); }
+
+        // --- HISTORY MANAGEMENT ---
+        async function loadHistoryUI() {
+            const container = document.getElementById('historyListContainer');
+            container.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            
+            try {
+                const history = await getAllHistory();
+                if (history.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-light);">පෙර උඩුගත කළ ගොනු නොමැත.</div>';
+                    return;
+                }
+
+                let html = '';
+                history.forEach(item => {
+                    const dateStr = new Date(item.timestamp).toLocaleString();
+                    const isActive = (item.id === currentFileId);
+                    
+                    html += `
+                        <div class="history-item ${isActive ? 'active-history' : ''}">
+                            <div class="history-info">
+                                <h4><i class="fas fa-file-excel" style="color: var(--success); margin-right: 5px;"></i> ${escapeHtml(item.filename)}</h4>
+                                <p><i class="far fa-clock"></i> ${dateStr} ${isActive ? ' <strong>(දැනට විවෘතයි)</strong>' : ''}</p>
+                            </div>
+                            <div class="history-actions">
+                                ${!isActive ? `<button class="btn btn-primary" onclick="loadFileIntoView(${item.id}, '${escapeHtml(item.filename)}')">Load</button>` : ''}
+                                <button class="btn btn-danger" onclick="confirmDeleteHistoryItem(${item.id}, '${escapeHtml(item.filename)}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<div style="color:red; padding: 20px;">ඉතිහාසය ලබාගැනීමේදී දෝෂයක්.</div>';
+            }
         }
 
-        // --- DATABASE LOAD ---
-        async function loadStoredData() {
+        async function loadFileIntoView(id, filename) {
             try {
-                const parsed = await loadFromDB();
-                
-                // Filter items: Hide if receipt (In), issues (Out), AND returnQty (Return) are all 0
-                binCardData = parsed.filter(item => {
-                    const r = parseNum(item.receipt);
-                    const i = parseNum(item.issues);
-                    const ret = parseNum(item.returnQty);
-                    return !(r === 0 && i === 0 && ret === 0);
-                });
+                const data = await loadDatasetFromDB(id);
+                if (data) {
+                    currentFileId = id;
+                    localStorage.setItem('activeBinCardFileId', id);
+                    
+                    binCardData = data;
+                    filteredData = [...binCardData];
+                    
+                    const searchInput = document.getElementById('searchInput');
+                    if (searchInput) searchInput.value = '';
+                    
+                    document.getElementById('activeFileName').innerText = filename;
+                    document.getElementById('activeFileBadge').style.display = 'inline-flex';
 
-                filteredData = [...binCardData];
-                
-                if (binCardData.length > 0) {
                     updateDashboardStats();
                     toggleUIElements(true);
                     renderCards(true);
+                    
+                    closeHistoryModal();
+                    showToast(`'${filename}' සාර්ථකව විවෘත කරන ලදී.`, 'success', 'ගොනුව විවෘත විය');
                 } else {
-                    showEmptyState();
+                    showToast("මෙම ගොනුවේ දත්ත සොයාගත නොහැක.", "error");
                 }
             } catch (e) {
-                console.error("Data load error", e);
-                showEmptyState();
+                console.error(e);
+                showToast("දත්ත ලබාගැනීමේදී දෝෂයක්.", "error");
             }
         }
 
-        function toggleUIElements(hasData) {
-            document.getElementById('dashboardStats').style.display = hasData ? 'grid' : 'none';
-            document.getElementById('controlsBar').style.display = hasData ? 'flex' : 'none';
-            document.getElementById('btnClearData').style.display = hasData ? 'inline-flex' : 'none';
-            document.getElementById('btnDownloadPdf').style.display = hasData ? 'inline-flex' : 'none';
+        function confirmDeleteHistoryItem(id, filename) {
+            showConfirmModal(
+                "ගොනුව මකා දැමීම",
+                `'${filename}' ඉතිහාසයෙන් සම්පූර්ණයෙන්ම ඉවත් කිරීමට අවශ්‍යද?`,
+                async () => {
+                    try {
+                        await deleteFileFromDB(id);
+                        showToast(`'${filename}' මකා දමන ලදී.`, "success");
+                        if (id === currentFileId) {
+                            currentFileId = null;
+                            localStorage.removeItem('activeBinCardFileId');
+                            binCardData = []; filteredData = [];
+                            showEmptyState();
+                        }
+                        loadHistoryUI(); // Refresh modal list
+                    } catch (e) {
+                        showToast("මකා දැමීමේදී දෝෂයක්.", "error");
+                    }
+                }
+            );
         }
 
-        function updateDashboardStats() {
-            document.getElementById('statTotalItems').innerText = formatNumber(binCardData.length);
-            
-            const totalRec = binCardData.reduce((sum, item) => sum + parseNum(item.receipt), 0);
-            const totalIss = binCardData.reduce((sum, item) => sum + parseNum(item.issues), 0);
-            const totalStock = binCardData.reduce((sum, item) => sum + parseNum(item.closingStock), 0);
-
-            if (document.getElementById('statTotalReceived')) {
-                document.getElementById('statTotalReceived').innerText = formatNumber(totalRec);
-            }
-            if (document.getElementById('statTotalIssues')) {
-                document.getElementById('statTotalIssues').innerText = formatNumber(totalIss);
-            }
-            if (document.getElementById('statTotalStock')) {
-                document.getElementById('statTotalStock').innerText = formatNumber(totalStock);
-            }
+        function confirmDeleteCurrentFile() {
+            if (!currentFileId) return;
+            const filename = document.getElementById('activeFileName').innerText;
+            confirmDeleteHistoryItem(currentFileId, filename);
         }
 
-        // --- UPLOAD & DRAG & DROP ---
-        function openModal() { document.getElementById('uploadModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
 
+        // --- FILE UPLOAD PROCESSING ---
         function setupDragAndDrop() {
             const dropArea = document.getElementById('dropArea');
             if (!dropArea) return;
@@ -751,30 +820,24 @@
         }
 
         function handleFileUpload(file) {
-            showToast("ගොනුව සකස් කරමින් පවතී... කරුණාකර රැඳී සිටින්න.", "info", "ක්‍රියාවලියක් සිදු වේ");
-
+            showToast("ගොනුව සකස් කරමින් පවතී...", "info", "කරුණාකර රැඳී සිටින්න");
             const reader = new FileReader();
             reader.onload = async (e) => {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    await processExcelData(firstSheet);
+                    await processExcelData(firstSheet, file.name);
                 } catch (error) {
-                    showToast(`දෝෂයක් ඇති විය: ${error.message}`, "error", "උඩුගත කිරීම අසාර්ථකයි");
+                    showToast(`දෝෂයක්: ${error.message}`, "error", "අසාර්ථකයි");
                 }
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // --- EXCEL DATA PARSING ---
-        async function processExcelData(worksheet) {
+        async function processExcelData(worksheet, filename) {
             const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-            
-            if (!rawData.length) {
-                showToast("Excel ගොනුව හිස්ය.", "error", "හිස් දත්ත ගොනුවකි");
-                return;
-            }
+            if (!rawData.length) { showToast("Excel ගොනුව හිස්ය.", "error"); return; }
 
             let parsedItems = [];
             let headerRowIndex = -1;
@@ -800,23 +863,15 @@
                     if (!text) return;
                     for (let key in keywords) {
                         if (tempMap[key] === -1 && keywords[key].some(rx => rx.test(text))) {
-                            tempMap[key] = idx;
-                            matches++;
-                            break;
+                            tempMap[key] = idx; matches++; break;
                         }
                     }
                 });
-
-                if (matches >= 2) {
-                    headerRowIndex = i;
-                    colMap = tempMap;
-                    break;
-                }
+                if (matches >= 2) { headerRowIndex = i; colMap = tempMap; break; }
             }
 
             if (headerRowIndex === -1) {
-                headerRowIndex = 0;
-                colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: 4, closing: 5 };
+                headerRowIndex = 0; colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: 4, closing: 5 };
             }
 
             for (let i = headerRowIndex + 1; i < rawData.length; i++) {
@@ -834,67 +889,53 @@
                 let retNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
                 let cNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
 
-                // HIDE CARD IF IN, OUT, RETURN ARE ALL 0 OR EMPTY
-                if (rNum === 0 && iNum === 0 && retNum === 0) {
-                    continue;
-                }
-
+                if (rNum === 0 && iNum === 0 && retNum === 0) continue;
                 if (!name) name = code;
 
-                parsedItems.push({
-                    matCode: code,
-                    matName: name,
-                    receipt: rNum,
-                    issues: iNum,
-                    returnQty: retNum,
-                    closingStock: cNum
-                });
+                parsedItems.push({ matCode: code, matName: name, receipt: rNum, issues: iNum, returnQty: retNum, closingStock: cNum });
             }
 
             if (!parsedItems.length) {
-                showToast("ගොනුව තුළ වලංගු දත්ත හමු නොවීය (In, Out, Return සියල්ල 0 නොවන දත්ත පමණක් පෙන්වයි).", "error", "දත්ත දෝෂයකි");
-                return;
+                showToast("ගොනුව තුළ වලංගු දත්ත හමු නොවීය.", "error"); return;
             }
 
-            binCardData = parsedItems;
-            
             try {
-                await saveToDB(binCardData);
+                const result = await saveUploadToDB(filename, parsedItems);
+                await loadFileIntoView(result.id, result.filename);
+                showToast('භාණ්ඩ දත්ත සාර්ථකව උඩුගත කරන ලදී!', 'success');
+                closeModal();
             } catch (e) {
                 console.error(e);
-                showToast("දත්ත ගබඩා කිරීමේදී දෝෂයක් ඇති විය.", "error", "අවවාදයයි");
-                return;
+                showToast("දත්ත ගබඩා කිරීමේදී දෝෂයක්.", "error");
             }
-
-            filteredData = [...binCardData];
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) searchInput.value = '';
-            
-            updateDashboardStats();
-            toggleUIElements(true);
-            renderCards(true);
-
-            showToast('භාණ්ඩ දත්ත සාර්ථකව උඩුගත කරන ලදී!', 'success', 'සාර්ථකයි!');
-            closeModal();
         }
 
-        // --- SEARCH ---
+        // --- UI & RENDERING ---
+        function toggleUIElements(hasData) {
+            document.getElementById('dashboardStats').style.display = hasData ? 'grid' : 'none';
+            document.getElementById('controlsBar').style.display = hasData ? 'flex' : 'none';
+            document.getElementById('btnClearData').style.display = hasData ? 'inline-flex' : 'none';
+            document.getElementById('btnDownloadPdf').style.display = hasData ? 'inline-flex' : 'none';
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('statTotalItems').innerText = formatNumber(binCardData.length);
+            const totalRec = binCardData.reduce((sum, item) => sum + parseNum(item.receipt), 0);
+            const totalIss = binCardData.reduce((sum, item) => sum + parseNum(item.issues), 0);
+            const totalStock = binCardData.reduce((sum, item) => sum + parseNum(item.closingStock), 0);
+
+            if (document.getElementById('statTotalReceived')) document.getElementById('statTotalReceived').innerText = formatNumber(totalRec);
+            if (document.getElementById('statTotalIssues')) document.getElementById('statTotalIssues').innerText = formatNumber(totalIss);
+            if (document.getElementById('statTotalStock')) document.getElementById('statTotalStock').innerText = formatNumber(totalStock);
+        }
+
         function handleSearch() {
-            const searchInput = document.getElementById('searchInput');
-            if (!searchInput) return;
-            const query = searchInput.value.toLowerCase().trim();
-
-            if (query === '') {
-                filteredData = [...binCardData];
-            } else {
-                filteredData = binCardData.filter(item => 
-                    item.matCode.toLowerCase().includes(query) || item.matName.toLowerCase().includes(query)
-                );
-            }
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (query === '') filteredData = [...binCardData];
+            else filteredData = binCardData.filter(item => item.matCode.toLowerCase().includes(query) || item.matName.toLowerCase().includes(query));
             renderCards(true);
         }
 
-        // --- RENDERING ---
         function renderCards(resetPage = false) {
             const container = document.getElementById('cardContainer');
             const loadMoreBtn = document.getElementById('loadMoreContainer');
@@ -907,7 +948,6 @@
                     <div class="empty-state">
                         <i class="fas fa-search" style="font-size: 50px; color: #cbd5e1; margin-bottom: 20px;"></i>
                         <h2>භාණ්ඩ හමු නොවීය</h2>
-                        <p>ඔබ සෙවූ නම හෝ කේතය පරීක්ෂා කරන්න.</p>
                     </div>`;
                 if (loadMoreBtn) loadMoreBtn.style.display = 'none';
                 return;
@@ -919,13 +959,10 @@
             const fragment = document.createDocumentFragment();
 
             items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                
-                let badgeHTML = '';
-                if (item.closingStock <= 0) badgeHTML = '<span class="badge badge-danger">Out of Stock</span>';
-                else if (item.closingStock < 10) badgeHTML = '<span class="badge badge-warning">Low Stock</span>';
-                else badgeHTML = '<span class="badge badge-success">In Stock</span>';
+                const card = document.createElement('div'); card.className = 'card';
+                let badgeHTML = item.closingStock <= 0 ? '<span class="badge badge-danger">Out of Stock</span>' : 
+                                item.closingStock < 10 ? '<span class="badge badge-warning">Low Stock</span>' : 
+                                '<span class="badge badge-success">In Stock</span>';
 
                 card.innerHTML = `
                     ${badgeHTML}
@@ -934,22 +971,17 @@
                         <div class="mat-name">${escapeHtml(item.matName)}</div>
                     </div>
                     <div class="data-grid">
-                        <div class="data-item"><span class="d-label">In (Received)</span><span class="d-value text-green">${formatNumber(item.receipt)}</span></div>
-                        <div class="data-item"><span class="d-label">Out (Issues)</span><span class="d-value text-red">${formatNumber(item.issues)}</span></div>
+                        <div class="data-item"><span class="d-label">In (Rec)</span><span class="d-value text-green">${formatNumber(item.receipt)}</span></div>
+                        <div class="data-item"><span class="d-label">Out (Iss)</span><span class="d-value text-red">${formatNumber(item.issues)}</span></div>
                         <div class="data-item"><span class="d-label">Return</span><span class="d-value">${formatNumber(item.returnQty)}</span></div>
                     </div>
-                    <div class="stock-total">
-                        <span class="d-label">Closing Stock</span>
-                        <span class="d-value">${formatNumber(item.closingStock)}</span>
-                    </div>
+                    <div class="stock-total"><span class="d-label">Closing Stock</span><span class="d-value">${formatNumber(item.closingStock)}</span></div>
                 `;
                 fragment.appendChild(card);
             });
 
             container.appendChild(fragment);
-            if (loadMoreBtn) {
-                loadMoreBtn.style.display = endIdx < filteredData.length ? 'block' : 'none';
-            }
+            if (loadMoreBtn) loadMoreBtn.style.display = endIdx < filteredData.length ? 'block' : 'none';
         }
 
         function loadMoreCards() { currentPage++; renderCards(false); }
@@ -957,84 +989,54 @@
         function showEmptyState() {
             toggleUIElements(false);
             const container = document.getElementById('cardContainer');
+            document.getElementById('activeFileBadge').style.display = 'none';
             if (container) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-folder-open" style="font-size: 60px; color: #cbd5e1; margin-bottom: 20px;"></i>
                         <h2>දත්ත නොමැත</h2>
-                        <p>ඔබගේ Bin Card දත්ත ඇතුළත් කිරීමට "Upload Excel" ඔබන්න.</p>
+                        <p>"Upload Excel" හරහා නව ගොනුවක් ඇතුළත් කරන්න හෝ "History" හරහා පැරණි ගොනුවක් තෝරන්න.</p>
                     </div>
                 `;
             }
         }
 
-        // --- CLEAR DATA ---
-        function confirmClearData() {
-            showConfirmModal(
-                "දත්ත මකා දැමීම තහවුරු කරන්න",
-                "ඔබට ගබඩා කර ඇති සියලුම දත්ත ඉවත් කිරීමට අවශ්‍ය බව විශ්වාසද? මෙම ක්‍රියාව ආපසු හැරවිය නොහැක.",
-                async () => {
-                    try {
-                        await clearDB();
-                        binCardData = []; 
-                        filteredData = [];
-                        showEmptyState();
-                        showToast("සියලු දත්ත සාර්ථකව ඉවත් කරන ලදී.", "success", "මකා දමන ලදී");
-                    } catch (e) {
-                        showToast("දත්ත ඉවත් කිරීමේදී දෝෂයක් ඇති විය.", "error", "දෝෂයකි");
-                    }
-                }
-            );
-        }
-
         // --- PDF GENERATION ---
         function downloadPDF() {
-            if (!filteredData.length) {
-                showToast("බාගත කිරීමට කිසිදු දත්තයක් නොමැත!", "warning", "අවවාදයයි");
-                return;
-            }
-            
+            if (!filteredData.length) { showToast("බාගත කිරීමට දත්ත නොමැත!", "warning"); return; }
             try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('p', 'pt', 'a4');
+                const filename = document.getElementById('activeFileName').innerText;
                 
                 doc.setFontSize(16); doc.setTextColor(79, 70, 229);
                 doc.text("Inventory Bin Card Report", 40, 40);
                 
                 doc.setFontSize(10); doc.setTextColor(100, 116, 139);
-                doc.text(`Generated Date: ${new Date().toLocaleString()}`, 40, 60);
-                doc.text(`Showing: ${filteredData.length} items`, 40, 75);
+                doc.text(`File: ${filename}`, 40, 55);
+                doc.text(`Generated Date: ${new Date().toLocaleString()}`, 40, 70);
+                doc.text(`Showing: ${filteredData.length} items`, 40, 85);
 
                 const tableRows = filteredData.map(item => [
-                    item.matCode, 
-                    item.matName, 
-                    formatNumber(item.receipt), 
-                    formatNumber(item.issues), 
-                    formatNumber(item.returnQty), 
-                    formatNumber(item.closingStock)
+                    item.matCode, item.matName, formatNumber(item.receipt), formatNumber(item.issues), formatNumber(item.returnQty), formatNumber(item.closingStock)
                 ]);
 
                 doc.autoTable({
-                    head: [["Code", "Item Name", "In (Received)", "Out (Issues)", "Returns", "Closing Stock"]],
-                    body: tableRows, 
-                    startY: 90, 
-                    theme: 'grid',
-                    styles: { fontSize: 8, cellPadding: 4 },
+                    head: [["Code", "Item Name", "In (Rec)", "Out (Iss)", "Returns", "Closing Stock"]],
+                    body: tableRows, startY: 100, theme: 'grid', styles: { fontSize: 8, cellPadding: 4 },
                     headStyles: { fillColor: [79, 70, 229], textColor: 255 },
                     columnStyles: { 
-                        0: { fontStyle: 'bold', cellWidth: 70 },
-                        1: { cellWidth: 140 },
+                        0: { fontStyle: 'bold', cellWidth: 70 }, 1: { cellWidth: 140 },
                         2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 
                         5: { halign: 'right', fontStyle: 'bold', textColor: [16, 185, 129] }
                     },
                     margin: { top: 40, bottom: 40 }
                 });
                 
-                doc.save("BinCard_Report.pdf");
-                showToast("PDF වාර්තාව සාර්ථකව බාගත කරන ලදී!", "success", "සාර්ථකයි!");
+                doc.save(`BinCard_${filename}.pdf`);
+                showToast("PDF වාර්තාව සාර්ථකව බාගත කරන ලදී!", "success");
             } catch (e) {
-                console.error(e); 
-                showToast("PDF සකස් කිරීමේදී දෝෂයක් ඇති විය.", "error", "දෝෂයකි");
+                console.error(e); showToast("PDF සකස් කිරීමේදී දෝෂයක්.", "error");
             }
         }
     </script>
