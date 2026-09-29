@@ -153,6 +153,7 @@
         .dashboard-stats {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px; padding: 25px; max-width: 1400px; margin: 0 auto; width: 100%;
+            transition: all 0.3s ease;
         }
         .stat-card {
             background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm);
@@ -346,7 +347,7 @@
         </div>
     </header>
 
-    <!-- DASHBOARD STATS -->
+    <!-- DASHBOARD STATS (Toggleable) -->
     <div class="dashboard-stats" id="dashboardStats" style="display: none;">
         <div class="stat-card">
             <div class="stat-icon icon-blue"><i class="fas fa-box-open"></i></div>
@@ -355,21 +356,21 @@
                 <h2 id="statTotalItems">0</h2>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" id="statCardReceived" style="display: none;">
             <div class="stat-icon icon-green"><i class="fas fa-arrow-down"></i></div>
             <div class="stat-info">
                 <h4>Total In (Received)</h4>
                 <h2 id="statTotalReceived">0</h2>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" id="statCardIssues" style="display: none;">
             <div class="stat-icon icon-red"><i class="fas fa-arrow-up"></i></div>
             <div class="stat-info">
                 <h4>Total Out (Issues)</h4>
                 <h2 id="statTotalIssues">0</h2>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" id="statCardStock" style="display: none;">
             <div class="stat-icon icon-purple"><i class="fas fa-warehouse"></i></div>
             <div class="stat-info">
                 <h4>Total Closing Stock</h4>
@@ -378,12 +379,15 @@
         </div>
     </div>
 
-    <!-- CONTROLS (SEARCH & BADGE) -->
+    <!-- CONTROLS (SEARCH, BADGE & STATS TOGGLE) -->
     <div class="controls-bar" id="controlsBar" style="display: none;">
         <div class="search-box">
             <i class="fas fa-search"></i>
             <input type="text" id="searchInput" placeholder="Search by Material Code or Name..." oninput="handleSearch()">
         </div>
+        <button class="btn btn-secondary" onclick="toggleDetailedStats()" id="toggleStatsBtn" title="Show/Hide Extra Stats">
+            <i class="fas fa-chart-bar"></i> <span id="toggleStatsText">Show Extra Stats</span>
+        </button>
         <div class="active-file-badge" id="activeFileBadge" style="display: none;">
             <i class="fas fa-file-excel"></i> <span id="activeFileName">Current File</span>
         </div>
@@ -476,8 +480,8 @@
         const PAGE_SIZE = 50;
         let currentPage = 1;
         let confirmCallback = null;
+        let showDetailedStats = false;
         
-        // Track current active file
         let currentFileId = null;
 
         // --- INDEXEDDB SETUP FOR MULTIPLE FILES ---
@@ -491,11 +495,9 @@
                 
                 request.onupgradeneeded = (event) => {
                     const database = event.target.result;
-                    // Store 1: Metadata (ID, Filename, Timestamp)
                     if (!database.objectStoreNames.contains('metadata')) {
                         database.createObjectStore('metadata', { keyPath: "id", autoIncrement: true });
                     }
-                    // Store 2: Actual Inventory Data corresponding to the ID
                     if (!database.objectStoreNames.contains('datasets')) {
                         database.createObjectStore('datasets', { keyPath: "id" });
                     }
@@ -510,7 +512,6 @@
             });
         }
 
-        // Save new file to DB
         function saveUploadToDB(filename, dataArray) {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction(['metadata', 'datasets'], "readwrite");
@@ -530,7 +531,6 @@
             });
         }
 
-        // Get all uploaded files (Metadata only)
         function getAllHistory() {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction(['metadata'], "readonly");
@@ -538,7 +538,6 @@
                 const request = store.getAll();
 
                 request.onsuccess = () => {
-                    // Sort descending by timestamp
                     const result = request.result || [];
                     result.sort((a, b) => b.timestamp - a.timestamp);
                     resolve(result);
@@ -547,7 +546,6 @@
             });
         }
 
-        // Load specific dataset by ID
         function loadDatasetFromDB(id) {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction(['datasets'], "readonly");
@@ -559,7 +557,6 @@
             });
         }
 
-        // Delete specific file from DB
         function deleteFileFromDB(id) {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction(['metadata', 'datasets'], "readwrite");
@@ -598,7 +595,6 @@
             setTimeout(() => { toast.classList.add('fade-out'); setTimeout(() => toast.remove(), 350); }, 3800);
         }
 
-        // --- CONFIRM MODAL SYSTEM ---
         function showConfirmModal(title, message, onConfirm) {
             document.getElementById('confirmTitle').innerText = title;
             document.getElementById('confirmMessage').innerText = message;
@@ -633,7 +629,6 @@
             }, intervalTime);
         });
 
-        // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', async () => {
             const savedTheme = localStorage.getItem('binCardTheme') || 'default';
             setTheme(savedTheme, false);
@@ -658,11 +653,8 @@
         async function initializeApp() {
             const history = await getAllHistory();
             if (history.length > 0) {
-                // Try to load the last viewed file or the most recent one
                 const savedIdStr = localStorage.getItem('activeBinCardFileId');
                 let targetId = savedIdStr ? parseInt(savedIdStr) : history[0].id;
-                
-                // Ensure targetId exists in history
                 const targetMeta = history.find(h => h.id === targetId) || history[0];
                 await loadFileIntoView(targetMeta.id, targetMeta.filename);
             } else {
@@ -670,7 +662,6 @@
             }
         }
 
-        // --- THEME HANDLER ---
         function setTheme(themeName, save = true) {
             document.body.className = `theme-${themeName}`;
             if (save) {
@@ -687,7 +678,6 @@
         function openHistoryModal() { loadHistoryUI(); document.getElementById('historyModal').style.display = 'flex'; }
         function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
 
-        // --- XSS PROTECTION & UTILS ---
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -703,6 +693,20 @@
         }
 
         function formatNumber(num) { return num.toLocaleString('en-US', { maximumFractionDigits: 2 }); }
+
+        // --- TOGGLE DETAILED STATS ---
+        function toggleDetailedStats() {
+            showDetailedStats = !showDetailedStats;
+            const btnText = document.getElementById('toggleStatsText');
+            
+            document.getElementById('statCardReceived').style.display = showDetailedStats ? 'flex' : 'none';
+            document.getElementById('statCardIssues').style.display = showDetailedStats ? 'flex' : 'none';
+            document.getElementById('statCardStock').style.display = showDetailedStats ? 'flex' : 'none';
+            
+            if (btnText) {
+                btnText.innerText = showDetailedStats ? 'Hide Extra Stats' : 'Show Extra Stats';
+            }
+        }
 
         // --- HISTORY MANAGEMENT ---
         async function loadHistoryUI() {
@@ -785,7 +789,7 @@
                             binCardData = []; filteredData = [];
                             showEmptyState();
                         }
-                        loadHistoryUI(); // Refresh modal list
+                        loadHistoryUI();
                     } catch (e) {
                         showToast("මකා දැමීමේදී දෝෂයක්.", "error");
                     }
@@ -798,7 +802,6 @@
             const filename = document.getElementById('activeFileName').innerText;
             confirmDeleteHistoryItem(currentFileId, filename);
         }
-
 
         // --- FILE UPLOAD PROCESSING ---
         function setupDragAndDrop() {
@@ -841,21 +844,21 @@
 
             let parsedItems = [];
             let headerRowIndex = -1;
-            let colMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
+            let colMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1 };
 
             const keywords = {
                 code: [/code/i, /matcode/i, /item code/i, /කේතය/i, /\bid\b/i],
                 name: [/description/i, /item name/i, /material name/i, /details/i, /විස්තරය/i, /\bname\b/i],
+                opening: [/opening/i, /open\b/i, /b\/f/i, /beginning/i, /මුල් ශේෂය/i, /prev/i],
                 receipt: [/received/i, /receipt/i, /\bin\b/i, /qty in/i, /ලැබීම්/i, /rec\b/i],
                 issue: [/issued/i, /issue/i, /\bout\b/i, /qty out/i, /නිකුත්/i],
-                returnQty: [/return/i, /ආපසු/i, /ret\b/i],
-                closing: [/balance/i, /closing/i, /stock/i, /ශේෂය/i, /bal\b/i]
+                returnQty: [/return/i, /ආපසු/i, /ret\b/i]
             };
 
             for (let i = 0; i < Math.min(30, rawData.length); i++) {
                 let row = rawData[i];
                 if (!Array.isArray(row)) continue;
-                let tempMap = { code: -1, name: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
+                let tempMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1 };
                 let matches = 0;
 
                 row.forEach((cell, idx) => {
@@ -871,7 +874,7 @@
             }
 
             if (headerRowIndex === -1) {
-                headerRowIndex = 0; colMap = { code: 0, name: 1, receipt: 2, issue: 3, returnQty: 4, closing: 5 };
+                headerRowIndex = 0; colMap = { code: 0, name: 1, opening: -1, receipt: 2, issue: 3, returnQty: 4 };
             }
 
             for (let i = headerRowIndex + 1; i < rawData.length; i++) {
@@ -884,15 +887,26 @@
                 if (!code && !name) continue;
                 if (code.toLowerCase().includes("total") || name.toLowerCase().includes("total")) continue;
 
+                let openNum = parseNum(colMap.opening !== -1 ? row[colMap.opening] : 0);
                 let rNum = parseNum(colMap.receipt !== -1 ? row[colMap.receipt] : 0);
                 let iNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
                 let retNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
-                let cNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
 
-                if (rNum === 0 && iNum === 0 && retNum === 0) continue;
+                if (rNum === 0 && iNum === 0 && retNum === 0 && openNum === 0) continue;
                 if (!name) name = code;
 
-                parsedItems.push({ matCode: code, matName: name, receipt: rNum, issues: iNum, returnQty: retNum, closingStock: cNum });
+                // --- AUTOMATIC CORRECT CLOSING STOCK CALCULATION ---
+                // Formula: Opening Stock + Receipts - Issues + Returns
+                let calculatedClosingStock = openNum + rNum - iNum + retNum;
+
+                parsedItems.push({ 
+                    matCode: code, 
+                    matName: name, 
+                    receipt: rNum, 
+                    issues: iNum, 
+                    returnQty: retNum, 
+                    closingStock: calculatedClosingStock 
+                });
             }
 
             if (!parsedItems.length) {
@@ -902,7 +916,7 @@
             try {
                 const result = await saveUploadToDB(filename, parsedItems);
                 await loadFileIntoView(result.id, result.filename);
-                showToast('භාණ්ඩ දත්ත සාර්ථකව උඩුගත කරන ලදී!', 'success');
+                showToast('භාණ්ඩ දත්ත සාර්ථකව උඩුගත කර නිවැරදි කරන ලදී!', 'success');
                 closeModal();
             } catch (e) {
                 console.error(e);
