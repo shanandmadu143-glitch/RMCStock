@@ -1,5 +1,30 @@
 "use strict";
 
+// --- FIREBASE CONFIGURATION (මෙතැනට ඔබගේ Firebase විස්තර ඇතුළත් කරන්න) ---
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+let firebaseInitialized = false;
+let dbRef = null;
+
+try {
+    if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+        firebase.initializeApp(firebaseConfig);
+        firebase.database().enableLogging(false);
+        dbRef = firebase.database().ref("bincard_live_data");
+        firebaseInitialized = true;
+    }
+} catch (e) {
+    console.warn("Firebase Init Warning:", e);
+}
+
 let binCardData = [];
 let filteredData = [];
 const PAGE_SIZE = 50;
@@ -9,32 +34,46 @@ let showDetailedStats = false;
 let currentFileId = null;
 let offlineTimer = null;
 
-// --- AUTO-DISMISSING OFFLINE / ONLINE EVENTS ---
+// --- OFFLINE & ONLINE LIVE LISTENERS ---
+function updateOnlineStatusUI(isOnline) {
+    const badge = document.getElementById('liveStatusBadge');
+    if (badge) {
+        if (isOnline && firebaseInitialized) {
+            badge.className = "status-chip online";
+            badge.innerHTML = `<i class="fas fa-wifi"></i> Live Sync`;
+        } else if (isOnline) {
+            badge.className = "status-chip online";
+            badge.innerHTML = `<i class="fas fa-check"></i> Online`;
+        } else {
+            badge.className = "status-chip offline";
+            badge.innerHTML = `<i class="fas fa-circle"></i> Offline`;
+        }
+    }
+}
+
 function triggerOfflineNotice() {
     const notice = document.getElementById('offlineNotice');
     if (!notice) return;
-    
     notice.classList.add('show');
     clearTimeout(offlineTimer);
-    
-    // Auto hide after 4 seconds (වැටි නැතිවී යන ලෙස සකස් කිරීම)
-    offlineTimer = setTimeout(() => {
-        notice.classList.remove('show');
-    }, 4000);
+    offlineTimer = setTimeout(() => { notice.classList.remove('show'); }, 4000);
 }
 
 window.addEventListener('offline', () => {
+    updateOnlineStatusUI(false);
     triggerOfflineNotice();
-    showToast("අන්තර්ජාල සම්බන්ධතාවය බිඳවැටුණි.", "error", "Offline");
+    showToast("අන්තර්ජාල සම්බන්ධතාවය බිඳවැටුණි. Offline දත්ත සුරැකේ.", "error", "Offline Mode");
 });
 
 window.addEventListener('online', () => {
+    updateOnlineStatusUI(true);
     const notice = document.getElementById('offlineNotice');
     if (notice) notice.classList.remove('show');
-    showToast("අන්තර්ජාල සම්බන්ධතාවය ලැබුණි.", "success", "Online");
+    showToast("සම්බන්ධතාවය ලැබුණි. Cloud Sync වෙමින් පවතී...", "success", "Online Mode");
+    syncLocalToCloud();
 });
 
-// --- INDEXEDDB STORAGE ---
+// --- INDEXEDDB STORAGE (OFFLINE LOCAL DATABASE) ---
 const DB_NAME = 'BinCardHistoryDB';
 const DB_VERSION = 1;
 let db;
@@ -102,7 +141,35 @@ function deleteFileFromDB(id) {
     });
 }
 
-// --- TOAST NOTIFICATION ---
+// --- REALTIME CLOUD LIVE SYNC ---
+function setupFirebaseRealtimeListener() {
+    if (!firebaseInitialized || !dbRef) return;
+
+    dbRef.on("value", (snapshot) => {
+        const val = snapshot.val();
+        if (val && val.items) {
+            const cloudFileName = val.filename || "Live Cloud File";
+            processAndDisplayItems(val.items, cloudFileName);
+            updateOnlineStatusUI(true);
+        }
+    });
+}
+
+async function syncLocalToCloud() {
+    if (!firebaseInitialized || !navigator.onLine || !dbRef || !currentFileId) return;
+    
+    const data = await loadDatasetFromDB(currentFileId);
+    const filename = document.getElementById('activeFileName').innerText;
+    if (data) {
+        dbRef.set({
+            filename: filename,
+            items: data,
+            updatedAt: Date.now()
+        });
+    }
+}
+
+// --- TOAST NOTIFICATIONS ---
 function showToast(message, type = 'success', title = '') {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -136,6 +203,7 @@ function closeConfirmModal(result) {
 
 // --- APP INIT ---
 window.addEventListener('load', () => {
+    updateOnlineStatusUI(navigator.onLine);
     if (!navigator.onLine) triggerOfflineNotice();
 
     const progressBar = document.getElementById('splashProgressBar');
@@ -161,6 +229,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         await initDB();
+        setupFirebaseRealtimeListener();
         await initializeApp();
     } catch (e) {
         showEmptyState();
@@ -262,6 +331,36 @@ async function loadHistoryUI() {
     }
 }
 
+function processAndDisplayItems(rawItems, filename) {
+    // 1. Calculate Closing Stock correctly: Opening + In(Rec) - Out(Iss) + Return
+    // 2. Hide items where In(Rec), Out(Iss), and Return are ALL 0 or missing
+    binCardData = rawItems
+        .map(item => {
+            const op = parseNum(item.openingStock);
+            const rec = parseNum(item.receipt);
+            const iss = parseNum(item.issues);
+            const ret = parseNum(item.returnQty);
+            return {
+                ...item,
+                openingStock: op,
+                receipt: rec,
+                issues: iss,
+                returnQty: ret,
+                closingStock: op + rec - iss + ret
+            };
+        })
+        .filter(item => item.receipt !== 0 || item.issues !== 0 || item.returnQty !== 0);
+
+    filteredData = [...binCardData];
+    
+    document.getElementById('searchInput').value = '';
+    document.getElementById('activeFileName').innerText = filename;
+    
+    updateDashboardStats();
+    toggleUIElements(true);
+    renderCards(true);
+}
+
 async function loadFileIntoView(id, filename) {
     try {
         const data = await loadDatasetFromDB(id);
@@ -269,17 +368,12 @@ async function loadFileIntoView(id, filename) {
             currentFileId = id;
             localStorage.setItem('activeBinCardFileId', id);
             
-            binCardData = data.filter(item => (parseNum(item.receipt) !== 0 || parseNum(item.issues) !== 0 || parseNum(item.returnQty) !== 0));
-            filteredData = [...binCardData];
-            
-            document.getElementById('searchInput').value = '';
-            document.getElementById('activeFileName').innerText = filename;
-            
-            updateDashboardStats();
-            toggleUIElements(true);
-            renderCards(true);
+            processAndDisplayItems(data, filename);
             closeHistoryModal();
             showToast(`Loaded ${filename}`, 'success');
+
+            // Synchronize with Cloud if online
+            syncLocalToCloud();
         }
     } catch (e) {
         showToast("Error loading file", "error");
@@ -347,9 +441,9 @@ async function processExcelData(worksheet, filename) {
     const keywords = {
         code: [/code/i, /matcode/i, /item code/i, /කේතය/i, /\bid\b/i, /part no/i],
         name: [/description/i, /item name/i, /material name/i, /details/i, /විස්තරය/i, /\bname\b/i],
-        opening: [/opening/i, /b\/f/i, /beginning/i, /මුල් ශේෂය/i, /prev/i],
-        receipt: [/received/i, /receipt/i, /\bin\b/i, /ලැබීම්/i, /purchase/i],
-        issue: [/issued/i, /issue/i, /\bout\b/i, /නිකුත්/i, /sales/i],
+        opening: [/opening/i, /b\/f/i, /beginning/i, /මුල් ශේෂය/i, /prev/i, /op\.?\s*stock/i],
+        receipt: [/received/i, /receipt/i, /\bin\b/i, /ලැබීම්/i, /purchase/i, /rec\b/i],
+        issue: [/issued/i, /issue/i, /\bout\b/i, /නිකුත්/i, /sales/i, /iss\b/i],
         returnQty: [/return/i, /ආපසු/i, /ret\b/i],
         closing: [/closing/i, /balance/i, /stock/i, /ශේෂය/i, /on hand/i]
     };
@@ -389,12 +483,21 @@ async function processExcelData(worksheet, filename) {
         let iNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
         let retNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
         
+        // Hide if In, Out, and Return are all 0
         if (rNum === 0 && iNum === 0 && retNum === 0) continue;
         if (!name) name = code;
 
         let calculatedClosingStock = openNum + rNum - iNum + retNum;
 
-        parsedItems.push({ matCode: code, matName: name, openingStock: openNum, receipt: rNum, issues: iNum, returnQty: retNum, closingStock: calculatedClosingStock });
+        parsedItems.push({ 
+            matCode: code, 
+            matName: name, 
+            openingStock: openNum, 
+            receipt: rNum, 
+            issues: iNum, 
+            returnQty: retNum, 
+            closingStock: calculatedClosingStock 
+        });
     }
 
     if (!parsedItems.length) { showToast("No valid items found", "error"); return; }
