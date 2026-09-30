@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bin Card Live Sync</title>
+    <title>Bin Card Cloud Sync</title>
     
     <link rel="manifest" href="manifest.json">
     
@@ -12,13 +12,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Libraries -->
+    <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDKs for Real-time Cloud Sync -->
+    <!-- Firebase SDKs for Cross-Device Cloud Sync -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -26,18 +26,18 @@
 </head>
 <body class="theme-default">
 
-    <!-- Offline Alert -->
+    <!-- Network Alert Notification -->
     <div id="offlineNotice" class="offline-notice">
         <i class="fas fa-wifi-slash"></i>
-        <span>අන්තර්ජාලය නොමැත - දත්ත Web Storage හි සුරැකේ</span>
+        <span>අන්තර්ජාලය නොමැත - දත්ත local web storage හි සුරැකේ</span>
     </div>
 
     <div id="toast-container"></div>
 
-    <!-- Top Bar -->
+    <!-- Header Section -->
     <header class="android-top-bar">
         <div class="top-bar-title">
-            <i class="fas fa-cloud-sync logo-icon"></i>
+            <i class="fas fa-cloud-upload-alt logo-icon"></i>
             <span>Bin Card Live</span>
             <span id="liveStatusBadge" class="status-chip offline"><i class="fas fa-circle"></i> Offline</span>
         </div>
@@ -45,17 +45,17 @@
             <button class="icon-btn" id="btnDownloadPdf" onclick="downloadPDF()" style="display:none;" title="Export PDF">
                 <i class="fas fa-file-pdf"></i>
             </button>
-            <button class="icon-btn danger" id="btnClearData" onclick="confirmDeleteCurrentFile()" style="display:none;" title="Delete File">
+            <button class="icon-btn danger" id="btnClearData" onclick="confirmDeleteCurrentFile()" style="display:none;" title="Delete Data">
                 <i class="fas fa-trash-alt"></i>
             </button>
         </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <main class="app-body">
         <div class="controls-bar" id="controlsBar" style="display: none;">
             <div class="active-file-badge" id="activeFileBadge">
-                <i class="fas fa-database"></i> <span id="activeFileName">Current Data</span>
+                <i class="fas fa-database"></i> <span id="activeFileName">Active Dataset</span>
             </div>
             <button class="chip-btn" onclick="toggleDetailedStats()" id="toggleStatsBtn">
                 <i class="fas fa-chart-pie"></i> <span id="toggleStatsText">Extra Stats</span>
@@ -107,7 +107,7 @@
         </div>
     </main>
 
-    <!-- Bottom Nav -->
+    <!-- Bottom Navigation Bar -->
     <nav class="android-bottom-nav">
         <button class="nav-item active" onclick="scrollToTop()">
             <i class="fas fa-home"></i><span>Home</span>
@@ -123,12 +123,12 @@
         </button>
     </nav>
 
-    <!-- Upload Modal -->
+    <!-- Modal: File Upload -->
     <div class="modal-overlay" id="uploadModal">
         <div class="android-dialog">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
-            <h3>Upload Data</h3>
-            <p>Upload Excel file to sync across all devices.</p>
+            <h3>Upload & Sync Data</h3>
+            <p>Select Excel file to update Web Storage and Cloud Sync across devices.</p>
             <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon-circle"><i class="fas fa-cloud-upload-alt"></i></div>
                 <p>Tap to select file</p>
@@ -138,21 +138,21 @@
         </div>
     </div>
 
-    <!-- History / Web Storage Modal -->
+    <!-- Modal: Local Web Storage List -->
     <div class="modal-overlay" id="historyModal">
         <div class="android-dialog">
             <button class="close-modal" onclick="closeHistoryModal()"><i class="fas fa-times"></i></button>
-            <h3><i class="fas fa-database"></i> Web Storage Data</h3>
-            <p>Data currently saved on this device</p>
+            <h3><i class="fas fa-database"></i> Web Storage History</h3>
+            <p>Data stored locally in your browser cache</p>
             <div class="history-list" id="historyListContainer"></div>
         </div>
     </div>
 
-    <!-- Settings Modal -->
+    <!-- Modal: Theme Settings -->
     <div class="modal-overlay" id="settingsModal">
         <div class="android-dialog">
             <button class="close-modal" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
-            <h3><i class="fas fa-palette"></i> Themes</h3>
+            <h3><i class="fas fa-palette"></i> Choose Theme</h3>
             <div class="theme-options">
                 <div class="theme-btn" onclick="setTheme('default')" style="background: #6750a4; color: white;">Purple</div>
                 <div class="theme-btn" onclick="setTheme('emerald')" style="background: #006c4c; color: white;">Emerald</div>
@@ -162,11 +162,11 @@
         </div>
     </div>
 
-    <!-- Confirm Modal -->
+    <!-- Modal: Delete Confirmation -->
     <div class="modal-overlay" id="confirmModal">
         <div class="android-dialog text-center">
             <div class="dialog-alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
-            <h3 id="confirmTitle">Confirm</h3>
+            <h3 id="confirmTitle">Confirm Action</h3>
             <p id="confirmMessage">Are you sure?</p>
             <div class="dialog-actions">
                 <button class="android-btn-text" onclick="closeConfirmModal(false)">Cancel</button>
