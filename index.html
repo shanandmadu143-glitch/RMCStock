@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bin Card Manager - Cloud Sync</title>
+    <title>Bin Card Manager - Cloud Live Sync</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -19,9 +19,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase Cloud Integration -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase Standard JS SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <style>
         /* ANDROID MATERIAL DESIGN 3 THEMES & STYLING */
@@ -90,6 +90,7 @@
         .toast-icon { font-size: 20px; }
         .toast.success .toast-icon { color: var(--success); }
         .toast.error .toast-icon { color: var(--danger); }
+        .toast.info .toast-icon { color: var(--primary); }
         .toast-content h5 { font-size: 14px; font-weight: 700; }
         .toast-content p { font-size: 12px; color: var(--text-light); }
 
@@ -462,26 +463,23 @@
     <script>
         "use strict";
 
-        // --- FIREBASE CONFIGURATION & INITIALIZATION ---
-        // Public Demo Firebase Configuration for live multi-device sync
+        // --- FIREBASE CONFIGURATION (Updated with your Project ID and API Key) ---
         const firebaseConfig = {
-            apiKey: "AIzaSyD-PlaceholderKeyForGlobalCloudAccess",
-            authDomain: "bincard-manager-app.firebaseapp.com",
-            projectId: "bincard-manager-app",
-            storageBucket: "bincard-manager-app.appspot.com",
-            messagingSenderId: "108392847291",
-            appId: "1:108392847291:web:bincardmanager"
+            apiKey: "BBneNawI8K7LZKidLsAIKAb_FGRJZk-j_KPan_mvheez-Ei023aR98OdIvd0EqdFKHoBurzzynDBC3QBigPYgx8",
+            authDomain: "bin-card-42614.firebaseapp.com",
+            projectId: "bin-card-42614",
+            storageBucket: "bin-card-42614.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456"
         };
 
-        // Initialize Firebase
+        // Firebase Initialize
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.firestore();
-        // Enable offline persistence for network resilience
-        db.enablePersistence({synchronizeTabs: true}).catch(() => {});
 
-        // App variables
+        // App State
         let binCardData = [];
         let filteredData = [];
         const PAGE_SIZE = 50;
@@ -491,9 +489,8 @@
         let currentFileId = null;
         let offlineTimer = null;
         let cloudDatasetsList = [];
-        let unsubscribeRealtime = null;
 
-        // --- UI CLOUD STATUS UPDATER ---
+        // UI Cloud Status
         function setCloudStatus(status, text) {
             const badge = document.getElementById('cloudStatusBadge');
             const statusText = document.getElementById('cloudStatusText');
@@ -510,11 +507,11 @@
             } else if (status === 'offline') {
                 badge.style.background = '#fee2e2';
                 badge.style.color = '#dc2626';
-                badge.innerHTML = `<i class="fas fa-wifi-slash"></i> <span>${text || 'Offline Mode'}</span>`;
+                badge.innerHTML = `<i class="fas fa-wifi-slash"></i> <span>${text || 'Offline'}</span>`;
             }
         }
 
-        // --- OFFLINE / ONLINE EVENTS ---
+        // Offline Notification
         function triggerOfflineNotice() {
             const notice = document.getElementById('offlineNotice');
             if (!notice) return;
@@ -536,11 +533,10 @@
             showToast("අන්තර්ජාල සම්බන්ධතාවය ලැබුණි.", "success", "Online");
         });
 
-        // --- REAL-TIME FIRESTORE CLOUD DATABASE LISTENERS ---
+        // --- REALTIME CLOUD FIRESTORE SYNC ---
         function setupCloudRealtimeListener() {
             setCloudStatus('syncing', 'Connecting Cloud...');
             
-            // Sync all datasets live across all mobile devices
             db.collection("bin_card_files").orderBy("timestamp", "desc")
               .onSnapshot((snapshot) => {
                 cloudDatasetsList = [];
@@ -558,13 +554,13 @@
                     showEmptyState();
                 }
 
-                // If modal is open, refresh UI
                 if (document.getElementById('historyModal').style.display === 'flex') {
                     renderHistoryListUI();
                 }
             }, (error) => {
-                console.warn("Cloud connection error:", error);
-                setCloudStatus('offline', 'Local Mode');
+                console.error("Firestore Error: ", error);
+                setCloudStatus('offline', 'Check Rules/Key');
+                showToast("Cloud Connection Error! Firebase Rules පරීක්ෂා කරන්න.", "error");
             });
         }
 
@@ -585,7 +581,7 @@
         }
 
         async function uploadSpreadsheetToCloud(filename, parsedItems) {
-            setCloudStatus('syncing', 'Uploading Cloud...');
+            setCloudStatus('syncing', 'Uploading...');
             showToast("Cloud එකට Upload වෙමින් පවතී...", "info");
 
             try {
@@ -601,21 +597,22 @@
                 showToast("Cloud එකට සාර්ථකව Upload විය!", "success");
                 closeModal();
             } catch (err) {
-                showToast("Cloud Upload කිරීම අසාර්ථක විය", "error");
-                setCloudStatus('offline', 'Error Uploading');
+                console.error("Upload Error:", err);
+                showToast("Cloud Upload කිරීම අසාර්ථක විය: " + err.message, "error");
+                setCloudStatus('offline', 'Upload Error');
             }
         }
 
         async function deleteCloudSpreadsheet(id) {
             try {
                 await db.collection("bin_card_files").doc(id).delete();
-                showToast("Cloud File එක ඉවත් गरුණි", "success");
+                showToast("Cloud File එක ඉවත් කරන ලදී", "success");
                 if (currentFileId === id) {
                     currentFileId = null;
                     localStorage.removeItem('activeBinCardCloudFileId');
                 }
             } catch (e) {
-                showToast("File එක Delete කිරීමට නොහැකි විය", "error");
+                showToast("Delete කිරීමට නොහැකි විය: " + e.message, "error");
             }
         }
 
@@ -626,11 +623,11 @@
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             
-            let icon = type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
+            let icon = type === 'error' ? 'fa-exclamation-circle' : (type === 'info' ? 'fa-info-circle' : 'fa-check-circle');
             toast.innerHTML = `
                 <i class="fas ${icon} toast-icon"></i>
                 <div class="toast-content">
-                    <h5>${escapeHtml(title || (type === 'error' ? 'Error' : 'Success'))}</h5>
+                    <h5>${escapeHtml(title || (type === 'error' ? 'Error' : (type === 'info' ? 'Notice' : 'Success')))}</h5>
                     <p>${escapeHtml(message)}</p>
                 </div>
             `;
@@ -676,7 +673,6 @@
             setTheme(savedTheme, false);
             setupDragAndDrop();
             
-            // Connect to Cloud Database
             setupCloudRealtimeListener();
 
             window.addEventListener('click', (e) => {
@@ -727,7 +723,7 @@
             document.getElementById('toggleStatsText').innerText = showDetailedStats ? 'Hide Stats' : 'Extra Stats';
         }
 
-        // --- HISTORY / CLOUD FILES UI ---
+        // --- CLOUD FILES LIST UI ---
         function renderHistoryListUI() {
             const container = document.getElementById('historyListContainer');
             if (cloudDatasetsList.length === 0) {
@@ -872,7 +868,6 @@
 
             if (!parsedItems.length) { showToast("No valid items found", "error"); return; }
 
-            // Save dataset directly to Cloud Database
             await uploadSpreadsheetToCloud(filename, parsedItems);
         }
 
