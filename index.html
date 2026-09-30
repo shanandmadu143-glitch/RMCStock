@@ -58,6 +58,7 @@
             overflow-x: hidden; transition: background-color 0.3s, color 0.3s;
         }
 
+        .text-blue { color: var(--primary) !important; }
         .text-green { color: var(--success) !important; }
         .text-red { color: var(--danger) !important; }
 
@@ -209,10 +210,11 @@
         .mat-code { font-size: 12px; color: var(--text-light); font-weight: 600; margin-bottom: 5px; }
         .mat-name { font-size: 16px; font-weight: 700; color: var(--text-main); line-height: 1.4; }
         
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .data-item { text-align: center; background: var(--data-bg); padding: 10px 5px; border-radius: 8px; border: 1px solid var(--border); }
+        /* DATA GRID - FIXED TO SHOW OPENING STOCK PROPERLY */
+        .data-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 15px; }
+        .data-item { text-align: center; background: var(--data-bg); padding: 8px 4px; border-radius: 8px; border: 1px solid var(--border); }
         .d-label { display: block; font-size: 11px; color: var(--text-light); font-weight: 600; margin-bottom: 4px; line-height: 1.2; word-break: break-word; }
-        .d-value { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .d-value { font-size: 14px; font-weight: 700; color: var(--text-main); }
         
         .stock-total {
             background: rgba(14, 165, 233, 0.08); padding: 12px; border-radius: 8px; text-align: center;
@@ -850,7 +852,7 @@
             const keywords = {
                 code: [/code/i, /matcode/i, /item code/i, /කේතය/i, /\bid\b/i, /item no/i, /part no/i, /අංකය/i],
                 name: [/description/i, /item name/i, /material name/i, /details/i, /විස්තරය/i, /\bname\b/i, /භාණ්ඩය/i, /විස්තර/i],
-                opening: [/opening/i, /open\b/i, /b\/f/i, /bf\b/i, /beginning/i, /මුල් ශේෂය/i, /පෙර ශේෂය/i, /prev/i, /initial/i],
+                opening: [/opening/i, /open\b/i, /b\/f/i, /bf\b/i, /beginning/i, /මුල් ශේෂය/i, /පෙර ශේෂය/i, /prev/i, /initial/i, /o\/b/i, /op\./i],
                 receipt: [/received/i, /receipt/i, /\bin\b/i, /qty in/i, /ලැබීම්/i, /rec\b/i, /purchase/i, /inward/i, /ගැනුම්/i],
                 issue: [/issued/i, /issue/i, /\bout\b/i, /qty out/i, /නිකුත්/i, /iss\b/i, /outward/i, /sales/i],
                 returnQty: [/return/i, /ආපසු/i, /ret\b/i, /rejection/i],
@@ -876,7 +878,8 @@
             }
 
             if (headerRowIndex === -1) {
-                headerRowIndex = 0; colMap = { code: 0, name: 1, opening: -1, receipt: 2, issue: 3, returnQty: 4, closing: 5 };
+                // Better Fallback Index if Headers not found correctly
+                headerRowIndex = 0; colMap = { code: 0, name: 1, opening: 2, receipt: 3, issue: 4, returnQty: 5, closing: 6 };
             }
 
             for (let i = headerRowIndex + 1; i < rawData.length; i++) {
@@ -893,8 +896,9 @@
                 let rNum = parseNum(colMap.receipt !== -1 ? row[colMap.receipt] : 0);
                 let iNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
                 let retNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
+                let fileClosing = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
 
-                if (rNum === 0 && iNum === 0 && retNum === 0 && openNum === 0) continue;
+                if (rNum === 0 && iNum === 0 && retNum === 0 && openNum === 0 && fileClosing === 0) continue;
                 if (!name) name = code;
 
                 // --- ROBUST CLOSING STOCK CALCULATION & CORRECTION ---
@@ -904,6 +908,7 @@
                 parsedItems.push({ 
                     matCode: code, 
                     matName: name, 
+                    openingStock: openNum, // (BUG FIX) Ensure Opening Stock is saved
                     receipt: rNum, 
                     issues: iNum, 
                     returnQty: retNum, 
@@ -980,6 +985,9 @@
                                 item.closingStock < 10 ? '<span class="badge badge-warning">Low Stock</span>' : 
                                 '<span class="badge badge-success">In Stock</span>';
 
+                // (BUG FIX) Added Opening Stock view dynamically directly to the card grid.
+                const openStockVal = item.openingStock || 0;
+
                 card.innerHTML = `
                     ${badgeHTML}
                     <div class="card-header">
@@ -987,6 +995,7 @@
                         <div class="mat-name">${escapeHtml(item.matName)}</div>
                     </div>
                     <div class="data-grid">
+                        <div class="data-item"><span class="d-label">Op. Stock</span><span class="d-value text-blue">${formatNumber(openStockVal)}</span></div>
                         <div class="data-item"><span class="d-label">In (Rec)</span><span class="d-value text-green">${formatNumber(item.receipt)}</span></div>
                         <div class="data-item"><span class="d-label">Out (Iss)</span><span class="d-value text-red">${formatNumber(item.issues)}</span></div>
                         <div class="data-item"><span class="d-label">Return</span><span class="d-value">${formatNumber(item.returnQty)}</span></div>
@@ -1033,18 +1042,19 @@
                 doc.text(`Generated Date: ${new Date().toLocaleString()}`, 40, 70);
                 doc.text(`Showing: ${filteredData.length} items`, 40, 85);
 
+                // (BUG FIX) Added Opening Stock to PDF Export table properly
                 const tableRows = filteredData.map(item => [
-                    item.matCode, item.matName, formatNumber(item.receipt), formatNumber(item.issues), formatNumber(item.returnQty), formatNumber(item.closingStock)
+                    item.matCode, item.matName, formatNumber(item.openingStock || 0), formatNumber(item.receipt), formatNumber(item.issues), formatNumber(item.returnQty), formatNumber(item.closingStock)
                 ]);
 
                 doc.autoTable({
-                    head: [["Code", "Item Name", "In (Rec)", "Out (Iss)", "Returns", "Closing Stock"]],
+                    head: [["Code", "Item Name", "Op. Stock", "In (Rec)", "Out (Iss)", "Returns", "Closing Stock"]],
                     body: tableRows, startY: 100, theme: 'grid', styles: { fontSize: 8, cellPadding: 4 },
                     headStyles: { fillColor: [79, 70, 229], textColor: 255 },
                     columnStyles: { 
-                        0: { fontStyle: 'bold', cellWidth: 70 }, 1: { cellWidth: 140 },
+                        0: { fontStyle: 'bold' }, 
                         2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 
-                        5: { halign: 'right', fontStyle: 'bold', textColor: [16, 185, 129] }
+                        5: { halign: 'right' }, 6: { halign: 'right', fontStyle: 'bold', textColor: [16, 185, 129] }
                     },
                     margin: { top: 40, bottom: 40 }
                 });
