@@ -1,7 +1,7 @@
 {
   "name": "Bin Card Manager",
   "short_name": "BinCard",
-  "description": "Android Native Inventory Control System",
+  "description": "Android Native Live Inventory Control System",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f6f2fa",
