@@ -753,7 +753,14 @@
                     currentFileId = id;
                     localStorage.setItem('activeBinCardFileId', id);
                     
-                    binCardData = data;
+                    // NEW: Filter out items where In, Out, and Return are all 0 (For old records in history)
+                    binCardData = data.filter(item => {
+                        const r = parseNum(item.receipt);
+                        const i = parseNum(item.issues);
+                        const ret = parseNum(item.returnQty);
+                        return (r !== 0 || i !== 0 || ret !== 0);
+                    });
+                    
                     filteredData = [...binCardData];
                     
                     const searchInput = document.getElementById('searchInput');
@@ -898,7 +905,9 @@
                 let retNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
                 let fileClosing = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
 
-                if (rNum === 0 && iNum === 0 && retNum === 0 && openNum === 0 && fileClosing === 0) continue;
+                // NEW: Hide (Exclude) Item Card if In (Rec), Out (Iss) and Return are all 0 or empty
+                if (rNum === 0 && iNum === 0 && retNum === 0) continue;
+
                 if (!name) name = code;
 
                 // --- ROBUST CLOSING STOCK CALCULATION & CORRECTION ---
