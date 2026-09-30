@@ -35,6 +35,14 @@ body {
     user-select: none;
 }
 
+/* STATUS CHIP */
+.status-chip {
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-pill);
+    display: inline-flex; align-items: center; gap: 4px; text-transform: uppercase;
+}
+.status-chip.online { background: #dcfce7; color: #15803d; }
+.status-chip.offline { background: #fee2e2; color: #b91c1c; }
+
 /* AUTO-DISMISSING OFFLINE NOTICE */
 .offline-notice {
     position: fixed; top: -80px; left: 50%; transform: translateX(-50%);
@@ -92,7 +100,7 @@ body {
     justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border);
     box-shadow: var(--elevation-1); z-index: 10; flex-shrink: 0;
 }
-.top-bar-title { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 700; color: var(--primary); }
+.top-bar-title { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700; color: var(--primary); }
 .top-bar-title .logo-icon { font-size: 22px; }
 .top-bar-actions { display: flex; gap: 8px; }
 .icon-btn {
