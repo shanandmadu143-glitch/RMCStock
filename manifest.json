@@ -1,7 +1,7 @@
 {
-  "name": "Bin Card Live Sync",
-  "short_name": "BinCardLive",
-  "description": "Cross-device Inventory Control with Web Storage & Cloud Sync",
+  "name": "Bin Card Cloud Sync",
+  "short_name": "BinCardCloud",
+  "description": "Cross-device Web Storage & Online Sync Application",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f6f2fa",
