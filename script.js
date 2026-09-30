@@ -1,12 +1,12 @@
 "use strict";
 
-// --- FIREBASE CLOUD SYNC CONFIGURATION ---
+// --- FIREBASE CONFIGURATION FOR CROSS-DEVICE SYNC ---
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    apiKey: "YOUR_FIREBASE_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
     messagingSenderId: "YOUR_SENDER_ID",
     appId: "YOUR_APP_ID"
 };
@@ -15,10 +15,9 @@ let firebaseInitialized = false;
 let dbRef = null;
 
 try {
-    if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+    if (firebaseConfig.apiKey !== "YOUR_FIREBASE_API_KEY") {
         firebase.initializeApp(firebaseConfig);
-        firebase.database().enableLogging(false);
-        dbRef = firebase.database().ref("bincard_live_data");
+        dbRef = firebase.database().ref("cloud_bincard_data");
         firebaseInitialized = true;
     }
 } catch (e) {
@@ -33,10 +32,10 @@ let currentPage = 1;
 let confirmCallback = null;
 let showDetailedStats = false;
 let currentFileId = null;
-const CLOUD_SYNC_ID = 999999; // Special ID for data coming from other devices
+const CLOUD_SYNC_ID = 888888; 
 
-// --- WEB STORAGE (INDEXEDDB) SETUP ---
-const DB_NAME = 'BinCardWebStorageDB';
+// --- LOCAL WEB STORAGE (INDEXEDDB) HANDLERS ---
+const DB_NAME = 'BinCardBrowserDB';
 const DB_VERSION = 1;
 let localDB;
 
@@ -107,22 +106,22 @@ function deleteFromWebStorage(id) {
     });
 }
 
-// --- CLOUD SYNC LOGIC (CROSS-DEVICE) ---
-function setupFirebaseRealtimeListener() {
+// --- CLOUD SYNC SERVICES ---
+function setupFirebaseListener() {
     if (!firebaseInitialized || !dbRef) return;
 
     dbRef.on("value", async (snapshot) => {
         const val = snapshot.val();
         if (val && val.items) {
-            const cloudFileName = val.filename || "Cloud Synced Data";
+            const cloudFileName = val.filename || "Cloud Data";
             
-            // Save data coming from other devices into THIS device's Web Storage
+            // Automatically cache remote cloud data to local web storage
             try {
                 await saveToWebStorage(cloudFileName, val.items, CLOUD_SYNC_ID);
                 currentFileId = CLOUD_SYNC_ID;
                 localStorage.setItem('activeBinCardFileId', CLOUD_SYNC_ID);
             } catch (e) {
-                console.warn("Could not save cloud data locally.");
+                console.warn("Local caching error:", e);
             }
 
             processAndDisplayItems(val.items, cloudFileName);
@@ -131,30 +130,30 @@ function setupFirebaseRealtimeListener() {
     });
 }
 
-async function syncLocalToCloud(filename, data) {
+async function syncDataToCloud(filename, data) {
     if (!firebaseInitialized || !navigator.onLine || !dbRef) return;
     try {
         await dbRef.set({
             filename: filename,
             items: data,
-            updatedAt: Date.now()
+            lastSync: Date.now()
         });
-        showToast("Data Synced to Cloud Successfully!", "success");
+        showToast("Synced across all devices via Cloud!", "success");
     } catch (e) {
-        showToast("Cloud Sync Failed", "error");
+        showToast("Cloud update failed.", "error");
     }
 }
 
-// --- NETWORK STATUS UI ---
+// --- NETWORK UI MONITORING ---
 function updateOnlineStatusUI(isOnline) {
     const badge = document.getElementById('liveStatusBadge');
     if (!badge) return;
     if (isOnline && firebaseInitialized) {
         badge.className = "status-chip online";
-        badge.innerHTML = `<i class="fas fa-globe"></i> Cloud Sync On`;
+        badge.innerHTML = `<i class="fas fa-globe"></i> Cloud Sync Active`;
     } else {
         badge.className = "status-chip offline";
-        badge.innerHTML = `<i class="fas fa-wifi-slash"></i> Offline Mode`;
+        badge.innerHTML = `<i class="fas fa-wifi-slash"></i> Web Storage Only`;
     }
 }
 
@@ -163,22 +162,20 @@ window.addEventListener('offline', () => {
     const notice = document.getElementById('offlineNotice');
     notice.classList.add('show');
     setTimeout(() => { notice.classList.remove('show'); }, 4000);
-    showToast("You are offline. Data saved to Web Storage.", "error", "Offline");
+    showToast("Offline mode. Data will be kept in Web Storage.", "error");
 });
 
 window.addEventListener('online', async () => {
     updateOnlineStatusUI(true);
-    showToast("Online. Syncing...", "success", "Connected");
-    
-    // If online, push local active data to cloud (if not already cloud synced)
+    showToast("Internet connected. Syncing...", "success");
     if (currentFileId && currentFileId !== CLOUD_SYNC_ID) {
         const data = await loadFromWebStorage(currentFileId);
         const filename = document.getElementById('activeFileName').innerText;
-        if (data) syncLocalToCloud(filename, data);
+        if (data) syncDataToCloud(filename, data);
     }
 });
 
-// --- APP INITIALIZATION ---
+// --- APPLICATION STARTUP ---
 document.addEventListener('DOMContentLoaded', async () => {
     const savedTheme = localStorage.getItem('binCardTheme') || 'default';
     setTheme(savedTheme, false);
@@ -187,8 +184,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         await initDB();
-        setupFirebaseRealtimeListener();
-        await initializeAppData();
+        setupFirebaseListener();
+        await loadInitialData();
     } catch (e) {
         showEmptyState();
     }
@@ -200,7 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-async function initializeAppData() {
+async function loadInitialData() {
     const history = await getWebStorageHistory();
     if (history.length > 0) {
         const savedIdStr = localStorage.getItem('activeBinCardFileId');
@@ -212,7 +209,7 @@ async function initializeAppData() {
     }
 }
 
-// --- CORE LOGIC: PROCESS EXCEL DATA ---
+// --- DATA PROCESSING & CALCULATIONS ---
 function processAndDisplayItems(rawItems, filename) {
     binCardData = [];
     
@@ -222,10 +219,10 @@ function processAndDisplayItems(rawItems, filename) {
         const iss = parseNum(item.issues);
         const ret = parseNum(item.returnQty);
         
-        // Hide item if In, Out, and Return are ALL 0
+        // Exclude completely zeroed non-transaction items
         if (rec === 0 && iss === 0 && ret === 0) return;
 
-        // Correct Calculation: Closing Stock = Opening + In - Out + Return
+        // Formula: Closing Stock = Opening Stock + Received - Issued + Returned
         const closing = op + rec - iss + ret;
 
         binCardData.push({
@@ -248,7 +245,7 @@ function processAndDisplayItems(rawItems, filename) {
     renderCards(true);
 }
 
-// --- FILE UPLOAD & EXCEL PARSING ---
+// --- FILE PARSER ---
 function setupDragAndDrop() {
     const dropArea = document.getElementById('dropArea');
     if (!dropArea) return;
@@ -261,42 +258,41 @@ function setupDragAndDrop() {
 }
 
 function handleFileUpload(file) {
-    showToast("Processing file...", "info");
+    showToast("Processing file data...", "info");
     const reader = new FileReader();
     reader.onload = async (e) => {
         try {
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, { type: 'array' });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            await extractExcelData(firstSheet, file.name);
+            await parseAndSaveExcel(firstSheet, file.name);
         } catch (error) {
-            showToast("Invalid Excel File", "error");
+            showToast("Failed to parse file", "error");
         }
     };
     reader.readAsArrayBuffer(file);
 }
 
-async function extractExcelData(worksheet, filename) {
+async function parseAndSaveExcel(worksheet, filename) {
     const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-    if (!rawData.length) return showToast("File is empty", "error");
+    if (!rawData.length) return showToast("File contains no data", "error");
 
     let parsedItems = [];
     let headerRowIndex = -1;
-    let colMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
+    let colMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1 };
 
     const keywords = {
-        code: [/code/i, /item code/i, /කේතය/i, /matcode/i],
+        code: [/code/i, /item/i, /කේතය/i, /matcode/i],
         name: [/name/i, /description/i, /විස්තරය/i],
         opening: [/opening/i, /b\/f/i, /මුල්/i],
         receipt: [/receipt/i, /received/i, /\bin\b/i, /ලැබීම්/i],
         issue: [/issue/i, /\bout\b/i, /නිකුත්/i],
-        returnQty: [/return/i, /ආපසු/i],
-        closing: [/closing/i, /balance/i, /stock/i]
+        returnQty: [/return/i, /ආපසු/i]
     };
 
     for (let i = 0; i < Math.min(20, rawData.length); i++) {
         let row = rawData[i];
-        let matches = 0, tempMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
+        let matches = 0, tempMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1 };
         row.forEach((cell, idx) => {
             let text = String(cell).trim();
             for (let key in keywords) {
@@ -306,13 +302,13 @@ async function extractExcelData(worksheet, filename) {
         if (matches >= 2) { headerRowIndex = i; colMap = tempMap; break; }
     }
 
-    if (headerRowIndex === -1) { colMap = { code: 0, name: 1, opening: 2, receipt: 3, issue: 4, returnQty: 5, closing: 6 }; headerRowIndex = 0; }
+    if (headerRowIndex === -1) { colMap = { code: 0, name: 1, opening: 2, receipt: 3, issue: 4, returnQty: 5 }; headerRowIndex = 0; }
 
     for (let i = headerRowIndex + 1; i < rawData.length; i++) {
         let row = rawData[i];
         if (!row || !row.length) continue;
         
-        let code = colMap.code !== -1 ? String(row[colMap.code]).trim() : `ITM-${i}`;
+        let code = colMap.code !== -1 ? String(row[colMap.code]).trim() : `ITEM-${i}`;
         let name = colMap.name !== -1 ? String(row[colMap.name]).trim() : code;
         if (!code) continue;
 
@@ -325,17 +321,17 @@ async function extractExcelData(worksheet, filename) {
         });
     }
 
-    // Save to Local Web Storage First
+    // Save locally to IndexedDB
     const result = await saveToWebStorage(filename, parsedItems);
     
-    // Sync to Cloud immediately if online
-    if (navigator.onLine) await syncLocalToCloud(filename, parsedItems);
+    // Sync to Cloud
+    if (navigator.onLine) await syncDataToCloud(filename, parsedItems);
 
     await loadFileIntoView(result.id, result.filename);
     closeModal();
 }
 
-// --- UI AND HISTORY FUNCTIONS ---
+// --- UI INTERACTIONS & RENDER logic ---
 async function loadFileIntoView(id, filename) {
     try {
         const data = await loadFromWebStorage(id);
@@ -344,22 +340,22 @@ async function loadFileIntoView(id, filename) {
             localStorage.setItem('activeBinCardFileId', id);
             processAndDisplayItems(data, filename);
             closeHistoryModal();
-            showToast(`Loaded ${filename}`, 'success');
+            showToast(`Loaded: ${filename}`, 'success');
         }
     } catch (e) { showToast("Error loading file", "error"); }
 }
 
 async function loadHistoryUI() {
     const container = document.getElementById('historyListContainer');
-    container.innerHTML = 'Loading...';
+    container.innerHTML = 'Loading storage...';
     try {
         const history = await getWebStorageHistory();
-        if (!history.length) { container.innerHTML = 'No Web Storage data.'; return; }
+        if (!history.length) { container.innerHTML = 'No stored datasets found.'; return; }
 
         container.innerHTML = history.map(item => `
             <div class="history-item">
                 <div class="history-info">
-                    <h4><i class="fas fa-file-excel"></i> ${escapeHtml(item.filename)}</h4>
+                    <h4><i class="fas fa-file-alt"></i> ${escapeHtml(item.filename)}</h4>
                     <p>${new Date(item.timestamp).toLocaleString()}</p>
                 </div>
                 <div style="display:flex; gap:6px;">
@@ -368,15 +364,15 @@ async function loadHistoryUI() {
                 </div>
             </div>
         `).join('');
-    } catch (e) { container.innerHTML = 'Error loading storage.'; }
+    } catch (e) { container.innerHTML = 'Failed to load storage list.'; }
 }
 
 function confirmDeleteHistoryItem(id, filename) {
-    showConfirmModal("Delete Data", `Delete '${filename}' from Web Storage?`, async () => {
+    showConfirmModal("Delete Saved Data", `Remove '${filename}' from Web Storage?`, async () => {
         await deleteFromWebStorage(id);
         if (id === currentFileId) { currentFileId = null; localStorage.removeItem('activeBinCardFileId'); showEmptyState(); }
         loadHistoryUI();
-        showToast("Deleted locally", "success");
+        showToast("Item deleted", "success");
     });
 }
 function confirmDeleteCurrentFile() { if (currentFileId) confirmDeleteHistoryItem(currentFileId, document.getElementById('activeFileName').innerText); }
@@ -391,21 +387,21 @@ function updateDashboardStats() {
 function renderCards(reset = false) {
     const container = document.getElementById('cardContainer');
     if (reset) { currentPage = 1; container.innerHTML = ''; }
-    if (!filteredData.length) { container.innerHTML = `<div class="empty-state"><h3>No items match</h3></div>`; return; }
+    if (!filteredData.length) { container.innerHTML = `<div class="empty-state"><h3>No matching records found</h3></div>`; return; }
 
     const end = Math.min(currentPage * PAGE_SIZE, filteredData.length);
     const html = filteredData.slice((currentPage - 1) * PAGE_SIZE, end).map(item => `
         <div class="card">
-            ${item.closingStock <= 0 ? '<span class="badge badge-danger">Out</span>' : item.closingStock < 10 ? '<span class="badge badge-warning">Low</span>' : '<span class="badge badge-success">In Stock</span>'}
-            <div class="mat-code"><i class="fas fa-barcode"></i> ${escapeHtml(item.matCode)}</div>
+            ${item.closingStock <= 0 ? '<span class="badge badge-danger">Out of Stock</span>' : item.closingStock < 10 ? '<span class="badge badge-warning">Low Stock</span>' : '<span class="badge badge-success">Available</span>'}
+            <div class="mat-code"><i class="fas fa-tag"></i> ${escapeHtml(item.matCode)}</div>
             <div class="mat-name">${escapeHtml(item.matName)}</div>
             <div class="data-grid">
-                <div class="data-item"><span class="d-label">Op. Stock</span><span class="d-value">${formatNumber(item.openingStock)}</span></div>
+                <div class="data-item"><span class="d-label">Opening</span><span class="d-value">${formatNumber(item.openingStock)}</span></div>
                 <div class="data-item"><span class="d-label">In</span><span class="d-value" style="color:var(--success);">${formatNumber(item.receipt)}</span></div>
                 <div class="data-item"><span class="d-label">Out</span><span class="d-value" style="color:var(--danger);">${formatNumber(item.issues)}</span></div>
                 <div class="data-item"><span class="d-label">Return</span><span class="d-value">${formatNumber(item.returnQty)}</span></div>
             </div>
-            <div class="stock-total"><span class="d-label">Closing Stock</span><span class="d-value">${formatNumber(item.closingStock)}</span></div>
+            <div class="stock-total"><span class="d-label">Closing Balance</span><span class="d-value">${formatNumber(item.closingStock)}</span></div>
         </div>
     `).join('');
     
@@ -414,7 +410,7 @@ function renderCards(reset = false) {
     document.getElementById('loadMoreContainer').style.display = end < filteredData.length ? 'block' : 'none';
 }
 
-// --- UTILITIES & UI TOGGLES ---
+// --- HELPER FUNCTIONS ---
 function parseNum(v) { let n = parseFloat(String(v).replace(/,/g, '')); return isNaN(n) ? 0 : n; }
 function formatNumber(n) { return n.toLocaleString('en-US', { maximumFractionDigits: 2 }); }
 function escapeHtml(str) { return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
@@ -440,10 +436,10 @@ function toggleUIElements(show) {
 function showEmptyState() {
     toggleUIElements(false);
     const c = document.getElementById('cardContainer');
-    if (c) c.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No Data Available</h3><p>Upload Excel file or wait for Cloud Sync</p></div>`;
+    if (c) c.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No Stored Data</h3><p>Upload an Excel file to store locally and sync online.</p></div>`;
 }
 
-// Modals, Toasts
+// Dialogs and Notifications
 function showToast(msg, type = 'success') {
     const c = document.getElementById('toast-container');
     const t = document.createElement('div'); t.className = `toast ${type}`;
@@ -464,15 +460,15 @@ function openHistoryModal() { loadHistoryUI(); document.getElementById('historyM
 function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
 function scrollToTop() { document.querySelector('.app-body').scrollTo({ top: 0, behavior: 'smooth' }); }
 
-// PDF Export
+// PDF Export Functionality
 function downloadPDF() {
     if (!filteredData.length) return;
     const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'pt', 'a4');
-    doc.text("Bin Card Live Inventory Report", 40, 40);
+    doc.text("Live Inventory Status Report", 40, 40);
     doc.autoTable({
-        head: [["Code", "Item Name", "Op. Stock", "In", "Out", "Returns", "Closing"]],
+        head: [["Code", "Item Name", "Opening", "In", "Out", "Return", "Closing Stock"]],
         body: filteredData.map(i => [i.matCode, i.matName, i.openingStock, i.receipt, i.issues, i.returnQty, i.closingStock]),
         startY: 60, theme: 'grid'
     });
-    doc.save(`Live_BinCard.pdf`);
+    doc.save(`Inventory_Report.pdf`);
 }
