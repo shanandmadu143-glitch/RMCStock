@@ -861,7 +861,14 @@
                 if (rNum === 0 && iNum === 0 && retNum === 0) continue;
                 if (!name) name = code;
 
-                let calculatedClosingStock = openNum + rNum - iNum + retNum;
+                let calculatedClosingStock;
+                
+                // Excel එකේ closing stock එකක් දීලා තියෙනවා නම් ඒක ලබාගැනීම, නැත්නම් සමීකරණයෙන් හදන්න
+                if (colMap.closing !== -1 && row[colMap.closing] !== undefined && String(row[colMap.closing]).trim() !== '') {
+                    calculatedClosingStock = parseNum(row[colMap.closing]);
+                } else {
+                    calculatedClosingStock = openNum + rNum - iNum + retNum;
+                }
 
                 parsedItems.push({ matCode: code, matName: name, openingStock: openNum, receipt: rNum, issues: iNum, returnQty: retNum, closingStock: calculatedClosingStock });
             }
