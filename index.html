@@ -24,26 +24,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <style>
-        /* ANDROID MATERIAL DESIGN 3 THEMES & STYLING */
+        /* MATERIAL DESIGN THEMES */
         body.theme-default {
             --primary: #6750a4; --primary-container: #eaddff; --on-primary: #ffffff;
             --bg-color: #f6f2fa; --surface: #ffffff; --text-main: #1c1b1f; --text-light: #49454f;
             --border: #e7e0ec; --accent: #625b71;
-        }
-        body.theme-emerald {
-            --primary: #006c4c; --primary-container: #89f8c7; --on-primary: #ffffff;
-            --bg-color: #f4fbf6; --surface: #ffffff; --text-main: #002114; --text-light: #3f4943;
-            --border: #dbe5dd; --accent: #4c6356;
-        }
-        body.theme-sunset {
-            --primary: #9c4300; --primary-container: #ffdbcc; --on-primary: #ffffff;
-            --bg-color: #fff8f6; --surface: #ffffff; --text-main: #351000; --text-light: #53433c;
-            --border: #f5ded5; --accent: #77574a;
-        }
-        body.theme-dark {
-            --primary: #d0bcff; --primary-container: #4f378b; --on-primary: #381e72;
-            --bg-color: #141218; --surface: #211f26; --text-main: #e6e0e9; --text-light: #cac4d0;
-            --border: #49454f; --accent: #ccc2dc;
         }
 
         :root {
@@ -61,7 +46,6 @@
             user-select: none;
         }
 
-        /* OFFLINE NOTICE */
         .offline-notice {
             position: fixed; top: -80px; left: 50%; transform: translateX(-50%);
             background: #322f35; color: #f4eff4; padding: 12px 24px;
@@ -72,9 +56,7 @@
             width: 90%; max-width: 400px; justify-content: center;
         }
         .offline-notice.show { top: 16px; }
-        .offline-notice i { color: #f2b8b5; font-size: 16px; }
 
-        /* TOAST NOTIFICATIONS */
         #toast-container {
             position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 10000;
             display: flex; flex-direction: column; gap: 8px; width: 90%; max-width: 400px; pointer-events: none;
@@ -83,18 +65,11 @@
             background: var(--surface); color: var(--text-main); padding: 14px 18px;
             border-radius: var(--radius-m); box-shadow: var(--elevation-2);
             display: flex; align-items: center; gap: 12px; pointer-events: auto;
-            animation: toastIn 0.3s cubic-bezier(0.05, 0.7, 0.1, 1.0);
         }
-        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        .toast.fade-out { opacity: 0; transform: translateY(-20px); transition: 0.3s; }
-        .toast-icon { font-size: 20px; }
         .toast.success .toast-icon { color: var(--success); }
         .toast.error .toast-icon { color: var(--danger); }
         .toast.info .toast-icon { color: var(--primary); }
-        .toast-content h5 { font-size: 14px; font-weight: 700; }
-        .toast-content p { font-size: 12px; color: var(--text-light); }
 
-        /* SPLASH SCREEN */
         #splash-screen {
             position: fixed; inset: 0; background: var(--bg-color); z-index: 9999;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -107,20 +82,13 @@
             font-size: 36px; margin-bottom: 20px; box-shadow: var(--elevation-1);
         }
         .splash-title { font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
-        .splash-desc { font-size: 14px; color: var(--text-light); margin-bottom: 30px; }
-        .splash-progress-container { width: 180px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-        .splash-progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.1s linear; }
-        .splash-footer { position: absolute; bottom: 30px; font-size: 12px; color: var(--text-light); }
-        .splash-footer span { color: var(--primary); font-weight: 700; }
 
-        /* TOP APP BAR */
         .android-top-bar {
             height: 64px; background: var(--surface); display: flex; align-items: center;
             justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border);
             box-shadow: var(--elevation-1); z-index: 10; flex-shrink: 0;
         }
         .top-bar-title { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--primary); }
-        .top-bar-title .logo-icon { font-size: 22px; }
         .top-bar-actions { display: flex; gap: 8px; align-items: center; }
         .cloud-badge {
             font-size: 11px; padding: 4px 10px; border-radius: var(--radius-pill);
@@ -130,18 +98,14 @@
         .icon-btn {
             width: 40px; height: 40px; border-radius: var(--radius-pill); border: none;
             background: transparent; color: var(--text-main); font-size: 18px;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        .icon-btn:active { background: var(--border); }
         .icon-btn.danger { color: var(--danger); }
 
-        /* MAIN BODY APP CONTAINER */
         .app-body {
             flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px;
-            -webkit-overflow-scrolling: touch;
         }
 
-        /* CONTROLS & SEARCH */
         .controls-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
         .active-file-badge {
             background: var(--primary-container); color: var(--primary); padding: 6px 14px;
@@ -153,7 +117,6 @@
             border-radius: var(--radius-pill); font-size: 12px; font-weight: 500; color: var(--text-main);
             cursor: pointer; display: flex; align-items: center; gap: 6px;
         }
-        .chip-btn:active { background: var(--border); }
 
         .search-box { position: relative; width: 100%; }
         .search-box input {
@@ -161,10 +124,8 @@
             border-radius: var(--radius-pill); padding: 0 20px 0 48px; font-size: 14px; color: var(--text-main);
             outline: none; box-shadow: var(--elevation-1);
         }
-        .search-box input:focus { border-color: var(--primary); }
         .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
 
-        /* STATS CARDS */
         .dashboard-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .stat-card {
             background: var(--surface); padding: 14px; border-radius: var(--radius-m);
@@ -179,14 +140,12 @@
         .stat-info span { font-size: 11px; color: var(--text-light); font-weight: 500; }
         .stat-info h3 { font-size: 16px; font-weight: 700; color: var(--text-main); }
 
-        /* CARDS GRID */
         .cards-grid { display: flex; flex-direction: column; gap: 12px; }
         .card {
             background: var(--surface); border-radius: var(--radius-m); padding: 16px;
             box-shadow: var(--elevation-1); border: 1px solid var(--border);
-            position: relative; transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
         }
-        .card:active { transform: scale(0.99); }
         .badge {
             position: absolute; top: 14px; right: 14px; padding: 4px 10px;
             border-radius: var(--radius-pill); font-size: 10px; font-weight: 700; text-transform: uppercase;
@@ -210,7 +169,6 @@
         .stock-total .d-label { color: var(--primary); font-size: 12px; margin: 0; }
         .stock-total .d-value { font-size: 16px; font-weight: 700; color: var(--primary); }
 
-        /* BOTTOM NAV */
         .android-bottom-nav {
             height: 65px; background: var(--surface); border-top: 1px solid var(--border);
             display: flex; justify-content: space-around; align-items: center; flex-shrink: 0;
@@ -219,13 +177,12 @@
         .nav-item {
             background: transparent; border: none; display: flex; flex-direction: column;
             align-items: center; gap: 4px; color: var(--text-light); font-size: 11px; font-weight: 500;
-            cursor: pointer; width: 25%; padding: 6px 0; transition: color 0.2s;
+            cursor: pointer; width: 25%; padding: 6px 0;
         }
-        .nav-item i { font-size: 18px; padding: 4px 16px; border-radius: var(--radius-pill); transition: background 0.2s; }
+        .nav-item i { font-size: 18px; padding: 4px 16px; border-radius: var(--radius-pill); }
         .nav-item.active { color: var(--primary); font-weight: 700; }
         .nav-item.active i { background: var(--primary-container); color: var(--primary); }
 
-        /* BUTTONS & DIALOGS */
         .android-btn-tonal {
             width: 100%; height: 44px; background: var(--primary-container); color: var(--primary);
             border: none; border-radius: var(--radius-pill); font-weight: 700; font-size: 14px; cursor: pointer;
@@ -237,12 +194,7 @@
         .android-dialog {
             background: var(--surface); width: 100%; max-width: 420px; border-radius: 28px;
             padding: 24px; box-shadow: var(--elevation-2); position: relative;
-            animation: dialogPop 0.25s cubic-bezier(0.05, 0.7, 0.1, 1.0);
         }
-        @keyframes dialogPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .android-dialog h3 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-        .android-dialog p { font-size: 13px; color: var(--text-light); margin-bottom: 20px; }
         .close-modal { position: absolute; top: 20px; right: 20px; border: none; background: transparent; font-size: 18px; color: var(--text-light); cursor: pointer; }
 
         .upload-area {
@@ -254,61 +206,36 @@
             border-radius: var(--radius-pill); display: flex; align-items: center; justify-content: center;
             font-size: 24px; margin: 0 auto 12px auto;
         }
-        .upload-area p { font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
-        .upload-area span { font-size: 11px; color: var(--text-light); }
         #fileInput { display: none; }
-
         .history-list { max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .history-item {
             background: var(--bg-color); padding: 12px; border-radius: var(--radius-m);
             display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);
         }
-        .history-info h4 { font-size: 13px; font-weight: 700; }
-        .history-info p { font-size: 11px; color: var(--text-light); }
-
-        .theme-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .theme-btn { padding: 14px; border-radius: var(--radius-m); text-align: center; font-size: 12px; font-weight: 700; cursor: pointer; }
         .empty-state { text-align: center; padding: 60px 20px; color: var(--text-light); }
         .empty-state i { font-size: 48px; color: var(--border); margin-bottom: 16px; }
-
-        .dialog-alert-icon { font-size: 36px; color: var(--warning); margin-bottom: 12px; }
-        .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        .android-btn-text { background: transparent; border: none; color: var(--primary); font-weight: 700; padding: 10px 16px; cursor: pointer; }
-        .android-btn-danger { background: var(--danger); border: none; color: white; font-weight: 700; padding: 10px 18px; border-radius: var(--radius-pill); cursor: pointer; }
     </style>
 </head>
 <body class="theme-default">
 
-    <!-- AUTO-DISMISSING OFFLINE ALERT -->
     <div id="offlineNotice" class="offline-notice">
         <i class="fas fa-wifi-slash"></i>
         <span>අන්තර්ජාල සම්බන්ධතාවය නොමැත (Offline Mode)</span>
     </div>
 
-    <!-- TOAST NOTIFICATIONS -->
     <div id="toast-container"></div>
 
-    <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="splash-content">
-            <div class="app-logo-icon">
-                <i class="fas fa-cloud-upload-alt"></i>
-            </div>
+            <div class="app-logo-icon"><i class="fas fa-cloud-upload-alt"></i></div>
             <h1 class="splash-title">Bin Card Cloud</h1>
-            <p class="splash-desc">Multi-Device Live Sync Inventory System</p>
-            <div class="splash-progress-container">
-                <div class="splash-progress-bar" id="splashProgressBar"></div>
-            </div>
-        </div>
-        <div class="splash-footer">
-            Developed by <span>Yomal Lakshan</span>
+            <p>Multi-Device Live Sync Inventory System</p>
         </div>
     </div>
 
-    <!-- ANDROID TOP APP BAR -->
     <header class="android-top-bar">
         <div class="top-bar-title">
-            <i class="fas fa-cubes logo-icon"></i>
+            <i class="fas fa-cubes"></i>
             <span>Bin Card</span>
         </div>
         <div class="top-bar-actions">
@@ -324,10 +251,7 @@
         </div>
     </header>
 
-    <!-- MAIN CONTENT APP CONTAINER -->
     <main class="app-body">
-        
-        <!-- ACTIVE FILE BADGE & STATS TOGGLE -->
         <div class="controls-bar" id="controlsBar" style="display: none;">
             <div class="active-file-badge" id="activeFileBadge">
                 <i class="fas fa-cloud"></i> <span id="activeFileName">Cloud Data</span>
@@ -337,7 +261,6 @@
             </button>
         </div>
 
-        <!-- SEARCH BAR -->
         <div class="search-container" id="searchContainer" style="display: none;">
             <div class="search-box">
                 <i class="fas fa-search search-icon"></i>
@@ -345,74 +268,43 @@
             </div>
         </div>
 
-        <!-- DASHBOARD STATS CARDS -->
         <div class="dashboard-stats" id="dashboardStats" style="display: none;">
             <div class="stat-card">
                 <div class="stat-icon icon-blue"><i class="fas fa-box"></i></div>
-                <div class="stat-info">
-                    <span>Total Items</span>
-                    <h3 id="statTotalItems">0</h3>
-                </div>
+                <div class="stat-info"><span>Total Items</span><h3 id="statTotalItems">0</h3></div>
             </div>
             <div class="stat-card" id="statCardReceived" style="display: none;">
                 <div class="stat-icon icon-green"><i class="fas fa-arrow-down"></i></div>
-                <div class="stat-info">
-                    <span>Received</span>
-                    <h3 id="statTotalReceived">0</h3>
-                </div>
+                <div class="stat-info"><span>Received</span><h3 id="statTotalReceived">0</h3></div>
             </div>
             <div class="stat-card" id="statCardIssues" style="display: none;">
                 <div class="stat-icon icon-red"><i class="fas fa-arrow-up"></i></div>
-                <div class="stat-info">
-                    <span>Issued</span>
-                    <h3 id="statTotalIssues">0</h3>
-                </div>
+                <div class="stat-info"><span>Issued</span><h3 id="statTotalIssues">0</h3></div>
             </div>
             <div class="stat-card" id="statCardStock" style="display: none;">
                 <div class="stat-icon icon-purple"><i class="fas fa-warehouse"></i></div>
-                <div class="stat-info">
-                    <span>Closing Stock</span>
-                    <h3 id="statTotalStock">0</h3>
-                </div>
+                <div class="stat-info"><span>Closing Stock</span><h3 id="statTotalStock">0</h3></div>
             </div>
         </div>
 
-        <!-- CARDS GRID -->
         <div class="cards-grid" id="cardContainer"></div>
 
         <div class="load-more-container" id="loadMoreContainer" style="display: none;">
             <button class="android-btn-tonal" onclick="loadMoreCards()">Load More</button>
         </div>
-
     </main>
 
-    <!-- ANDROID BOTTOM NAVIGATION BAR -->
     <nav class="android-bottom-nav">
-        <button class="nav-item active" onclick="scrollToTop()">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </button>
-        <button class="nav-item" onclick="openModal()">
-            <i class="fas fa-file-upload"></i>
-            <span>Upload</span>
-        </button>
-        <button class="nav-item" onclick="openHistoryModal()">
-            <i class="fas fa-cloud"></i>
-            <span>Cloud Files</span>
-        </button>
-        <button class="nav-item" onclick="openSettingsModal()">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </button>
+        <button class="nav-item active" onclick="scrollToTop()"><i class="fas fa-home"></i><span>Home</span></button>
+        <button class="nav-item" onclick="openModal()"><i class="fas fa-file-upload"></i><span>Upload</span></button>
+        <button class="nav-item" onclick="openHistoryModal()"><i class="fas fa-cloud"></i><span>Cloud Files</span></button>
     </nav>
 
-    <!-- UPLOAD MODAL -->
     <div class="modal-overlay" id="uploadModal">
         <div class="android-dialog">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <h3>Upload to Cloud</h3>
             <p>Data will sync instantly across all devices.</p>
-            
             <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon-circle"><i class="fas fa-cloud-upload-alt"></i></div>
                 <p>Tap to select file</p>
@@ -422,48 +314,18 @@
         </div>
     </div>
 
-    <!-- CLOUD HISTORY MODAL -->
     <div class="modal-overlay" id="historyModal">
         <div class="android-dialog">
             <button class="close-modal" onclick="closeHistoryModal()"><i class="fas fa-times"></i></button>
             <h3><i class="fas fa-cloud"></i> Cloud Spreadsheets</h3>
-            <p>Files uploaded from any mobile or tablet</p>
             <div class="history-list" id="historyListContainer"></div>
-        </div>
-    </div>
-
-    <!-- SETTINGS MODAL -->
-    <div class="modal-overlay" id="settingsModal">
-        <div class="android-dialog">
-            <button class="close-modal" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
-            <h3><i class="fas fa-palette"></i> App Themes</h3>
-            <p>Choose your preferred color accent</p>
-            <div class="theme-options">
-                <div class="theme-btn" onclick="setTheme('default')" style="background: #6750a4; color: white;">Material Purple</div>
-                <div class="theme-btn" onclick="setTheme('emerald')" style="background: #006c4c; color: white;">Emerald Green</div>
-                <div class="theme-btn" onclick="setTheme('sunset')" style="background: #9c4300; color: white;">Sunset Orange</div>
-                <div class="theme-btn" onclick="setTheme('dark')" style="background: #1c1b1f; color: white;">Dark Mode</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CONFIRMATION MODAL -->
-    <div class="modal-overlay" id="confirmModal">
-        <div class="android-dialog text-center">
-            <div class="dialog-alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
-            <h3 id="confirmTitle">Confirmation</h3>
-            <p id="confirmMessage">Are you sure you want to delete this file?</p>
-            <div class="dialog-actions">
-                <button class="android-btn-text" onclick="closeConfirmModal(false)">Cancel</button>
-                <button class="android-btn-danger" id="confirmYesBtn" onclick="closeConfirmModal(true)">Delete</button>
-            </div>
         </div>
     </div>
 
     <script>
         "use strict";
 
-        // --- FIREBASE CONFIGURATION (Updated with your Project ID and API Key) ---
+        // FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "BBneNawI8K7LZKidLsAIKAb_FGRJZk-j_KPan_mvheez-Ei023aR98OdIvd0EqdFKHoBurzzynDBC3QBigPYgx8",
             authDomain: "bin-card-42614.firebaseapp.com",
@@ -473,67 +335,26 @@
             appId: "1:123456789012:web:abcdef123456"
         };
 
-        // Firebase Initialize
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.firestore();
 
-        // App State
         let binCardData = [];
         let filteredData = [];
         const PAGE_SIZE = 50;
         let currentPage = 1;
-        let confirmCallback = null;
         let showDetailedStats = false;
         let currentFileId = null;
-        let offlineTimer = null;
         let cloudDatasetsList = [];
 
         function setCloudStatus(status, text) {
             const badge = document.getElementById('cloudStatusBadge');
-            const statusText = document.getElementById('cloudStatusText');
-            if (!badge || !statusText) return;
-
-            if (status === 'syncing') {
-                badge.style.background = 'var(--primary-container)';
-                badge.style.color = 'var(--primary)';
-                badge.innerHTML = `<i class="fas fa-sync fa-spin"></i> <span>${text || 'Syncing...'}</span>`;
-            } else if (status === 'online') {
-                badge.style.background = '#dcfce7';
-                badge.style.color = '#16a34a';
-                badge.innerHTML = `<i class="fas fa-cloud"></i> <span>${text || 'Cloud Synced'}</span>`;
-            } else if (status === 'offline') {
-                badge.style.background = '#fee2e2';
-                badge.style.color = '#dc2626';
-                badge.innerHTML = `<i class="fas fa-wifi-slash"></i> <span>${text || 'Offline'}</span>`;
-            }
+            if (!badge) return;
+            badge.innerHTML = `<i class="fas fa-cloud"></i> <span>${text}</span>`;
         }
-
-        function triggerOfflineNotice() {
-            const notice = document.getElementById('offlineNotice');
-            if (!notice) return;
-            notice.classList.add('show');
-            clearTimeout(offlineTimer);
-            offlineTimer = setTimeout(() => { notice.classList.remove('show'); }, 4000);
-        }
-
-        window.addEventListener('offline', () => {
-            triggerOfflineNotice();
-            setCloudStatus('offline', 'Offline');
-            showToast("අන්තර්ජාල සම්බන්ධතාවය බිඳවැටුණි.", "error", "Offline");
-        });
-
-        window.addEventListener('online', () => {
-            const notice = document.getElementById('offlineNotice');
-            if (notice) notice.classList.remove('show');
-            setCloudStatus('online', 'Cloud Synced');
-            showToast("අන්තර්ජාල සම්බන්ධතාවය ලැබුණි.", "success", "Online");
-        });
 
         function setupCloudRealtimeListener() {
-            setCloudStatus('syncing', 'Connecting Cloud...');
-            
             db.collection("bin_card_files").orderBy("timestamp", "desc")
               .onSnapshot((snapshot) => {
                 cloudDatasetsList = [];
@@ -550,14 +371,6 @@
                 } else {
                     showEmptyState();
                 }
-
-                if (document.getElementById('historyModal').style.display === 'flex') {
-                    renderHistoryListUI();
-                }
-            }, (error) => {
-                console.error("Firestore Error: ", error);
-                setCloudStatus('offline', 'Check Rules/Key');
-                showToast("Cloud Connection Error! Firebase Rules පරීක්ෂා කරන්න.", "error");
             });
         }
 
@@ -567,7 +380,7 @@
 
             const rawData = docItem.data || [];
             
-            // BUG FIX: Filtered only completely empty items out. Keeps items with Opening Stock only.
+            // නිවැරදි කිරීම: Opening stock හෝ වෙනත් අගයක් ඇති සියලුම අයිතම ফিল්ටර් කිරීම (සම්පූර්ණයෙන්ම හිස් අයිතම පමණක් ඉවත් කරයි)
             binCardData = rawData.filter(item => (parseNum(item.openingStock) !== 0 || parseNum(item.receipt) !== 0 || parseNum(item.issues) !== 0 || parseNum(item.returnQty) !== 0 || parseNum(item.closingStock) !== 0));
             filteredData = [...binCardData];
 
@@ -580,9 +393,6 @@
         }
 
         async function uploadSpreadsheetToCloud(filename, parsedItems) {
-            setCloudStatus('syncing', 'Uploading...');
-            showToast("Cloud එකට Upload වෙමින් පවතී...", "info");
-
             try {
                 const docRef = await db.collection("bin_card_files").add({
                     filename: filename,
@@ -590,190 +400,26 @@
                     itemCount: parsedItems.length,
                     data: parsedItems
                 });
-
                 localStorage.setItem('activeBinCardCloudFileId', docRef.id);
-                setCloudStatus('online', 'Cloud Synced');
-                showToast("Cloud එකට සාර්ථකව Upload විය!", "success");
                 closeModal();
             } catch (err) {
                 console.error("Upload Error:", err);
-                showToast("Cloud Upload කිරීම අසාර්ථක විය: " + err.message, "error");
-                setCloudStatus('offline', 'Upload Error');
             }
-        }
-
-        async function deleteCloudSpreadsheet(id) {
-            try {
-                await db.collection("bin_card_files").doc(id).delete();
-                showToast("Cloud File එක ඉවත් කරන ලදී", "success");
-                if (currentFileId === id) {
-                    currentFileId = null;
-                    localStorage.removeItem('activeBinCardCloudFileId');
-                }
-            } catch (e) {
-                showToast("Delete කිරීමට නොහැකි විය: " + e.message, "error");
-            }
-        }
-
-        function showToast(message, type = 'success', title = '') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            
-            let icon = type === 'error' ? 'fa-exclamation-circle' : (type === 'info' ? 'fa-info-circle' : 'fa-check-circle');
-            toast.innerHTML = `
-                <i class="fas ${icon} toast-icon"></i>
-                <div class="toast-content">
-                    <h5>${escapeHtml(title || (type === 'error' ? 'Error' : (type === 'info' ? 'Notice' : 'Success')))}</h5>
-                    <p>${escapeHtml(message)}</p>
-                </div>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { toast.classList.add('fade-out'); setTimeout(() => toast.remove(), 300); }, 3000);
-        }
-
-        function showConfirmModal(title, message, onConfirm) {
-            document.getElementById('confirmTitle').innerText = title;
-            document.getElementById('confirmMessage').innerText = message;
-            confirmCallback = onConfirm;
-            document.getElementById('confirmModal').style.display = 'flex';
-        }
-
-        function closeConfirmModal(result) {
-            document.getElementById('confirmModal').style.display = 'none';
-            if (result && typeof confirmCallback === 'function') confirmCallback();
-            confirmCallback = null;
         }
 
         window.addEventListener('load', () => {
-            if (!navigator.onLine) triggerOfflineNotice();
-
-            const progressBar = document.getElementById('splashProgressBar');
-            const splashScreen = document.getElementById('splash-screen');
-            let elapsed = 0;
-            const timer = setInterval(() => {
-                elapsed += 50;
-                if (progressBar) progressBar.style.width = Math.min((elapsed / 2000) * 100, 100) + '%';
-                if (elapsed >= 2000) {
-                    clearInterval(timer);
-                    if (splashScreen) {
-                        splashScreen.classList.add('fade-out');
-                        setTimeout(() => { splashScreen.style.display = 'none'; }, 500);
-                    }
-                }
-            }, 50);
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if (splash) { splash.classList.add('fade-out'); setTimeout(() => splash.style.display = 'none', 500); }
+            }, 1000);
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('binCardTheme') || 'default';
-            setTheme(savedTheme, false);
             setupDragAndDrop();
             setupCloudRealtimeListener();
-
-            window.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal-overlay')) {
-                    closeModal(); closeSettingsModal(); closeConfirmModal(false); closeHistoryModal();
-                }
-            });
         });
 
-        function setTheme(themeName, save = true) {
-            document.body.className = `theme-${themeName}`;
-            if (save) {
-                localStorage.setItem('binCardTheme', themeName);
-                closeSettingsModal();
-                showToast("Theme updated successfully", "success");
-            }
-        }
-
-        function openSettingsModal() { document.getElementById('settingsModal').style.display = 'flex'; }
-        function closeSettingsModal() { document.getElementById('settingsModal').style.display = 'none'; }
-        function openModal() { document.getElementById('uploadModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
-        function openHistoryModal() { renderHistoryListUI(); document.getElementById('historyModal').style.display = 'flex'; }
-        function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
-        function scrollToTop() { document.querySelector('.app-body').scrollTo({ top: 0, behavior: 'smooth' }); }
-
-        function escapeHtml(str) {
-            if (str === null || str === undefined) return '';
-            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-        }
-
-        function parseNum(val) {
-            if (val === undefined || val === null || val === '') return 0;
-            if (typeof val === 'number') return isNaN(val) ? 0 : val;
-            let str = String(val).trim().replace(/,/g, '');
-            if (str.startsWith('(') && str.endsWith(')')) str = '-' + str.substring(1, str.length - 1);
-            const parsed = parseFloat(str);
-            return isNaN(parsed) ? 0 : parsed;
-        }
-
-        function formatNumber(num) { return num.toLocaleString('en-US', { maximumFractionDigits: 2 }); }
-
-        function toggleDetailedStats() {
-            showDetailedStats = !showDetailedStats;
-            document.getElementById('statCardReceived').style.display = showDetailedStats ? 'flex' : 'none';
-            document.getElementById('statCardIssues').style.display = showDetailedStats ? 'flex' : 'none';
-            document.getElementById('statCardStock').style.display = showDetailedStats ? 'flex' : 'none';
-            document.getElementById('toggleStatsText').innerText = showDetailedStats ? 'Hide Stats' : 'Extra Stats';
-        }
-
-        function renderHistoryListUI() {
-            const container = document.getElementById('historyListContainer');
-            if (cloudDatasetsList.length === 0) {
-                container.innerHTML = '<div style="text-align:center; color:var(--text-light); padding:20px;">Cloud එකේ Files නොමැත. File එකක් Upload කරන්න.</div>';
-                return;
-            }
-
-            let html = '';
-            cloudDatasetsList.forEach(item => {
-                const dateStr = new Date(item.timestamp).toLocaleDateString();
-                const isActive = (item.id === currentFileId);
-                
-                html += `
-                    <div class="history-item">
-                        <div class="history-info">
-                            <h4><i class="fas fa-cloud" style="color:var(--primary);"></i> ${escapeHtml(item.filename)}</h4>
-                            <p>${dateStr} - ${item.itemCount || 0} Items ${isActive ? ' <strong>(Active)</strong>' : ''}</p>
-                        </div>
-                        <div style="display:flex; gap:6px;">
-                            ${!isActive ? `<button class="chip-btn" onclick="selectCloudFile('${item.id}')">Open</button>` : ''}
-                            <button class="icon-btn danger" onclick="confirmDeleteCloudItem('${item.id}', '${escapeHtml(item.filename)}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        function selectCloudFile(id) {
-            const target = cloudDatasetsList.find(c => c.id === id);
-            if (target) {
-                displayCloudDataset(target);
-                closeHistoryModal();
-                showToast(`Opened ${target.filename}`, 'success');
-            }
-        }
-
-        function confirmDeleteCloudItem(id, filename) {
-            showConfirmModal("Delete Cloud File", `"${filename}" අන්තර්ජාලයෙන් සහ අනෙකුත් සියලුම Phone වලින් මුළුමනින්ම Delete කිරීමට අවශ්‍යද?`, async () => {
-                await deleteCloudSpreadsheet(id);
-                renderHistoryListUI();
-            });
-        }
-
-        function confirmDeleteCurrentFile() {
-            if (!currentFileId) return;
-            const filename = document.getElementById('activeFileName').innerText;
-            confirmDeleteCloudItem(currentFileId, filename);
-        }
-
         function setupDragAndDrop() {
-            const dropArea = document.getElementById('dropArea');
-            if (!dropArea) return;
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
-            dropArea.addEventListener('drop', e => { if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]); });
             const fileInput = document.getElementById('fileInput');
             if (fileInput) {
                 fileInput.addEventListener('change', e => {
@@ -784,37 +430,32 @@
         }
 
         function handleFileUpload(file) {
-            showToast("Spreadsheet එක කියවමින් පවතී...", "info");
             const reader = new FileReader();
             reader.onload = async (e) => {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    await processExcelData(firstSheet, file.name);
-                } catch (error) {
-                    showToast("Invalid file format", "error");
-                }
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                await processExcelData(firstSheet, file.name);
             };
             reader.readAsArrayBuffer(file);
         }
 
         async function processExcelData(worksheet, filename) {
             const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-            if (!rawData.length) { showToast("Spreadsheet is empty", "error"); return; }
+            if (!rawData.length) return;
 
             let parsedItems = [];
             let headerRowIndex = -1;
             let colMap = { code: -1, name: -1, opening: -1, receipt: -1, issue: -1, returnQty: -1, closing: -1 };
 
             const keywords = {
-                code: [/code/i, /matcode/i, /item code/i, /කේතය/i, /\bid\b/i, /part no/i],
-                name: [/description/i, /item name/i, /material name/i, /details/i, /විස්තරය/i, /\bname\b/i],
-                opening: [/opening/i, /b\/f/i, /beginning/i, /මුල් ශේෂය/i, /prev/i],
-                receipt: [/received/i, /receipt/i, /\bin\b/i, /ලැබීම්/i, /purchase/i],
-                issue: [/issued/i, /issue/i, /\bout\b/i, /නිකුත්/i, /sales/i],
-                returnQty: [/return/i, /ආපසු/i, /ret\b/i],
-                closing: [/closing/i, /balance/i, /stock/i, /ශේෂය/i, /on hand/i]
+                code: [/code/i, /matcode/i, /item code/i, /කේතය/i],
+                name: [/description/i, /item name/i, /material name/i, /විස්තරය/i],
+                opening: [/opening/i, /b\/f/i, /මුල් ශේෂය/i],
+                receipt: [/received/i, /receipt/i, /ලැබීම්/i],
+                issue: [/issued/i, /issue/i, /නිකුත්/i],
+                returnQty: [/return/i, /ආපසු/i],
+                closing: [/closing/i, /balance/i, /stock/i, /ශේෂය/i]
             };
 
             for (let i = 0; i < Math.min(30, rawData.length); i++) {
@@ -825,7 +466,6 @@
 
                 row.forEach((cell, idx) => {
                     let text = String(cell).trim();
-                    if (!text) return;
                     for (let key in keywords) {
                         if (tempMap[key] === -1 && keywords[key].some(rx => rx.test(text))) {
                             tempMap[key] = idx; matches++; break;
@@ -852,31 +492,38 @@
                 let iNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
                 let retNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
                 
-                // BUG FIX: If there are no Opening, Receipts, Issues or Returns, ignore.
+                // සියලුම අගයන් 0 වන රේඛා පමණක් ඉවත් කරයි (Opening stock පමණක් තිබුණද දැන් ඉවත් නොවේ)
                 if (openNum === 0 && rNum === 0 && iNum === 0 && retNum === 0) continue;
                 if (!name) name = code;
 
-                // BUG FIX: Standard Equation to calculate closing stock
+                // නිවැරදි සමීකරණය: Closing Stock = Opening Stock + Receipts - Issues + Returns
                 let calculatedClosingStock = openNum + rNum - iNum + retNum;
                 
-                // (Optional if excel has explicit closing column override)
+                // එක්සෙල් පත්‍රයේ Closing Stock තීරුව සැබවින්ම තිබේ නම් එයට මූලිකත්වය දිය හැක
                 if(colMap.closing !== -1 && row[colMap.closing] !== undefined && row[colMap.closing] !== "") {
                      calculatedClosingStock = parseNum(row[colMap.closing]);
                 }
 
-                parsedItems.push({ matCode: code, matName: name, openingStock: openNum, receipt: rNum, issues: iNum, returnQty: retNum, closingStock: calculatedClosingStock });
+                parsedItems.push({ 
+                    matCode: code, 
+                    matName: name, 
+                    openingStock: openNum, 
+                    receipt: rNum, 
+                    issues: iNum, 
+                    returnQty: retNum, 
+                    closingStock: calculatedClosingStock 
+                });
             }
 
-            if (!parsedItems.length) { showToast("No valid items found", "error"); return; }
-
-            await uploadSpreadsheetToCloud(filename, parsedItems);
+            if (parsedItems.length > 0) {
+                await uploadSpreadsheetToCloud(filename, parsedItems);
+            }
         }
 
         function toggleUIElements(hasData) {
             document.getElementById('dashboardStats').style.display = hasData ? 'grid' : 'none';
             document.getElementById('controlsBar').style.display = hasData ? 'flex' : 'none';
             document.getElementById('searchContainer').style.display = hasData ? 'block' : 'none';
-            document.getElementById('btnClearData').style.display = hasData ? 'flex' : 'none';
             document.getElementById('btnDownloadPdf').style.display = hasData ? 'flex' : 'none';
         }
 
@@ -951,36 +598,47 @@
                     <div class="empty-state">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <h3>Cloud Data එකක් නොමැත</h3>
-                        <p>පහළ Navigation Bar එකෙන් Excel Spreadsheet එකක් Upload කරන්න. එය ඕනෑම Phone එකකින් ලබාගත හැක.</p>
+                        <p>පහළ Navigation Bar එකෙන් Excel Spreadsheet එකක් Upload කරන්න.</p>
                     </div>
                 `;
             }
         }
 
+        function parseNum(val) {
+            if (val === undefined || val === null || val === '') return 0;
+            if (typeof val === 'number') return isNaN(val) ? 0 : val;
+            let str = String(val).trim().replace(/,/g, '');
+            const parsed = parseFloat(str);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        function formatNumber(num) { return num.toLocaleString('en-US', { maximumFractionDigits: 2 }); }
+        function escapeHtml(str) { return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+        function toggleDetailedStats() {
+            showDetailedStats = !showDetailedStats;
+            document.getElementById('statCardReceived').style.display = showDetailedStats ? 'flex' : 'none';
+            document.getElementById('statCardIssues').style.display = showDetailedStats ? 'flex' : 'none';
+            document.getElementById('statCardStock').style.display = showDetailedStats ? 'flex' : 'none';
+            document.getElementById('toggleStatsText').innerText = showDetailedStats ? 'Hide Stats' : 'Extra Stats';
+        }
+
+        function openModal() { document.getElementById('uploadModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
+        function openHistoryModal() { document.getElementById('historyModal').style.display = 'flex'; }
+        function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
+        function scrollToTop() { document.querySelector('.app-body').scrollTo({ top: 0, behavior: 'smooth' }); }
+        
         function downloadPDF() {
             if (!filteredData.length) return;
-            try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'pt', 'a4');
-                const filename = document.getElementById('activeFileName').innerText;
-                
-                doc.setFontSize(16); doc.text("Bin Card Inventory Report", 40, 40);
-                doc.setFontSize(10); doc.text(`File: ${filename}`, 40, 55);
-
-                const tableRows = filteredData.map(item => [
-                    item.matCode, item.matName, formatNumber(item.openingStock || 0), formatNumber(item.receipt), formatNumber(item.issues), formatNumber(item.returnQty), formatNumber(item.closingStock)
-                ]);
-
-                doc.autoTable({
-                    head: [["Code", "Item Name", "Op. Stock", "In", "Out", "Returns", "Closing"]],
-                    body: tableRows, startY: 70, theme: 'grid'
-                });
-                
-                doc.save(`BinCard_${filename}.pdf`);
-                showToast("PDF exported", "success");
-            } catch (e) {
-                showToast("PDF Export failed", "error");
-            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            doc.text("Bin Card Inventory Report", 40, 40);
+            doc.autoTable({
+                head: [["Code", "Item Name", "Op. Stock", "In", "Out", "Returns", "Closing"]],
+                body: filteredData.map(i => [i.matCode, i.matName, i.openingStock, i.receipt, i.issues, i.returnQty, i.closingStock]),
+                startY: 60, theme: 'grid'
+            });
+            doc.save(`BinCard_Report.pdf`);
         }
     </script>
 </body>
