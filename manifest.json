@@ -1,7 +1,7 @@
 {
   "name": "Bin Card Cloud Sync",
   "short_name": "BinCardCloud",
-  "description": "Cross-device Web Storage & Online Sync Application",
+  "description": "Cross-device Inventory & Bin Card Management Application",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f6f2fa",
