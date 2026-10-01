@@ -463,7 +463,7 @@
     <script>
         "use strict";
 
-        // --- FIREBASE CONFIGURATION (Updated with your Project ID and API Key) ---
+        // --- FIREBASE CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "BBneNawI8K7LZKidLsAIKAb_FGRJZk-j_KPan_mvheez-Ei023aR98OdIvd0EqdFKHoBurzzynDBC3QBigPYgx8",
             authDomain: "bin-card-42614.firebaseapp.com",
@@ -473,13 +473,11 @@
             appId: "1:123456789012:web:abcdef123456"
         };
 
-        // Firebase Initialize
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.firestore();
 
-        // App State
         let binCardData = [];
         let filteredData = [];
         const PAGE_SIZE = 50;
@@ -490,7 +488,6 @@
         let offlineTimer = null;
         let cloudDatasetsList = [];
 
-        // UI Cloud Status
         function setCloudStatus(status, text) {
             const badge = document.getElementById('cloudStatusBadge');
             const statusText = document.getElementById('cloudStatusText');
@@ -511,7 +508,6 @@
             }
         }
 
-        // Offline Notification
         function triggerOfflineNotice() {
             const notice = document.getElementById('offlineNotice');
             if (!notice) return;
@@ -533,7 +529,6 @@
             showToast("අන්තර්ජාල සම්බන්ධතාවය ලැබුණි.", "success", "Online");
         });
 
-        // --- REALTIME CLOUD FIRESTORE SYNC ---
         function setupCloudRealtimeListener() {
             setCloudStatus('syncing', 'Connecting Cloud...');
             
@@ -569,7 +564,17 @@
             localStorage.setItem('activeBinCardCloudFileId', docItem.id);
 
             const rawData = docItem.data || [];
-            binCardData = rawData.filter(item => (parseNum(item.receipt) !== 0 || parseNum(item.issues) !== 0 || parseNum(item.returnQty) !== 0));
+            
+            // FIX: පෙර කේතයේ Opening Stock අගය පමණක් ඇති අයිතමයන් අදෘශ්‍යමාන වීමේ දෝෂය මෙතැනින් නිවැරදි කර ඇත.
+            // Opening, Receipt, Issues, ReturnQty හෝ Closing Stock යන කුමන හෝ අගයක් ඇති සියලුම අයිතම පෙන්වයි.
+            binCardData = rawData.filter(item => (
+                parseNum(item.openingStock) !== 0 || 
+                parseNum(item.receipt) !== 0 || 
+                parseNum(item.issues) !== 0 || 
+                parseNum(item.returnQty) !== 0 ||
+                parseNum(item.closingStock) !== 0
+            ));
+            
             filteredData = [...binCardData];
 
             document.getElementById('searchInput').value = '';
@@ -616,7 +621,6 @@
             }
         }
 
-        // --- TOAST NOTIFICATIONS ---
         function showToast(message, type = 'success', title = '') {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -648,7 +652,6 @@
             confirmCallback = null;
         }
 
-        // --- APP INIT ---
         window.addEventListener('load', () => {
             if (!navigator.onLine) triggerOfflineNotice();
 
@@ -723,7 +726,6 @@
             document.getElementById('toggleStatsText').innerText = showDetailedStats ? 'Hide Stats' : 'Extra Stats';
         }
 
-        // --- CLOUD FILES LIST UI ---
         function renderHistoryListUI() {
             const container = document.getElementById('historyListContainer');
             if (cloudDatasetsList.length === 0) {
@@ -774,7 +776,6 @@
             confirmDeleteCloudItem(currentFileId, filename);
         }
 
-        // --- FILE UPLOAD PROCESSING ---
         function setupDragAndDrop() {
             const dropArea = document.getElementById('dropArea');
             if (!dropArea) return;
@@ -857,12 +858,14 @@
                 let rNum = parseNum(colMap.receipt !== -1 ? row[colMap.receipt] : 0);
                 let iNum = parseNum(colMap.issue !== -1 ? row[colMap.issue] : 0);
                 let retNum = parseNum(colMap.returnQty !== -1 ? row[colMap.returnQty] : 0);
+                let closeNum = parseNum(colMap.closing !== -1 ? row[colMap.closing] : 0);
                 
-                if (rNum === 0 && iNum === 0 && retNum === 0) continue;
+                // FIX: Opening Stock, Closing Stock, In, Out යන කුමන හෝ අගයක් ඇති අයිතමයන් පමණක් ලබාගනී (හිස් තීරු ඉවත්කරයි)
+                if (openNum === 0 && rNum === 0 && iNum === 0 && retNum === 0 && closeNum === 0) continue;
+                
                 if (!name) name = code;
 
-                // සමීකරණය මගින් සෑම විටම Closing Stock අගය ගණනය කිරීම (Excel හි ඇති අගය නොසලකා)
-                // Closing Stock = Opening Stock + Receipts (In) - Issues (Out) + Returns
+                // FIX: Opening අගය සහ අනෙකුත් අගයන් භාවිතා කර නිවැරදි සමීකරණය මගින් Closing Stock අගය සැකසීම
                 let calculatedClosingStock = openNum + rNum - iNum + retNum;
 
                 parsedItems.push({ 
@@ -881,7 +884,6 @@
             await uploadSpreadsheetToCloud(filename, parsedItems);
         }
 
-        // --- UI RENDERING ---
         function toggleUIElements(hasData) {
             document.getElementById('dashboardStats').style.display = hasData ? 'grid' : 'none';
             document.getElementById('controlsBar').style.display = hasData ? 'flex' : 'none';
@@ -967,7 +969,6 @@
             }
         }
 
-        // --- PDF EXPORT ---
         function downloadPDF() {
             if (!filteredData.length) return;
             try {
